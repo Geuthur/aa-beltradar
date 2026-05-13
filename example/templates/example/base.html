@@ -1,0 +1,78 @@
+{% extends 'allianceauth/base-bs5.html' %}
+{% load i18n %}
+
+{% block page_title %}
+    {% block page_template_title %}{% endblock page_template_title %} ⋗ {% translate "Example" %}
+{% endblock %}
+
+{% block header_nav_brand %}
+    <a class="nav-link text-white link-light link-underline link-underline-opacity-0" href="{% url 'example:index' %}">{% translate "Example" %}</a>
+{% endblock header_nav_brand %}
+
+{% block header_nav_collapse_left %}
+    {% include 'example/partials/navigation/navigation.html' %}
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+    {% include 'example/partials/navigation/administration.html' %}
+{% endblock header_nav_collapse_right %}
+
+{% block content %}
+    <div class="aa-example">
+        <!--- Example Header --->
+        <div class="aa-example-header">
+            {% block aaexample_header %}{% endblock %}
+        </div>
+        <!--- Example Body --->
+        <div class="aa-example-body">
+            {% get_datatables_language_static LANGUAGE_CODE as DT_LANG_PATH %}
+            <script type="application/javascript">
+                const aaexampleDefaultSettings = {
+                    // Alliance Auth settings
+                    locale: '{{ LANGUAGE_CODE }}',
+                    csrfToken: '{{ csrf_token }}',
+                    // example settings
+                    dataTables: {
+                        paging: true,
+                        language: {url: '{{ DT_LANG_PATH }}'},
+                        layout: {
+                            topStart: 'pageLength',
+                            topEnd: null,
+                            bottomStart: 'info',
+                            bottomEnd: 'paging'
+                        },
+                        ordering: {
+                            indicators: false,
+                            handler: false
+                        },
+                        columnControl: [
+                            {
+                                target: 0,
+                                content: [
+                                    'order',
+                                ]
+                            },
+                            {
+                                target: 1,
+                                content: [
+                                    'search'
+                                ]
+                            }
+                        ]
+                    },
+                    translations: {
+                        internalServerError: "{% translate 'Internal Server Error' %}",
+                    },
+                };
+            </script>
+
+            {% block aaexample_block %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

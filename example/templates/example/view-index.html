@@ -1,0 +1,48 @@
+{% extends 'example/base.html' %}
+{% load i18n %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block aaexample_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3>{% translate "Example" %}</h3>
+        </div>
+    </div>
+{% endblock %}
+
+{% block aaexample_block %}
+    <div class="card">
+        <div class="card-body">
+            {% translate "Welcome to Example." %}
+        </div>
+    </div>
+{% endblock aaexample_block %}
+
+
+{% block extra_css %}
+    {% include 'bundles/datatables-2-css-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-css-bs5.html' %}
+    {% include 'example/bundles/aa-example-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <script>
+        /**
+         * Override settings for example
+         */
+        const aaExampleSettingsOverride = {
+        };
+    </script>
+    {% include 'example/bundles/aa-example-js.html' %}
+    {% include 'bundles/datatables-2-js-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
+{% endblock extra_javascript %}

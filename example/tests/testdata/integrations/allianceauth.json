@@ -1,0 +1,48 @@
+{
+    "EveCharacter": [
+        {
+            "character_id": 1000,
+            "character_name": "CONCORD",
+            "corporation_id": 1000125,
+            "corporation_name": "CONCORD",
+            "corporation_ticker": "CCP"
+        },
+        {
+            "character_id": 1001,
+            "character_name": "Gneuten",
+            "corporation_id": 2001,
+            "corporation_name": "Hell RiderZ",
+            "corporation_ticker": "HRZ",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
+        },
+        {
+            "character_id": 1002,
+            "character_name": "rotze Rotineque",
+            "corporation_id": 2001,
+            "corporation_name": "Hell RiderZ",
+            "corporation_ticker": "HRZ",
+            "alliance_id": 3001,
+            "alliance_name": "Voices of War",
+            "alliance_ticker": "VOW"
+        },
+        {
+            "character_id": 1003,
+            "character_name": "Hector Fieramosca",
+            "corporation_id": 2003,
+            "corporation_name": "Schweinshausen",
+            "corporation_ticker": "SH",
+            "alliance_id": 3003,
+            "alliance_name": "Schweinshausen of War",
+            "alliance_ticker": "SHW"
+        },
+        {
+            "character_id": 1004,
+            "character_name": "Franz Josef",
+            "corporation_id": 2003,
+            "corporation_name": "Voices of War",
+            "corporation_ticker": "VOW"
+        }
+    ]
+}

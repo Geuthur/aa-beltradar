@@ -23,6 +23,7 @@ from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
+
 class Owner(models.Model):
     """Belt Radar model for app"""
 
@@ -129,7 +130,9 @@ class UpdateStatus(models.Model):
         if not self.is_success or not self.last_update_finished_at:
             needs_update = True
         else:
-            section_time_stale = app_settings.BELT_RADAR_STALE_TYPES.get(self.section, 60)
+            section_time_stale = app_settings.BELT_RADAR_STALE_TYPES.get(
+                self.section, 60
+            )
             stale = timezone.now() - timezone.timedelta(minutes=section_time_stale)
 
             try:

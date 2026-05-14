@@ -15,4 +15,3 @@ class General(models.Model):
             ("manage_access", _("Can manage Belt Radar")),
         )
         default_permissions = ()  # Remove standard permissions
-        

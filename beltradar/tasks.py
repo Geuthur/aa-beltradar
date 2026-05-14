@@ -122,12 +122,12 @@ def update_belt_radar(self: Task, eve_id: int, force_refresh=False) -> bool:
 
 
 @shared_task(**TASK_DEFAULTS_BIND_ONCE_OWNER)
-def update_belt_radar(self: Task, eve_id: int, force_refresh: bool):
+def update_belt_radar_example(self: Task, eve_id: int, force_refresh: bool):
     logger.debug("Starting update_belt_radar task for eve_id: %s", eve_id)
     return _update_section(
         task=self,
         eve_id=eve_id,
-        section=UpdateSection.EXAMPLE,
+        section=UpdateSection.BELT_RADAR,
         force_refresh=force_refresh,
     )
 

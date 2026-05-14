@@ -16,4 +16,3 @@ Section Order:
 ### Added
 
 - Initial public release
-

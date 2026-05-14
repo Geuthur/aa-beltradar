@@ -6,6 +6,7 @@ from http import HTTPStatus
 # Django
 from django.urls import reverse
 
+# AA Belt Radar
 # AA Beltradar
 from beltradar.tests import BeltRadarTestCase
 from beltradar.tests.testdata.utils import create_user_from_evecharacter

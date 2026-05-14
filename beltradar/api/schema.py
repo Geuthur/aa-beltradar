@@ -9,6 +9,7 @@ class CharacterSchema(Schema):
     corporation_id: int | None = None
     corporation_name: str | None = None
 
+
 class CorporationSchema(Schema):
     corporation_id: int | None = None
     corporation_name: str | None = None

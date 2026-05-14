@@ -8,7 +8,7 @@ Test settings
 
 from .base import *
 
-PACKAGE = "example"
+PACKAGE = "beltradar"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/

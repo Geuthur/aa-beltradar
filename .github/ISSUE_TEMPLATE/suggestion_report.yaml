@@ -2,7 +2,7 @@ name: Suggestion Request
 description: What the program should have.
 title: "[SUGGESTION]: "
 labels: ["suggestion"]
-projects: ["aa-example"]
+projects: ["aa-beltradar"]
 assignees:
   - geuthur
 body:
@@ -22,7 +22,7 @@ body:
     id: terms
     attributes:
       label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/geuthur/aa-example/blob/master/CODE_OF_CONDUCT.md).
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/geuthur/aa-beltradar/blob/master/CODE_OF_CONDUCT.md).
       options:
         - label: I agree to follow this project's Code of Conduct
           required: true

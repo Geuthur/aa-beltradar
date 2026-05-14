@@ -1,0 +1,16 @@
+{% load i18n %}
+{% load navactive %}
+
+<li class="nav-item">
+    <a class="nav-link py-0" href="{% url 'beltradar:index' %}">
+        <span class="btn btn-success">{% translate 'Add Character' %}</span>
+    </a>
+</li>
+
+{% if request.user.is_superuser %}
+    <li class="nav-item">
+        {#<a class="nav-link py-0" href="{% url 'beltradar:admin' %}">#}
+            <span class="btn btn-danger">{% translate 'Admin' %}</span>
+        </a>
+    </li>
+{% endif %}

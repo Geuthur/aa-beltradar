@@ -5,7 +5,7 @@ requires = [
 ]
 
 [project]
-name = "aa-example"
+name = "aa-beltradar"
 description = "Here is your description"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -43,15 +43,15 @@ optional-dependencies.tests-allianceauth-latest = [
     "coverage",
     "factory-boy",
 ]
-urls.Changelog = "https://github.com/Geuthur/aa-example/blob/master/CHANGELOG.md"
-urls.Documentation = "https://github.com/Geuthur/aa-example/blob/master/README.md"
+urls.Changelog = "https://github.com/Geuthur/aa-beltradar/blob/master/CHANGELOG.md"
+urls.Documentation = "https://github.com/Geuthur/aa-beltradar/blob/master/README.md"
 urls.Donations = "https://ko-fi.com/Geuthur"
-urls.Homepage = "https://github.com/Geuthur/aa-example"
-urls.Source = "https://github.com/Geuthur/aa-example"
-urls.Tracker = "https://github.com/Geuthur/aa-example/issues"
+urls.Homepage = "https://github.com/Geuthur/aa-beltradar"
+urls.Source = "https://github.com/Geuthur/aa-beltradar"
+urls.Tracker = "https://github.com/Geuthur/aa-beltradar/issues"
 
 [tool.hatch]
 build.include = [
-    "/example",
+    "/beltradar",
 ]
-version.path = "example/__init__.py"
+version.path = "beltradar/__init__.py"

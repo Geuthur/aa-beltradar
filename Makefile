@@ -6,9 +6,9 @@ SHELL := /bin/bash
 myauth_path = $(shell path=$$(cat .make/myauth-path 2>/dev/null | grep . || echo "../myauth"); echo "$${path%/}")
 
 # Variables
-appname = aa-example
-appname_verbose = AA Example
-package = example
+appname = aa-beltradar
+appname_verbose = AA Belt Radar
+package = beltradar
 translation_directory = $(package)/locale
 translation_template = $(translation_directory)/django.pot
 translation_file_relative_path = LC_MESSAGES/django.po

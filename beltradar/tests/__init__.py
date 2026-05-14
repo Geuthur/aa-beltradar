@@ -83,7 +83,7 @@ class BeltRadarTestCase(NoSocketsTestCase):
         # User with Standard Access - Corporation 2001
         cls.user, cls.user_character = create_user_from_evecharacter(
             character_id=1001,
-            permissions=["example.basic_access"],
+            permissions=["beltradar.basic_access"],
         )
 
     def _middleware_process_request(self, request: WSGIRequest):

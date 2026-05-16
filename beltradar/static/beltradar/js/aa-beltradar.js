@@ -21,7 +21,7 @@ const aaBeltRadarSettings = (typeof aaBeltRadarSettingsOverride !== 'undefined')
  * @param {string} [trigger=hover] Trigger for the tooltip ('hover', 'click', etc.)
  * @returns {void}
  */
-const _bootstrapTooltip = ({selector = 'body', namespace = 'aa-example', trigger = 'hover'} = {}) => {
+const _bootstrapTooltip = ({selector = 'body', namespace = 'aa-beltradar', trigger = 'hover'} = {}) => {
     document.querySelectorAll(`${selector} [data-bs-tooltip="${namespace}"]`)
         .forEach((tooltipTriggerEl) => {
             // Dispose existing tooltip instance if it exists
@@ -38,7 +38,7 @@ const _bootstrapTooltip = ({selector = 'body', namespace = 'aa-example', trigger
         });
 };
 
-const _bootstrapPopOver = ({selector = 'body', namespace = 'aa-example', trigger = 'hover'} = {}) => {
+const _bootstrapPopOver = ({selector = 'body', namespace = 'aa-beltradar', trigger = 'hover'} = {}) => {
     document.querySelectorAll(`${selector} [data-bs-popover="${namespace}"]`)
         .forEach((popoverTriggerEl) => {
             // Dispose existing popover instance if it exists

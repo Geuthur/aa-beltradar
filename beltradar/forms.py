@@ -1,7 +1,6 @@
 # Standard Library
 import hashlib
 import re
-from decimal import Decimal, InvalidOperation
 
 # Django
 from django import forms
@@ -46,67 +45,56 @@ class OreBatchImportForm(forms.Form):
 
     def parse_ore_data(self):
         """
-        Parse the `raw_data` textarea and return a list of items.
+        Parses the raw data from the textarea into a list of OreSchema objects.
 
-        Handles lines separated by CR/LF, tabs or multiple spaces and normalises
-        German-style numbers like "292 000,00 ISK".
+        Expects tab-separated values with at least the following columns:
+            Name    Units   Volume (m3)    Price (ISK) (additional columns are ignored)
+            Example:
+            Mercoxit III-Grade*	6 500	260 000 m3	110 000 000,00 ISK	505 km
         """
         raw_data = self.cleaned_data.get("raw_data", "") or ""
         items = []
 
-        # normalize NBSP and strip trailing ISK markers
-        raw_data = raw_data.replace("\xa0", " ")
+        # Remove non-data lines and clean up common formatting issues before parsing
+        cleaned = re.sub(pattern=r"(?i)m3|m³|km|ISK|\*", repl="", string=raw_data)
 
         # Generate a unique hash of the raw data to identify this snapshot
         unique_hash = hashlib.sha256(raw_data.encode("utf-8")).hexdigest()
 
-        for idx, line in enumerate(raw_data.splitlines(), start=1):
+        for idx, line in enumerate(cleaned.splitlines(), start=1):
             line = line.strip()
             if not line:
                 continue
 
-            # Prefer tab-separated columns if present
-            if "\t" in line:
-                parts = [p.strip() for p in line.split("\t") if p.strip()]
-            else:
-                # Fallback: split on 2+ spaces
-                parts = [p.strip() for p in re.split(r"\s{2,}", line) if p.strip()]
+            # Split lines to parts
+            parts = [p.strip() for p in line.split("\t") if p.strip()]
+
+            # Remove extra spaces and commas from parts (e.g. "292 000,00" -> "292000")
+            # We only want to remove spaces and commas from numeric fields, so we skip the first part (name) and any parts that are not expected to be numeric.
+            parts = (
+                [parts[0]]
+                + [
+                    re.sub(pattern=r"[ \t,]+", repl="", string=part)
+                    for part in parts[1:-1]
+                ]
+                + [parts[-1]]
+            )
 
             if len(parts) < 5:
                 raise forms.ValidationError(
                     message=f"Line {idx} is invalid: expected at least 5 columns but got {len(parts)}"
                 )
 
-            name = parts[0].replace("*", "").strip()  # remove * from ores if present
-
-            def to_int(s):
-                s = s.replace("\xa0", " ")
-                # remove common unit suffixes that may contain digits (eg. 'm3')
-                s = re.sub(r"(?i)m3|m³|km", "", s)
-                digits = re.sub(r"[^0-9]", "", s)
-                return int(digits) if digits else 0
-
-            def to_decimal_isk(s):
-                # remove currency label and thousand separators, convert comma->dot
-                s = s.upper().replace("ISK", "").strip()
-                s = s.replace(" ", "")
-                # remove dots used as thousand separators as well
-                s = s.replace(".", "")
-                s = s.replace(",", ".")
-                try:
-                    return Decimal(s)
-                except (InvalidOperation, ValueError):
-                    return Decimal(0)
-
+            # Parse numeric fields with error handling
             try:
-                units = to_int(parts[1])
-                volume_m3 = to_int(parts[2])
-                price_isk = to_decimal_isk(parts[3])
+                name = parts[0]
+                units = int(parts[1])
+                volume_m3 = int(parts[2])
+                price_isk = int(parts[3])
             except Exception as e:  # pylint: disable=broad-except
-                logger.debug(
-                    f"[Beltradar] Error parsing numeric fields on line {idx}: {e}"
+                raise forms.ValidationError(
+                    message=f"Line {idx} has invalid numeric data: {e}"
                 )
-                continue
 
             item = {
                 "name": name,

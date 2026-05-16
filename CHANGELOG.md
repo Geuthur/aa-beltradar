@@ -11,6 +11,10 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- refine ore data parsing logic and improve error handling
+
 ## [0.0.4] - 2026-05-16
 
 ### Added

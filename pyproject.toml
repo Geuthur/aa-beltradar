@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "aa-beltradar"
-description = "Here is your description"
+description = "A Belt Tracking tool with various features"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [

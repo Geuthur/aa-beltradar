@@ -11,6 +11,15 @@ app_name: str = "beltradar"  # pylint: disable=invalid-name
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("survey/create-session/", views.create_session, name="create_session"),
+    path("survey/my-sessions/", views.view_my_sessions, name="view_my_sessions"),
+    path(
+        "survey/my-sessions/<int:character_id>/",
+        views.view_my_sessions,
+        name="view_my_sessions",
+    ),
+    path("survey/<uuid:public_id>/add-entry/", views.add_entry, name="add_entry"),
+    path("survey/<uuid:public_id>/view/", views.view_session, name="view_session"),
     # -- API System
     re_path(r"^api/", api.urls),
 ]

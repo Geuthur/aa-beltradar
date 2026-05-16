@@ -13,5 +13,6 @@ class General(models.Model):
         permissions = (
             ("basic_access", _("Can access this app, Belt Radar")),
             ("manage_access", _("Can manage Belt Radar")),
+            ("admin_access", _("Admin access to Belt Radar")),
         )
         default_permissions = ()  # Remove standard permissions

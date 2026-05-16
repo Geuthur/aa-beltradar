@@ -14,25 +14,13 @@
 {% block aabeltradar_header %}
     <div class="card">
         <div class="card-header bg-primary rounded d-flex align-items-center">
-            <h3>{% translate "Belt Radar" %}</h3>
+            <h3>{% translate "My Sessions" %}</h3>
         </div>
     </div>
 {% endblock aabeltradar_header %}
 
 {% block aabeltradar_block %}
-    <div class="card">
-        <div class="card-body">
-            <p>
-                {% translate "Belt Radar helps you capture and review mining belt snapshots in a simple workflow." %}
-            </p>
-            <ol class="mb-0">
-                <li>{% translate "Create a new session." %}</li>
-                <li>{% translate "Paste or submit your ore survey data to add snapshots to that session via 'Add Survey'." %}</li>
-                <li>{% translate "Review your sessions and snapshots, and delete them when you no longer need them." %}</li>
-                <li>{% translate "Share your sessions and snapshots with others via your Public ID." %}</li>
-            </ol>
-        </div>
-    </div>
+    {% include 'beltradar/partials/view-my-sessions/survey-sessions-table.html' %}
 {% endblock aabeltradar_block %}
 
 
@@ -48,9 +36,17 @@
          * Override settings for Belt Radar
          */
         const aaBeltRadarSettingsOverride = {
+            url: {
+                mySessions: "{% url 'beltradar:api:get_my_sessions' character_id=character_id %}",
+            },
+            translations: {
+                errorLoadingData: "{% translate 'An error occurred while loading sessions data.' %}"
+            }
         };
     </script>
     {% include 'beltradar/bundles/aa-beltradar-js.html' %}
     {% include 'bundles/datatables-2-js-bs5.html' %}
     {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
+        <!-- load modals -->
+    {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
 {% endblock extra_javascript %}

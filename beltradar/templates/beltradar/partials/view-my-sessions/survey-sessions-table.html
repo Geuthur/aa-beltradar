@@ -1,0 +1,177 @@
+{% load i18n %}
+{% load evelinks %}
+{% load humanize %}
+<div class="card card-body mt-2 rounded">
+    <!-- Belt Radar Sessions Table -->
+    <div class="table-responsive mb-3">
+        <table class="table table-striped table-hover w-100" id="beltradar-sessions-table">
+            <thead>
+                <tr>
+                    <th class="w-auto">{% translate "Public ID" %}</th>
+                    <th class="w-auto">{% translate "Name" %}</th>
+                    <th class="w-auto">{% translate "Created At" %}</th>
+                    <th class="w-auto">{% translate "Owner" %}</th>
+                    <th class="w-auto">{% translate "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6" class="text-center" id="loading-message-container">
+                        <div class="spinner-border text-primary">
+                            <span class="visually-hidden">{% translate "Loading..." %}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="text-center d-none" id="error-message-container">
+                        <div class="text-danger">
+                            <span id="error-message"></span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        const BeltRadarSessionsTable = $('#beltradar-sessions-table');
+
+        fetchGet({
+            url: aaBeltRadarSettings.url.mySessions,
+        })
+        .then((data) => {
+            if (data) {
+                /**
+                * DataTable for Belt Radar Sessions
+                * @type {*|jQuery}
+                */
+                const BeltRadarSessionsDataTable = new DataTable(BeltRadarSessionsTable, {
+                    data: data,
+                    language: aaBeltRadarSettings.dataTables.language,
+                    layout: aaBeltRadarSettings.dataTables.layout,
+                    ordering: aaBeltRadarSettings.dataTables.ordering,
+                    columnControl: aaBeltRadarSettings.dataTables.columnControl,
+                    order: [[2, 'desc']],
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            targets:  [3,4],
+                            columnControl: [
+                                {target: 0, content: []},
+                                {target: 1, content: []}
+                            ]
+                        },
+                    ],
+                    columns: [
+                        {
+                            data: {
+                                display: (data) => data.public_id,
+                                sort: (data) => data.public_id,
+                                filter: (data) => data.public_id,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => data.name,
+                                sort: (data) => data.name,
+                                filter: (data) => data.name,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => `${data.created_at}`,
+                                sort: (data) => data.created_at,
+                                filter: (data) => data.created_at,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => data.owner,
+                                sort: (data) => data.owner,
+                                filter: (data) => data.owner,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => data.html,
+                                sort: (data) => data.created_at,
+                                filter: (data) => data.created_at,
+                            }
+                        },
+                    ],
+                    initComplete: function() {
+                        _bootstrapTooltip({selector: '#beltradar-sessions-table'});
+                    },
+                    drawCallback: function () {
+                        _bootstrapTooltip({selector: '#beltradar-sessions-table'});
+                    },
+                });
+            }
+        })
+        .catch((error) => {
+            console.error('Error fetching sessions data:', error.message);
+            const errorMessageContainer = $('#error-message');
+            errorMessageContainer.text(aaBeltRadarSettings.translations.errorLoadingData);
+            $('#loading-message-container').addClass('d-none');
+            $('#error-message-container').removeClass('d-none');
+        });
+
+        /* Modals */
+        const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
+
+        /**
+        * Table :: Reload My Sessions DataTable
+        * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+        * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
+        * @returns {Promise} - A Promise that resolves when the API request is complete
+        */
+        const _reloadSurveySessionsDataTable = (tableData) => {
+            const dt = BeltRadarSessionsTable.DataTable();
+            dt.clear().rows.add(tableData).draw();
+        }
+
+        /**
+        * Table :: Survey Sessions :: Delete Button Click Handler
+        * Open Delete Survey Session Modal
+        * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+        * and reopen the previous Survey Sessions Modal
+        */
+        modalRequestDeleteSurvey.on('show.bs.modal', (event) => {
+            const button = $(event.relatedTarget);
+            const url = button.data('action');
+            const form = modalRequestDeleteSurvey.find('form');
+            const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+            modalRequestDeleteSurvey.find('#modal-button-confirm-accept-request').on('click', () => {
+                fetchPost({
+                    url: url,
+                    csrfToken: csrfMiddlewareToken,
+                    payload: {}
+                })
+                .then((data) => {
+                    if (data.success === true) {
+                        fetchGet({
+                            url: aaBeltRadarSettings.url.mySessions,
+                        })
+                        .then((newData) => {
+                            _reloadSurveySessionsDataTable(newData);
+                            modalRequestDeleteSurvey.modal('hide');
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching Survey Sessions DataTable:', error);
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting delete request: ${error.message}`);
+                });
+            });
+        })
+        .on('hide.bs.modal', () => {
+            modalRequestDeleteSurvey.find('#modal-button-confirm-accept-request').unbind('click');
+        });
+    });
+</script>

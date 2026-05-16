@@ -10,18 +10,38 @@ ______________________________________________________________________
 - [AA Belt Radar](#aa-beltradar)
   - [Features](#features)
   - [Upcoming](#upcoming)
+  - [Highlights](#highlights)
   - [Installation](#features)
     - [Step 1 - Install the Package](#step1)
     - [Step 2 - Configure Alliance Auth](#step2)
     - [Step 3 - Add the Scheduled Tasks and Settings](#step3)
-    - [Step 4 - Migration to AA](#step4)
+    - [Step 4 - Migrate & Preload EVE SDE Data](#step4)
+      - [Step 4.1 - Migrate App and collect static](#step41)
     - [Step 5 - Setting up Permissions](#step5)
     - [Step 6 - (Optional) Setting up Compatibilies](#step6)
-  - [Highlights](#highlights)
+  - [Translations](#translations)
+  - [Contributing](#contributing)
 
 ## Features<a name="features"></a>
 
+- Display estimated completion time for belt mining
+- Show mining speed in m³/s
+- Display remaining volume and belt size information
+- Optional Share your Mining Session with others
+
 ## Upcoming<a name="upcoming"></a>
+
+- Respawn Timer for Belts
+- Graphical Upgrades
+- Compressed Price
+
+## Highlights<a name="highlights"></a>
+
+![Image: Belt Radar Dashboard]
+
+![Image: Belt Radar My Sessions]
+
+![Image: Belt Radar View Session]
 
 ## Installation<a name="installation"></a>
 
@@ -41,15 +61,25 @@ pip install aa-beltradar
 
 Configure your Alliance Auth settings (`local.py`) as follows:
 
-- Add `'beltradar',` to `INSTALLED_APPS`
+```python
+INSTALLED_APPS = [
+    # other apps
+    "eve_sde",  # only if it not already existing
+    "beltradar",
+    # other apps?
+]
+
+# This line is right below the `INSTALLED_APPS` list, if not already exist!
+INSTALLED_APPS = ["modeltranslation"] + INSTALLED_APPS
+```
 
 ### Step 3 - Add the Scheduled Tasks<a name="step3"></a>
 
 To set up the Scheduled Tasks add following code to your `local.py`
 
 ```python
-CELERYBEAT_SCHEDULE["AA Belt Radar :: Belt Radar"] = {
-    "task": "beltradar.tasks.example_task",
+CELERYBEAT_SCHEDULE["AA Belt Radar :: Update Belt Radar"] = {
+    "task": "beltradar.tasks.update_all_belt_radar",
     "schedule": crontab(minute=0, hour="*/1"),
 }
 ```
@@ -74,7 +104,16 @@ LOGGING["loggers"]["extensions.beltradar"] = {
 }
 ```
 
-### Step 4 - Migration to AA<a name="step4"></a>
+### Step 4 - Migrate & Preload EVE SDE Data<a name="step4"></a>
+
+AA Skillfarm uses EVE SDE data to map IDs to names for EveTypes. You will need to preload some data from SDE once.
+
+```shell
+python manage.py migrate eve_sde
+python manage.py esde_load_sde
+```
+
+### Step 4.1 - Migrate App and collect static<a name="step41">
 
 Migrate the app and collect static.
 
@@ -87,22 +126,35 @@ python manage.py collectstatic --noinput
 
 With the Following IDs you can set up the permissions for the Belt Radar
 
-| ID              | Description                      |                                                            |
-| :-------------- | :------------------------------- | :--------------------------------------------------------- |
-| `basic_access`  | Can access the Belt Radar module | All Members with the Permission can access the Belt Radar. |
-| `manage_access` | Can Manage Belt Radar module     | Can manage Application                                     |
+| ID              | Description                       |                                                            |
+| :-------------- | :-------------------------------- | :--------------------------------------------------------- |
+| `basic_access`  | Can access the Belt Radar module  | All Members with the Permission can access the Belt Radar. |
+| `manage_access` | Can Manage Belt Radar module      | Can manage Application                                     |
+| `admin_access`  | Has access to all Survey Sessions | Can see all Survey Sessions                                |
 
 ### Step 6 - (Optional) Setting up Compatibilies<a name="step6"></a>
 
 The Following Settings can be setting up in the `local.py`
 
-- BELTRADAR_APP_NAME: `"YOURNAME"` - Set the name of the APP
-- BELTRADAR_TASKS_TIME_LIMIT: `7200` - Defines the time (in seconds) a task will timeout
+| Setting Name                 | Descriptioon                                      | Default        |
+| ---------------------------- | ------------------------------------------------- | -------------- |
+| `BELT_RADAR_APP_NAME`        | Set the name of the APP                           | `"Belt Radar"` |
+| `BELT_RADAR_TASK_TIME_LIMIT` | Defines the time (in seconds) a task will timeout | `1200`         |
 
-## Highlights<a name="highlights"></a>
+## Translations<a name="translations"></a>
 
-> [!NOTE]
-> Contributing
-> You want to improve the project?
-> Just Make a [Pull Request](https://github.com/Geuthur/aa-beltradar/pulls) with the Guidelines.
-> We Using pre-commit
+[![Translations](https://weblate.geuthur.de/widget/allianceauth/aa-beltradar/multi-auto.svg)](https://weblate.geuthur.de/engage/allianceauth/)
+
+Help us translate this app into your language or improve existing translations. Join our team!"
+
+## Contributing <a name="contributing"></a>
+
+You want to improve the project?
+Please ensure you read the [Contribution Guidelines]
+
+<!-- MD Links -->
+
+[contribution guidelines]: https://github.com/Geuthur/aa-beltradar/blob/master/CONTRIBUTING.md "Contribution Guidelines"
+[image: belt radar dashboard]: https://raw.githubusercontent.com/Geuthur/aa-beltradar/master/docs/images/aa-beltradar-index.png "AA Belt Radar Dashboard"
+[image: belt radar my sessions]: https://raw.githubusercontent.com/Geuthur/aa-beltradar/master/docs/images/aa-beltradar-my-sessions.png "AA Belt Radar (My Sessions)"
+[image: belt radar view session]: https://raw.githubusercontent.com/Geuthur/aa-beltradar/master/docs/images/aa-beltradar-view-session.png "AA Belt Radar (View Session)"

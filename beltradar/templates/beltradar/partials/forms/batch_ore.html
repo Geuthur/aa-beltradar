@@ -1,0 +1,20 @@
+{% load django_bootstrap5 %}
+{% load i18n %}
+
+<form autocomplete="off" action="{% url 'beltradar:add_entry' public_id=session.public_id %}" method="post">
+    {% csrf_token %}
+
+    <fieldset class="aa-beltradar-batch-ore-import-form">
+        {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+                {{ error_message }}
+            </div>
+        {% endif %}
+        {% bootstrap_form forms.ore_batch_import %}
+
+        <div class="form-group text-end">
+            {% translate "Submit Survey" as button_text %}
+            {% bootstrap_button button_type="submit" content=button_text %}
+        </div>
+    </fieldset>
+</form>

@@ -7,11 +7,11 @@ from django.conf import settings
 
 # AA Belt Radar
 from beltradar import __title__
-from beltradar.api import character
+from beltradar.api import character, survey
 
 api = NinjaAPI(
     title="Belt Radar API",
-    version="0.5.0",
+    version="0.1.0",
     urls_namespace="beltradar:api",
     auth=django_auth,
     openapi_url=settings.DEBUG and "/openapi.json" or "",
@@ -19,6 +19,7 @@ api = NinjaAPI(
 
 
 def setup(ninja_api):
+    survey.BeltRadarSurveyApiEndpoints(ninja_api)
     character.CharacterApiEndpoints(ninja_api)
 
 

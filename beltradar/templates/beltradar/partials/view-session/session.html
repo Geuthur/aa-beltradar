@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="card card-body mt-2 rounded">
+    <div class="row text-muted small mt-2">
+        <div class="col-4 text-start">
+            <strong>{% translate "Session Name:" %}</strong> {{ session.name }}
+        </div>
+        <div class="col-4 text-center">
+            <strong>{% translate "Created At:" %}</strong> {{ session.created_at }}
+        </div>
+        <div class="col-4 text-end">
+            <strong>{% translate "Owner:" %}</strong> {{ session.owner.username }}
+        </div>
+    </div>
+</div>

@@ -138,7 +138,6 @@ def add_entry(request, public_id):
                     eve_type=eve_type,
                     units=item.units,
                     volume_left=item.volume_m3,
-                    price_compressed=float(item.price_isk),
                     price=float(item.price_isk),
                     note=(
                         f"Added via batch import. Missing types: {', '.join(missing_types)}"

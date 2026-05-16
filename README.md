@@ -1,8 +1,5 @@
 # AA Belt Radar module for AllianceAuth.<a name="aa-beltradar"></a>
 
-> [!WARNING]
-> Before you create Models, etc remove the 0001_initial.py from migrations folder if you dont have created own one.
-
 A Belt Survey Analyser to track how fast you mine your belt.
 
 ______________________________________________________________________

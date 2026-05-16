@@ -1,0 +1,281 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:12
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: AA Belt Radar \n"
+"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
+"POT-Creation-Date: 2026-05-16 18:11+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: beltradar/api/helpers/icons.py:84
+msgid "Delete Snapshot"
+msgstr ""
+
+#: beltradar/api/helpers/icons.py:130
+msgid "Delete Survey Session"
+msgstr ""
+
+#: beltradar/api/helpers/icons.py:170
+msgid "View Survey Session"
+msgstr ""
+
+#: beltradar/api/survey.py:37 beltradar/api/survey.py:96
+msgid "You do not have permission to access this resource."
+msgstr ""
+
+#: beltradar/api/survey.py:41 beltradar/api/survey.py:100
+msgid "Survey session not found or not public."
+msgstr ""
+
+#: beltradar/api/survey.py:64
+msgid "User not found."
+msgstr ""
+
+#: beltradar/api/survey.py:67 beltradar/api/survey.py:172
+#: beltradar/api/survey.py:213
+msgid "Permission Denied."
+msgstr ""
+
+#: beltradar/api/survey.py:163 beltradar/api/survey.py:204
+msgid "Survey session not found."
+msgstr ""
+
+#: beltradar/api/survey.py:178
+msgid "Survey session and all associated entries deleted successfully."
+msgstr ""
+
+#: beltradar/api/survey.py:218
+msgid "No entries found for the given snapshot."
+msgstr ""
+
+#: beltradar/api/survey.py:222
+msgid "Snapshot deleted successfully."
+msgstr ""
+
+#: beltradar/models/general.py:14
+msgid "Can access this app, Belt Radar"
+msgstr ""
+
+#: beltradar/models/general.py:15
+msgid "Can manage Belt Radar"
+msgstr ""
+
+#: beltradar/models/general.py:16
+msgid "Admin access to Belt Radar"
+msgstr ""
+
+#: beltradar/templates/beltradar/base.html:5
+#: beltradar/templates/beltradar/base.html:9
+#: beltradar/templates/beltradar/view-index.html:17
+msgid "Belt Radar"
+msgstr ""
+
+#: beltradar/templates/beltradar/base.html:64
+msgid "Internal Server Error"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/forms/batch_ore.html:16
+msgid "Submit Survey"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/forms/create_session.html:11
+msgid "Submit"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:10
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:36
+msgid "Accept Delete Snapshot"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:13
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-survey-session.html:13
+msgid "Close"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:18
+msgid "Are you sure you want to delete this snapshot?"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:31
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-survey-session.html:31
+msgid "Cancel"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-survey-session.html:10
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-survey-session.html:36
+msgid "Accept Delete Survey Session"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/modals/request-accept-delete-survey-session.html:18
+msgid "Are you sure you want to delete this survey session?"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/navigation/administration.html:6
+msgid "Add Session"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/navigation/administration.html:13
+msgid "Admin"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/navigation/navigation.html:7
+#: beltradar/templates/beltradar/view-my-sessions.html:17
+msgid "My Sessions"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-my-sessions/survey-sessions-table.html:10
+msgid "Public ID"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-my-sessions/survey-sessions-table.html:11
+msgid "Name"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-my-sessions/survey-sessions-table.html:12
+msgid "Created At"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-my-sessions/survey-sessions-table.html:13
+msgid "Owner"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-my-sessions/survey-sessions-table.html:14
+msgid "Actions"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-my-sessions/survey-sessions-table.html:21
+msgid "Loading..."
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/mining-details.html:5
+msgid "asteroids"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/mining-details.html:9
+msgid "Last Scan"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/mining-details.html:19
+msgid "Belt size"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/mining-details.html:22
+msgid "Speed"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/mining-details.html:25
+msgid "ETA"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/session.html:5
+msgid "Session Name:"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/session.html:8
+msgid "Created At:"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/session.html:11
+msgid "Owner:"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:13
+msgid "Ore"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:14
+msgid "Units"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:15
+msgid "Volume Left"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:16
+msgid "Price"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:17
+msgid "Price Compressed"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:18
+msgid "Timestamp"
+msgstr ""
+
+#: beltradar/templates/beltradar/view-add-survey.html:17
+msgid "Add Belt Survey Snapshot"
+msgstr ""
+
+#: beltradar/templates/beltradar/view-add-survey.html:26
+msgid ""
+"Note: You can only add a new snapshot every 5 minutes to prevent abuse. "
+"Please ensure your data is correct before submitting."
+msgstr ""
+
+#: beltradar/templates/beltradar/view-create-session.html:17
+msgid "Create Survey Session"
+msgstr ""
+
+#: beltradar/templates/beltradar/view-create-session.html:25
+msgid "Use the form below to create a new belt survey session."
+msgstr ""
+
+#: beltradar/templates/beltradar/view-index.html:26
+msgid ""
+"Belt Radar helps you capture and review mining belt snapshots in a simple "
+"workflow."
+msgstr ""
+
+#: beltradar/templates/beltradar/view-index.html:29
+msgid "Create a new session."
+msgstr ""
+
+#: beltradar/templates/beltradar/view-index.html:30
+msgid ""
+"Paste or submit your ore survey data to add snapshots to that session via "
+"'Add Survey'."
+msgstr ""
+
+#: beltradar/templates/beltradar/view-index.html:31
+msgid ""
+"Review your sessions and snapshots, and delete them when you no longer need "
+"them."
+msgstr ""
+
+#: beltradar/templates/beltradar/view-index.html:32
+msgid "Share your sessions and snapshots with others via your Public ID."
+msgstr ""
+
+#: beltradar/templates/beltradar/view-my-sessions.html:43
+msgid "An error occurred while loading sessions data."
+msgstr ""
+
+#: beltradar/templates/beltradar/view-session.html:18
+msgid "View Session"
+msgstr ""
+
+#: beltradar/templates/beltradar/view-session.html:22
+msgid "Add Survey"
+msgstr ""
+
+#: beltradar/views.py:112
+msgid ""
+"This session has been recently updated. Please wait a few minutes before "
+"adding new entries."
+msgstr ""
+
+#: beltradar/views.py:156
+msgid "Failed to parse the raw data. Please check the format and try again."
+msgstr ""

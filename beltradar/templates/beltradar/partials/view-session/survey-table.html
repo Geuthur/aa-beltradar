@@ -2,158 +2,137 @@
 {% load evelinks %}
 {% load humanize %}
 <div class="card card-body mt-2 rounded">
+    <span class="mb-2 mt-3 text-muted ore-survey-heading" id="ore-survey-heading"></span>
     <!-- Ore Survey Table -->
-    <div id="ore-survey-tables"></div>
-    <template id="ore-survey-table-template">
-        <div class="table-responsive mb-3">
-            <table class="table table-striped table-hover w-100 ore-survey-table" id="ore-survey-table">
-                <thead>
-                    <tr>
-                        <th class="w-auto">{% translate "" %}</th>
-                        <th class="w-auto">{% translate "Ore" %}</th>
-                        <th class="w-auto">{% translate "Units" %}</th>
-                        <th class="w-auto">{% translate "Volume Left" %}</th>
-                        <th class="w-auto">{% translate "Price" %}</th>
-                        <th class="w-auto">{% translate "Price Compressed" %}</th>
-                        <th class="w-auto">{% translate "Timestamp" %}</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-                <tfoot></tfoot>
-            </table>
-        </div>
-    </template>
-    <template id="ore-survey-heading-template">
-        <h6 class="mb-2 mt-3 text-muted ore-survey-heading"></h6>
-    </template>
+    <div class="table-responsive mb-3">
+        <table class="table table-striped table-hover w-100" id="beltradar-session-entry-table">
+            <thead>
+                <tr>
+                    <th class="w-auto">{% translate "" %}</th>
+                    <th class="w-auto">{% translate "Ore" %}</th>
+                    <th class="w-auto">{% translate "Units" %}</th>
+                    <th class="w-auto">{% translate "Volume Left" %}</th>
+                    <th class="w-auto">{% translate "Price" %}</th>
+                    <th class="w-auto">{% translate "Price Compressed" %}</th>
+                    <th class="w-auto">{% translate "Timestamp" %}</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+        </table>
+    </div>
 </div>
 
 <script>
     $(document).ready(function() {
-        const tablesContainer = document.getElementById('ore-survey-tables');
-        const tableTemplate = document.getElementById('ore-survey-table-template');
-        const headingTemplate = document.getElementById('ore-survey-heading-template');
-
-        const createSurveyDataTable = (tableElement, tableData) => {
-            return new DataTable(tableElement, {
-                data: tableData,
-                language: aaBeltRadarSettings.dataTables.language,
-                layout: aaBeltRadarSettings.dataTables.layout,
-                ordering: aaBeltRadarSettings.dataTables.ordering,
-                columnControl: aaBeltRadarSettings.dataTables.columnControl,
-                order: [[5, 'desc']],
-                columnDefs: [
-                    {
-                        orderable: false,
-                        targets: 0,
-                        columnControl: [
-                            {target: 0, content: []},
-                            {target: 1, content: []}
-                        ]
-                    },
-                    {
-                        targets: [2,3,4,5],
-                        type: 'num'
-                    },
-                ],
-                columns: [
-                    {
-                        data: {
-                            display: (data) => data.portrait,
-                            sort: (data) => data.name,
-                            filter: (data) => data.name,
-                        }
-                    },
-                    {
-                        data: {
-                            display: (data) => data.name,
-                            sort: (data) => data.name,
-                            filter: (data) => data.name,
-                        }
-                    },
-                    {
-                        data: {
-                            display: (data) => `${data.units.toLocaleString()}`,
-                            sort: (data) => data.units,
-                            filter: (data) => data.units,
-                        }
-                    },
-                    {
-                        data: {
-                            display: (data) => `${data.volume_m3.toLocaleString()} m³`,
-                            sort: (data) => data.volume_m3,
-                            filter: (data) => data.volume_m3,
-                        }
-                    },
-                    {
-                        data: {
-                            display: (data) => numberFormatter({
-                                value: data.price_isk,
-                                language: aaBeltRadarSettings.locale,
-                                options: {
-                                    style: 'currency',
-                                    currency: 'ISK',
-                                    maximumFractionDigits: 0
-                                }
-                            }),
-                            sort: (data) => data.price_isk ?? 0,
-                            filter: (data) => data.price_isk ?? 0,
-                        }
-                    },
-                    {
-                        data: {
-                            display: (data) => numberFormatter({
-                                value: data.price_compressed,
-                                language: aaBeltRadarSettings.locale,
-                                options: {
-                                    style: 'currency',
-                                    currency: 'ISK',
-                                    maximumFractionDigits: 0
-                                }
-                            }),
-                            sort: (data) => data.price_compressed ?? 0,
-                            filter: (data) => data.price_compressed ?? 0,
-                        }
-                    },
-                    {
-                        data: {
-                            display: (data) => moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss'),
-                            sort: (data) => moment(data.timestamp).unix(),
-                            filter: (data) => data.timestamp,
-                        }
-                    },
-                ],
-            });
-        };
+        const BeltRadarSessionEntryTable = $('#beltradar-session-entry-table');
 
         fetchGet({
-            url: aaBeltRadarSettings.url.surveyData,
+            url: aaBeltRadarSettings.url.surveySessionEntries,
         })
         .then((data) => {
-            const snapshots = Array.isArray(data)
-                ? data
-                : (Array.isArray(data?.entries) ? data.entries : []);
-
-            if (snapshots.length > 0) {
-                tablesContainer.innerHTML = '';
-
-                snapshots.forEach((snapshot, index) => {
-                    const snapshotEntries = Array.isArray(snapshot.entries) ? snapshot.entries : [];
-
-                    const headingFragment = headingTemplate.content.cloneNode(true);
-                    const headingElement = headingFragment.querySelector('.ore-survey-heading');
-                    headingElement.innerHTML = `Snapshot ${index + 1}: ${moment(snapshot.timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} ${snapshot.delete_html}`;
-                    tablesContainer.appendChild(headingFragment);
-
-                    const tableFragment = tableTemplate.content.cloneNode(true);
-                    const tableElement = tableFragment.querySelector('.ore-survey-table');
-                    tableElement.id = `ore-survey-table-${index}`;
-                    tablesContainer.appendChild(tableFragment);
-
-                    createSurveyDataTable(tableElement, snapshotEntries);
-                    _bootstrapTooltip();
+            if (data) {
+                /**
+                * DataTable for Belt Radar Sessions
+                * @type {*|jQuery}
+                */
+                const BeltRadarSessionsDataTable = new DataTable(BeltRadarSessionEntryTable, {
+                    data: data.entries,
+                    language: aaBeltRadarSettings.dataTables.language,
+                    layout: aaBeltRadarSettings.dataTables.layout,
+                    ordering: aaBeltRadarSettings.dataTables.ordering,
+                    columnControl: aaBeltRadarSettings.dataTables.columnControl,
+                    order: [[4, 'desc']],
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            targets: 0,
+                            columnControl: [
+                                {target: 0, content: []},
+                                {target: 1, content: []}
+                            ]
+                        },
+                        {
+                            targets: [2,3,4,5],
+                            type: 'num'
+                        },
+                    ],
+                    columns: [
+                        {
+                            data: {
+                                display: (data) => data.portrait,
+                                sort: (data) => data.name,
+                                filter: (data) => data.name,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => data.name,
+                                sort: (data) => data.name,
+                                filter: (data) => data.name,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => `${data.units.toLocaleString()}`,
+                                sort: (data) => data.units,
+                                filter: (data) => data.units,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => `${data.volume_m3.toLocaleString()} m³`,
+                                sort: (data) => data.volume_m3,
+                                filter: (data) => data.volume_m3,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => numberFormatter({
+                                    value: data.price_isk,
+                                    language: aaBeltRadarSettings.locale,
+                                    options: {
+                                        style: 'currency',
+                                        currency: 'ISK',
+                                        maximumFractionDigits: 0
+                                    }
+                                }),
+                                sort: (data) => data.price_isk ?? 0,
+                                filter: (data) => data.price_isk ?? 0,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => numberFormatter({
+                                    value: data.price_compressed,
+                                    language: aaBeltRadarSettings.locale,
+                                    options: {
+                                        style: 'currency',
+                                        currency: 'ISK',
+                                        maximumFractionDigits: 0
+                                    }
+                                }),
+                                sort: (data) => data.price_compressed ?? 0,
+                                filter: (data) => data.price_compressed ?? 0,
+                            }
+                        },
+                        {
+                            data: {
+                                display: (data) => moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss'),
+                                sort: (data) => moment(data.timestamp).unix(),
+                                filter: (data) => data.timestamp,
+                            }
+                        },
+                    ],
+                    initComplete: function() {
+                        $('#ore-survey-heading').html(`Last Snapshot - ${moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${data.delete_html}`);
+                        _bootstrapTooltip();
+                    },
+                    drawCallback: function () {
+                        _bootstrapTooltip();
+                    },
                 });
-            }
+            };
         })
         .catch((error) => {
             console.error('Error fetching Ore Survey data:', error);
@@ -161,6 +140,22 @@
 
         /* Modals */
         const modalRequestDeleteSnapshot = $('#beltradar-accept-delete-snapshot');
+
+        /**
+        * View :: Reload Survey Snapshot DataTable
+        * On Confirmation send a request to the API Endpoint, reload the Survey Snapshot DataTable, close the modal
+        * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
+        * @returns {Promise} - A Promise that resolves when the API request is complete
+        */
+        const _reloadSurveySnapshotDataTable = (tableData) => {
+            const dt = BeltRadarSessionEntryTable.DataTable();
+            dt.clear().rows.add(tableData.entries).draw();
+            $('#ore-survey-heading').html(`Last Snapshot - ${moment(tableData.timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${tableData.delete_html}`);
+            BeltRadarSessionEntryTable.addClass('table-updated-highlight');
+            setTimeout(() => {
+                BeltRadarSessionEntryTable.removeClass('table-updated-highlight');
+            }, 2000);
+        };
 
         /**
         * Table :: Snapshots :: Delete Button Click Handler
@@ -182,8 +177,16 @@
                 })
                 .then((data) => {
                     if (data.success === true) {
-                        modalRequestDeleteSnapshot.modal('hide');
-                        //_reloadSnapshotsDataTable();
+                        fetchGet({
+                            url: aaBeltRadarSettings.url.surveySessionEntries,
+                        })
+                        .then((newData) => {
+                            _reloadSurveySnapshotDataTable(newData);
+                            modalRequestDeleteSnapshot.modal('hide');
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching Survey Snapshot DataTable:', error);
+                        });
                     }
                 })
                 .catch((error) => {

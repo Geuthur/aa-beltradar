@@ -3,4 +3,14 @@
         color: rgb(51 51 51);
         font-size: 16px;
     }
+
+    /* Table Highlight Class */
+    .table-updated-highlight {
+        animation: highlight-animation 2s ease; /* Animation für das Highlight */
+    }
+
+    @keyframes highlight-animation {
+        0% { background-color: rgb(0 255 150 / 50%); }
+        100% { background-color: transparent; }
+    }
 }

@@ -28,6 +28,7 @@ class OreSchema(Schema):
     price_compressed: float | None = None
     timestamp: timezone.datetime
     snapshot: str
+    html: str | None = None
 
 
 class BeltSurveySessionSchema(Schema):

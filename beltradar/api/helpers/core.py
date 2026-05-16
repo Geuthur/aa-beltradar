@@ -18,9 +18,9 @@ def get_owner_or_none(
     perms = True
 
     try:
-        survey_session = models.BeltSurveySession.objects.get(
+        survey_session = models.BeltSurveySession.objects.filter(
             owner__profile__main_character__character_id=character_id
-        )
+        ).first()
     except ObjectDoesNotExist:
         return False, None
     except ValueError:

@@ -47,6 +47,7 @@
         const aaBeltRadarSettingsOverride = {
             url: {
                 surveyData: "{% url 'beltradar:api:get_survey_entries' public_id=session.public_id %}",
+                surveySessionEntries: "{% url 'beltradar:api:get_survey_entry' public_id=session.public_id %}",
             },
         };
     </script>

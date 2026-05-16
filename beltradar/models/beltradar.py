@@ -39,9 +39,6 @@ class BeltSurveySession(models.Model):
     name = models.CharField(max_length=150, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def latest_entries(self, limit=2):
-        return self.br_entries.order_by("-timestamp")[:limit]
-
     # pylint: disable=too-many-locals
     def mining_stats(self):
         """
@@ -123,7 +120,13 @@ class BeltSurveySession(models.Model):
         )
 
     def last_entry(self):
+        """Get the most recent survey entry in this session, or None if there are no entries."""
         return self.br_entries.order_by("-timestamp").first()
+
+    def last_entry_snapshot(self):
+        """Get the snapshot identifier of the most recent entry in this session, or None if there are no entries."""
+        last = self.last_entry()
+        return last.snapshot if last else None
 
     @property
     def is_fresh(self):

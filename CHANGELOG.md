@@ -11,9 +11,23 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- `last_entry`, `last_entry_snapshot` to `BeltSurveySession` Model
+
 ### Changed
 
-- refine ore data parsing logic and improve error handling
+- Refine ore data parsing logic and improve error handling
+- View Session now display only last Snapshot
+
+### Fixed
+
+- MultipleObjectsReturned in `get_owner_or_none`
+- Overlapping Snapshot Hash
+
+### Removed
+
+- `latest_entries` from `BeltSurveySession` Model
 
 ## [0.0.4] - 2026-05-16
 

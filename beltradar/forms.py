@@ -59,7 +59,9 @@ class OreBatchImportForm(forms.Form):
         cleaned = re.sub(pattern=r"(?i)m3|m³|km|ISK|\*", repl="", string=raw_data)
 
         # Generate a unique hash of the raw data to identify this snapshot
-        unique_hash = hashlib.sha256(raw_data.encode("utf-8")).hexdigest()
+        unique_hash = hashlib.sha256(
+            raw_data.encode("utf-8") + str(timezone.now()).encode("utf-8")
+        ).hexdigest()
 
         for idx, line in enumerate(cleaned.splitlines(), start=1):
             line = line.strip()

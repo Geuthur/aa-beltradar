@@ -91,6 +91,7 @@ def get_snapshot_delete_button(
         'data-bs-toggle="modal" '
         'data-bs-tooltip="aa-beltradar" '
         'data-bs-target="#beltradar-accept-delete-snapshot" '
+        f'data-snapshot="{snapshot}" '
         f'title="{title}">{icon}</button>'
     )
     return delete_button

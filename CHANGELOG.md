@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [0.0.5] - 2026-05-16
+
 ### Added
 
 - `last_entry`, `last_entry_snapshot` to `BeltSurveySession` Model
@@ -54,4 +56,5 @@ Section Order:
 [0.0.1]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.1...v0.0.1 "v0.0.1"
 [0.0.3]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.1...v0.0.3 "v0.0.3"
 [0.0.4]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.3...v0.0.4 "v0.0.4"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.4...HEAD "In Development"
+[0.0.5]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.4...v0.0.5 "v0.0.5"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.5...HEAD "In Development"

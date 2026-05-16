@@ -3,13 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: beltradar/templates/beltradar/partials/view-session/survey-table.html:12
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Belt Radar 0.0.4\n"
+"Project-Id-Version: AA Belt Radar 0.0.5\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-05-16 18:20+0200\n"
+"POT-Creation-Date: 2026-05-16 23:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,44 +21,42 @@ msgstr ""
 msgid "Delete Snapshot"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:130
+#: beltradar/api/helpers/icons.py:131
 msgid "Delete Survey Session"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:170
+#: beltradar/api/helpers/icons.py:171
 msgid "View Survey Session"
 msgstr ""
 
-#: beltradar/api/survey.py:37 beltradar/api/survey.py:96
+#: beltradar/api/survey.py:37 beltradar/api/survey.py:93
+#: beltradar/api/survey.py:146
 msgid "You do not have permission to access this resource."
 msgstr ""
 
-#: beltradar/api/survey.py:41 beltradar/api/survey.py:100
+#: beltradar/api/survey.py:41 beltradar/api/survey.py:97
+#: beltradar/api/survey.py:151
 msgid "Survey session not found or not public."
 msgstr ""
 
-#: beltradar/api/survey.py:64
-msgid "User not found."
-msgstr ""
-
-#: beltradar/api/survey.py:67 beltradar/api/survey.py:172
-#: beltradar/api/survey.py:213
+#: beltradar/api/survey.py:64 beltradar/api/survey.py:222
+#: beltradar/api/survey.py:263
 msgid "Permission Denied."
 msgstr ""
 
-#: beltradar/api/survey.py:163 beltradar/api/survey.py:204
+#: beltradar/api/survey.py:213 beltradar/api/survey.py:254
 msgid "Survey session not found."
 msgstr ""
 
-#: beltradar/api/survey.py:178
+#: beltradar/api/survey.py:228
 msgid "Survey session and all associated entries deleted successfully."
 msgstr ""
 
-#: beltradar/api/survey.py:218
+#: beltradar/api/survey.py:268
 msgid "No entries found for the given snapshot."
 msgstr ""
 
-#: beltradar/api/survey.py:222
+#: beltradar/api/survey.py:272
 msgid "Snapshot deleted successfully."
 msgstr ""
 
@@ -190,32 +187,32 @@ msgstr ""
 msgid "Owner:"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/survey-table.html:13
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:12
 msgid "Ore"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/survey-table.html:14
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:13
 msgid "Units"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/survey-table.html:15
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:14
 msgid "Volume Left"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/survey-table.html:16
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:15
 msgid "Price"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/survey-table.html:17
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:16
 msgid "Price Compressed"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/survey-table.html:18
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:17
 msgid "Timestamp"
 msgstr ""
 
 #: beltradar/templates/beltradar/view-add-survey.html:17
-msgid "Add Belt Survey Snapshot"
+msgid "Add Survey Snapshot"
 msgstr ""
 
 #: beltradar/templates/beltradar/view-add-survey.html:26
@@ -276,6 +273,6 @@ msgid ""
 "adding new entries."
 msgstr ""
 
-#: beltradar/views.py:156
+#: beltradar/views.py:155
 msgid "Failed to parse the raw data. Please check the format and try again."
 msgstr ""

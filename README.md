@@ -1,3 +1,14 @@
+![Release](https://img.shields.io/pypi/v/aa-beltradar?label=release)
+![Licence](https://img.shields.io/github/license/geuthur/aa-beltradar)
+![Python](https://img.shields.io/pypi/pyversions/aa-beltradar)
+![Django](https://img.shields.io/pypi/frameworkversions/django/aa-beltradar.svg?label=django)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Geuthur/aa-beltradar/master.svg)](https://results.pre-commit.ci/latest/github/Geuthur/aa-beltradar/master)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Checks](https://github.com/Geuthur/aa-beltradar/actions/workflows/autotester.yml/badge.svg)](https://github.com/Geuthur/aa-beltradar/actions/workflows/autotester.yml)
+[![codecov](https://codecov.io/gh/Geuthur/aa-beltradar/graph/badge.svg?token=cwR63HffuI)](https://codecov.io/gh/Geuthur/aa-beltradar)
+[![Translation status](https://weblate.geuthur.de/widget/allianceauth/aa-beltradar/svg-badge.svg)](https://weblate.geuthur.de/engage/allianceauth/)
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W810Q5J4)
+
 # AA Belt Radar module for AllianceAuth.<a name="aa-beltradar"></a>
 
 A Belt Survey Analyser to track how fast you mine your belt.

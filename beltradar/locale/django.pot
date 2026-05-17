@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Belt Radar 0.0.5\n"
+"Project-Id-Version: AA Belt Radar 0.0.6\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-05-16 23:11+0200\n"
+"POT-Creation-Date: 2026-05-17 14:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,34 +29,36 @@ msgstr ""
 msgid "View Survey Session"
 msgstr ""
 
-#: beltradar/api/survey.py:37 beltradar/api/survey.py:93
-#: beltradar/api/survey.py:146
+#: beltradar/api/survey.py:159 beltradar/api/survey.py:216
 msgid "You do not have permission to access this resource."
 msgstr ""
 
-#: beltradar/api/survey.py:41 beltradar/api/survey.py:97
-#: beltradar/api/survey.py:151
+#: beltradar/api/survey.py:163 beltradar/api/survey.py:222
 msgid "Survey session not found or not public."
 msgstr ""
 
-#: beltradar/api/survey.py:64 beltradar/api/survey.py:222
-#: beltradar/api/survey.py:263
+#: beltradar/api/survey.py:186 beltradar/api/survey.py:301
+#: beltradar/api/survey.py:342
 msgid "Permission Denied."
 msgstr ""
 
-#: beltradar/api/survey.py:213 beltradar/api/survey.py:254
+#: beltradar/api/survey.py:231
+msgid "No survey entries found for this session."
+msgstr ""
+
+#: beltradar/api/survey.py:292 beltradar/api/survey.py:333
 msgid "Survey session not found."
 msgstr ""
 
-#: beltradar/api/survey.py:228
+#: beltradar/api/survey.py:307
 msgid "Survey session and all associated entries deleted successfully."
 msgstr ""
 
-#: beltradar/api/survey.py:268
+#: beltradar/api/survey.py:347
 msgid "No entries found for the given snapshot."
 msgstr ""
 
-#: beltradar/api/survey.py:272
+#: beltradar/api/survey.py:351
 msgid "Snapshot deleted successfully."
 msgstr ""
 
@@ -122,10 +124,6 @@ msgstr ""
 msgid "Add Session"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/navigation/administration.html:13
-msgid "Admin"
-msgstr ""
-
 #: beltradar/templates/beltradar/partials/navigation/navigation.html:7
 #: beltradar/templates/beltradar/view-my-sessions.html:17
 msgid "My Sessions"
@@ -152,39 +150,41 @@ msgid "Actions"
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/view-my-sessions/survey-sessions-table.html:21
+#: beltradar/templates/beltradar/partials/view-session/charts.html:6
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:24
 msgid "Loading..."
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/mining-details.html:5
-msgid "asteroids"
-msgstr ""
-
-#: beltradar/templates/beltradar/partials/view-session/mining-details.html:9
-msgid "Last Scan"
-msgstr ""
-
-#: beltradar/templates/beltradar/partials/view-session/mining-details.html:19
-msgid "Belt size"
-msgstr ""
-
-#: beltradar/templates/beltradar/partials/view-session/mining-details.html:22
-msgid "Speed"
-msgstr ""
-
-#: beltradar/templates/beltradar/partials/view-session/mining-details.html:25
-msgid "ETA"
-msgstr ""
-
-#: beltradar/templates/beltradar/partials/view-session/session.html:5
+#: beltradar/templates/beltradar/partials/view-session/session.html:7
 msgid "Session Name:"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/session.html:8
+#: beltradar/templates/beltradar/partials/view-session/session.html:10
 msgid "Created At:"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/view-session/session.html:11
+#: beltradar/templates/beltradar/partials/view-session/session.html:13
 msgid "Owner:"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/session.html:18
+msgid "asteroids"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/session.html:22
+msgid "Last Scan"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/session.html:31
+msgid "Belt size"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/session.html:34
+msgid "Speed"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/view-session/session.html:37
+msgid "ETA"
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:12
@@ -211,11 +211,20 @@ msgstr ""
 msgid "Timestamp"
 msgstr ""
 
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:84
+#: beltradar/templates/beltradar/partials/view-session/survey-table.html:241
+msgid "No mining chart data available."
+msgstr ""
+
 #: beltradar/templates/beltradar/view-add-survey.html:17
 msgid "Add Survey Snapshot"
 msgstr ""
 
-#: beltradar/templates/beltradar/view-add-survey.html:26
+#: beltradar/templates/beltradar/view-add-survey.html:20
+msgid "Back to Session"
+msgstr ""
+
+#: beltradar/templates/beltradar/view-add-survey.html:31
 msgid ""
 "Note: You can only add a new snapshot every 5 minutes to prevent abuse. "
 "Please ensure your data is correct before submitting."
@@ -267,12 +276,6 @@ msgstr ""
 msgid "Add Survey"
 msgstr ""
 
-#: beltradar/views.py:112
-msgid ""
-"This session has been recently updated. Please wait a few minutes before "
-"adding new entries."
-msgstr ""
-
-#: beltradar/views.py:155
+#: beltradar/views.py:146
 msgid "Failed to parse the raw data. Please check the format and try again."
 msgstr ""

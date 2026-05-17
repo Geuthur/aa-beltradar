@@ -16,16 +16,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="6" class="text-center" id="loading-message-container">
+                    <td colspan="5" class="text-center" id="loading-message-container">
                         <div class="spinner-border text-primary">
                             <span class="visually-hidden">{% translate "Loading..." %}</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="6" class="text-center d-none" id="error-message-container">
-                        <div class="text-danger">
-                            <span id="error-message"></span>
                         </div>
                     </td>
                 </tr>
@@ -39,84 +32,81 @@
     $(document).ready(function() {
         const BeltRadarSessionsTable = $('#beltradar-sessions-table');
 
+        /**
+        * DataTable for Belt Radar Session
+        * Initialized empty and filled after async fetch.
+        */
+        const BeltRadarSessionsDataTable = new DataTable(BeltRadarSessionsTable, {
+            data: [],
+            language: aaBeltRadarSettings.dataTables.language,
+            layout: aaBeltRadarSettings.dataTables.layout,
+            ordering: aaBeltRadarSettings.dataTables.ordering,
+            columnControl: aaBeltRadarSettings.dataTables.columnControl,
+            order: [[2, 'desc']],
+            columnDefs: [
+                {
+                    orderable: false,
+                    targets:  [3,4],
+                    columnControl: [
+                        {target: 0, content: []},
+                        {target: 1, content: []}
+                    ]
+                },
+            ],
+            columns: [
+                {
+                    data: {
+                        display: (data) => data.public_id,
+                        sort: (data) => data.public_id,
+                        filter: (data) => data.public_id,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => data.name,
+                        sort: (data) => data.name,
+                        filter: (data) => data.name,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => `${data.created_at}`,
+                        sort: (data) => data.created_at,
+                        filter: (data) => data.created_at,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => data.owner,
+                        sort: (data) => data.owner,
+                        filter: (data) => data.owner,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => data.html,
+                        sort: (data) => data.created_at,
+                        filter: (data) => data.created_at,
+                    }
+                },
+            ],
+            initComplete: function() {
+                _bootstrapTooltip({selector: '#beltradar-sessions-table'});
+            },
+            drawCallback: function () {
+                _bootstrapTooltip({selector: '#beltradar-sessions-table'});
+            },
+        });
+
         fetchGet({
             url: aaBeltRadarSettings.url.mySessions,
         })
         .then((data) => {
-            if (data) {
-                /**
-                * DataTable for Belt Radar Sessions
-                * @type {*|jQuery}
-                */
-                const BeltRadarSessionsDataTable = new DataTable(BeltRadarSessionsTable, {
-                    data: data,
-                    language: aaBeltRadarSettings.dataTables.language,
-                    layout: aaBeltRadarSettings.dataTables.layout,
-                    ordering: aaBeltRadarSettings.dataTables.ordering,
-                    columnControl: aaBeltRadarSettings.dataTables.columnControl,
-                    order: [[2, 'desc']],
-                    columnDefs: [
-                        {
-                            orderable: false,
-                            targets:  [3,4],
-                            columnControl: [
-                                {target: 0, content: []},
-                                {target: 1, content: []}
-                            ]
-                        },
-                    ],
-                    columns: [
-                        {
-                            data: {
-                                display: (data) => data.public_id,
-                                sort: (data) => data.public_id,
-                                filter: (data) => data.public_id,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => data.name,
-                                sort: (data) => data.name,
-                                filter: (data) => data.name,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => `${data.created_at}`,
-                                sort: (data) => data.created_at,
-                                filter: (data) => data.created_at,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => data.owner,
-                                sort: (data) => data.owner,
-                                filter: (data) => data.owner,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => data.html,
-                                sort: (data) => data.created_at,
-                                filter: (data) => data.created_at,
-                            }
-                        },
-                    ],
-                    initComplete: function() {
-                        _bootstrapTooltip({selector: '#beltradar-sessions-table'});
-                    },
-                    drawCallback: function () {
-                        _bootstrapTooltip({selector: '#beltradar-sessions-table'});
-                    },
-                });
-            }
+            BeltRadarSessionsDataTable.clear().rows.add(data).draw();
         })
         .catch((error) => {
-            console.error('Error fetching sessions data:', error.message);
-            const errorMessageContainer = $('#error-message');
-            errorMessageContainer.text(aaBeltRadarSettings.translations.errorLoadingData);
-            $('#loading-message-container').addClass('d-none');
-            $('#error-message-container').removeClass('d-none');
+            console.error('Error fetching Survey Sessions DataTable:', error);
+            BeltRadarSessionsDataTable.clear().draw();
         });
 
         /* Modals */

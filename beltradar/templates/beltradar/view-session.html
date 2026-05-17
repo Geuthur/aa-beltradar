@@ -28,8 +28,8 @@
 
 {% block aabeltradar_block %}
     {% include 'beltradar/partials/view-session/session.html' %}
-    {% include 'beltradar/partials/view-session/mining-details.html' %}
     {% include 'beltradar/partials/view-session/survey-table.html' %}
+    {% include 'beltradar/partials/view-session/charts.html' %}
 {% endblock aabeltradar_block %}
 
 
@@ -40,14 +40,14 @@
 {% endblock %}
 
 {% block extra_javascript %}
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         /**
          * Override settings for Belt Radar
          */
         const aaBeltRadarSettingsOverride = {
             url: {
-                surveyData: "{% url 'beltradar:api:get_survey_entries' public_id=session.public_id %}",
-                surveySessionEntries: "{% url 'beltradar:api:get_survey_entry' public_id=session.public_id %}",
+                surveySessionEntry: "{% url 'beltradar:api:get_survey_entry' public_id=session.public_id %}",
             },
         };
     </script>

@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [0.0.6] - 2026-05-17
+
 ### Added
 
 - Back to Session button in "Add Survey" view
@@ -77,4 +79,5 @@ Section Order:
 [0.0.3]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.1...v0.0.3 "v0.0.3"
 [0.0.4]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.3...v0.0.4 "v0.0.4"
 [0.0.5]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.4...v0.0.5 "v0.0.5"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.5...HEAD "In Development"
+[0.0.6]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.5...v0.0.6 "v0.0.6"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.6...HEAD "In Development"

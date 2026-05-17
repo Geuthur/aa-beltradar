@@ -15,12 +15,17 @@
     <div class="card">
         <div class="card-header bg-primary rounded d-flex align-items-center">
             <h3>{% translate "Add Survey Snapshot" %}</h3>
+            <div class="px-2">
+                <a href="{% url 'beltradar:view_session' public_id=session.public_id %}">
+                    <span class="btn btn-secondary">{% translate 'Back to Session' %}</span>
+                </a>
+            </div>
         </div>
     </div>
 {% endblock aabeltradar_header %}
 
 {% block aabeltradar_block %}
-    <div class="card">
+    <div class="card card-body mt-2 rounded">
         <div class="card-footer">
             <p class="text-muted">
                 {% translate "Note: You can only add a new snapshot every 5 minutes to prevent abuse. Please ensure your data is correct before submitting." %}

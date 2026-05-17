@@ -21,8 +21,8 @@ def get_owner_or_none(
         survey_session = models.BeltSurveySession.objects.filter(
             owner__profile__main_character__character_id=character_id
         ).first()
-    except ObjectDoesNotExist:
-        return False, None
+        if not survey_session:
+            return False, None
     except ValueError:
         return None, None
 

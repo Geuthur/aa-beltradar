@@ -65,7 +65,6 @@ def view_session(request, public_id):
             "delete_snapshot": forms.DeleteSnapshotForm(),
             "delete_survey": forms.DeleteSurveyForm(),
         },
-        "stats": session.mining_stats(),
         "delete_button": get_survey_delete_button(request=request, public_id=public_id),
     }
     return render(request, "beltradar/view-session.html", context=context)
@@ -107,14 +106,6 @@ def add_entry(request, public_id):
     if request.method == "POST":
         form = forms.OreBatchImportForm(request.POST)
         entries = []
-        if session.is_fresh:
-            context["error_message"] = _(
-                "This session has been recently updated. Please wait a few minutes before adding new entries."
-            )
-            context["forms"][
-                "ore_batch_import"
-            ] = form  # return bound form so template can render errors
-            return render(request, "beltradar/view-add-survey.html", context=context)
 
         if form.is_valid():
             data: list[schema.OreSchema] = getattr(

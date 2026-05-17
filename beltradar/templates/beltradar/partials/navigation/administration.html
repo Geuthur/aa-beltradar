@@ -8,9 +8,12 @@
 </li>
 
 {% if request.user.is_superuser %}
+    {% comment %}
+    * Admin link is hidden for now since there are no admin features yet. Will be added back when there are admin features to access.
     <li class="nav-item">
-        {#<a class="nav-link py-0" href="{% url 'beltradar:admin' %}">#}
+        <a class="nav-link py-0" href="">
             <span class="btn btn-danger">{% translate 'Admin' %}</span>
         </a>
     </li>
+    {% endcomment %}
 {% endif %}

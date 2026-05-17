@@ -11,6 +11,26 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Back to Session button in "Add Survey" view
+- many propterties for `BeltSurveySession`
+- Loading Animation for new Data in "View Session"
+- ApexCharts v5.12.0 for visualisation of Mining Data
+
+### Changed
+
+- Moved `mining_stats` function to managers
+- Optimized Stats Calculation
+- Optimized CSS
+
+### Fixed
+
+- Error Handling in API
+- `get_owner_or_none` Error
+- DataTable Issues
+- Wrong deletion for "Delete Snapshot" button
+
 ## [0.0.5] - 2026-05-16
 
 ### Added

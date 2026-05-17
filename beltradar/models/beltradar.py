@@ -2,11 +2,11 @@
 
 # Standard Library
 import uuid
-from collections import defaultdict
 
 # Django
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -39,85 +39,14 @@ class BeltSurveySession(models.Model):
     name = models.CharField(max_length=150, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # pylint: disable=too-many-locals
-    def mining_stats(self):
-        """
-        Unified mining statistics for this session.
+    def first_entry(self):
+        """Get the earliest survey entry in this session, or None if there are no entries."""
+        return self.br_entries.order_by("timestamp").first()
 
-        Returns a SurveyStatsSchema with aggregated data from all entries in this session.
-        """
-        # pylint: disable=import-outside-toplevel
-        # AA Belt Radar
-        from beltradar.api import schema
-
-        entries = list(self.br_entries.select_related("eve_type").order_by("timestamp"))
-        if len(entries) < 2:  # Not enough data points to calculate meaningful stats
-            return schema.SurveyStatsSchema()
-
-        snapshots: dict = defaultdict(float)
-        snapshots_entries: dict[timezone.datetime, list[float]] = defaultdict(list)
-        for entry in entries:
-            try:
-                vol = float(getattr(entry, "volume_left", None))
-            except (TypeError, ValueError):
-                vol = None
-            if vol is None:
-                continue
-            ts = entry.timestamp.replace(microsecond=0)
-            snapshots[ts] += vol
-            snapshots_entries[ts].append(vol)
-
-        # If we have no valid snapshots, return empty stats
-        if not snapshots:
-            return schema.SurveyStatsSchema()
-
-        sorted_ts = sorted(snapshots.keys())
-        start_ts, end_ts = sorted_ts[0], sorted_ts[-1]
-        size, size_left = snapshots[start_ts], snapshots[end_ts]
-        size_mined = max(0.0, size - size_left)
-        duration = (end_ts - start_ts).total_seconds()
-
-        vols_start = snapshots_entries.get(start_ts, [])
-        vols_last = snapshots_entries.get(end_ts, [])
-        asteroids_total = (
-            len(vols_start) if vols_start else (len(vols_last) if vols_last else None)
-        )
-        asteroids_left = sum(1 for v in vols_last if v > 0.0) if vols_last else None
-
-        rate = 0.0
-        if len(sorted_ts) >= 2:
-            prev_vol = snapshots[sorted_ts[-2]]
-            mined_delta = max(0.0, prev_vol - size_left)
-            time_delta = (end_ts - sorted_ts[-2]).total_seconds()
-            if time_delta > 0 and mined_delta > 0:
-                rate = mined_delta / time_delta
-        elif duration > 0 and size_mined > 0:
-            rate = size_mined / duration
-
-        eta_seconds = size_left / rate if rate > 0 else None
-        finish_dt = None
-        if eta_seconds is not None:
-            try:
-                finish_dt = end_ts + timezone.timedelta(seconds=int(eta_seconds))
-            except (OverflowError, OSError):
-                pass
-        progress_percent = (
-            min(100.0, max(0.0, (size_mined / size) * 100.0)) if size else 0.0
-        )
-
-        return schema.SurveyStatsSchema(
-            size=size,
-            left=size_left,
-            mined=size_mined,
-            duration=duration,
-            start=start_ts,
-            end=end_ts,
-            rate=rate,
-            total_asteroids=asteroids_total,
-            remaining_asteroids=asteroids_left,
-            finish=finish_dt,
-            progress_percent=progress_percent,
-        )
+    def first_entry_snapshot(self):
+        """Get the snapshot identifier of the earliest entry in this session, or None if there are no entries."""
+        first = self.first_entry()
+        return first.snapshot if first else None
 
     def last_entry(self):
         """Get the most recent survey entry in this session, or None if there are no entries."""
@@ -127,6 +56,77 @@ class BeltSurveySession(models.Model):
         """Get the snapshot identifier of the most recent entry in this session, or None if there are no entries."""
         last = self.last_entry()
         return last.snapshot if last else None
+
+    @cached_property
+    def belt_size_m3(self):
+        """Calculate the total size of the belt in m3."""
+        snapshot = self.first_entry_snapshot()
+        qs = self.br_entries.filter(snapshot=snapshot)
+        return sum(entry.units * entry.eve_type.volume for entry in qs)
+
+    @cached_property
+    def belt_left_m3(self):
+        """Calculate the total volume left in the belt in m3."""
+        snapshot = self.last_entry_snapshot()
+        qs = self.br_entries.filter(snapshot=snapshot)
+        return sum(entry.volume_left for entry in qs)
+
+    @cached_property
+    def remaining_asteroids(self):
+        """Calculate the total number of remaining asteroids in the belt."""
+        snapshot = self.last_entry_snapshot()
+        qs = self.br_entries.filter(snapshot=snapshot)
+        return sum(1 for entry in qs if entry.volume_left > 0)
+
+    @cached_property
+    def total_asteroids(self):
+        """Calculate the total number of asteroids in the belt."""
+        snapshot = self.first_entry_snapshot()
+        qs = self.br_entries.filter(snapshot=snapshot)
+        return sum(1 for entry in qs if entry.units > 0)
+
+    @cached_property
+    def progress_percent(self):
+        """Calculate the percentage of the belt that has been mined."""
+        size = float(self.belt_size_m3)
+        if size == 0:
+            return 0.0
+        left = float(self.belt_left_m3)
+        mined = size - left
+        return (mined / size) * 100.0
+
+    @cached_property
+    def duration_seconds(self):
+        """Calculate the duration of the survey session in seconds."""
+        first = self.first_entry()
+        last = self.last_entry()
+        if not first or not last:
+            return 0.0
+        return (last.timestamp - first.timestamp).total_seconds()
+
+    @cached_property
+    def mining_rate_m3_per_s(self):
+        """Calculate the average mining rate in m3/s."""
+        duration = float(self.duration_seconds)
+        if duration <= 0:
+            return 0.0
+        size = float(self.belt_size_m3)
+        left = float(self.belt_left_m3)
+        mined = size - left
+        return mined / duration
+
+    @cached_property
+    def finish_eta(self):
+        """Calculate the estimated time of completion for mining the belt."""
+        rate = float(self.mining_rate_m3_per_s)
+        if rate <= 0:
+            return None
+        left = float(self.belt_left_m3)
+        eta_seconds = left / rate
+        try:
+            return self.last_entry().timestamp + timezone.timedelta(seconds=eta_seconds)
+        except (OverflowError, OSError):
+            return None
 
     @property
     def is_fresh(self):

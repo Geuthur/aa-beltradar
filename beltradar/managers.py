@@ -1,5 +1,4 @@
 # Standard Library
-from datetime import date as dt_date
 from typing import TYPE_CHECKING
 
 # Django
@@ -122,47 +121,9 @@ class BeltRadarManager(models.Manager["BeltSurveyContext"]):
 
 
 class BeltSurveyEntryQuerySet(models.QuerySet["BeltSurveyEntryContext"]):
-    def grouped_by_time(
-        self, date: dt_date | None = None, tolerance_seconds: int = 60
-    ) -> list[list["BeltSurveyEntryContext"]]:
-        """Group entries by timestamp proximity.
-
-        Entries are ordered by timestamp and grouped when they are within
-        `tolerance_seconds` from the first entry of the current group.
-        """
-        qs = self.order_by("timestamp")
-        if date is not None:
-            qs = qs.filter(timestamp__date=date)
-
-        entries = list(qs)
-        if not entries:
-            return []
-
-        groups: list[list["BeltSurveyEntryContext"]] = []
-        current_group = [entries[0]]
-        group_start = entries[0].timestamp
-
-        for entry in entries[1:]:
-            if (entry.timestamp - group_start).total_seconds() <= tolerance_seconds:
-                current_group.append(entry)
-                continue
-
-            groups.append(current_group)
-            current_group = [entry]
-            group_start = entry.timestamp
-
-        groups.append(current_group)
-        return groups
+    pass
 
 
 class BeltSurveyEntryManager(models.Manager["BeltSurveyEntryContext"]):
     def get_queryset(self) -> BeltSurveyEntryQuerySet:
         return BeltSurveyEntryQuerySet(self.model, using=self._db)
-
-    def grouped_by_time(
-        self, date: dt_date | None = None, tolerance_seconds: int = 60
-    ) -> list[list["BeltSurveyEntryContext"]]:
-        return self.get_queryset().grouped_by_time(
-            date=date,
-            tolerance_seconds=tolerance_seconds,
-        )

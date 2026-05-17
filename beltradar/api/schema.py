@@ -5,18 +5,12 @@ from ninja import Schema
 from django.utils import timezone
 
 
-class CharacterSchema(Schema):
-    character_id: int | None = None
-    character_name: str | None = None
-    character_portrait: str | None = None
-    corporation_id: int | None = None
-    corporation_name: str | None = None
-
-
-class CorporationSchema(Schema):
-    corporation_id: int | None = None
-    corporation_name: str | None = None
-    corporation_logo: str | None = None
+class BeltSurveySessionSchema(Schema):
+    public_id: str
+    name: str
+    created_at: timezone.datetime
+    owner: str
+    html: str | None = None
 
 
 class OreSchema(Schema):
@@ -31,30 +25,45 @@ class OreSchema(Schema):
     html: str | None = None
 
 
-class BeltSurveySessionSchema(Schema):
-    public_id: str
+class OreMiningChartSeriesSchema(Schema):
     name: str
-    created_at: timezone.datetime
-    owner: str
-    html: str | None = None
+    data: list[float]
 
 
-class OreSchemaList(Schema):
-    snapshot: str | None = None
-    timestamp: timezone.datetime | None = None
-    entries: list[OreSchema]
-    delete_html: str | None = None
-
-
-class SurveyStatsSchema(Schema):
-    size: float = 0.0
-    left: float = 0.0
-    mined: float = 0.0
-    duration: float = 0.0
-    start: timezone.datetime | None = None
-    end: timezone.datetime | None = None
-    rate: float = 0.0
-    total_asteroids: int = 0
-    remaining_asteroids: int = 0
-    finish: timezone.datetime | None = None
+class OreMiningChartItemSchema(Schema):
+    ore_name: str
+    start_volume: float = 0.0
+    volume_left: float = 0.0
+    volume_mined: float = 0.0
     progress_percent: float = 0.0
+    rate_m3_per_s: float = 0.0
+    eta_seconds: float | None = None
+
+
+class OreChartDataSchema(Schema):
+    categories: list[str] = []
+    series: list[OreMiningChartSeriesSchema] = []
+    items: list[OreMiningChartItemSchema] = []
+
+
+class SnapShotStatsSchema(Schema):
+    belt_volume: float = 0.0
+    belt_volume_left_m3: float = 0.0
+    remaining_asteroids: int = 0
+    total_asteroids: int = 0
+    progress_percent: float = 0.0
+    duration_seconds: float = 0.0
+    mining_rate_m3_per_s: float = 0.0
+    finish_eta: timezone.datetime | None = None
+
+
+class SnapShotSchema(Schema):
+    session_name: str
+    session_created_at: timezone.datetime
+    session_owner: str
+    snapshot: str
+    timestamp: timezone.datetime
+    entries: list[OreSchema]
+    charts: OreChartDataSchema | None = None
+    stats: SnapShotStatsSchema | None = None
+    delete_html: str | None = None

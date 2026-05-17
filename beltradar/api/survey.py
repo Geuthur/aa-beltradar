@@ -1,7 +1,11 @@
+# Standard Library
+from collections import defaultdict
+
 # Third Party
 from ninja import NinjaAPI
 
 # Django
+from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -16,7 +20,7 @@ from beltradar.api.helpers.icons import (
     get_survey_manage_action_icons,
 )
 from beltradar.helpers.eveonline import get_icon_render_url
-from beltradar.models.beltradar import BeltSurveySession
+from beltradar.models.beltradar import BeltSurveyEntry, BeltSurveySession
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -24,6 +28,124 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 class BeltRadarSurveyApiEndpoints:
     tags = ["Survey"]
+
+    # pylint: disable=too-many-locals
+    def ore_mining_stats(
+        self,
+        entries: QuerySet[BeltSurveyEntry],
+    ) -> schema.OreChartDataSchema:
+        """Calculate per-ore mining progress from first to last snapshot."""
+        ordered_entries = list(entries.select_related("eve_type").order_by("timestamp"))
+        if len(ordered_entries) < 2:
+            return schema.OreChartDataSchema()
+
+        snapshots: dict[str, dict[str, object]] = {}
+        for entry in ordered_entries:
+            snapshot_key = str(
+                entry.snapshot or entry.timestamp.replace(microsecond=0).isoformat()
+            )
+            if snapshot_key not in snapshots:
+                snapshots[snapshot_key] = {
+                    "timestamp": entry.timestamp,
+                    "ores": defaultdict(float),
+                }
+
+            snapshot = snapshots[snapshot_key]
+            if entry.timestamp > snapshot["timestamp"]:
+                snapshot["timestamp"] = entry.timestamp
+
+            ore_name = entry.eve_type.name if entry.eve_type else "Unknown"
+            try:
+                vol_left = float(getattr(entry, "volume_left", None) or 0.0)
+            except (TypeError, ValueError):
+                vol_left = 0.0
+            snapshot["ores"][ore_name] += max(0.0, vol_left)
+
+        ordered_snapshots = sorted(
+            snapshots.values(), key=lambda item: item["timestamp"]
+        )
+        if len(ordered_snapshots) < 2:
+            return schema.OreChartDataSchema()
+
+        start_snapshot = ordered_snapshots[0]
+        end_snapshot = ordered_snapshots[-1]
+        previous_snapshot = ordered_snapshots[-2]
+
+        start_map = dict(start_snapshot["ores"])
+        end_map = dict(end_snapshot["ores"])
+        previous_map = dict(previous_snapshot["ores"])
+
+        start_ts = start_snapshot["timestamp"]
+        end_ts = end_snapshot["timestamp"]
+        prev_ts = previous_snapshot["timestamp"]
+
+        total_duration_seconds = max(0.0, (end_ts - start_ts).total_seconds())
+        last_step_seconds = max(0.0, (end_ts - prev_ts).total_seconds())
+
+        ore_names = sorted(set(start_map.keys()) | set(end_map.keys()))
+        categories: list[str] = []
+        progress_data: list[float] = []
+        items: list[schema.OreMiningChartItemSchema] = []
+
+        for ore_name in ore_names:
+            start_volume = max(0.0, float(start_map.get(ore_name, 0.0)))
+            volume_left = max(0.0, float(end_map.get(ore_name, 0.0)))
+            previous_volume = max(0.0, float(previous_map.get(ore_name, volume_left)))
+
+            volume_mined = max(0.0, start_volume - volume_left)
+            progress_percent = (
+                min(100.0, max(0.0, (volume_mined / start_volume) * 100.0))
+                if start_volume > 0
+                else 0.0
+            )
+
+            rate_m3_per_s = 0.0
+            if last_step_seconds > 0:
+                step_mined = max(0.0, previous_volume - volume_left)
+                rate_m3_per_s = step_mined / last_step_seconds
+            elif total_duration_seconds > 0 and volume_mined > 0:
+                rate_m3_per_s = volume_mined / total_duration_seconds
+
+            eta_seconds = (volume_left / rate_m3_per_s) if rate_m3_per_s > 0 else None
+
+            categories.append(ore_name)
+            progress_data.append(round(progress_percent, 2))
+            items.append(
+                schema.OreMiningChartItemSchema(
+                    ore_name=ore_name,
+                    start_volume=round(start_volume, 2),
+                    volume_left=round(volume_left, 2),
+                    volume_mined=round(volume_mined, 2),
+                    progress_percent=round(progress_percent, 2),
+                    rate_m3_per_s=round(rate_m3_per_s, 4),
+                    eta_seconds=(
+                        round(eta_seconds, 2) if eta_seconds is not None else None
+                    ),
+                )
+            )
+        return schema.OreChartDataSchema(
+            categories=categories,
+            series=[
+                schema.OreMiningChartSeriesSchema(
+                    name="Mined %",
+                    data=progress_data,
+                )
+            ],
+            items=items,
+        )
+
+    def session_stats(self, session: BeltSurveySession) -> schema.SnapShotStatsSchema:
+        """Calculate belt stats for the latest snapshot of the given survey session."""
+        return schema.SnapShotStatsSchema(
+            belt_volume=session.belt_size_m3,
+            belt_volume_left_m3=session.belt_left_m3,
+            remaining_asteroids=session.remaining_asteroids,
+            total_asteroids=session.total_asteroids,
+            progress_percent=round(session.progress_percent, 2),
+            duration_seconds=round(session.duration_seconds, 2),
+            mining_rate_m3_per_s=round(session.mining_rate_m3_per_s, 4),
+            finish_eta=session.finish_eta,
+        )
 
     def __init__(self, api: NinjaAPI):
         @api.get(
@@ -83,83 +205,34 @@ class BeltRadarSurveyApiEndpoints:
             return 200, survey_list
 
         @api.get(
-            "view/session/{public_id}/entries/",
-            response={200: list[schema.OreSchemaList], 403: str},
-            tags=self.tags,
-        )
-        def get_survey_entries(request, public_id: str):
-            """Get all survey entries for the current user."""
-            if not request.user.has_perm("beltradar.basic_access"):
-                return 403, _("You do not have permission to access this resource.")
-
-            session = BeltSurveySession.objects.filter(public_id=public_id).first()
-            if not session:
-                return 403, _("Survey session not found or not public.")
-
-            survey_entries = session.br_entries.select_related(
-                "eve_type"
-            ).grouped_by_time()
-            # Create a list of survey entries for the current user, ordered by timestamp
-            survey_list: list[schema.OreSchemaList] = []
-            for entries in survey_entries:
-                ore_list = []
-                for entry in entries:
-                    ore_data = schema.OreSchema(
-                        portrait=(
-                            get_icon_render_url(type_id=entry.eve_type.id, as_html=True)
-                            if entry.eve_type
-                            else None
-                        ),
-                        name=entry.eve_type.name if entry.eve_type else "Unknown",
-                        units=entry.units or 0,
-                        volume_m3=entry.volume_left or 0,
-                        price_isk=entry.price or 0.0,
-                        price_compressed=entry.price_compressed or None,
-                        timestamp=entry.timestamp,
-                        snapshot=entry.snapshot,
-                    )
-                    ore_list.append(ore_data)
-                survey_list.append(
-                    schema.OreSchemaList(
-                        snapshot=entries[0].snapshot,
-                        timestamp=entries[0].timestamp,
-                        entries=ore_list,
-                        delete_html=str(
-                            get_snapshot_delete_button(
-                                request=request,
-                                public_id=public_id,
-                                snapshot=entries[0].snapshot,
-                            )
-                        ),
-                    )
-                )
-            return 200, survey_list
-
-        @api.get(
             "view/session/{public_id}/snapshot/last_entry/",
-            response={200: schema.OreSchemaList, 403: str},
+            response={200: schema.SnapShotSchema, 403: dict, 404: dict},
             tags=self.tags,
         )
         def get_survey_entry(request, public_id: str):
             """Get all survey entries for the current user."""
             if not request.user.has_perm("beltradar.basic_access"):
-                return 403, _("You do not have permission to access this resource.")
+                return 403, {
+                    "error": _("You do not have permission to access this resource.")
+                }
 
             # Check if the survey session exists
             session = BeltSurveySession.objects.filter(public_id=public_id).first()
             if not session:
-                return 403, _("Survey session not found or not public.")
+                return 404, {"error": _("Survey session not found or not public.")}
 
             # Get the most recent survey entry for this session (if any)
-            entries = (
-                session.br_entries.select_related("eve_type")
-                .order_by("-timestamp")
-                .filter(snapshot=session.last_entry_snapshot())
+            entries = session.br_entries.select_related("eve_type")
+            last_entries = entries.order_by("-timestamp").filter(
+                snapshot=session.last_entry_snapshot()
             )
+
+            if not last_entries:
+                return 404, {"error": _("No survey entries found for this session.")}
 
             # Create a list of survey entries for the current user, ordered by timestamp
             snapshot_list: list[schema.OreSchema] = []
-            for entry in entries:
+            for entry in last_entries:
                 ore_data = schema.OreSchema(
                     portrait=(
                         get_icon_render_url(type_id=entry.eve_type.id, as_html=True)
@@ -175,15 +248,21 @@ class BeltRadarSurveyApiEndpoints:
                     snapshot=entry.snapshot,
                 )
                 snapshot_list.append(ore_data)
-            return 200, schema.OreSchemaList(
-                snapshot=entries[0].snapshot,
-                timestamp=entries[0].timestamp,
+
+            return 200, schema.SnapShotSchema(
+                snapshot=last_entries[0].snapshot,
+                timestamp=last_entries[0].timestamp,
                 entries=snapshot_list,
+                charts=self.ore_mining_stats(entries=entries),
+                stats=self.session_stats(session=session),
+                session_name=session.name,
+                session_created_at=session.created_at,
+                session_owner=str(session.owner),
                 delete_html=str(
                     get_snapshot_delete_button(
                         request=request,
-                        public_id=entries[0].session.public_id,
-                        snapshot=entries[0].snapshot,
+                        public_id=session.public_id,
+                        snapshot=session.last_entry_snapshot(),
                     )
                 ),
             )

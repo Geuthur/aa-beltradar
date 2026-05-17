@@ -17,7 +17,15 @@
                     <th class="w-auto">{% translate "Timestamp" %}</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <tr>
+                    <td colspan="7" class="text-center" id="loading-message-container">
+                        <div class="spinner-border text-primary">
+                            <span class="visually-hidden">{% translate "Loading..." %}</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
             <tfoot></tfoot>
         </table>
     </div>
@@ -25,136 +33,281 @@
 
 <script>
     $(document).ready(function() {
+        /* DataTable for Belt Radar Session Entries */
         const BeltRadarSessionEntryTable = $('#beltradar-session-entry-table');
-
-        fetchGet({
-            url: aaBeltRadarSettings.url.surveySessionEntries,
-        })
-        .then((data) => {
-            if (data) {
-                /**
-                * DataTable for Belt Radar Sessions
-                * @type {*|jQuery}
-                */
-                const BeltRadarSessionsDataTable = new DataTable(BeltRadarSessionEntryTable, {
-                    data: data.entries,
-                    language: aaBeltRadarSettings.dataTables.language,
-                    layout: aaBeltRadarSettings.dataTables.layout,
-                    ordering: aaBeltRadarSettings.dataTables.ordering,
-                    columnControl: aaBeltRadarSettings.dataTables.columnControl,
-                    order: [[4, 'desc']],
-                    columnDefs: [
-                        {
-                            orderable: false,
-                            targets: 0,
-                            columnControl: [
-                                {target: 0, content: []},
-                                {target: 1, content: []}
-                            ]
-                        },
-                        {
-                            targets: [2,3,4,5],
-                            type: 'num'
-                        },
-                    ],
-                    columns: [
-                        {
-                            data: {
-                                display: (data) => data.portrait,
-                                sort: (data) => data.name,
-                                filter: (data) => data.name,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => data.name,
-                                sort: (data) => data.name,
-                                filter: (data) => data.name,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => `${data.units.toLocaleString()}`,
-                                sort: (data) => data.units,
-                                filter: (data) => data.units,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => `${data.volume_m3.toLocaleString()} m³`,
-                                sort: (data) => data.volume_m3,
-                                filter: (data) => data.volume_m3,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => numberFormatter({
-                                    value: data.price_isk,
-                                    language: aaBeltRadarSettings.locale,
-                                    options: {
-                                        style: 'currency',
-                                        currency: 'ISK',
-                                        maximumFractionDigits: 0
-                                    }
-                                }),
-                                sort: (data) => data.price_isk ?? 0,
-                                filter: (data) => data.price_isk ?? 0,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => numberFormatter({
-                                    value: data.price_compressed,
-                                    language: aaBeltRadarSettings.locale,
-                                    options: {
-                                        style: 'currency',
-                                        currency: 'ISK',
-                                        maximumFractionDigits: 0
-                                    }
-                                }),
-                                sort: (data) => data.price_compressed ?? 0,
-                                filter: (data) => data.price_compressed ?? 0,
-                            }
-                        },
-                        {
-                            data: {
-                                display: (data) => moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss'),
-                                sort: (data) => moment(data.timestamp).unix(),
-                                filter: (data) => data.timestamp,
-                            }
-                        },
-                    ],
-                    initComplete: function() {
-                        $('#ore-survey-heading').html(`Last Snapshot - ${moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${data.delete_html}`);
-                        _bootstrapTooltip();
-                    },
-                    drawCallback: function () {
-                        _bootstrapTooltip();
-                    },
-                });
-            };
-        })
-        .catch((error) => {
-            console.error('Error fetching Ore Survey data:', error);
-        });
-
+        /* Session details elements */
+        const sessionContainer = $('#session-details-container');
+        const sessionNameEl = $('#session-name');
+        const sessionCreatedAtEl = $('#session-created-at');
+        const sessionOwnerEl = $('#session-owner');
+        const sessionRemainingAsteroidsEl = $('#session-remaining-asteroids');
+        const sessionTotalAsteroidsEl = $('#session-total-asteroids');
+        const sessionProgressBarEl = $('#session-progress-bar');
+        const sessionLastScanEl = $('#session-last-scan');
+        const sessionFirstScanEl = $('#session-first-scan');
+        const sessionFinishTimeEl = $('#session-finish-time');
+        const sessionBeltSizeEl = $('#session-belt-size');
+        const sessionSpeedEl = $('#session-speed');
+        const sessionEtaEl = $('#session-eta');
+        /* Chart Element */
+        const chartEl = document.querySelector('#chart');
+        /* Apex chart instance */
+        let miningChart = null;
         /* Modals */
         const modalRequestDeleteSnapshot = $('#beltradar-accept-delete-snapshot');
 
+
+        /* Initial Data Fetch */
+        fetchGet({
+            url: aaBeltRadarSettings.url.surveySessionEntry,
+        })
+        .then((data) => {
+            // Render DataTable with API response data, ensuring entries is an array to prevent errors and providing a fallback empty array if not present
+            const entries = Array.isArray(data?.entries) ? data.entries : [];
+            BeltRadarSessionsDataTable.clear().rows.add(entries).draw();
+
+            // Update the last snapshot timestamp in the heading, ensuring timestamp is present in the response to prevent errors and providing a fallback message if not available
+            if (data?.timestamp) {
+                $('#ore-survey-heading').html(`Last Snapshot - ${moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${data.delete_html ?? ''}`);
+            }
+
+            // Render Mining Chart with the same data if available, otherwise try to find it in the root of the response
+            const chartData = data?.data?.charts ?? data?.charts ?? { categories: [], series: [] };
+            renderMiningChart(chartData);
+            updateSessionStats(data);
+        })
+        .catch((error) => {
+            console.error('Error fetching Survey Sessions DataTable:', error);
+            // Clear the DataTable to show no data and remove loading state
+            BeltRadarSessionsDataTable.clear().draw();
+            // Show error message in chart area if chart data is not available
+            chartEl.innerHTML = '<div class="text-muted text-center p-4">{% translate "No mining chart data available." %}</div>';
+        });
+
         /**
-        * View :: Reload Survey Snapshot DataTable
+        * DataTable for Belt Radar Session Entries
+        * Initialized empty and filled after async fetch.
+        */
+        const BeltRadarSessionsDataTable = new DataTable(BeltRadarSessionEntryTable, {
+            data: [],
+            language: aaBeltRadarSettings.dataTables.language,
+            layout: aaBeltRadarSettings.dataTables.layout,
+            ordering: aaBeltRadarSettings.dataTables.ordering,
+            columnControl: aaBeltRadarSettings.dataTables.columnControl,
+            order: [[4, 'desc']],
+            columnDefs: [
+                {
+                    orderable: false,
+                    targets: 0,
+                    columnControl: [
+                        {target: 0, content: []},
+                        {target: 1, content: []}
+                    ]
+                },
+                {
+                    targets: [2,3,4,5],
+                    type: 'num'
+                },
+            ],
+            columns: [
+                {
+                    data: {
+                        display: (data) => data.portrait,
+                        sort: (data) => data.name,
+                        filter: (data) => data.name,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => data.name,
+                        sort: (data) => data.name,
+                        filter: (data) => data.name,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => `${data.units.toLocaleString()}`,
+                        sort: (data) => data.units,
+                        filter: (data) => data.units,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => `${data.volume_m3.toLocaleString()} m³`,
+                        sort: (data) => data.volume_m3,
+                        filter: (data) => data.volume_m3,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => numberFormatter({
+                            value: data.price_isk,
+                            language: aaBeltRadarSettings.locale,
+                            options: {
+                                style: 'currency',
+                                currency: 'ISK',
+                                maximumFractionDigits: 0
+                            }
+                        }),
+                        sort: (data) => data.price_isk ?? 0,
+                        filter: (data) => data.price_isk ?? 0,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => numberFormatter({
+                            value: data.price_compressed,
+                            language: aaBeltRadarSettings.locale,
+                            options: {
+                                style: 'currency',
+                                currency: 'ISK',
+                                maximumFractionDigits: 0
+                            }
+                        }),
+                        sort: (data) => data.price_compressed ?? 0,
+                        filter: (data) => data.price_compressed ?? 0,
+                    }
+                },
+                {
+                    data: {
+                        display: (data) => moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss'),
+                        sort: (data) => moment(data.timestamp).unix(),
+                        filter: (data) => data.timestamp,
+                    }
+                },
+            ],
+            drawCallback: function () {
+                _bootstrapTooltip();
+            },
+        });
+
+        /* Helper function to format numbers with locale and options, providing a default value of 0 for invalid inputs */
+        const formatWholeNumber = (value) => numberFormatter({
+            value: Number(value) || 0,
+            language: aaBeltRadarSettings.locale,
+            options: {
+                maximumFractionDigits: 0,
+            }
+        });
+
+        /* Helper function to format timestamps or return 'N/A' if value is not present */
+        const formatTimeOrNA = (value) => (value ? moment(value).utc().format('HH:mm') : 'N/A');
+
+        /* Function to update session stats in the heading based on the latest snapshot data */
+        const updateSessionStats = (tableData) => {
+            const stats = tableData?.stats ?? {};
+            const firstEntryTimestamp = tableData?.entries?.[0]?.timestamp ?? null;
+            const lastSnapshotTimestamp = tableData?.timestamp ?? null;
+
+            sessionNameEl.text(tableData?.session_name ?? '-');
+            sessionCreatedAtEl.text(tableData?.session_created_at ? moment(tableData.session_created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
+            sessionOwnerEl.text(tableData?.session_owner ?? '-');
+
+            sessionRemainingAsteroidsEl.text(formatWholeNumber(stats.remaining_asteroids));
+            sessionTotalAsteroidsEl.text(formatWholeNumber(stats.total_asteroids));
+
+            const progressPercent = Math.max(0, Math.min(100, Number(stats.progress_percent) || 0));
+            sessionProgressBarEl.css('width', `${progressPercent}%`);
+            sessionProgressBarEl.attr('aria-valuenow', progressPercent.toFixed(2));
+
+            const lastScanLabel = sessionLastScanEl.data('last-scan-label') || 'Last Scan';
+            const lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
+            sessionLastScanEl.text(lastScanText === 'N/A' ? '' : lastScanText);
+            sessionLastScanEl.attr('title', `${lastScanLabel}: ${lastScanText}`);
+
+            sessionFirstScanEl.text(formatTimeOrNA(firstEntryTimestamp));
+            sessionFinishTimeEl.text(formatTimeOrNA(stats.finish_eta));
+
+            sessionBeltSizeEl.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
+            sessionSpeedEl.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
+            sessionEtaEl.text(stats.finish_eta ? moment(stats.finish_eta).fromNow() : 'N/A');
+        };
+
+        /**
+        * Render Mining Chart using ApexCharts
+        * @param {Object} chartData - The data for the chart, expected to have categories and series properties
+        */
+        const renderMiningChart = (chartData) => {
+            if (miningChart) {
+                miningChart.destroy();
+                miningChart = null;
+            }
+
+            // Clear existing chart or messages before rendering new chart
+            $(`#${chartEl.id}`).empty();
+
+            if (!Array.isArray(chartData.categories) || chartData.categories.length === 0) {
+                console.warn('No categories available for mining chart. Chart will not be rendered.');
+                chartEl.innerHTML = '<div class="text-muted text-center p-4 w-100">{% translate "No mining chart data available." %}</div>';
+                return;
+            }
+
+            const options = {
+                series: Array.isArray(chartData.series) ? chartData.series : [],
+                chart: {
+                    type: 'bar',
+                    height: 380,
+                    toolbar: { show: false }
+                },
+                plotOptions: {
+                    bar: {
+                        borderRadius: 4,
+                        borderRadiusApplication: 'end',
+                        horizontal: true,
+                        dataLabels: {
+                            position: 'right'
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: (value) => `${Number(value).toFixed(1)}%`
+                },
+                xaxis: {
+                    categories: chartData.categories,
+                    min: 0,
+                    max: 100,
+                    tickAmount: 5,
+                    labels: {
+                        formatter: (value) => `${Number(value).toFixed(0)}%`
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: (value) => `${Number(value).toFixed(2)}%`
+                    }
+                },
+                theme: {
+                    mode: 'dark',
+                },
+            };
+            miningChart = new ApexCharts(chartEl, options);
+            miningChart.render();
+        };
+
+        /**
+        * View :: Reload Survey Snapshot Function
         * On Confirmation send a request to the API Endpoint, reload the Survey Snapshot DataTable, close the modal
         * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
         * @returns {Promise} - A Promise that resolves when the API request is complete
         */
-        const _reloadSurveySnapshotDataTable = (tableData) => {
+        const _reloadSurveySnapshotData = (tableData) => {
             const dt = BeltRadarSessionEntryTable.DataTable();
             dt.clear().rows.add(tableData.entries).draw();
             $('#ore-survey-heading').html(`Last Snapshot - ${moment(tableData.timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${tableData.delete_html}`);
-            BeltRadarSessionEntryTable.addClass('table-updated-highlight');
+            BeltRadarSessionEntryTable.addClass('highlight');
+            sessionContainer.addClass('highlight');
+            chartEl.classList.add('highlight');
+
             setTimeout(() => {
-                BeltRadarSessionEntryTable.removeClass('table-updated-highlight');
+                BeltRadarSessionEntryTable.removeClass('highlight');
+                sessionContainer.removeClass('highlight');
+                chartEl.classList.add('highlight');
             }, 2000);
+
+            const chartData = tableData?.data?.charts ?? tableData?.charts ?? { categories: [], series: [] };
+            renderMiningChart(chartData);
+            updateSessionStats(tableData);
         };
 
         /**
@@ -178,10 +331,10 @@
                 .then((data) => {
                     if (data.success === true) {
                         fetchGet({
-                            url: aaBeltRadarSettings.url.surveySessionEntries,
+                            url: aaBeltRadarSettings.url.surveySessionEntry,
                         })
                         .then((newData) => {
-                            _reloadSurveySnapshotDataTable(newData);
+                            _reloadSurveySnapshotData(newData);
                             modalRequestDeleteSnapshot.modal('hide');
                         })
                         .catch((error) => {

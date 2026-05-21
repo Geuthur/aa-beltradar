@@ -9,4 +9,7 @@ __esi_compatibility_date__ = "2025-12-16"
 __app_name_useragent__ = "AA-Belt-Radar"
 __github_url__ = f"https://github.com/Geuthur/{__package_name__}"
 
-__operations__ = []
+__operations__ = [
+    # Market
+    "GetMarketsPrices",
+]

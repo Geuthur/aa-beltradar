@@ -152,7 +152,7 @@ def get_icon_render_url(
 
     if as_html:
         render_html = format_html(
-            '<img class="type-render rounded-circle" data-bs-tooltip="aa-ledger" src="{}" title="{}">',
+            '<img class="type-render rounded-circle" data-bs-tooltip="aa-beltradar" src="{}" title="{}">',
             render_url,
             type_name,
         )

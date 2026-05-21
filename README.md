@@ -88,7 +88,11 @@ To set up the Scheduled Tasks add following code to your `local.py`
 ```python
 CELERYBEAT_SCHEDULE["AA Belt Radar :: Update Belt Radar"] = {
     "task": "beltradar.tasks.update_all_belt_radar",
-    "schedule": crontab(minute=0, hour="*/1"),
+    "schedule": 43200,
+}
+CELERYBEAT_SCHEDULE["AA Belt Radar :: Update Market Price"] = {
+    "task": "beltradar.tasks.update_market_prices",
+    "schedule": 86400,
 }
 ```
 
@@ -127,6 +131,7 @@ Migrate the app and collect static.
 
 ```shell
 python manage.py migrate beltradar
+python manage.py aabeltradar_migrate_market_data
 python manage.py collectstatic --noinput
 ```
 

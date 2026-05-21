@@ -2,7 +2,10 @@
 {% load evelinks %}
 {% load humanize %}
 <div class="card card-body mt-2 rounded">
-    <span class="mb-2 mt-3 text-muted ore-survey-heading" id="ore-survey-heading"></span>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+        <span class="text-muted ore-survey-heading" id="ore-survey-heading"></span>
+        <span class="text-muted">{{ add_survey_button|safe }}</span>
+    </div>
     <!-- Ore Survey Table -->
     <div class="table-responsive mb-3">
         <table class="table table-striped table-hover w-100" id="beltradar-session-entry-table">
@@ -10,11 +13,11 @@
                 <tr>
                     <th class="w-auto"></th>
                     <th class="w-auto">{% translate "Ore" %}</th>
-                    <th class="w-auto">{% translate "Units" %}</th>
-                    <th class="w-auto">{% translate "Volume Left" %}</th>
-                    <th class="w-auto">{% translate "Price" %}</th>
-                    <th class="w-auto">{% translate "Price Compressed" %}</th>
-                    <th class="w-auto">{% translate "Timestamp" %}</th>
+                    <th class="w-auto">{% translate "Units Left" %}</th>
+                    <th class="w-auto">{% translate "Volume Left" %} (m³)</th>
+                    <th class="w-auto">{% translate "Price" %} (ISK/m³)</th>
+                    <th class="w-auto">{% translate "Price Compressed" %} (ISK/m³)</th>
+                    <th class="w-auto">{% translate "Income Compressed" %} (ISK/h)</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,6 +46,7 @@
         const sessionRemainingAsteroidsEl = $('#session-remaining-asteroids');
         const sessionTotalAsteroidsEl = $('#session-total-asteroids');
         const sessionProgressBarEl = $('#session-progress-bar');
+        const sessionProgressionEl = $('#session-progression');
         const sessionLastScanEl = $('#session-last-scan');
         const sessionFirstScanEl = $('#session-first-scan');
         const sessionFinishTimeEl = $('#session-finish-time');
@@ -50,15 +54,130 @@
         const sessionSpeedEl = $('#session-speed');
         const sessionEtaEl = $('#session-eta');
         /* Chart Element */
-        const chartEl = document.querySelector('#chart');
+        const chartEl = $('#chart');
         /* Apex chart instance */
         let miningChart = null;
         /* Modals */
         const modalRequestDeleteSnapshot = $('#beltradar-accept-delete-snapshot');
 
+        /**
+        * Local POST adapter: keeps global fetchPost untouched while improving error details.
+        * Reads JSON error payload (message/error/detail) when statusText is empty.
+        */
+        const fetchPostBeltRadar = async ({
+            url,
+            csrfToken = null,
+            payload = null,
+            responseIsJson = true
+        }) => {
+            if (!csrfToken) {
+                throw new Error('CSRF token is required for POST requests');
+            }
+
+            if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
+                throw new Error('Payload must be an object when using POST method');
+            }
+
+            const headers = {
+                'X-CSRFToken': csrfToken,
+            };
+
+            if (responseIsJson) {
+                headers.Accept = 'application/json'; // jshint ignore:line
+                headers['Content-Type'] = 'application/json';
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: payload ? JSON.stringify(payload) : null,
+            });
+
+            if (!response.ok) {
+                let details = '';
+                const contentType = (response.headers.get('content-type') || '').toLowerCase();
+
+                try {
+                    if (contentType.includes('application/json')) {
+                        const data = await response.clone().json();
+                        details = data?.message || data?.error || data?.detail || '';
+                    } else {
+                        details = (await response.clone().text()).trim();
+                    }
+                } catch (parseError) {
+                    details = '';
+                }
+
+                const statusText = (response.statusText || '').trim() || 'HTTP Error';
+                const msg = details
+                    ? `Error: ${response.status} - ${statusText} | ${details}`
+                    : `Error: ${response.status} - ${statusText}`;
+
+                throw new Error(msg);
+            }
+
+            return responseIsJson ? await response.json() : await response.text();
+        };
+
+        /**
+        * Local GET adapter: keeps global fetchGet untouched while improving error details.
+        * Reads JSON error payload (message/error/detail) when statusText is empty.
+        */
+        const fetchGetBeltRadar = async ({
+            url,
+            payload = null,
+            responseIsJson = true
+        }) => {
+            let requestUrl = url;
+
+            if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
+                throw new Error('Payload must be an object when using GET method');
+            }
+
+            if (payload) {
+                const queryParams = new URLSearchParams(payload).toString(); // jshint ignore:line
+                requestUrl += (url.includes('?') ? '&' : '?') + queryParams;
+            }
+
+            const headers = {};
+            if (responseIsJson) {
+                headers.Accept = 'application/json'; // jshint ignore:line
+            }
+
+            const response = await fetch(requestUrl, {
+                method: 'GET',
+                headers,
+            });
+
+            if (!response.ok) {
+                let details = '';
+                const contentType = (response.headers.get('content-type') || '').toLowerCase();
+
+                try {
+                    if (contentType.includes('application/json')) {
+                        const data = await response.clone().json();
+                        details = data?.message || data?.error || data?.detail || '';
+                    } else {
+                        details = (await response.clone().text()).trim();
+                    }
+                } catch (parseError) {
+                    details = '';
+                }
+
+                const statusText = (response.statusText || '').trim() || 'HTTP Error';
+                const msg = details
+                    ? `Error: ${response.status} - ${statusText} | ${details}`
+                    : `Error: ${response.status} - ${statusText}`;
+
+                throw new Error(msg);
+            }
+
+            return responseIsJson ? await response.json() : await response.text();
+        };
+
 
         /* Initial Data Fetch */
-        fetchGet({
+        fetchGetBeltRadar({
             url: aaBeltRadarSettings.url.surveySessionEntry,
         })
         .then((data) => {
@@ -67,8 +186,8 @@
             BeltRadarSessionsDataTable.clear().rows.add(entries).draw();
 
             // Update the last snapshot timestamp in the heading, ensuring timestamp is present in the response to prevent errors and providing a fallback message if not available
-            if (data?.timestamp) {
-                $('#ore-survey-heading').html(`Last Snapshot - ${moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${data.delete_html ?? ''}`);
+            if (data?.session?.last_entry_timestamp) {
+                $('#ore-survey-heading').html(`Last Snapshot - ${moment(data.session.last_entry_timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${data.delete_html ?? ''}`);
             }
 
             // Render Mining Chart with the same data if available, otherwise try to find it in the root of the response
@@ -81,7 +200,7 @@
             // Clear the DataTable to show no data and remove loading state
             BeltRadarSessionsDataTable.clear().draw();
             // Show error message in chart area if chart data is not available
-            chartEl.innerHTML = '<div class="text-muted text-center p-4">{% translate "No mining chart data available." %}</div>';
+            chartEl.html('<div class="text-muted text-center p-4">{% translate "No mining chart data available." %}</div>');
         });
 
         /**
@@ -149,8 +268,8 @@
                                 maximumFractionDigits: 0
                             }
                         }),
-                        sort: (data) => data.price_isk ?? 0,
-                        filter: (data) => data.price_isk ?? 0,
+                        sort: (data) => data.price_isk,
+                        filter: (data) => data.price_isk,
                     }
                 },
                 {
@@ -164,15 +283,23 @@
                                 maximumFractionDigits: 0
                             }
                         }),
-                        sort: (data) => data.price_compressed ?? 0,
-                        filter: (data) => data.price_compressed ?? 0,
+                        sort: (data) => data.price_compressed,
+                        filter: (data) => data.price_compressed,
                     }
                 },
                 {
                     data: {
-                        display: (data) => moment(data.timestamp).utc().format('YYYY-MM-DD HH:mm:ss'),
-                        sort: (data) => moment(data.timestamp).unix(),
-                        filter: (data) => data.timestamp,
+                        display: (data) => numberFormatter({
+                            value: data.income_cmp_per_h,
+                            language: aaBeltRadarSettings.locale,
+                            options: {
+                                style: 'currency',
+                                currency: 'ISK',
+                                maximumFractionDigits: 0
+                            }
+                        }),
+                        sort: (data) => data.income_cmp_per_h,
+                        filter: (data) => data.income_cmp_per_h,
                     }
                 },
             ],
@@ -196,12 +323,12 @@
         /* Function to update session stats in the heading based on the latest snapshot data */
         const updateSessionStats = (tableData) => {
             const stats = tableData?.stats ?? {};
-            const firstEntryTimestamp = tableData?.entries?.[0]?.timestamp ?? null;
-            const lastSnapshotTimestamp = tableData?.timestamp ?? null;
+            const firstEntryTimestamp = tableData?.session?.first_entry_timestamp ?? null;
+            const lastSnapshotTimestamp = tableData?.session?.last_entry_timestamp ?? null;
 
-            sessionNameEl.text(tableData?.session_name ?? '-');
-            sessionCreatedAtEl.text(tableData?.session_created_at ? moment(tableData.session_created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
-            sessionOwnerEl.text(tableData?.session_owner ?? '-');
+            sessionNameEl.text(tableData?.session?.name ?? '-');
+            sessionCreatedAtEl.text(tableData?.session?.created_at ? moment(tableData.session.created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
+            sessionOwnerEl.text(tableData?.session?.owner ?? '-');
 
             sessionRemainingAsteroidsEl.text(formatWholeNumber(stats.remaining_asteroids));
             sessionTotalAsteroidsEl.text(formatWholeNumber(stats.total_asteroids));
@@ -209,6 +336,7 @@
             const progressPercent = Math.max(0, Math.min(100, Number(stats.progress_percent) || 0));
             sessionProgressBarEl.css('width', `${progressPercent}%`);
             sessionProgressBarEl.attr('aria-valuenow', progressPercent.toFixed(2));
+            sessionProgressionEl.text(`(${progressPercent.toFixed(0)}%)`);
 
             const lastScanLabel = sessionLastScanEl.data('last-scan-label') || 'Last Scan';
             const lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
@@ -234,11 +362,11 @@
             }
 
             // Clear existing chart or messages before rendering new chart
-            $(`#${chartEl.id}`).empty();
+            chartEl.empty();
 
             if (!Array.isArray(chartData.categories) || chartData.categories.length === 0) {
                 console.warn('No categories available for mining chart. Chart will not be rendered.');
-                chartEl.innerHTML = '<div class="text-muted text-center p-4 w-100">{% translate "No mining chart data available." %}</div>';
+                chartEl.html('<div class="text-muted text-center p-4 w-100">{% translate "No mining chart data available." %}</div>');
                 return;
             }
 
@@ -281,7 +409,7 @@
                     mode: 'dark',
                 },
             };
-            miningChart = new ApexCharts(chartEl, options);
+            miningChart = new ApexCharts(chartEl[0], options);
             miningChart.render();
         };
 
@@ -293,16 +421,21 @@
         */
         const _reloadSurveySnapshotData = (tableData) => {
             const dt = BeltRadarSessionEntryTable.DataTable();
-            dt.clear().rows.add(tableData.entries).draw();
-            $('#ore-survey-heading').html(`Last Snapshot - ${moment(tableData.timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${tableData.delete_html}`);
+            const entries = Array.isArray(tableData?.entries) ? tableData.entries : [];
+            dt.clear().rows.add(entries).draw();
+            if (tableData?.session?.last_entry_timestamp) {
+                $('#ore-survey-heading').html(`Last Snapshot - ${moment(tableData.session.last_entry_timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${tableData.delete_html ?? ''} ${tableData.add_survey ?? ''}`);
+            } else {
+                $('#ore-survey-heading').html(`Last Snapshot - N/A`);
+            }
             BeltRadarSessionEntryTable.addClass('highlight');
             sessionContainer.addClass('highlight');
-            chartEl.classList.add('highlight');
+            chartEl.addClass('highlight');
 
             setTimeout(() => {
                 BeltRadarSessionEntryTable.removeClass('highlight');
                 sessionContainer.removeClass('highlight');
-                chartEl.classList.add('highlight');
+                chartEl.removeClass('highlight');
             }, 2000);
 
             const chartData = tableData?.data?.charts ?? tableData?.charts ?? { categories: [], series: [] };
@@ -330,7 +463,7 @@
                 })
                 .then((data) => {
                     if (data.success === true) {
-                        fetchGet({
+                        fetchGetBeltRadar({
                             url: aaBeltRadarSettings.url.surveySessionEntry,
                         })
                         .then((newData) => {
@@ -349,6 +482,103 @@
         })
         .on('hide.bs.modal', () => {
             modalRequestDeleteSnapshot.find('#modal-button-confirm-accept-request').unbind('click');
+        });
+
+        const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
+        const modalRequestAddSurvey = $('#beltradar-add-survey');
+
+        _bootstrapTooltip();
+
+        /**
+        * View :: Survey Sessions :: Delete Button Click Handler
+        * Open Delete Survey Session Modal
+        * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+        * and reopen the previous Survey Sessions Modal
+        */
+        modalRequestDeleteSurvey.on('show.bs.modal', (event) => {
+            const button = $(event.relatedTarget);
+            const url = button.data('action');
+            const form = modalRequestDeleteSurvey.find('form');
+            const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+            modalRequestDeleteSurvey.find('#modal-button-confirm-accept-request').on('click', () => {
+                modalRequestDeleteSurvey.find('#beltradar-spinner').removeClass('d-none');
+                modalRequestDeleteSurvey.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+                fetchPost({
+                    url: url,
+                    csrfToken: csrfMiddlewareToken,
+                    payload: {}
+                })
+                .then((data) => {
+                    if (data.success === true) {
+                        modalRequestDeleteSurvey.modal('hide');
+                        window.location.href = "{% url 'beltradar:index' %}";
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting delete request: ${error.message}`);
+                    modalRequestDeleteSurvey.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                });
+            });
+        })
+        .on('hide.bs.modal', () => {
+            modalRequestDeleteSurvey.find('#modal-button-confirm-accept-request').unbind('click');
+            modalRequestDeleteSurvey.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+        });
+
+        /**
+        * View :: Survey Sessions :: Add Survey Button Click Handler
+        * Open Add Survey Modal
+        * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+        * and reopen the previous Survey Sessions Modal
+        */
+        modalRequestAddSurvey.on('show.bs.modal', (event) => {
+            const button = $(event.relatedTarget);
+            const url = button.data('action');
+            const form = modalRequestAddSurvey.find('form');
+            const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+            const formTextArea = form.find('textarea[name="raw_data"]');
+
+            modalRequestAddSurvey.find('#modal-button-confirm-add-request').on('click', () => {
+                modalRequestAddSurvey.find('#beltradar-spinner').removeClass('d-none');
+                modalRequestAddSurvey.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+                const rawData = formTextArea.val();
+                fetchPostBeltRadar({
+                    url: url,
+                    csrfToken: csrfMiddlewareToken,
+                    payload: {
+                        raw_data: rawData,
+                    }
+                })
+                .then((data) => {
+                    if (data.success === true) {
+                        fetchGetBeltRadar({
+                            url: aaBeltRadarSettings.url.surveySessionEntry,
+                        })
+                        .then((freshData) => {
+                            _reloadSurveySnapshotData(freshData);
+                            modalRequestAddSurvey.modal('hide');
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching Survey Snapshot DataTable after add:', error);
+                            modalRequestAddSurvey.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting add survey request: ${error.message}`);
+                    modalRequestAddSurvey.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                })
+                .finally(() => {
+                    modalRequestAddSurvey.find('#beltradar-spinner').addClass('d-none');
+                });
+            });
+        })
+        .on('hide.bs.modal', () => {
+            modalRequestAddSurvey.find('#modal-button-confirm-add-request').unbind('click');
+            modalRequestAddSurvey.find('textarea[name="raw_data"]').val('');
+            modalRequestAddSurvey.find('#beltradar-spinner').addClass('d-none');
+            modalRequestAddSurvey.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
         });
     });
 </script>

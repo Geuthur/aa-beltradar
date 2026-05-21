@@ -1,41 +1,37 @@
 {% load django_bootstrap5 %}
 {% load i18n %}
 
-<!-- accept delete survey session modal -->
-<div class="modal fade" id="beltradar-accept-delete-survey-session" tabindex="-1" role="dialog" aria-hidden="true">
+<!-- add survey modal -->
+<div class="modal modal-xl fade" id="beltradar-add-survey" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title fs-5">
-                    {% translate "Accept Delete Survey Session" %}
+                    {% translate "Add Survey" %}
                 </div>
 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
             </div>
 
             <div class="modal-body">
-                <p>
-                    {% translate "Are you sure you want to delete this survey session?" %}
-                </p>
-
-                <form method="post">
+                <form method="post" id="modal-form-add-survey">
                     {% csrf_token %}
 
-                    {% bootstrap_form forms.delete_survey %}
+                    {% bootstrap_form forms.add_survey %}
                 </form>
                 {% include 'beltradar/partials/common/spinner.html' %}
                 {% include 'beltradar/partials/common/error.html' %}
             </div>
 
             <div class="modal-footer">
-                <button id="modal-button-cancel-accept-request" type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">
+                <button id="modal-button-cancel-add-request" type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">
                     <i class="fa-solid fa-hand"></i>
                     {% translate "Cancel" %}
                 </button>
 
-                <button id="modal-button-confirm-accept-request" type="button" class="btn btn-success btn-sm">
+                <button id="modal-button-confirm-add-request" type="button" class="btn btn-success btn-sm">
                     <i class="fa-solid fa-check"></i>
-                    {% translate "Accept Delete Survey Session" %}
+                    {% translate "Add Survey" %}
                 </button>
             </div>
         </div>

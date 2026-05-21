@@ -36,13 +36,15 @@ class DeleteSurveyForm(forms.Form):
         fields = ["public_id"]
 
 
-class OreBatchImportForm(forms.Form):
+class AddSurveyForm(forms.Form):
     raw_data = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 20, "cols": 80}),
         label="Mining Survey Result Data",
         help_text="Paste the 'Mining Survey Result' data here.",
+        required=True,
     )
 
+    # TODO: Optimize Performance Issues?
     def parse_ore_data(self):
         """
         Parses the raw data from the textarea into a list of OreSchema objects.
@@ -58,9 +60,11 @@ class OreBatchImportForm(forms.Form):
         # Remove non-data lines and clean up common formatting issues before parsing
         cleaned = re.sub(pattern=r"(?i)m3|m³|km|ISK|\*", repl="", string=raw_data)
 
+        timestamp = timezone.now().replace(microsecond=0)
+
         # Generate a unique hash of the raw data to identify this snapshot
         unique_hash = hashlib.sha256(
-            raw_data.encode("utf-8") + str(timezone.now()).encode("utf-8")
+            raw_data.encode("utf-8") + str(timestamp).encode("utf-8")
         ).hexdigest()
 
         for idx, line in enumerate(cleaned.splitlines(), start=1):
@@ -103,7 +107,7 @@ class OreBatchImportForm(forms.Form):
                 "units": units,
                 "volume_m3": volume_m3,
                 "price_isk": price_isk,
-                "timestamp": timezone.now(),
+                "timestamp": timestamp,
                 "snapshot": unique_hash,
             }
             items.append(OreSchema(**item))

@@ -18,7 +18,6 @@ urlpatterns = [
         views.view_my_sessions,
         name="view_my_sessions",
     ),
-    path("survey/<uuid:public_id>/add-entry/", views.add_entry, name="add_entry"),
     path("survey/<uuid:public_id>/view/", views.view_session, name="view_session"),
     # -- API System
     re_path(r"^api/", api.urls),

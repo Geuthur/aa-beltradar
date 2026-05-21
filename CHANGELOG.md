@@ -11,6 +11,31 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- EveMarketPrice Model
+- Update Market Price Task
+- API Response Handling for Modals
+- Shake Animation for Errors
+- Custom AllianceAuth’s fetchGet & fetchPost implementations and added unified error response handling.
+- Migration for EveMarketPrice
+
+### Changed
+
+- Unified Timestamp per Snapshot
+- Optimized Charts
+- Add Survey button now loads data interactively without page reload
+- Performance Optimation for "Add Survey"
+- Add Survey Button minimized and moved to Survey Table
+
+### Fixed
+
+- BS5 Tooltip in EvE Render Function
+
+### Removed
+
+- Add Survey view is now handled via modal
+
 ## [0.0.6] - 2026-05-17
 
 ### Added

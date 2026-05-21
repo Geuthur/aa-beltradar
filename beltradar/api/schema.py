@@ -5,6 +5,15 @@ from ninja import Schema
 from django.utils import timezone
 
 
+class SessionSchema(Schema):
+    public_id: str
+    name: str
+    created_at: timezone.datetime
+    owner: str
+    first_entry_timestamp: timezone.datetime | None = None
+    last_entry_timestamp: timezone.datetime | None = None
+
+
 class BeltSurveySessionSchema(Schema):
     public_id: str
     name: str
@@ -20,6 +29,8 @@ class OreSchema(Schema):
     volume_m3: int
     price_isk: float
     price_compressed: float | None = None
+    income_per_h: float | None = None
+    income_cmp_per_h: float | None = None
     timestamp: timezone.datetime
     snapshot: str
     html: str | None = None
@@ -30,20 +41,9 @@ class OreMiningChartSeriesSchema(Schema):
     data: list[float]
 
 
-class OreMiningChartItemSchema(Schema):
-    ore_name: str
-    start_volume: float = 0.0
-    volume_left: float = 0.0
-    volume_mined: float = 0.0
-    progress_percent: float = 0.0
-    rate_m3_per_s: float = 0.0
-    eta_seconds: float | None = None
-
-
 class OreChartDataSchema(Schema):
     categories: list[str] = []
     series: list[OreMiningChartSeriesSchema] = []
-    items: list[OreMiningChartItemSchema] = []
 
 
 class SnapShotStatsSchema(Schema):
@@ -58,11 +58,8 @@ class SnapShotStatsSchema(Schema):
 
 
 class SnapShotSchema(Schema):
-    session_name: str
-    session_created_at: timezone.datetime
-    session_owner: str
-    snapshot: str
-    timestamp: timezone.datetime
+    session: SessionSchema
+    snapshot: str | None = None
     entries: list[OreSchema]
     charts: OreChartDataSchema | None = None
     stats: SnapShotStatsSchema | None = None

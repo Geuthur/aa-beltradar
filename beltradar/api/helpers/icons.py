@@ -143,6 +143,46 @@ def get_survey_delete_button(
     return delete_button
 
 
+def get_add_survey_button(
+    request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
+) -> str:
+    """
+    Generate an add button for a specific survey session.
+
+    This function creates an HTML button for adding a new survey session.
+    When clicked, it triggers a modal to display the add survey form.
+
+    Args:
+        public_id (str): The public UUID of the survey session.
+    Returns:
+        String: HTML string containing the add button.
+    """
+
+    # Generate the URL for the add request
+    button_request_add_url = reverse(
+        "beltradar:api:add_survey_entry",
+        kwargs={
+            "public_id": public_id,
+        },
+    )
+
+    # Define the icon and tooltip for the add button
+    icon = '<i class="fa-solid fa-plus"></i>'
+    title = _("Add Survey")
+    color = "success"
+
+    # Create the HTML for the add icon button
+    add_button = (
+        f'<button data-action="{button_request_add_url}" '
+        f'class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-toggle="modal" '
+        'data-bs-tooltip="aa-beltradar" '
+        'data-bs-target="#beltradar-add-survey" '
+        f'title="{title}">{icon}</button>'
+    )
+    return add_button
+
+
 def get_survey_view_button(
     request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
 ) -> str:

@@ -152,7 +152,7 @@ $(document).ready(() => {
 
             // Update the last snapshot timestamp in the heading, ensuring timestamp is present in the response to prevent errors and providing a fallback message if not available
             if (data?.session?.last_entry_timestamp) {
-                $('#ore-survey-heading').html(`Last Snapshot - ${moment(data.session.last_entry_timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${data.delete_html ?? ''}`);
+                $('#ore-survey-heading').html(`${aaBeltRadarSettings.translations.oreSurveyHeading} - ${moment(data.session.last_entry_timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${data.delete_html ?? ''}`);
             }
 
             // Render Mining Chart with the same data if available, otherwise try to find it in the root of the response
@@ -165,7 +165,7 @@ $(document).ready(() => {
             // Clear the DataTable to show no data and remove loading state
             BeltRadarSessionsDataTable.clear().draw();
             // Show error message in chart area if chart data is not available
-            chartEl.html('<div class="text-muted text-center p-4">{% translate "No mining chart data available." %}</div>');
+            chartEl.html(`<div class="text-muted text-center p-4">${aaBeltRadarSettings.translations.noData}</div>`);
         });
 
     /**
@@ -303,7 +303,7 @@ $(document).ready(() => {
         sessionProgressBarEl.attr('aria-valuenow', progressPercent.toFixed(2));
         sessionProgressionEl.text(`(${progressPercent.toFixed(0)}%)`);
 
-        const lastScanLabel = sessionLastScanEl.data('last-scan-label') || 'Last Scan';
+        const lastScanLabel = sessionLastScanEl.data('last-scan-label') || aaBeltRadarSettings.translations.lastScan;
         const lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
         sessionLastScanEl.text(lastScanText === 'N/A' ? '' : lastScanText);
         sessionLastScanEl.attr('title', `${lastScanLabel}: ${lastScanText}`);
@@ -331,7 +331,7 @@ $(document).ready(() => {
 
         if (!Array.isArray(chartData.categories) || chartData.categories.length === 0) {
             console.warn('No categories available for mining chart. Chart will not be rendered.');
-            chartEl.html('<div class="text-muted text-center p-4 w-100">{% translate "No mining chart data available." %}</div>');
+            chartEl.html(`<div class="text-muted text-center p-4 w-100">${aaBeltRadarSettings.translations.noData}</div>`);
             return;
         }
 
@@ -389,9 +389,9 @@ $(document).ready(() => {
         const entries = Array.isArray(tableData?.entries) ? tableData.entries : [];
         dt.clear().rows.add(entries).draw();
         if (tableData?.session?.last_entry_timestamp) {
-            $('#ore-survey-heading').html(`Last Snapshot - ${moment(tableData.session.last_entry_timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${tableData.delete_html ?? ''} ${tableData.add_survey ?? ''}`);
+            $('#ore-survey-heading').html(`${aaBeltRadarSettings.translations.oreSurveyHeading} - ${moment(tableData.session.last_entry_timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${tableData.delete_html ?? ''} ${tableData.add_survey ?? ''}`);
         } else {
-            $('#ore-survey-heading').html(`Last Snapshot - N/A`);
+            $('#ore-survey-heading').html(`${aaBeltRadarSettings.translations.oreSurveyHeading} - N/A`);
         }
         BeltRadarSessionEntryTable.addClass('highlight');
         sessionContainer.addClass('highlight');

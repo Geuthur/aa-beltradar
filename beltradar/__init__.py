@@ -1,6 +1,6 @@
 """Initialize the app"""
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 __title__ = "Belt Radar"
 
 __package_name__ = "aa-beltradar"

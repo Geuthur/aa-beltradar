@@ -26,7 +26,7 @@ class TestAddSurveyForm(NoSocketsTestCase):
         self.assertIn("raw_data", form.errors)
 
     def test_parse_ore_data_valid(self):
-        raw_data = "Mercoxit III-Grade*\t1433\t57320 m3\t24200000 ISK\t488 km"
+        raw_data = "Mercoxit III-Grade*	1 433	57 320	m3 24 200 000 ISK	488 km"
         form = AddSurveyForm(data={"raw_data": raw_data})
         self.assertTrue(form.is_valid())
         self.assertEqual(len(form.parsed_items), 1)
@@ -45,7 +45,7 @@ class TestAddSurveyForm(NoSocketsTestCase):
         self.assertEqual(len(form.parsed_items), 2)
 
     def test_parse_ore_data_price_decimal_comma(self):
-        raw_data = "Mercoxit III-Grade*\t1 433\t57 320 m3\t24 200 000,00 ISK\t488 km"
+        raw_data = "Mercoxit III-Grade*	1 433	57 320 m3	24 200 000,00 ISK	488 km"
         form = AddSurveyForm(data={"raw_data": raw_data})
         self.assertTrue(form.is_valid())
         self.assertEqual(form.parsed_items[0].price_isk, 24200000)

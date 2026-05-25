@@ -45,6 +45,22 @@ class AddSurveyForm(forms.Form):
     )
 
     # TODO: Optimize Performance Issues?
+    @staticmethod
+    def _normalize_integer_token(token: str, *, trim_decimal: bool = False) -> str:
+        """
+        Normalize a numeric token by removing whitespace/group separators.
+
+        If trim_decimal is True, trailing decimal places are removed first
+        (e.g. "24 200 000,00" -> "24200000").
+        """
+        normalized = re.sub(pattern=r"[\s\u00A0\u202F]+", repl="", string=token)
+
+        if trim_decimal:
+            # Strip trailing decimal part before removing separators.
+            normalized = re.sub(pattern=r"([,.])\d+$", repl="", string=normalized)
+
+        return normalized.replace(",", "").replace(".", "")
+
     def parse_ore_data(self):
         """
         Parses the raw data from the textarea into a list of OreSchema objects.
@@ -75,17 +91,6 @@ class AddSurveyForm(forms.Form):
             # Split lines to parts
             parts = [p.strip() for p in line.split("\t") if p.strip()]
 
-            # Remove extra spaces and commas from parts (e.g. "292 000,00" -> "292000")
-            # We only want to remove spaces and commas from numeric fields, so we skip the first part (name) and any parts that are not expected to be numeric.
-            parts = (
-                [parts[0]]
-                + [
-                    re.sub(pattern=r"[ \t,]+", repl="", string=part)
-                    for part in parts[1:-1]
-                ]
-                + [parts[-1]]
-            )
-
             if len(parts) < 5:
                 raise forms.ValidationError(
                     message=f"Line {idx} is invalid: expected at least 5 columns but got {len(parts)}"
@@ -94,9 +99,11 @@ class AddSurveyForm(forms.Form):
             # Parse numeric fields with error handling
             try:
                 name = parts[0]
-                units = int(parts[1])
-                volume_m3 = int(parts[2])
-                price_isk = int(parts[3])
+                units = int(self._normalize_integer_token(parts[1]))
+                volume_m3 = int(self._normalize_integer_token(parts[2]))
+                price_isk = int(
+                    self._normalize_integer_token(parts[3], trim_decimal=True)
+                )
             except Exception as e:  # pylint: disable=broad-except
                 raise forms.ValidationError(
                     message=f"Line {idx} has invalid numeric data: {e}"
@@ -121,17 +128,20 @@ class AddSurveyForm(forms.Form):
         try:
             parsed = self.parse_ore_data()
         except forms.ValidationError:
-            # propagate field-level parsing errors
+            # keep parsing errors attached to the textarea field
             raise
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             logger.error(f"[Beltradar] Unexpected error parsing raw data: {e}")
-            raise forms.ValidationError(
-                message="Failed to parse the raw data. Please check the format and try again."
+            self.add_error(
+                "raw_data",
+                "Failed to parse the raw data. Please check the format and try again.",
             )
+            return cleaned_data
 
         self.parsed_items = parsed
         if not parsed:
-            raise forms.ValidationError("No valid rows found in pasted data.")
+            self.add_error("raw_data", "No valid rows found in pasted data.")
+            return cleaned_data
         cleaned_data["parsed_items"] = parsed
         return cleaned_data
 

@@ -40,7 +40,7 @@ class BeltSurveySession(models.Model):
         User, on_delete=models.CASCADE, related_name="br_user_sessions"
     )
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    name = models.CharField(max_length=150, blank=True, null=True)
+    name = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_entries_for_snapshot(self, snapshot):

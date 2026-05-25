@@ -31,6 +31,8 @@ Section Order:
 ### Fixed
 
 - BS5 Tooltip in EvE Render Function
+- Decimal Issue
+- Empty Session Name
 
 ### Removed
 

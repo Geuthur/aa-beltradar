@@ -44,5 +44,88 @@
             "corporation_name": "Voices of War",
             "corporation_ticker": "VOW"
         }
+    ],
+    "EveCategory": [
+        {
+            "id": 1,
+            "name": "Asteroid",
+            "published": true
+        }
+    ],
+    "EveGroup": [
+        {
+            "category_id": 1,
+            "id": 1,
+            "name": "Veldspar",
+            "published": true
+        },
+        {
+            "category_id": 1,
+            "id": 2,
+            "name": "Spodumain",
+            "published": true
+        }
+    ],
+    "EveType": [
+        {
+            "capacity": 0.0,
+            "description": "Veldspar Ore",
+            "group_id": 1,
+            "id": 1,
+            "mass": 0,
+            "name": "Veldspar",
+            "portion_size": 1,
+            "published": true,
+            "radius": 1,
+            "volume": 0.01
+        },
+        {
+            "capacity": 0.0,
+            "description": "Spodumain Ore",
+            "group_id": 2,
+            "id": 2,
+            "mass": 0,
+            "name": "Spodumain",
+            "portion_size": 1,
+            "published": true,
+            "radius": 1,
+            "volume": 0.01
+        },
+        {
+            "capacity": 0.0,
+            "description": "Mercoxit Ore",
+            "group_id": 2,
+            "id": 3,
+            "mass": 0,
+            "name": "Mercoxit",
+            "portion_size": 1,
+            "published": true,
+            "radius": 1,
+            "volume": 0.01
+        },
+        {
+            "capacity": 0.0,
+            "description": "Mercoxit III-Grade Ore",
+            "group_id": 2,
+            "id": 4,
+            "mass": 0,
+            "name": "Mercoxit III-Grade",
+            "portion_size": 1,
+            "published": true,
+            "radius": 1,
+            "volume": 0.01
+        },
+        {
+            "capacity": 0.0,
+            "description": "Compressed Mercoxit III-Grade",
+            "group_id": 2,
+            "id": 5,
+            "mass": 0,
+            "name": "Compressed Mercoxit III-Grade",
+            "portion_size": 1,
+            "published": true,
+            "radius": 1,
+            "volume": 0.01
+        }
     ]
 }

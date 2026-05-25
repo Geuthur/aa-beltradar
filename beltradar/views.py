@@ -38,14 +38,12 @@ def create_session(request):
     }
     if request.method == "POST":
         form = forms.BeltSurveySessionForm(request.POST)
-        logger.debug(f"Create session form data: {request.POST}")
         if form.is_valid():
             sess = form.save(commit=False)
             sess.owner = request.user
             sess.save()
             return redirect("beltradar:view_session", public_id=sess.public_id)
         context["forms"]["create_session"] = form  # return bound form with errors
-    logger.debug(f"Rendering create session form with context: {context}")
     return render(request, "beltradar/view-create-session.html", context=context)
 
 

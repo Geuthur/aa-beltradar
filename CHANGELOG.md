@@ -11,6 +11,10 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- Enhance market price update task with retry mechanism
+
 ## [0.0.7] - 2026-05-25
 
 ### Added

@@ -1,7 +1,7 @@
 """App Tasks"""
 
 # Third Party
-from celery import shared_task
+from celery import Task, shared_task
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -10,7 +10,7 @@ from allianceauth.services.tasks import QueueOnce
 # AA Belt Radar
 from beltradar import __title__, app_settings
 from beltradar.models import BeltSurveySession, EveMarketPrice
-from beltradar.providers import AppLogger
+from beltradar.providers import AppLogger, retry_task_on_esi_error
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
@@ -56,8 +56,10 @@ def update_belt_radar_session(self, public_id: str, force_refresh: bool = False)
     # Placeholder for future implementation, currently no background processing needed for session updates.
 
 
-@shared_task(**TASK_DEFAULTS_ONCE)
-def update_market_prices():
+@shared_task(**TASK_DEFAULTS_BIND_ONCE)
+def update_market_prices(self: Task):
     """Update market prices for all market items."""
-    count = EveMarketPrice.objects.update_from_esi()
-    logger.info("Updated market prices for %s items.", count)
+    # Perform the update within the retry context manager
+    with retry_task_on_esi_error(self):
+        count = EveMarketPrice.objects.update_from_esi()
+        logger.info("Updated market prices for %s items.", count)

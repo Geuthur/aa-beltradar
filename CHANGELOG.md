@@ -11,6 +11,14 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- User Sessions View
+
+### Fixed
+
+- Users not seeing Sessions from other users with permission
+
 ### Changed
 
 - Enhance market price update task with retry mechanism

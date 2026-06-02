@@ -218,6 +218,39 @@ class BeltRadarSurveyApiEndpoints:
             return 200, survey_list
 
         @api.get(
+            "view/user-sessions/",
+            response={
+                HTTPStatus.OK: list[schema.BeltSurveySessionSchema],
+                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.NOT_FOUND: dict,
+            },
+            tags=self.tags,
+        )
+        def get_user_sessions(request):
+            """Get all survey sessions for the current user."""
+            # Get all sessions visible to the user, ordered by creation date descending
+            sessions = BeltSurveySession.objects.visible_to(request.user).order_by(
+                "-created_at"
+            )
+
+            # Serialize sessions into the API response format
+            survey_list: list[schema.BeltSurveySessionSchema] = []
+            for session in sessions:
+                survey_session_data = schema.BeltSurveySessionSchema(
+                    public_id=str(session.public_id),
+                    name=session.name,
+                    created_at=session.created_at,
+                    owner=str(session.owner),
+                    html=str(
+                        get_survey_manage_action_icons(
+                            request=request, public_id=session.public_id
+                        )
+                    ),
+                )
+                survey_list.append(survey_session_data)
+            return 200, survey_list
+
+        @api.get(
             "view/session/{public_id}/snapshot/last_entry/",
             response={
                 HTTPStatus.OK: schema.SnapShotSchema,

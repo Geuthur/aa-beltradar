@@ -47,7 +47,7 @@ class BeltRadarQuerySet(models.QuerySet["BeltSurveyContext"]):
         try:
             char = user.profile.main_character
             assert char
-            queries = [models.Q(eve_character__character_ownership__user=user)]
+            queries = [models.Q(owner=user)]
 
             logger.debug(
                 "%s queries for user %s visible survey sessions.", len(queries), user
@@ -78,7 +78,7 @@ class BeltRadarQuerySet(models.QuerySet["BeltSurveyContext"]):
         try:
             char = user.profile.main_character
             assert char
-            query = models.Q(eve_character__character_ownership__user=user)
+            query = models.Q(owner=user)
             logger.debug("Returning own survey sessions for User %s.", user)
 
             if query is None:

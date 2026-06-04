@@ -69,6 +69,16 @@ def view_session(request, public_id):
 
 @login_required
 @permission_required("beltradar.basic_access")
+def view_user_sessions(request):
+    """View all survey sessions visible to the user."""
+    context = {
+        "title": "Survey Sessions Overview",
+    }
+    return render(request, "beltradar/view-user-sessions.html", context=context)
+
+
+@login_required
+@permission_required("beltradar.basic_access")
 def view_my_sessions(request, character_id=None):
     if character_id is None:
         character_id = request.user.profile.main_character.character_id

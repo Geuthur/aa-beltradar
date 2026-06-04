@@ -14,6 +14,8 @@ Section Order:
 ### Added
 
 - User Sessions View
+- Python 3.13 Support
+- Compatibility to Alliance Auth v5
 
 ### Fixed
 
@@ -22,6 +24,10 @@ Section Order:
 ### Changed
 
 - Enhance market price update task with retry mechanism
+
+### Removed
+
+- Compatibility to Alliance Auth v4
 
 ## [0.0.7] - 2026-05-25
 

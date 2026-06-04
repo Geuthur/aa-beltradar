@@ -51,7 +51,7 @@ urls.Source = "https://github.com/Geuthur/aa-beltradar"
 urls.Tracker = "https://github.com/Geuthur/aa-beltradar/issues"
 
 [tool.hatch]
+version.path = "beltradar/__init__.py"
 build.include = [
     "/beltradar",
 ]
-version.path = "beltradar/__init__.py"

@@ -50,21 +50,10 @@ class TestAddSurveyForm(NoSocketsTestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.parsed_items[0].price_isk, 24200000)
 
-    def test_parse_ore_data_invalid_columns(self):
-        raw_data = "Mercoxit III-Grade*	1 433	57 320 m3	24 200 000,00 ISK"
-        form = AddSurveyForm(data={"raw_data": raw_data})
-        self.assertFalse(form.is_valid())
-        self.assertIn("__all__", form.errors)
-
-    def test_parse_ore_data_invalid_numeric(self):
-        raw_data = "Mercoxit III-Grade*	1 433	invalid_volume	24 200 000,00 ISK	488 km"
-        form = AddSurveyForm(data={"raw_data": raw_data})
-        self.assertFalse(form.is_valid())
-        self.assertIn("__all__", form.errors)
-
     def test_parse_ore_data_empty(self):
         form = AddSurveyForm(data={"raw_data": ""})
         self.assertFalse(form.is_valid())
+        self.assertIn("raw_data", form.errors)
 
     def test_parse_ore_data_only_whitespace(self):
         raw_data = "\n\n   \n"

@@ -11,7 +11,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__
-from beltradar.api.schema import OreSchema
+from beltradar.api.schema import OreSchema, OreSchemaResponse
 from beltradar.models import BeltSurveySession
 from beltradar.providers import AppLogger
 
@@ -89,7 +89,7 @@ class AddSurveyForm(forms.Form):
             raw_data.encode("utf-8") + str(timestamp).encode("utf-8")
         ).hexdigest()
 
-        wrong_format = []
+        form_errors = []
         for idx, line in enumerate(cleaned.splitlines(), start=1):
             line = line.strip()
             if not line:
@@ -105,11 +105,9 @@ class AddSurveyForm(forms.Form):
                     if p.strip()
                 ]
 
-            logger.debug(f"Processing line {idx}: {parts}")
-
             if len(parts) < 5:
                 msg = f"Line {idx} is invalid with: {line}"
-                wrong_format.append(msg)
+                form_errors.append(msg)
                 continue  # skip lines that don't have enough columns, but don't fail the entire form
 
             # Parse numeric fields with error handling
@@ -122,10 +120,9 @@ class AddSurveyForm(forms.Form):
                 )
             except Exception as e:  # pylint: disable=broad-except
                 msg = f"Line {idx} has invalid numeric data: {e}"
-                wrong_format.append(msg)
+                form_errors.append(msg)
                 continue  # skip lines with invalid numeric data, but don't fail the entire form
 
-            # TODO - Add Wrong Format Feedback to User
             item = {
                 "name": name,
                 "units": units,
@@ -135,32 +132,21 @@ class AddSurveyForm(forms.Form):
                 "snapshot": unique_hash,
             }
             items.append(OreSchema(**item))
-        return items
-
-    def clean_raw_data(self):
-        return self.cleaned_data.get("raw_data", "")
+        return OreSchemaResponse(erros=form_errors, entries=items)
 
     def clean(self):
+        # Start with the default cleaning to populate cleaned_data
         cleaned_data = super().clean()
-        try:
-            parsed = self.parse_ore_data()
-            logger.debug(f"Parsed {len(parsed)} items from raw data.")
-        except forms.ValidationError:
-            # keep parsing errors attached to the textarea field
-            raise
-        except Exception as e:  # pylint: disable=broad-except
-            logger.error(f"[Beltradar] Unexpected error parsing raw data: {e}")
-            self.add_error(
-                "raw_data",
-                "Failed to parse the raw data. Please check the format and try again.",
-            )
+
+        if self.errors:
             return cleaned_data
 
-        self.parsed_items = parsed
-        if not parsed:
-            self.add_error("raw_data", "No valid rows found in pasted data.")
-            return cleaned_data
-        cleaned_data["parsed_items"] = parsed
+        # Parse once and expose both compatibility attributes and cleaned_data values.
+        parsed_result = self.parse_ore_data()
+        self.parsed_items = parsed_result.entries
+        self.parse_errors = parsed_result.erros
+        cleaned_data["parsed_items"] = parsed_result.entries
+        cleaned_data["parse_errors"] = parsed_result.erros
         return cleaned_data
 
 

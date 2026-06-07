@@ -44,8 +44,91 @@ class AddSurveyForm(forms.Form):
         required=True,
     )
 
+    def sanatize_raw_data(self, raw_data: str) -> str:
+        """Sanatize and parse the raw data input, returning a structured list of OreSchema items."""
+        if not raw_data:
+            return ""
+
+        timestamp = timezone.now().replace(microsecond=0)
+
+        # Generate a unique hash of the raw data to identify this snapshot
+        unique_hash = hashlib.sha256(
+            raw_data.encode("utf-8") + str(timestamp).encode("utf-8")
+        ).hexdigest()
+
+        processed_lines = []
+        standard_patterns = r"(?i)\b(isk|km|m3|m³|m)\b"
+        form_errors = []
+
+        for line in raw_data.splitlines():
+            line = line.strip()
+
+            if not line:
+                form_errors.append("Empty line skipped.")
+                continue
+
+            # Skip informational lines like: "Nocxite III-Grade [3] 156 ISK / m³"
+            if re.search(
+                pattern=r"\[\d+\]\s+\d+\s+ISK\s*/\s*m[³3]",
+                string=line,
+                flags=re.IGNORECASE,
+            ):
+                form_errors.append(f"Unknown line skipped: {line}")
+                continue
+
+            parts = [p.strip() for p in line.split("\t") if p.strip()]
+            if len(parts) < 4:
+                parts = [
+                    p.strip()
+                    for p in re.split(pattern=r"\s{2,}", string=line)
+                    if p.strip()
+                ]
+
+            if len(parts) < 4:
+                form_errors.append(f"Line skipped due to insufficient columns: {line}")
+                continue
+
+            name = parts[0].replace("*", "").strip()
+            units = self._sanatize_numbers(
+                re.sub(
+                    pattern=standard_patterns,
+                    repl="",
+                    string=parts[1],
+                ).strip()
+            )
+            volume = self._sanatize_numbers(
+                token=re.sub(
+                    pattern=standard_patterns,
+                    repl="",
+                    string=parts[2],
+                ).strip()
+            )
+            price = self._sanatize_numbers(
+                token=re.sub(
+                    pattern=standard_patterns,
+                    repl="",
+                    string=parts[3],
+                ).strip(),
+                trim_decimal=True,
+            )
+
+            if not (name and units and volume and price):
+                form_errors.append(f"Line skipped due to missing data: {line}")
+                continue
+
+            item = {
+                "name": name,
+                "units": units,
+                "volume_m3": volume,
+                "price_isk": price,
+                "timestamp": timestamp,
+                "snapshot": unique_hash,
+            }
+            processed_lines.append(OreSchema(**item))
+        return OreSchemaResponse(erros=form_errors, entries=processed_lines)
+
     @staticmethod
-    def _normalize_integer_token(token: str, *, trim_decimal: bool = False) -> str:
+    def _sanatize_numbers(token: str, *, trim_decimal: bool = False) -> str:
         """
         Normalize a numeric token by removing whitespace/group separators.
 
@@ -67,87 +150,11 @@ class AddSurveyForm(forms.Form):
 
         return normalized.replace(",", "").replace(".", "")
 
-    def parse_ore_data(self):
+    def clean_raw_data(self):
         """
-        Parses the raw data from the textarea into a list of OreSchema objects.
-
-        Expects tab-separated values with at least the following columns:
-            Name    Units   Volume (m3)    Price (ISK) (additional columns are ignored)
-            Example:
-            Mercoxit III-Grade*	6 500	260 000 m3	110 000 000,00 ISK	505 km
+        Clean and parse the raw data input, returning a structured list of OreSchema items.
         """
-        raw_data = self.cleaned_data.get("raw_data", "") or ""
-        items = []
-
-        # Remove non-data lines and clean up common formatting issues before parsing
-        cleaned = re.sub(pattern=r"(?i)m3|m³|km|ISK|\*", repl="", string=raw_data)
-
-        timestamp = timezone.now().replace(microsecond=0)
-
-        # Generate a unique hash of the raw data to identify this snapshot
-        unique_hash = hashlib.sha256(
-            raw_data.encode("utf-8") + str(timestamp).encode("utf-8")
-        ).hexdigest()
-
-        form_errors = []
-        for idx, line in enumerate(cleaned.splitlines(), start=1):
-            line = line.strip()
-            if not line:
-                continue
-
-            # Support both tab-separated and multi-space-separated exports.
-            parts = [p.strip() for p in line.split("\t") if p.strip()]
-
-            if len(parts) < 5:
-                parts = [
-                    p.strip()
-                    for p in re.split(pattern=r"\s{2,}", string=line)
-                    if p.strip()
-                ]
-
-            if len(parts) < 5:
-                msg = f"Line {idx} is invalid with: {line}"
-                form_errors.append(msg)
-                continue  # skip lines that don't have enough columns, but don't fail the entire form
-
-            # Parse numeric fields with error handling
-            try:
-                name = parts[0]
-                units = int(self._normalize_integer_token(parts[1]))
-                volume_m3 = int(self._normalize_integer_token(parts[2]))
-                price_isk = int(
-                    self._normalize_integer_token(parts[3], trim_decimal=True)
-                )
-            except Exception as e:  # pylint: disable=broad-except
-                msg = f"Line {idx} has invalid numeric data: {e}"
-                form_errors.append(msg)
-                continue  # skip lines with invalid numeric data, but don't fail the entire form
-
-            item = {
-                "name": name,
-                "units": units,
-                "volume_m3": volume_m3,
-                "price_isk": price_isk,
-                "timestamp": timestamp,
-                "snapshot": unique_hash,
-            }
-            items.append(OreSchema(**item))
-        return OreSchemaResponse(erros=form_errors, entries=items)
-
-    def clean(self):
-        # Start with the default cleaning to populate cleaned_data
-        cleaned_data = super().clean()
-
-        if self.errors:
-            return cleaned_data
-
-        # Parse once and expose both compatibility attributes and cleaned_data values.
-        parsed_result = self.parse_ore_data()
-        self.parsed_items = parsed_result.entries
-        self.parse_errors = parsed_result.erros
-        cleaned_data["parsed_items"] = parsed_result.entries
-        cleaned_data["parse_errors"] = parsed_result.erros
-        return cleaned_data
+        return self.sanatize_raw_data(raw_data=self.cleaned_data["raw_data"])
 
 
 class BeltSurveySessionForm(forms.ModelForm):

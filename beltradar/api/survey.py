@@ -39,26 +39,6 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 class BeltRadarSurveyApiEndpoints:
     tags = ["Survey"]
 
-    @staticmethod
-    def _extract_parsed_survey_data(
-        form: "forms.AddSurveyForm",
-    ) -> tuple[list[schema.OreSchema], list[str]]:
-        parsed_data = getattr(
-            form,
-            "parsed_items",
-            form.cleaned_data.get("parsed_items", []),
-        )
-        parse_errors = getattr(
-            form,
-            "parse_errors",
-            form.cleaned_data.get("parse_errors", []),
-        )
-
-        if isinstance(parsed_data, schema.OreSchemaResponse):
-            return parsed_data.entries, parsed_data.erros
-
-        return parsed_data or [], parse_errors
-
     # pylint: disable=too-many-locals
     def ore_mining_stats(
         self,
@@ -486,18 +466,19 @@ class BeltRadarSurveyApiEndpoints:
                 return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
             survey_entries = []
-            parsed_survey, parse_errors = self._extract_parsed_survey_data(form)
+            survey_data: schema.OreSchemaResponse = form.cleaned_data.get(
+                "raw_data", None
+            )
 
             # If no valid entries were parsed from the input data, return an error message
-            if not parsed_survey:
-                logger.debug(
-                    "No valid entries parsed from input data: %s", parse_errors
+            if not survey_data or not survey_data.entries:
+                msg = _("No valid entries to add. Errors: ") + ", ".join(
+                    survey_data.erros if survey_data else ["No data"]
                 )
-                msg = _("No valid entries to add. Errors: ") + ", ".join(parse_errors)
                 return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
             missing_types = []
-            names = [item.name for item in parsed_survey]
+            names = [item.name for item in survey_data.entries]
             unique_names = sorted(set(names))
             unique_name_set = set(unique_names)
 
@@ -532,7 +513,7 @@ class BeltRadarSurveyApiEndpoints:
             # Create a set of existing type names for quick lookup
             existing_type_names = set(eve_type_ids.keys())
 
-            for item in parsed_survey:
+            for item in survey_data.entries:
                 if item.name not in existing_type_names:
                     missing_types.append(item.name)
                     continue  # skip items with missing types
@@ -578,5 +559,5 @@ class BeltRadarSurveyApiEndpoints:
                 "message": _("No valid entries to add. Missing types: ")
                 + ", ".join(missing_types)
                 + ". Errors: "
-                + ", ".join(parse_errors),
+                + ", ".join(survey_data.erros if survey_data else ["No data"]),
             }

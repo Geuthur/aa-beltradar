@@ -501,10 +501,19 @@ $(document).ready(() => {
         const button = $(event.relatedTarget);
         const url = button.data('action');
         const form = modalRequestAddSurvey.find('form');
+        const nativeForm = form.get(0);
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
         const formTextArea = form.find('textarea[name="raw_data"]');
 
         modalRequestAddSurvey.find('#modal-button-confirm-add-request').on('click', () => {
+            // This modal uses a regular button + fetch, so enforce HTML5 validation manually.
+            formTextArea.prop('required', true);
+
+            if (nativeForm && !nativeForm.checkValidity()) {
+                nativeForm.reportValidity();
+                return;
+            }
+
             modalRequestAddSurvey.find('#beltradar-spinner').removeClass('d-none');
             modalRequestAddSurvey.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
             const rawData = formTextArea.val();

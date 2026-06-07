@@ -11,6 +11,14 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Validate required fields in the survey form
+
+### Changed
+
+- Enhance survey form validation
+
 ## [0.0.8] - 2026-06-03
 
 ### Added

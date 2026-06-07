@@ -36,6 +36,11 @@ class OreSchema(Schema):
     html: str | None = None
 
 
+class OreSchemaResponse(Schema):
+    erros: list[str] = []
+    entries: list[OreSchema] = []
+
+
 class OreMiningChartSeriesSchema(Schema):
     name: str
     data: list[float]

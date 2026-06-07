@@ -11,7 +11,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__
-from beltradar.api.schema import OreSchema
+from beltradar.api.schema import OreSchema, OreSchemaResponse
 from beltradar.models import BeltSurveySession
 from beltradar.providers import AppLogger
 
@@ -44,7 +44,6 @@ class AddSurveyForm(forms.Form):
         required=True,
     )
 
-    # TODO: Optimize Performance Issues?
     @staticmethod
     def _normalize_integer_token(token: str, *, trim_decimal: bool = False) -> str:
         """
@@ -57,7 +56,14 @@ class AddSurveyForm(forms.Form):
 
         if trim_decimal:
             # Strip trailing decimal part before removing separators.
-            normalized = re.sub(pattern=r"([,.])\d+$", repl="", string=normalized)
+            # If only '.' exists and 3 digits follow, treat it as a thousands group.
+            if "," in normalized:
+                normalized = re.sub(pattern=r",\d+$", repl="", string=normalized)
+            elif "." in normalized:
+                decimal_match = re.search(pattern=r"\.(\d+)$", string=normalized)
+
+                if decimal_match and len(decimal_match.group(1)) != 3:
+                    normalized = normalized[: decimal_match.start()]
 
         return normalized.replace(",", "").replace(".", "")
 
@@ -83,18 +89,26 @@ class AddSurveyForm(forms.Form):
             raw_data.encode("utf-8") + str(timestamp).encode("utf-8")
         ).hexdigest()
 
+        form_errors = []
         for idx, line in enumerate(cleaned.splitlines(), start=1):
             line = line.strip()
             if not line:
                 continue
 
-            # Split lines to parts
+            # Support both tab-separated and multi-space-separated exports.
             parts = [p.strip() for p in line.split("\t") if p.strip()]
 
             if len(parts) < 5:
-                raise forms.ValidationError(
-                    message=f"Line {idx} is invalid: expected at least 5 columns but got {len(parts)}"
-                )
+                parts = [
+                    p.strip()
+                    for p in re.split(pattern=r"\s{2,}", string=line)
+                    if p.strip()
+                ]
+
+            if len(parts) < 5:
+                msg = f"Line {idx} is invalid with: {line}"
+                form_errors.append(msg)
+                continue  # skip lines that don't have enough columns, but don't fail the entire form
 
             # Parse numeric fields with error handling
             try:
@@ -105,9 +119,9 @@ class AddSurveyForm(forms.Form):
                     self._normalize_integer_token(parts[3], trim_decimal=True)
                 )
             except Exception as e:  # pylint: disable=broad-except
-                raise forms.ValidationError(
-                    message=f"Line {idx} has invalid numeric data: {e}"
-                )
+                msg = f"Line {idx} has invalid numeric data: {e}"
+                form_errors.append(msg)
+                continue  # skip lines with invalid numeric data, but don't fail the entire form
 
             item = {
                 "name": name,
@@ -118,31 +132,21 @@ class AddSurveyForm(forms.Form):
                 "snapshot": unique_hash,
             }
             items.append(OreSchema(**item))
-        return items
-
-    def clean_raw_data(self):
-        return self.cleaned_data.get("raw_data", "")
+        return OreSchemaResponse(erros=form_errors, entries=items)
 
     def clean(self):
+        # Start with the default cleaning to populate cleaned_data
         cleaned_data = super().clean()
-        try:
-            parsed = self.parse_ore_data()
-        except forms.ValidationError:
-            # keep parsing errors attached to the textarea field
-            raise
-        except Exception as e:  # pylint: disable=broad-except
-            logger.error(f"[Beltradar] Unexpected error parsing raw data: {e}")
-            self.add_error(
-                "raw_data",
-                "Failed to parse the raw data. Please check the format and try again.",
-            )
+
+        if self.errors:
             return cleaned_data
 
-        self.parsed_items = parsed
-        if not parsed:
-            self.add_error("raw_data", "No valid rows found in pasted data.")
-            return cleaned_data
-        cleaned_data["parsed_items"] = parsed
+        # Parse once and expose both compatibility attributes and cleaned_data values.
+        parsed_result = self.parse_ore_data()
+        self.parsed_items = parsed_result.entries
+        self.parse_errors = parsed_result.erros
+        cleaned_data["parsed_items"] = parsed_result.entries
+        cleaned_data["parse_errors"] = parsed_result.erros
         return cleaned_data
 
 

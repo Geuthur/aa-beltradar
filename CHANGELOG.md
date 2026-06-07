@@ -11,6 +11,10 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- enhance survey form validation
+
 ## [0.0.8] - 2026-06-03
 
 ### Added

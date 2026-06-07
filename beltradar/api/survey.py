@@ -457,7 +457,12 @@ class BeltRadarSurveyApiEndpoints:
             # Validate the form data
             form = forms.AddSurveyForm(data=json.loads(request.body))
             if not form.is_valid():
-                msg = _("Invalid form data.")
+                try:
+                    msg = form.errors.as_json(escape_html=False)
+                except IndexError:
+                    msg = _(
+                        "Invalid input data. Please check the format and try again."
+                    )
                 return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
             survey_entries = []

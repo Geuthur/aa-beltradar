@@ -44,7 +44,6 @@ class AddSurveyForm(forms.Form):
         required=True,
     )
 
-    # TODO: Optimize Performance Issues?
     @staticmethod
     def _normalize_integer_token(token: str, *, trim_decimal: bool = False) -> str:
         """
@@ -57,7 +56,14 @@ class AddSurveyForm(forms.Form):
 
         if trim_decimal:
             # Strip trailing decimal part before removing separators.
-            normalized = re.sub(pattern=r"([,.])\d+$", repl="", string=normalized)
+            # If only '.' exists and 3 digits follow, treat it as a thousands group.
+            if "," in normalized:
+                normalized = re.sub(pattern=r",\d+$", repl="", string=normalized)
+            elif "." in normalized:
+                decimal_match = re.search(pattern=r"\.(\d+)$", string=normalized)
+
+                if decimal_match and len(decimal_match.group(1)) != 3:
+                    normalized = normalized[: decimal_match.start()]
 
         return normalized.replace(",", "").replace(".", "")
 
@@ -83,18 +89,28 @@ class AddSurveyForm(forms.Form):
             raw_data.encode("utf-8") + str(timestamp).encode("utf-8")
         ).hexdigest()
 
+        wrong_format = []
         for idx, line in enumerate(cleaned.splitlines(), start=1):
             line = line.strip()
             if not line:
                 continue
 
-            # Split lines to parts
+            # Support both tab-separated and multi-space-separated exports.
             parts = [p.strip() for p in line.split("\t") if p.strip()]
 
             if len(parts) < 5:
-                raise forms.ValidationError(
-                    message=f"Line {idx} is invalid: expected at least 5 columns but got {len(parts)}"
-                )
+                parts = [
+                    p.strip()
+                    for p in re.split(pattern=r"\s{2,}", string=line)
+                    if p.strip()
+                ]
+
+            logger.debug(f"Processing line {idx}: {parts}")
+
+            if len(parts) < 5:
+                msg = f"Line {idx} is invalid with: {line}"
+                wrong_format.append(msg)
+                continue  # skip lines that don't have enough columns, but don't fail the entire form
 
             # Parse numeric fields with error handling
             try:
@@ -105,10 +121,11 @@ class AddSurveyForm(forms.Form):
                     self._normalize_integer_token(parts[3], trim_decimal=True)
                 )
             except Exception as e:  # pylint: disable=broad-except
-                raise forms.ValidationError(
-                    message=f"Line {idx} has invalid numeric data: {e}"
-                )
+                msg = f"Line {idx} has invalid numeric data: {e}"
+                wrong_format.append(msg)
+                continue  # skip lines with invalid numeric data, but don't fail the entire form
 
+            # TODO - Add Wrong Format Feedback to User
             item = {
                 "name": name,
                 "units": units,
@@ -127,6 +144,7 @@ class AddSurveyForm(forms.Form):
         cleaned_data = super().clean()
         try:
             parsed = self.parse_ore_data()
+            logger.debug(f"Parsed {len(parsed)} items from raw data.")
         except forms.ValidationError:
             # keep parsing errors attached to the textarea field
             raise

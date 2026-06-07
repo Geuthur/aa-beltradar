@@ -21,3 +21,32 @@ Prismaticite*	236 480	9 459 200 m3	14 792 000 000,00 ISK	148 km
 Prismaticite*	236 480	9 459 200 m3	14 792 000 000,00 ISK	47 km
 Prismaticite*	472 960	18 918 400 m3	29 584 000 000,00 ISK	345 km
 Prismaticite*	630 614	25 224 560 m3	39 445 000 000,00 ISK	530 km
+
+Dark Ochre III-Grade    371    2.968 m3    1.540.000,00 ISK    2.484 m
+Hedbergite    37.489    112.467 m3    26.700.000,00 ISK    18 km
+Hedbergite II-Grade    10.405    31.215 m3    7.700.000,00 ISK    9.787 m
+Nocxite    87.242    348.968 m3    38.200.000,00 ISK    5.989 m
+Nocxite    111.225    444.900 m3    48.700.000,00 ISK    6.294 m
+Nocxite    120.146    480.584 m3    52.600.000,00 ISK    7.003 m
+Nocxite    110.560    442.240 m3    48.400.000,00 ISK    7.191 m
+Nocxite    67.342    269.368 m3    29.500.000,00 ISK    7.653 m
+Nocxite    101.243    404.972 m3    44.300.000,00 ISK    7.969 m
+Nocxite    187.746    750.984 m3    82.200.000,00 ISK    8.214 m
+Nocxite    124.276    497.104 m3    54.400.000,00 ISK    11 km
+Nocxite    49.698    198.792 m3    21.800.000,00 ISK    11 km
+Nocxite    42.326    169.304 m3    18.500.000,00 ISK    12 km
+Nocxite    112.802    451.208 m3    49.400.000,00 ISK    22 km
+Nocxite II-Grade    25.979    103.916 m3    2.600.000,00 ISK    4.976 m
+Nocxite II-Grade    106.305    425.220 m3    10.600.000,00 ISK    5.361 m
+Nocxite II-Grade    70.055    280.220 m3    7.000.000,00 ISK    7.153 m
+Nocxite II-Grade    116.492    465.968 m3    11.600.000,00 ISK    11 km
+Nocxite II-Grade    64.251    257.004 m3    6.420.000,00 ISK    16 km
+Nocxite II-Grade    47.266    189.064 m3    4.730.000,00 ISK    18 km
+Nocxite II-Grade    107.425    429.700 m3    10.700.000,00 ISK    19 km
+Nocxite III-Grade [3] 156 ISK / m³
+Nocxite III-Grade    45.806    183.224 m3    52.800.000,00 ISK    4.101 m
+Nocxite III-Grade    73.171    292.684 m3    84.300.000,00 ISK    14 km
+Nocxite III-Grade    57.368    229.472 m3    66.100.000,00 ISK    15 km
+Nocxite IV-Grade [2] 163 ISK / m³
+Nocxite IV-Grade    67.345    269.380 m3    30.300.000,00 ISK    6.879 m
+Nocxite IV-Grade    78.090    312.360 m3    35.100.000,00 ISK    17 km

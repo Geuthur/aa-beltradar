@@ -50,3 +50,41 @@ Nocxite III-Grade    57.368    229.472 m3    66.100.000,00 ISK    15 km
 Nocxite IV-Grade [2] 163 ISK / m³
 Nocxite IV-Grade    67.345    269.380 m3    30.300.000,00 ISK    6.879 m
 Nocxite IV-Grade    78.090    312.360 m3    35.100.000,00 ISK    17 km
+
+Bistot    30.000    480.000 m3    77.500.000,00 ISK    12 km
+Bistot II-Grade    14.000    224.000 m3    19.600.000,00 ISK    12 km
+Bistot IV-Grade    6.331    101.296 m3    52.700.000,00 ISK    17 km
+Eifyrium    46.027    736.432 m3    110.000.000,00 ISK    2.998 m
+Eifyrium    43.000    688.000 m3    103.000.000,00 ISK    7.825 m
+Eifyrium    47.000    752.000 m3    113.000.000,00 ISK    8.801 m
+Eifyrium II-Grade    28.091    449.456 m3    -    12 km
+Eifyrium II-Grade    40.000    640.000 m3    -    20 km
+Eifyrium III-Grade    32.000    512.000 m3    -    8.840 m
+Eifyrium III-Grade    28.000    448.000 m3    -    22 km
+Eifyrium IV-Grade [1] 189 ISK / m³
+Eifyrium IV-Grade    19.532    312.512 m3    44.600.000,00 ISK    5.382 m
+Hezorime [11] 167 ISK / m³
+Hezorime    210.690    1.053.450 m3    43.100.000,00 ISK    4.934 m
+Hezorime    45.201    226.005 m3    9.240.000,00 ISK    6.554 m
+Hezorime    182.021    910.105 m3    37.200.000,00 ISK    6.558 m
+Hezorime    122.304    611.520 m3    25.000.000,00 ISK    11 km
+Hezorime    159.846    799.230 m3    32.700.000,00 ISK    11 km
+Hezorime    195.536    977.680 m3    40.000.000,00 ISK    13 km
+Hezorime    157.127    785.635 m3    32.100.000,00 ISK    14 km
+Hezorime    123.170    615.850 m3    25.200.000,00 ISK    17 km
+Hezorime    68.526    342.630 m3    14.000.000,00 ISK    21 km
+Hezorime    101.840    509.200 m3    20.800.000,00 ISK    21 km
+Hezorime    76.535    382.675 m3    15.600.000,00 ISK    30 km
+Hezorime II-Grade [7] 175 ISK / m³
+Hezorime II-Grade    148.948    744.740 m3    -    12 km
+Hezorime II-Grade    163.543    817.715 m3    -    14 km
+Hezorime II-Grade    124.317    621.585 m3    -    15 km
+Hezorime II-Grade    96.844    484.220 m3    -    16 km
+Hezorime II-Grade    153.779    768.895 m3    -    18 km
+Hezorime II-Grade    107.610    538.050 m3    -    19 km
+Hezorime II-Grade    103.638    518.190 m3    -    24 km
+Hezorime III-Grade [4] 184 ISK / m³
+Hezorime III-Grade    142.256    711.280 m3    109.000.000,00 ISK    6.396 m
+Hezorime III-Grade    155.344    776.720 m3    119.000.000,00 ISK    7.452 m
+Hezorime III-Grade    111.547    557.735 m3    85.700.000,00 ISK    7.680 m
+Hezorime III-Grade    167.421    837.105 m3    129.000.000,00 ISK    16 km

@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [0.0.9] - 2026-06-10
+
 ### Added
 
 - Validate required fields in the survey form
@@ -138,5 +140,6 @@ Section Order:
 [0.0.5]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.4...v0.0.5 "v0.0.5"
 [0.0.6]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.5...v0.0.6 "v0.0.6"
 [0.0.7]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.6...v0.0.7 "v0.0.7"
-[0.0.8]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.7...v0.0.8 "v0.0.7"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.8...HEAD "In Development"
+[0.0.8]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.7...v0.0.8 "v0.0.8"
+[0.0.9]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.8...v0.0.9 "v0.0.9"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.9...HEAD "In Development"

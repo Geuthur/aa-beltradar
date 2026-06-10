@@ -57,7 +57,7 @@ class AddSurveyForm(forms.Form):
         ).hexdigest()
 
         processed_lines = []
-        standard_patterns = r"(?i)\b(isk|km|m3|m³|m)\b"
+        unit_pattern = r"(?i)\b(isk|km|m3|m³|m)\b|[\s\u00A0\u202F.,-]+"
         form_errors = []
 
         for line in raw_data.splitlines():
@@ -89,28 +89,10 @@ class AddSurveyForm(forms.Form):
                 continue
 
             name = parts[0].replace("*", "").strip()
-            units = self._sanatize_numbers(
-                re.sub(
-                    pattern=standard_patterns,
-                    repl="",
-                    string=parts[1],
-                ).strip()
-            )
-            volume = self._sanatize_numbers(
-                token=re.sub(
-                    pattern=standard_patterns,
-                    repl="",
-                    string=parts[2],
-                ).strip()
-            )
-            price = self._sanatize_numbers(
-                token=re.sub(
-                    pattern=standard_patterns,
-                    repl="",
-                    string=parts[3],
-                ).strip(),
-                trim_decimal=True,
-            )
+            units = re.sub(pattern=unit_pattern, repl="", string=parts[1]).strip()
+            volume = re.sub(pattern=unit_pattern, repl="", string=parts[2]).strip()
+            # price = re.sub(pattern=unit_pattern, repl="", string=parts[3]).strip() # Original line
+            price = "0"
 
             if not (name and units and volume and price):
                 form_errors.append(f"Line skipped due to missing data: {line}")
@@ -124,31 +106,9 @@ class AddSurveyForm(forms.Form):
                 "timestamp": timestamp,
                 "snapshot": unique_hash,
             }
+
             processed_lines.append(OreSchema(**item))
         return OreSchemaResponse(erros=form_errors, entries=processed_lines)
-
-    @staticmethod
-    def _sanatize_numbers(token: str, *, trim_decimal: bool = False) -> str:
-        """
-        Normalize a numeric token by removing whitespace/group separators.
-
-        If trim_decimal is True, trailing decimal places are removed first
-        (e.g. "24 200 000,00" -> "24200000").
-        """
-        normalized = re.sub(pattern=r"[\s\u00A0\u202F]+", repl="", string=token)
-
-        if trim_decimal:
-            # Strip trailing decimal part before removing separators.
-            # If only '.' exists and 3 digits follow, treat it as a thousands group.
-            if "," in normalized:
-                normalized = re.sub(pattern=r",\d+$", repl="", string=normalized)
-            elif "." in normalized:
-                decimal_match = re.search(pattern=r"\.(\d+)$", string=normalized)
-
-                if decimal_match and len(decimal_match.group(1)) != 3:
-                    normalized = normalized[: decimal_match.start()]
-
-        return normalized.replace(",", "").replace(".", "")
 
     def clean_raw_data(self):
         """

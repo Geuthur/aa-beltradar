@@ -11,6 +11,11 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- pin `allianceauth` to `>=5.2`
+- Update Authentication Foreign from AA v5.2
+
 ## [0.1.0] - 2026-07-13
 
 ### Fixed

@@ -108,5 +108,60 @@
             console.error('Error fetching User Sessions DataTable:', error);
             BeltRadarSessionsDataTable.clear().draw();
         });
+
+        /* Modals */
+        const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
+
+        /**
+        * Table :: Reload My Sessions DataTable
+        * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+        * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
+        * @returns {Promise} - A Promise that resolves when the API request is complete
+        */
+        const _reloadSurveySessionsDataTable = (tableData) => {
+            const dt = BeltRadarSessionsTable.DataTable();
+            dt.clear().rows.add(tableData).draw();
+        }
+
+        /**
+        * Table :: Survey Sessions :: Delete Button Click Handler
+        * Open Delete Survey Session Modal
+        * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+        * and reopen the previous Survey Sessions Modal
+        */
+        modalRequestDeleteSurvey.on('show.bs.modal', (event) => {
+            const button = $(event.relatedTarget);
+            const url = button.data('action');
+            const form = modalRequestDeleteSurvey.find('form');
+            const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+            modalRequestDeleteSurvey.find('#modal-button-confirm-accept-request').on('click', () => {
+                fetchPost({
+                    url: url,
+                    csrfToken: csrfMiddlewareToken,
+                    payload: {}
+                })
+                .then((data) => {
+                    if (data.success === true) {
+                        fetchGet({
+                            url: aaBeltRadarSettings.url.userSessions,
+                        })
+                        .then((newData) => {
+                            _reloadSurveySessionsDataTable(newData);
+                            modalRequestDeleteSurvey.modal('hide');
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching Survey Sessions DataTable:', error);
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting delete request: ${error.message}`);
+                });
+            });
+        })
+        .on('hide.bs.modal', () => {
+            modalRequestDeleteSurvey.find('#modal-button-confirm-accept-request').unbind('click');
+        });
     });
 </script>

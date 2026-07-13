@@ -41,6 +41,7 @@ def create_session(request):
         if form.is_valid():
             sess = form.save(commit=False)
             sess.owner = request.user
+            sess.public_id = BeltSurveySession.generate_unique_public_id()
             sess.save()
             return redirect("beltradar:view_session", public_id=sess.public_id)
         context["forms"]["create_session"] = form  # return bound form with errors
@@ -73,6 +74,9 @@ def view_user_sessions(request):
     """View all survey sessions visible to the user."""
     context = {
         "title": "Survey Sessions Overview",
+        "forms": {
+            "delete_survey": forms.DeleteSurveyForm(),
+        },
     }
     return render(request, "beltradar/view-user-sessions.html", context=context)
 

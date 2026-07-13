@@ -11,6 +11,16 @@ Section Order:
 ### Removed
 -->
 
+### Fixed
+
+- Delete Session redirect
+- 1406, "Data too long for column 'public_id' at row 1"
+- Delete Session in "All Sessions" View
+
+### Changed
+
+- public_id has been shortened to 12 letters
+
 ## [0.0.9] - 2026-06-10
 
 ### Added

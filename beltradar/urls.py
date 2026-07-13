@@ -19,7 +19,7 @@ urlpatterns = [
         name="view_my_sessions",
     ),
     path("survey/user-sessions/", views.view_user_sessions, name="view_user_sessions"),
-    path("survey/<uuid:public_id>/view/", views.view_session, name="view_session"),
+    path("survey/<str:public_id>/view/", views.view_session, name="view_session"),
     # -- API System
     re_path(r"^api/", api.urls),
 ]

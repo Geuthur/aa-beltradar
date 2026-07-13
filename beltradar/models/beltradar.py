@@ -39,9 +39,16 @@ class BeltSurveySession(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="br_user_sessions"
     )
-    public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    public_id = models.CharField(max_length=255, unique=True, editable=False)
     name = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def generate_unique_public_id(length=12):
+        """Generate a unique public ID for a new BeltSurveySession."""
+        unique_id = str(uuid.uuid4())
+        unique_id = unique_id.replace("-", "")
+        return unique_id[:length]
 
     def get_entries_for_snapshot(self, snapshot):
         """Get all entries for a specific snapshot. This is the preferred method for accessing snapshot data."""

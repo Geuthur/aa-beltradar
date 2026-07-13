@@ -477,7 +477,7 @@ $(document).ready(() => {
                 .then((data) => {
                     if (data.success === true) {
                         modalRequestDeleteSurvey.modal('hide');
-                        window.location.href = "{% url 'beltradar:index' %}";
+                        window.location.href = aaBeltRadarSettings.url.index;
                     }
                 })
                 .catch((error) => {

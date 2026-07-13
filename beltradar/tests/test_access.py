@@ -76,7 +76,9 @@ class TestViewAccess(BeltRadarTestCase):
         Test should render view session view.
         """
         # given
-        session = BeltSurveySession.objects.create(owner=self.user, name="Test Session")
+        session = BeltSurveySession.objects.create(
+            owner=self.user, public_id="test", name="Test Session"
+        )
         request = self.factory.get(
             reverse("beltradar:view_session", args=[session.public_id])
         )
@@ -92,7 +94,7 @@ class TestViewAccess(BeltRadarTestCase):
         Test should render view session view with public ID in title when session has no name.
         """
         # given
-        session = BeltSurveySession.objects.create(owner=self.user)
+        session = BeltSurveySession.objects.create(owner=self.user, public_id="test")
         request = self.factory.get(
             reverse("beltradar:view_session", args=[session.public_id])
         )

@@ -7,14 +7,6 @@
     </a>
 </li>
 
-{% if request.resolver_match.url_name == "view_session" or request.resolver_match.url_name == "view_belt_timer" %}
-    <li class="nav-item">
-        <a class="nav-link py-0" href="{% url 'beltradar:create_timer' public_id=session.public_id %}">
-            <span class="btn btn-success">{% translate 'Add Belt Timer' %}</span>
-        </a>
-    </li>
-{% endif %}
-
 {% if request.user.is_superuser %}
     {% comment %}
     * Admin link is hidden for now since there are no admin features yet. Will be added back when there are admin features to access.

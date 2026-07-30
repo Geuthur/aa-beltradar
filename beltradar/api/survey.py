@@ -31,6 +31,7 @@ from beltradar.helpers.eveonline import get_icon_render_url
 from beltradar.models.beltradar import (
     BeltSurveyEntry,
     BeltSurveySession,
+    BeltTimer,
     EveMarketPrice,
 )
 from beltradar.providers import AppLogger
@@ -563,6 +564,65 @@ class BeltRadarSurveyApiEndpoints:
                 + ". Errors: "
                 + ", ".join(survey_data.erros if survey_data else ["No data"]),
             }
+
+        @api.post(
+            "session/{public_id}/belt-timer/manage/add/",
+            response={
+                HTTPStatus.OK: dict,
+                HTTPStatus.BAD_REQUEST: dict,
+                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.NOT_FOUND: dict,
+            },
+            tags=self.tags,
+        )
+        def add_belt_timer(request, public_id: str):
+            """
+            Add a new belt timer to a survey session.
+
+            This Endpoint allows users to add a new belt timer to an existing survey session.
+            The user must have permission to add entries to the survey session, and the survey session must exist.
+
+            Args:
+                public_id (str): The public UUID of the survey session.
+                parsed_data: A JSON object containing the belt timer data, including belt ID, belt name, belt type, ETA, and snapshot identifier.
+            Returns:
+                200: A success message indicating the belt timer was added.
+                400: An error message if the input data is invalid or cannot be parsed.
+                403: An error message if the user does not have permission or the survey session is not found.
+                404: An error message if the survey session is not found.
+            """
+            # Check if the survey session exists
+            try:
+                session = BeltSurveySession.objects.get(public_id=public_id)
+            except ObjectDoesNotExist:
+                msg = _("Survey session not found.")
+                return HTTPStatus.NOT_FOUND, {"error": msg}
+
+            # Check if the user has permission to add entries to this survey session
+            perms = get_public_id_or_none(
+                request=request,
+                public_id=public_id,
+            )[0]
+
+            if not perms:
+                msg = _("Permission Denied.")
+                return HTTPStatus.FORBIDDEN, {"error": msg}
+
+            # Validate the form data
+            form = forms.BeltTimerForm(data=json.loads(request.body))
+            logger.debug(f"Form data: {request.body}")
+            logger.debug(f"Form errors: {form.errors}")
+            if form.is_valid():
+                with transaction.atomic():
+                    timer: BeltTimer = form.save()
+                    timer.session.set([session])
+
+                    return HTTPStatus.OK, {
+                        "success": True,
+                        "message": _("Survey entry added successfully."),
+                    }
+            msg = _("Invalid input data. Please check the format and try again.")
+            return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
         @api.get(
             "view/session/{public_id}/belt-timer/",

@@ -22,15 +22,6 @@ urlpatterns = [
     ),
     path("survey/user-sessions/", views.view_user_sessions, name="view_user_sessions"),
     path("survey/<str:public_id>/view/", views.view_session, name="view_session"),
-    # -- Timer Management
-    path(
-        "survey/<str:public_id>/create-timer/", views.create_timer, name="create_timer"
-    ),
-    path(
-        "survey/<str:public_id>/view-timer/",
-        views.view_belt_timer,
-        name="view_belt_timer",
-    ),
     # -- API System
     re_path(r"^api/", api.urls),
 ]

@@ -212,6 +212,85 @@ def get_add_survey_button(
     return add_button
 
 
+def get_survey_view_button(
+    request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
+) -> str:
+    """
+    Generate a view button for a specific survey session.
+
+    This function creates an HTML button for viewing a survey session.
+    When clicked, it triggers a modal to display the survey session details.
+
+    Args:
+        public_id (str): The public UUID of the survey session.
+    Returns:
+        String: HTML string containing the view button.
+    """
+
+    # Generate the URL for the view request
+    button_request_view_url = reverse(
+        "beltradar:view_session",
+        kwargs={
+            "public_id": public_id,
+        },
+    )
+
+    # Define the icon and tooltip for the view button
+    icon = '<i class="fa-solid fa-eye"></i>'
+    title = _("View Survey Session")
+    color = "primary"
+
+    # Create the HTML for the view icon button
+    view_button = (
+        f'<a href="{button_request_view_url}" '
+        f'class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-tooltip="aa-beltradar" '
+        f'title="{title}">{icon}'
+        f"</a>"
+    )
+    return view_button
+
+
+def get_add_belt_timer_button(
+    request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
+) -> str:
+    """
+    Generate an add button for a specific belt timer.
+
+    This function creates an HTML button for adding a new belt timer.
+    When clicked, it triggers a modal to display the add belt timer form.
+
+    Args:
+        public_id (str): The public UUID of the survey session.
+    Returns:
+        String: HTML string containing the add button.
+    """
+
+    # Generate the URL for the add request
+    button_request_add_url = reverse(
+        "beltradar:api:add_belt_timer",
+        kwargs={
+            "public_id": public_id,
+        },
+    )
+
+    # Define the icon and tooltip for the add button
+    icon = '<i class="fa-solid fa-plus"></i>'
+    title = _("Add Belt Timer")
+    color = "success"
+
+    # Create the HTML for the add icon button
+    add_button = (
+        f'<button data-action="{button_request_add_url}" '
+        f'class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-toggle="modal" '
+        'data-bs-tooltip="aa-beltradar" '
+        'data-bs-target="#beltradar-add-belt-timer" '
+        f'title="{title}">{icon}</button>'
+    )
+    return add_button
+
+
 def get_timer_delete_button(
     request: WSGIRequest,
     public_id: str,
@@ -260,42 +339,3 @@ def get_timer_delete_button(
         f'title="{title}">{icon}</button>'
     )
     return delete_button
-
-
-def get_survey_view_button(
-    request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
-) -> str:
-    """
-    Generate a view button for a specific survey session.
-
-    This function creates an HTML button for viewing a survey session.
-    When clicked, it triggers a modal to display the survey session details.
-
-    Args:
-        public_id (str): The public UUID of the survey session.
-    Returns:
-        String: HTML string containing the view button.
-    """
-
-    # Generate the URL for the view request
-    button_request_view_url = reverse(
-        "beltradar:view_session",
-        kwargs={
-            "public_id": public_id,
-        },
-    )
-
-    # Define the icon and tooltip for the view button
-    icon = '<i class="fa-solid fa-eye"></i>'
-    title = _("View Survey Session")
-    color = "primary"
-
-    # Create the HTML for the view icon button
-    view_button = (
-        f'<a href="{button_request_view_url}" '
-        f'class="btn btn-{color} btn-sm btn-square me-2" '
-        'data-bs-tooltip="aa-beltradar" '
-        f'title="{title}">{icon}'
-        f"</a>"
-    )
-    return view_button

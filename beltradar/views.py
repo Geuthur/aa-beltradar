@@ -10,7 +10,11 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__, forms
-from beltradar.api.helpers.icons import get_add_survey_button, get_survey_delete_button
+from beltradar.api.helpers.icons import (
+    get_add_belt_timer_button,
+    get_add_survey_button,
+    get_survey_delete_button,
+)
 from beltradar.models import BeltSurveySession, BeltTimer
 from beltradar.providers import AppLogger
 
@@ -92,12 +96,17 @@ def view_session(request, public_id):
         "title": f"View Session - {session.name or session.public_id}",
         "session": session,
         "forms": {
+            "delete_belt_timer": forms.DeleteBeltTimerForm(),
             "delete_snapshot": forms.DeleteSnapshotForm(),
             "delete_survey": forms.DeleteSurveyForm(),
             "add_survey": forms.AddSurveyForm(),
+            "add_belt_timer": forms.BeltTimerForm(),
         },
         "delete_button": get_survey_delete_button(request=request, public_id=public_id),
         "add_survey_button": get_add_survey_button(
+            request=request, public_id=public_id
+        ),
+        "add_belt_timer_button": get_add_belt_timer_button(
             request=request, public_id=public_id
         ),
     }

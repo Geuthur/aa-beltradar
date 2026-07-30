@@ -11,6 +11,12 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Belt Respawn Timer
+  - Belt timer display in Session view showing estimated respawn time
+  - Persistent timer state across sessions8
+
 ### Changed
 
 - pin `allianceauth` to `>=5.2`

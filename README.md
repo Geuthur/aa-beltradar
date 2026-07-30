@@ -36,12 +36,13 @@ ______________________________________________________________________
 - Show mining speed in m³/s
 - Display remaining volume and belt size information
 - Optional Share your Mining Session with others
+- Respawn Timer for Belts
+- Compressed Price
 
 ## Upcoming<a name="upcoming"></a>
 
-- Respawn Timer for Belts
+- Discord Notification (Turnable)
 - Graphical Upgrades
-- Compressed Price
 
 ## Highlights<a name="highlights"></a>
 

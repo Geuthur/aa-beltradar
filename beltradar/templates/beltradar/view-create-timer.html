@@ -27,6 +27,9 @@
 {% block aabeltradar_block %}
     <div class="card card-body mt-2 rounded">
         <div class="card-footer">
+            <p class="text-muted">
+                {% translate "Note: Only create a Timer if you have finished the belt. The Timer starts immediately." %}
+            </p>
             {% include 'beltradar/partials/forms/create_belt_timer.html' %}
         </div>
     </div>

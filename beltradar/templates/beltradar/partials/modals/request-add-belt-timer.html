@@ -14,6 +14,9 @@
             </div>
 
             <div class="modal-body">
+                <p class="text-muted">
+                    {% translate "Note: Only add a Timer if you have finished the belt. The Timer starts immediately." %}
+                </p>
                 <form method="post" id="modal-form-add-belt-timer">
                     {% csrf_token %}
 

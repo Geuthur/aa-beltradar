@@ -47,6 +47,35 @@ def get_survey_manage_action_icons(
     return beltradar_request_icons
 
 
+@permissions_required(
+    [
+        "beltradar.basic_access",
+    ]
+)
+def get_belt_timer_manage_action_icons(
+    request: WSGIRequest,  # pylint: disable=unused-argument
+    public_id: str,
+    timer_id: int,
+) -> str | HttpResponse:
+    """
+    Generate HTML Action Icons for the My Sessions view.
+
+    This function creates a set of action icons for managing survey sessions.
+    The Buttons include Edit, Delete, and View, each represented by an icon depending on User's permissions.
+
+    Args:
+        request (WSGIRequest): The HTTP request object containing user information.
+    Returns:
+        SafeString: HTML string containing the action icons.
+    """
+    beltradar_request_icons = "<div class='d-flex justify-content-end'>"
+    beltradar_request_icons += get_timer_delete_button(
+        request=request, public_id=public_id, timer_id=timer_id
+    )
+    beltradar_request_icons += "</div>"
+    return beltradar_request_icons
+
+
 def get_snapshot_delete_button(
     request: WSGIRequest,  # pylint: disable=unused-argument
     public_id: str,
@@ -181,6 +210,56 @@ def get_add_survey_button(
         f'title="{title}">{icon}</button>'
     )
     return add_button
+
+
+def get_timer_delete_button(
+    request: WSGIRequest,
+    public_id: str,
+    timer_id: int,  # pylint: disable=unused-argument
+) -> str:
+    """
+    Generate a delete button for a specific belt timer.
+
+    This function creates an HTML button for deleting a belt timer.
+    When clicked, it triggers a modal to confirm the deletion of the belt timer.
+
+    Args:
+        public_id (str): The public UUID of the survey session.
+        timer_id (int): The ID of the belt timer.
+    Returns:
+        String: HTML string containing the delete button.
+    """
+
+    perms = get_public_id_or_none(request=request, public_id=public_id)[0]
+    if not perms:
+        return (
+            ""  # Return an empty string if the user does not have permission to delete
+        )
+
+    # Generate the URL for the delete request
+    button_request_delete_url = reverse(
+        "beltradar:api:delete_belt_timer",
+        kwargs={
+            "public_id": public_id,
+            "timer_id": timer_id,
+        },
+    )
+
+    # Define the icon and tooltip for the delete button
+    icon = '<i class="fa-solid fa-trash"></i>'
+    title = _("Delete Belt Timer")
+    color = "danger"
+
+    # Create the HTML for the delete icon button
+    delete_button = (
+        f'<button data-action="{button_request_delete_url}" '
+        f'class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-toggle="modal" '
+        'data-bs-tooltip="aa-beltradar" '
+        'data-bs-target="#beltradar-accept-delete-belt-timer" '
+        f'title="{title}">{icon}</button>'
+    )
+    return delete_button
 
 
 def get_survey_view_button(

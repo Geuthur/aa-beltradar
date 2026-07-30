@@ -19,6 +19,11 @@
             <div class="px-2">
                 {{ delete_button|safe }}
             </div>
+            <div class="px-2">
+                <a class="nav-link py-0" href="{% url 'beltradar:view_belt_timer' public_id=session.public_id %}">
+                    <span class="btn btn-success">{% translate 'View Belt Timer' %}</span>
+                </a>
+            </div>
         </div>
     </div>
 {% endblock aabeltradar_header %}
@@ -45,6 +50,7 @@
         const aaBeltRadarSettingsOverride = {
             url: {
                 surveySessionEntry: "{% url 'beltradar:api:get_survey_entry' public_id=session.public_id %}",
+                timer: "{% url 'beltradar:create_timer' public_id=session.public_id %}",
                 index: "{% url 'beltradar:index' %}",
             },
             translations: {

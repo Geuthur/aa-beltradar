@@ -2,6 +2,7 @@
 
 # Standard Library
 import uuid
+from typing import TYPE_CHECKING
 
 # Django
 from django.db import models
@@ -23,6 +24,7 @@ from beltradar.managers import (
     BeltSurveyEntryManager,
     EveMarketPriceManager,
 )
+from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -30,6 +32,10 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 class BeltSurveySession(models.Model):
     """Represents a single survey session for a belt, which can have multiple entries (BeltSurveyEntry)."""
+
+    if TYPE_CHECKING:
+        br_entries: BeltSurveyEntryManager
+        br_timer: models.QuerySet["BeltTimer"]
 
     class Meta:
         default_permissions = ()  # Remove standard permissions
@@ -284,6 +290,69 @@ class BeltSurveyEntry(models.Model):
         if not self.price_compressed or not self.volume_left:
             return 0
         return self.price_compressed / (self.eve_type.volume / 100)
+
+
+class BeltTimer(models.Model):
+    """Represents a timer for a belt, which can be used to track when the belt will be depleted."""
+
+    class Meta:
+        default_permissions = ()  # Remove standard permissions
+
+    session = models.ManyToManyField(BeltSurveySession, related_name="br_timer")
+    belt_id = models.CharField(max_length=7)
+    belt_name = models.CharField(max_length=100)
+    belt_size = models.CharField(choices=BeltSizeChoice.choices, max_length=10)
+    belt_type = models.CharField(choices=BeltTypeChoice.choices, max_length=15)
+    eta = models.DateTimeField(null=True, blank=True)
+
+    # pylint: disable=too-many-branches
+    def generate_eta(self):
+        """Generate the estimated time of respawn for the belt based on belt type and current time."""
+        now = timezone.now()
+        # Basic belt respawn times (https://wiki.eveuniversity.org/Asteroids_and_ore#Ore_Prospecting_Arrays)
+        if self.belt_type == BeltTypeChoice.ASTEROID_BELT:
+            if self.belt_size == BeltSizeChoice.SMALL:
+                self.eta = now + timezone.timedelta(hours=1)
+            elif self.belt_size == BeltSizeChoice.MEDIUM:
+                self.eta = now + timezone.timedelta(hours=2)
+            elif self.belt_size == BeltSizeChoice.LARGE:
+                self.eta = now + timezone.timedelta(hours=3)
+            elif self.belt_size == BeltSizeChoice.ENORMOUS:
+                self.eta = now + timezone.timedelta(hours=4)
+            elif self.belt_size == BeltSizeChoice.COLOSSAL:
+                self.eta = now + timezone.timedelta(hours=5)
+        # Arrey belts have a different respawn time based on their size (https://wiki.eveuniversity.org/Asteroids_and_ore#Ore_Prospecting_Arrays)
+        if self.belt_type == BeltTypeChoice.ARREY_BELT:
+            if self.belt_size == BeltSizeChoice.SMALL:
+                self.eta = now + timezone.timedelta(hours=1)
+            elif self.belt_size == BeltSizeChoice.MEDIUM:
+                self.eta = now + timezone.timedelta(hours=4, minutes=20)
+            elif self.belt_size == BeltSizeChoice.LARGE:
+                self.eta = now + timezone.timedelta(hours=10)
+        # Mercocit belts have a different respawn time based on their size (https://wiki.eveuniversity.org/Asteroids_and_ore#Ore_Prospecting_Arrays)
+        if self.belt_type == BeltTypeChoice.MERCOXIT_BELT:
+            if self.belt_size == BeltSizeChoice.SMALL:
+                self.eta = now + timezone.timedelta(minutes=5)
+            elif self.belt_size == BeltSizeChoice.MEDIUM:
+                self.eta = now + timezone.timedelta(minutes=10)
+            elif self.belt_size == BeltSizeChoice.LARGE:
+                self.eta = now + timezone.timedelta(hours=8)
+            elif self.belt_size == BeltSizeChoice.ENORMOUS:
+                self.eta = now + timezone.timedelta(hours=12)
+        # Ice belts have a fixed respawn time of 8 hours (https://wiki.eveuniversity.org/Ice_harvesting#Ice_belts)
+        if self.belt_type == BeltTypeChoice.ICE_BELT:
+            if self.belt_size == BeltSizeChoice.ICE:
+                self.eta = now + timezone.timedelta(hours=8)
+        if self.eta is None:
+            self.eta = None
+
+    # Override the save method to automatically generate the ETA before saving the BeltTimer instance
+    def save(self, *args, **kwargs):
+        self.generate_eta()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.belt_id} - {self.belt_name} - {self.belt_type} - ETA: {self.eta}"
 
 
 class EveMarketPrice(models.Model):

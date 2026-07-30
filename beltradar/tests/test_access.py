@@ -10,7 +10,7 @@ from django.urls import reverse
 
 # AA Belt Radar
 from beltradar import views
-from beltradar.models import BeltSurveySession
+from beltradar.models import BeltSurveySession, BeltTimer
 
 # AA Beltradar
 from beltradar.tests import BeltRadarTestCase
@@ -70,6 +70,94 @@ class TestViewAccess(BeltRadarTestCase):
             response.url, reverse("beltradar:view_session", args=[session.public_id])
         )
         self.assertEqual(session.owner, self.user)
+
+    def test_create_timer(self):
+        """
+        Test should render create timer view for an existing session.
+        """
+        # given
+        session = BeltSurveySession.objects.create(
+            owner=self.user, public_id="test", name="Test Session"
+        )
+        request = self.factory.get(
+            reverse("beltradar:create_timer", kwargs={"public_id": session.public_id})
+        )
+        request.user = self.user
+        # when
+        response = views.create_timer(request, public_id=session.public_id)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(
+            response,
+            reverse("beltradar:view_session", kwargs={"public_id": session.public_id}),
+        )
+        self.assertContains(
+            response,
+            reverse("beltradar:create_timer", kwargs={"public_id": session.public_id}),
+        )
+
+    def test_create_timer_post(self):
+        """
+        Test should create a timer and attach it to the session.
+        """
+        # given
+        session = BeltSurveySession.objects.create(
+            owner=self.user, public_id="test", name="Test Session"
+        )
+        request = self.factory.post(
+            reverse("beltradar:create_timer", kwargs={"public_id": session.public_id}),
+            data={
+                "belt_id": "ABC1234",
+                "belt_name": "Test Belt",
+                "belt_type": "asteroid_belt",
+                "belt_size": "small",
+            },
+        )
+        request.user = self.user
+        # when
+        response = views.create_timer(request, public_id=session.public_id)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        timer = BeltTimer.objects.get(belt_id="ABC1234")
+        self.assertIn(session, timer.session.all())
+        self.assertEqual(
+            response.url,
+            reverse(
+                "beltradar:view_belt_timer", kwargs={"public_id": session.public_id}
+            ),
+        )
+
+    def test_view_belt_timer(self):
+        """
+        Test should render view belt timer view.
+        """
+        # given
+        session = BeltSurveySession.objects.create(
+            owner=self.user, public_id="test", name="Test Session"
+        )
+        timer = BeltTimer.objects.create(
+            belt_id="ABC1234",
+            belt_name="Test Belt",
+            belt_type="asteroid_belt",
+            belt_size="small",
+        )
+        timer.session.set([session])
+        request = self.factory.get(
+            reverse(
+                "beltradar:view_belt_timer", kwargs={"public_id": session.public_id}
+            )
+        )
+        request.user = self.user
+        # when
+        response = views.view_belt_timer(request, public_id=session.public_id)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(
+            response,
+            reverse(
+                "beltradar:view_belt_timer", kwargs={"public_id": session.public_id}
+            ),
+        )
 
     def test_view_session(self):
         """

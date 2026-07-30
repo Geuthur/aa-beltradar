@@ -10,7 +10,6 @@ class BeltTypeChoice(models.TextChoices):
     ASTEROID_BELT = "asteroid_belt", "Asteroid Belt"
     ICE_BELT = "ice_belt", "Ice Belt"
     MERCOXIT_BELT = "mercobelt", "Mercocit Belt"
-    GAS_BELT = "gas_belt", "Gas Belt"
     ARREY_BELT = "arrey_belt", "Arrey Belt"
 
 

@@ -1,0 +1,117 @@
+{% extends 'beltradar/base.html' %}
+{% load i18n %}
+
+{% block page_template_title %}
+    {{ title }}
+{% endblock page_template_title %}
+
+{% block page_topic %}
+    <h1 class="page-header text-center">
+        {{ title }}
+    </h1>
+{% endblock page_topic %}
+
+{% block aabeltradar_header %}
+    <div class="card">
+        <div class="card-header bg-primary rounded d-flex align-items-center">
+            <h3>{% translate "Create Belt Timer" %}</h3>
+            <div class="px-2">
+                <a href="{% url 'beltradar:view_session' public_id=session.public_id %}">
+                    <span class="btn btn-secondary">{% translate 'Back to Session' %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock aabeltradar_header %}
+
+{% block aabeltradar_block %}
+    <div class="card card-body mt-2 rounded">
+        <div class="card-footer">
+            {% include 'beltradar/partials/forms/create_belt_timer.html' %}
+        </div>
+    </div>
+{% endblock aabeltradar_block %}
+
+
+{% block extra_css %}
+    {% include 'bundles/datatables-2-css-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-css-bs5.html' %}
+    {% include 'beltradar/bundles/aa-beltradar-css.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+    <script>
+        /**
+         * Override settings for Belt Radar
+         */
+        const aaBeltRadarSettingsOverride = {
+        };
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            const beltTypeSelect = document.querySelector('select[name="belt_type"]');
+            const beltSizeSelect = document.querySelector('select[name="belt_size"]');
+
+            if (!beltTypeSelect || !beltSizeSelect) {
+                return;
+            }
+
+            const sizeChoices = {
+                asteroid_belt: [
+                    ["small", "Small"],
+                    ["medium", "Medium"],
+                    ["large", "Large"],
+                    ["enormous", "Enormous"],
+                    ["colossal", "Colossal"],
+                ],
+                arrey_belt: [
+                    ["small", "Small"],
+                    ["medium", "Medium"],
+                    ["large", "Large"],
+                ],
+                mercobelt: [
+                    ["small", "Small"],
+                    ["medium", "Medium"],
+                    ["large", "Large"],
+                    ["enormous", "Enormous"],
+                ],
+                ice_belt: [["ice", "Ice"]],
+            };
+
+            const updateBeltSizeChoices = () => {
+                const selectedType = beltTypeSelect.value;
+                const allowedChoices = sizeChoices[selectedType] || [
+                    ["small", "Small"],
+                    ["medium", "Medium"],
+                    ["large", "Large"],
+                    ["enormous", "Enormous"],
+                    ["colossal", "Colossal"],
+                    ["ice", "Ice"],
+                ];
+                const previousValue = beltSizeSelect.value;
+
+                beltSizeSelect.innerHTML = "";
+
+                allowedChoices.forEach(([value, label]) => {
+                    const option = document.createElement("option");
+                    option.value = value;
+                    option.textContent = label;
+                    beltSizeSelect.appendChild(option);
+                });
+
+                if (allowedChoices.some(([value]) => value === previousValue)) {
+                    beltSizeSelect.value = previousValue;
+                } else {
+                    beltSizeSelect.value = allowedChoices[0]?.[0] || "";
+                }
+            };
+
+            beltTypeSelect.addEventListener("change", updateBeltSizeChoices);
+            updateBeltSizeChoices();
+        });
+    </script>
+    {% include 'beltradar/bundles/aa-beltradar-js.html' %}
+    {% include 'bundles/datatables-2-js-bs5.html' %}
+    {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
+{% endblock extra_javascript %}

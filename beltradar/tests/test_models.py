@@ -3,6 +3,7 @@
 # Standard Library
 import hashlib
 from datetime import datetime
+from unittest.mock import patch
 
 # Django
 from django.utils import timezone
@@ -11,7 +12,8 @@ from django.utils import timezone
 from eve_sde.models.types import ItemType
 
 # AA Belt Radar
-from beltradar.models import BeltSurveyEntry, BeltSurveySession
+from beltradar.models import BeltSurveyEntry, BeltSurveySession, BeltTimer
+from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.tests import BeltRadarTestCase
 
 
@@ -202,3 +204,58 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         is_fresh = self.session.is_fresh
         # then
         self.assertFalse(is_fresh)
+
+    @patch("beltradar.models.beltradar.timezone.now")
+    def test_generate_eta(self, mock_now):
+        """
+        Test should generate eta for belt timer.
+        """
+        # given
+        fixed_now = timezone.make_aware(datetime(2026, 1, 1, 12, 0, 0))
+        mock_now.return_value = fixed_now
+        belt_timer = BeltTimer.objects.create(
+            belt_id=1,
+            belt_name="Test Belt",
+            belt_size=BeltSizeChoice.LARGE,
+            belt_type=BeltTypeChoice.ASTEROID_BELT,
+        )
+        belt_timer.session.set([self.session])
+        # when/then
+        expected_eta = fixed_now + timezone.timedelta(hours=3)
+        self.assertEqual(belt_timer.eta, expected_eta)
+
+        # test arrey
+        belt_timer2 = BeltTimer.objects.create(
+            belt_id=2,
+            belt_name="Test Belt 2",
+            belt_size=BeltSizeChoice.MEDIUM,
+            belt_type=BeltTypeChoice.ARREY_BELT,
+        )
+        belt_timer2.session.set([self.session])
+        # when/then
+        expected_eta2 = fixed_now + timezone.timedelta(hours=4, minutes=20)
+        self.assertEqual(belt_timer2.eta, expected_eta2)
+
+        # test mercocit
+        belt_timer3 = BeltTimer.objects.create(
+            belt_id=3,
+            belt_name="Test Belt 3",
+            belt_size=BeltSizeChoice.SMALL,
+            belt_type=BeltTypeChoice.MERCOXIT_BELT,
+        )
+        belt_timer3.session.set([self.session])
+        # when/then
+        expected_eta3 = fixed_now + timezone.timedelta(minutes=5)
+        self.assertEqual(belt_timer3.eta, expected_eta3)
+
+        # test ice
+        belt_timer4 = BeltTimer.objects.create(
+            belt_id=4,
+            belt_name="Test Belt 4",
+            belt_size=BeltSizeChoice.ICE,
+            belt_type=BeltTypeChoice.ICE_BELT,
+        )
+        belt_timer4.session.set([self.session])
+        # when/then
+        expected_eta4 = fixed_now + timezone.timedelta(hours=8)
+        self.assertEqual(belt_timer4.eta, expected_eta4)

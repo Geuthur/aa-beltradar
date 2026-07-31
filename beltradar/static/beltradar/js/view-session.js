@@ -608,7 +608,7 @@ $(document).ready(() => {
             },
             {
                 data: {
-                    display: (data) => moment(data.eta).format('YYYY-MM-DD HH:mm:ss'),
+                    display: (data) => data.eta_natural ? data.eta_natural : data.eta,
                     sort: (data) => data.eta,
                     filter: (data) => data.eta,
                 }

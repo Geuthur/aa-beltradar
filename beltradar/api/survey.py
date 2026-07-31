@@ -7,6 +7,7 @@ from http import HTTPStatus
 from ninja import NinjaAPI
 
 # Django
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import QuerySet
@@ -655,6 +656,7 @@ class BeltRadarSurveyApiEndpoints:
                         belt_size=timer.get_belt_size_display,
                         belt_type=timer.get_belt_type_display,
                         eta=timer.eta,
+                        eta_natural=naturaltime(timer.eta) if timer.eta else None,
                         html=str(
                             get_belt_timer_manage_action_icons(
                                 request=request,

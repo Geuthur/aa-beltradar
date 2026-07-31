@@ -29,6 +29,7 @@ class BeltTimerSchema(Schema):
     belt_size: str
     belt_type: str
     eta: timezone.datetime | None = None
+    eta_natural: str | None = None
     html: str | None = None
 
 

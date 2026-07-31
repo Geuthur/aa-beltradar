@@ -1,7 +1,7 @@
 {% load django_bootstrap5 %}
 {% load i18n %}
 
-<form autocomplete="off" action="{% url 'beltradar:view_user_settings' %}" method="post">
+<form autocomplete="off" action="{% url 'beltradar:view_my_settings' %}" method="post">
     {% csrf_token %}
 
     <fieldset class="aa-beltradar-batch-ore-import-form">

@@ -113,7 +113,7 @@ def view_my_sessions(request, character_id=None):
 
 @login_required
 @permission_required("beltradar.basic_access")
-def view_user_settings(request):
+def view_my_settings(request):
     """View user settings."""
     # Get or create user settings for the logged-in user
     user_settings = UserSettings.objects.get_or_create(user=request.user)[0]
@@ -135,7 +135,7 @@ def view_user_settings(request):
             messages.success(request=request, message=_("Settings saved."))
 
             # Redirect back to the user settings page
-            return redirect("beltradar:view_user_settings")
+            return redirect("beltradar:view_my_settings")
 
     # Create a context dictionary with the title and the form instance
     context = {

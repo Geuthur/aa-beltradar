@@ -4,9 +4,13 @@
 <!-- Only show the following links if the user is authenticated -->
 {% if request.user.is_authenticated %}
     <li class="nav-item">
+        <a class="nav-link" href="{% url 'beltradar:view_user_sessions' %}">{% translate 'All Sessions' %}</a>
+    </li>
+
+    <li class="nav-item">
         <a class="nav-link" href="{% url 'beltradar:view_my_sessions' %}">{% translate 'My Sessions' %}</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'beltradar:view_user_sessions' %}">{% translate 'All Sessions' %}</a>
+        <a class="nav-link" href="{% url 'beltradar:view_user_settings' %}">{% translate 'My Settings' %}</a>
     </li>
 {% endif %}

@@ -30,6 +30,21 @@ from beltradar.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
+class UserSettings(models.Model):
+    class Meta:
+        default_permissions = ()  # Remove standard permissions
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="+",
+        null=True,
+        blank=True,
+    )
+
+    disable_notifications = models.BooleanField(default=False)
+
+
 class BeltSurveySession(models.Model):
     """Represents a single survey session for a belt, which can have multiple entries (BeltSurveyEntry)."""
 
@@ -304,6 +319,9 @@ class BeltTimer(models.Model):
     belt_size = models.CharField(choices=BeltSizeChoice.choices, max_length=10)
     belt_type = models.CharField(choices=BeltTypeChoice.choices, max_length=15)
     eta = models.DateTimeField(null=True, blank=True)
+
+    # Notification System
+    sent_notification = models.BooleanField(default=False)
 
     # pylint: disable=too-many-branches
     def generate_eta(self):

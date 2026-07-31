@@ -5,6 +5,7 @@ import re
 # Django
 from django import forms
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
@@ -12,7 +13,7 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__
 from beltradar.api.schema import OreSchema, OreSchemaResponse
-from beltradar.models import BeltSurveySession, BeltTimer
+from beltradar.models import BeltSurveySession, BeltTimer, UserSettings
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -134,7 +135,7 @@ class BeltSurveySessionForm(forms.ModelForm):
             "name": "Session Name",
         }
         help_texts = {
-            "name": "A name to identify this survey session.",
+            "name": _("A name to identify this survey session."),
         }
 
 
@@ -149,8 +150,24 @@ class BeltTimerForm(forms.ModelForm):
             "belt_size": "Belt Size",
         }
         help_texts = {
-            "belt_id": "The unique identifier for this belt timer. (This is usually the belt's ID in the game.)",
-            "belt_name": "The name of the belt.",
-            "belt_type": "The type of belt.",
-            "belt_size": "The size of the belt.",
+            "belt_id": _(
+                "The unique identifier for this belt timer. (This is usually the belt's ID in the game.)"
+            ),
+            "belt_name": _("The name of the belt."),
+            "belt_type": _("The type of belt."),
+            "belt_size": _("The size of the belt."),
+        }
+
+
+class UserSettingsForm(forms.ModelForm):
+    class Meta:
+        model = UserSettings
+        fields = ["disable_notifications"]
+        labels = {
+            "disable_notifications": _("Disable Notifications"),
+        }
+        help_texts = {
+            "disable_notifications": _(
+                "Check this box to disable notifications for expired belt timers."
+            ),
         }

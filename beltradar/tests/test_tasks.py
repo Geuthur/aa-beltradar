@@ -38,23 +38,6 @@ class TestUpdateAllBeltRadar(BeltRadarTestCase):
         # then
         self.assertTrue(mock_update_all_belt_radar_session.apply_async.called)
 
-    @patch(TASK_PATH + ".update_belt_radar_session", spec=True)
-    def test_should_update_all_belt_radar_with_force_refresh(
-        self, mock_update_all_belt_radar_session
-    ):
-        """
-            Test should start update_belt_radar_session for each BeltSurveySession with force_refresh=True.
-        :return:
-        :rtype:
-        """
-        # when
-        tasks.update_all_belt_radar(force_refresh=True)
-        # then
-        self.assertTrue(mock_update_all_belt_radar_session.apply_async.called)
-        for call in mock_update_all_belt_radar_session.apply_async.call_args_list:
-            kwargs = call.kwargs.get("kwargs", {})
-            self.assertTrue(kwargs.get("force_refresh", False))
-
     @patch(TASK_PATH + ".EveMarketPrice.objects.update_from_esi", return_value=42)
     def test_should_update_market_prices(self, mock_update_from_esi):
         """

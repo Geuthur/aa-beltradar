@@ -86,7 +86,7 @@ def update_all_belt_radar(runs: int = 0):
                 )
 
                 # Add the notification message to the user's list of notifications if notifications are not disabled
-                if not user_settings.disable_notifications:
+                if user_settings.disable_notifications is False:
                     user_notifications[user_settings.user.pk].append(msg)
 
                 # Mark the timer as having sent a notification to avoid sending duplicate notifications

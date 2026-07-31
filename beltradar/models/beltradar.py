@@ -64,6 +64,9 @@ class BeltSurveySession(models.Model):
     name = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.name} ({self.public_id})"
+
     @staticmethod
     def generate_unique_public_id(length=12):
         """Generate a unique public ID for a new BeltSurveySession."""

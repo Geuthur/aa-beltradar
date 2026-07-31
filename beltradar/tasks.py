@@ -69,7 +69,7 @@ def update_all_belt_radar(runs: int = 0):
             if timer.eta and timer.eta < now and timer.sent_notification is False:
                 logger.debug(
                     "Timer for belt %s has expired. trying to send notification.",
-                    timer.session,
+                    session,
                 )
 
                 # Create a notification message for the user with a link to the session

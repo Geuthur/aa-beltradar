@@ -611,8 +611,6 @@ class BeltRadarSurveyApiEndpoints:
 
             # Validate the form data
             form = forms.BeltTimerForm(data=json.loads(request.body))
-            logger.debug(f"Form data: {request.body}")
-            logger.debug(f"Form errors: {form.errors}")
             if form.is_valid():
                 with transaction.atomic():
                     timer: BeltTimer = form.save()

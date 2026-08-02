@@ -1,3 +1,9 @@
+"""
+Factory for Alliance Auth and Django EVE SDE.
+
+This module provides factory classes for generating test data for Alliance Auth and Django EVE SDE.
+"""
+
 # Standard Library
 from typing import Generic, TypeVar
 
@@ -257,9 +263,7 @@ class ItemTypeFactory(
     race_id = factory.fuzzy.FuzzyInteger(0, 10)
     radius = factory.fuzzy.FuzzyFloat(0, 1000, 2)
     sound_id = None  # Not needed for testing, can be set to a Sound object if needed
-    variation_parent_type_id = (
-        None  # Not needed for testing, can be set to an ItemType object if needed
-    )
+    variation_parent_type_id = factory.fuzzy.FuzzyInteger(0, 1000)
     volume = factory.fuzzy.FuzzyFloat(0, 1000, 2)
     packaged_volume = factory.fuzzy.FuzzyFloat(0, 1000, 2)
 
@@ -333,9 +337,7 @@ class SolarSystemFactory(
     security_class = factory.fuzzy.FuzzyChoice([None, "A", "B", "C", "D", "E"])
     security_status = factory.fuzzy.FuzzyFloat(0, 1, 2)
     star_id_raw = factory.fuzzy.FuzzyInteger(0, 100)
-    visual_effect = (
-        None  # Not needed for testing, can be set to a VisualEffect object if needed
-    )
+    visual_effect = factory.fuzzy.FuzzyText(length=20)
     wormhole_class_id_raw = factory.fuzzy.FuzzyInteger(0, 10)
     security_status = factory.fuzzy.FuzzyFloat(0, 1, 2)
 

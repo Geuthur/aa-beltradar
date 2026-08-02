@@ -11,7 +11,9 @@ app_name: str = "beltradar"  # pylint: disable=invalid-name
 
 urlpatterns = [
     path("", views.index, name="index"),
+    # -- Session Management
     path("survey/create-session/", views.create_session, name="create_session"),
+    # -- Survey Management
     path("survey/my-sessions/", views.view_my_sessions, name="view_my_sessions"),
     path(
         "survey/my-sessions/<int:character_id>/",
@@ -19,6 +21,7 @@ urlpatterns = [
         name="view_my_sessions",
     ),
     path("survey/user-sessions/", views.view_user_sessions, name="view_user_sessions"),
+    path("survey/user-settings/", views.view_my_settings, name="view_my_settings"),
     path("survey/<str:public_id>/view/", views.view_session, name="view_session"),
     # -- API System
     re_path(r"^api/", api.urls),

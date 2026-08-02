@@ -14,7 +14,6 @@ from beltradar.models import BeltSurveySession
 
 # AA Beltradar
 from beltradar.tests import BeltRadarTestCase
-from beltradar.tests.testdata.utils import create_user_from_evecharacter
 
 MODULE_PATH = "beltradar.views."
 
@@ -131,3 +130,16 @@ class TestViewAccess(BeltRadarTestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "My Sessions")
+
+    def test_view_my_settings(self):
+        """
+        Test should render view my settings view.
+        """
+        # given
+        request = self.factory.get(reverse("beltradar:view_my_settings"))
+        request.user = self.user
+        # when
+        response = views.view_my_settings(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "My Settings")

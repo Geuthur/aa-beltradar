@@ -22,6 +22,17 @@ class BeltSurveySessionSchema(Schema):
     html: str | None = None
 
 
+class BeltTimerSchema(Schema):
+    public_id: str
+    belt_id: str
+    belt_name: str
+    belt_size: str
+    belt_type: str
+    eta: timezone.datetime | None = None
+    eta_natural: str | None = None
+    html: str | None = None
+
+
 class OreSchema(Schema):
     portrait: str | None = None
     name: str

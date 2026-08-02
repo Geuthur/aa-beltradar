@@ -1,0 +1,42 @@
+{% load django_bootstrap5 %}
+{% load i18n %}
+
+<!-- add belt timer modal -->
+<div class="modal modal-xl fade" id="beltradar-add-belt-timer" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title fs-5">
+                    {% translate "Add Belt Timer" %}
+                </div>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="text-muted">
+                    {% translate "Note: Only add a Timer if you have finished the belt. The Timer starts immediately." %}
+                </p>
+                <form method="post" id="modal-form-add-belt-timer">
+                    {% csrf_token %}
+
+                    {% bootstrap_form forms.add_belt_timer %}
+                </form>
+                {% include 'beltradar/partials/common/spinner.html' %}
+                {% include 'beltradar/partials/common/error.html' %}
+            </div>
+
+            <div class="modal-footer">
+                <button id="modal-button-cancel-add-request" type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-hand"></i>
+                    {% translate "Cancel" %}
+                </button>
+
+                <button id="modal-button-confirm-add-request" type="button" class="btn btn-success btn-sm">
+                    <i class="fa-solid fa-check"></i>
+                    {% translate "Add Belt Timer" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

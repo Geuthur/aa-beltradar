@@ -1,6 +1,7 @@
 """PvE Views"""
 
 # Django
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
@@ -10,8 +11,12 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__, forms
-from beltradar.api.helpers.icons import get_add_survey_button, get_survey_delete_button
-from beltradar.models import BeltSurveySession
+from beltradar.api.helpers.icons import (
+    get_add_belt_timer_button,
+    get_add_survey_button,
+    get_survey_delete_button,
+)
+from beltradar.models import BeltSurveySession, UserSettings
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -56,12 +61,17 @@ def view_session(request, public_id):
         "title": f"View Session - {session.name or session.public_id}",
         "session": session,
         "forms": {
+            "delete_belt_timer": forms.DeleteBeltTimerForm(),
             "delete_snapshot": forms.DeleteSnapshotForm(),
             "delete_survey": forms.DeleteSurveyForm(),
             "add_survey": forms.AddSurveyForm(),
+            "add_belt_timer": forms.BeltTimerForm(),
         },
         "delete_button": get_survey_delete_button(request=request, public_id=public_id),
         "add_survey_button": get_add_survey_button(
+            request=request, public_id=public_id
+        ),
+        "add_belt_timer_button": get_add_belt_timer_button(
             request=request, public_id=public_id
         ),
     }
@@ -99,3 +109,40 @@ def view_my_sessions(request, character_id=None):
         },
     }
     return render(request, "beltradar/view-my-sessions.html", context=context)
+
+
+@login_required
+@permission_required("beltradar.basic_access")
+def view_my_settings(request):
+    """View user settings."""
+    # Get or create user settings for the logged-in user
+    user_settings = UserSettings.objects.get_or_create(user=request.user)[0]
+
+    # Create a form instance with the user settings
+    user_settings_form = forms.UserSettingsForm(instance=user_settings)
+
+    if request.method == "POST":
+        # Create a form instance with the POST data and the user settings instance
+        user_settings_form = forms.UserSettingsForm(
+            request.POST, instance=user_settings
+        )
+
+        # If the form is valid, save the user settings and display a success message
+        if user_settings_form.is_valid():
+            user_settings_form.save()
+
+            # Display a success message
+            messages.success(request=request, message=_("Settings saved."))
+
+            # Redirect back to the user settings page
+            return redirect("beltradar:view_my_settings")
+
+    # Create a context dictionary with the title and the form instance
+    context = {
+        "title": "User Settings",
+        "forms": {
+            "settings": user_settings_form,
+        },
+    }
+
+    return render(request, "beltradar/view-user-settings.html", context=context)

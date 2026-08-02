@@ -9,8 +9,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.test import RequestFactory, TestCase
 
 # AA Belt Radar
-from beltradar.tests.testdata.integrations.allianceauth import load_allianceauth
-from beltradar.tests.testdata.utils import create_user_from_evecharacter
+from beltradar.tests.testdata.beltradar import UserMainFactory
 
 
 class SocketAccessError(Exception):
@@ -49,19 +48,13 @@ class BeltRadarTestCase(NoSocketsTestCase):
     """
     Preloaded Testcase class for Belt Radar tests without Network access.
 
-    Pre-Load:
-        * Alliance Auth Characters, Corporation, Alliance Data
-        * Taken User IDs: 1001
-
     Available Request Factory:
         `self.factory`
 
     Available test users:
         * `user` User with standard Belt Radar access.
             * 'beltradar.basic_access' Permission
-            * Character ID 1001
-            * Corporation ID 2001
-            * Alliance ID 3001
+        * `superuser` User with superuser access.
 
     Example:
         .. code-block:: python
@@ -74,17 +67,17 @@ class BeltRadarTestCase(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # Initialize Alliance Auth test data
-        load_allianceauth()
 
         # Request Factory
         cls.factory = RequestFactory()
 
-        # User with Standard Access - Corporation 2001
-        cls.user, cls.user_character = create_user_from_evecharacter(
-            character_id=1001,
-            permissions=["beltradar.basic_access"],
-        )
+        # User with Standard Access
+        cls.user = UserMainFactory()
+
+        # User with Superuser Access
+        cls.superuser = UserMainFactory()
+        cls.superuser.is_superuser = True
+        cls.superuser.save()
 
     def _middleware_process_request(self, request: WSGIRequest):
         """Helper method to process middleware for a request."""

@@ -11,10 +11,20 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Belt Respawn Timer
+  - Belt timer display in Session view showing estimated respawn time
+  - Persistent timer state across sessions
+  - Optional Discord Notification (default: true) can be disabled by user
+- User Settings
+  - Turnable Notification
+
 ### Changed
 
 - pin `allianceauth` to `>=5.2`
 - Update Authentication Foreign from AA v5.2
+- `update_all_belt_radar` task interval from 12 Hours to 10 Minutes
 
 ## [0.1.0] - 2026-07-13
 

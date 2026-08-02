@@ -36,12 +36,13 @@ ______________________________________________________________________
 - Show mining speed in m³/s
 - Display remaining volume and belt size information
 - Optional Share your Mining Session with others
+- Respawn Timer for Belts
+- Compressed Price
+- Discord Notification (optional)
 
 ## Upcoming<a name="upcoming"></a>
 
-- Respawn Timer for Belts
 - Graphical Upgrades
-- Compressed Price
 
 ## Highlights<a name="highlights"></a>
 
@@ -88,7 +89,7 @@ To set up the Scheduled Tasks add following code to your `local.py`
 ```python
 CELERYBEAT_SCHEDULE["AA Belt Radar :: Update Belt Radar"] = {
     "task": "beltradar.tasks.update_all_belt_radar",
-    "schedule": 43200,
+    "schedule": 600,
 }
 CELERYBEAT_SCHEDULE["AA Belt Radar :: Update Market Price"] = {
     "task": "beltradar.tasks.update_market_prices",

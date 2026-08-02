@@ -1,14 +1,14 @@
 {% load django_bootstrap5 %}
 {% load i18n %}
 
-<form autocomplete="off" action="{% url 'beltradar:create_session' %}" method="post">
+<form autocomplete="off" action="{% url 'beltradar:view_my_settings' %}" method="post">
     {% csrf_token %}
 
     <fieldset class="aa-beltradar-batch-ore-import-form">
-        {% bootstrap_form forms.create_session %}
+        {% bootstrap_form forms.settings %}
 
         <div class="form-group text-end">
-            {% translate "Create Session" as button_text %}
+            {% translate "Save settings" as button_text %}
             {% bootstrap_button button_type="submit" content=button_text %}
         </div>
     </fieldset>

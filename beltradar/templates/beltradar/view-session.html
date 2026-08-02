@@ -1,6 +1,5 @@
 {% extends 'beltradar/base.html' %}
 {% load i18n %}
-{% load humanize %}
 
 {% block page_template_title %}
     {{ title }}
@@ -25,6 +24,7 @@
 
 {% block aabeltradar_block %}
     {% include 'beltradar/partials/view-session/session.html' %}
+    {% include 'beltradar/partials/view-session/belt-timer-table.html' %}
     {% include 'beltradar/partials/view-session/survey-table.html' %}
     {% include 'beltradar/partials/view-session/charts.html' %}
 {% endblock aabeltradar_block %}
@@ -45,6 +45,7 @@
         const aaBeltRadarSettingsOverride = {
             url: {
                 surveySessionEntry: "{% url 'beltradar:api:get_survey_entry' public_id=session.public_id %}",
+                userBeltTimer: "{% url 'beltradar:api:get_session_belt_timer' public_id=session.public_id %}",
                 index: "{% url 'beltradar:index' %}",
             },
             translations: {
@@ -61,7 +62,9 @@
     {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
     {% include "bundles/moment-js.html" with locale=True %}
         <!-- load modals -->
+    {% include 'beltradar/partials/modals/request-accept-delete-belt-timer.html' %}
     {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
     {% include 'beltradar/partials/modals/request-accept-delete-snapshot.html' %}
     {% include 'beltradar/partials/modals/request-add-survey.html' %}
+    {% include 'beltradar/partials/modals/request-add-belt-timer.html' %}
 {% endblock extra_javascript %}

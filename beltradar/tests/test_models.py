@@ -15,6 +15,7 @@ from eve_sde.models.types import ItemType
 from beltradar.models import BeltSurveyEntry, BeltSurveySession, BeltTimer
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.tests import BeltRadarTestCase
+from beltradar.tests.testdata.factory import ItemTypeFactory
 
 
 class TestBeltSurveySessionModel(BeltRadarTestCase):
@@ -35,7 +36,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             session=cls.session,
             snapshot=cls.unique_hash,
             timestamp=cls.timestamp,
-            eve_type=ItemType.objects.get(id=1),
+            eve_type=ItemTypeFactory(),
             units=1000,
             volume_left=5000,
         )
@@ -43,7 +44,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             session=cls.session,
             snapshot=cls.unique_hash2,
             timestamp=cls.timestamp_2,
-            eve_type=ItemType.objects.get(id=1),
+            eve_type=ItemTypeFactory(),
             units=500,
             volume_left=2500,
         )
@@ -148,7 +149,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             session=self.session,
             snapshot=self.unique_hash,
             timestamp=self.timestamp,
-            eve_type=ItemType.objects.get(id=2),
+            eve_type=ItemTypeFactory(),
             units=500,
             volume_left=2500,
         )

@@ -4,7 +4,6 @@ from unittest.mock import patch
 # AA Belt Radar
 from beltradar.helpers import eveonline
 from beltradar.tests import NoSocketsTestCase
-from beltradar.tests.testdata.integrations.allianceauth import load_allianceauth
 
 MODULE_PATH = "beltradar.helpers.eveonline"
 
@@ -13,7 +12,6 @@ class TestEVEOnlineHelper(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        load_allianceauth()
 
     @patch(f"{MODULE_PATH}.character_portrait_url")
     def test_get_character_portrait_url_should_return_url(

@@ -161,19 +161,24 @@ class BeltRadarSurveyApiEndpoints:
             "view/session/{public_id}/",
             response={
                 HTTPStatus.OK: schema.BeltSurveySessionSchema,
-                HTTPStatus.FORBIDDEN: str,
+                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.NOT_FOUND: dict,
             },
             tags=self.tags,
         )
         def get_survey_session(request, public_id: str):
             """Get survey session details for a specific public_id."""
             if not request.user.has_perm("beltradar.basic_access"):
-                return 403, _("You do not have permission to access this resource.")
+                return HTTPStatus.FORBIDDEN, {
+                    "error": _("You do not have permission to access this resource.")
+                }
 
             try:
                 session = BeltSurveySession.objects.get(public_id=public_id)
             except ObjectDoesNotExist:
-                return 403, _("Survey session not found or not public.")
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Survey session not found or not public.")
+                }
 
             survey_session_data = schema.BeltSurveySessionSchema(
                 public_id=str(session.public_id),
@@ -184,7 +189,7 @@ class BeltRadarSurveyApiEndpoints:
                     get_survey_manage_action_icons(request=request, public_id=public_id)
                 ),
             )
-            return 200, survey_session_data
+            return HTTPStatus.OK, survey_session_data
 
         @api.get(
             "view/my-sessions/{character_id}/",
@@ -200,7 +205,7 @@ class BeltRadarSurveyApiEndpoints:
             perms = get_owner_or_none(request=request, character_id=character_id)[0]
 
             if perms is False:
-                return 403, {"error": _("Permission Denied.")}
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             sessions = BeltSurveySession.objects.filter(
                 owner__profile__main_character__character_id=character_id
@@ -219,14 +224,12 @@ class BeltRadarSurveyApiEndpoints:
                     ),
                 )
                 survey_list.append(survey_session_data)
-            return 200, survey_list
+            return HTTPStatus.OK, survey_list
 
         @api.get(
             "view/user-sessions/",
             response={
                 HTTPStatus.OK: list[schema.BeltSurveySessionSchema],
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
             },
             tags=self.tags,
         )
@@ -252,7 +255,7 @@ class BeltRadarSurveyApiEndpoints:
                     ),
                 )
                 survey_list.append(survey_session_data)
-            return 200, survey_list
+            return HTTPStatus.OK, survey_list
 
         @api.get(
             "view/session/{public_id}/snapshot/last_entry/",
@@ -266,7 +269,7 @@ class BeltRadarSurveyApiEndpoints:
         def get_survey_entry(request, public_id: str):
             """Get all survey entries for the current user."""
             if not request.user.has_perm("beltradar.basic_access"):
-                return 403, {
+                return HTTPStatus.FORBIDDEN, {
                     "error": _("You do not have permission to access this resource.")
                 }
 
@@ -274,7 +277,9 @@ class BeltRadarSurveyApiEndpoints:
             try:
                 session = BeltSurveySession.objects.get(public_id=public_id)
             except ObjectDoesNotExist:
-                return 404, {"error": _("Survey session not found or not public.")}
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Survey session not found or not public.")
+                }
 
             # Get the most recent survey entry for this session (if any)
             last_entries = session.get_entries_for_snapshot(session.last_entry_snapshot)
@@ -299,7 +304,7 @@ class BeltRadarSurveyApiEndpoints:
                 )
                 snapshot_list.append(ore_data)
 
-            return 200, schema.SnapShotSchema(
+            return HTTPStatus.OK, schema.SnapShotSchema(
                 session=schema.SessionSchema(
                     public_id=str(session.public_id),
                     name=session.name,
@@ -349,7 +354,7 @@ class BeltRadarSurveyApiEndpoints:
                 session = BeltSurveySession.objects.get(public_id=public_id)
             except ObjectDoesNotExist:
                 msg = _("Survey session not found.")
-                return 404, {"error": msg}
+                return HTTPStatus.NOT_FOUND, {"error": msg}
 
             # Check if the user has permission to delete this survey session
             perms = get_public_id_or_none(

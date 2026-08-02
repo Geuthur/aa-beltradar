@@ -10,11 +10,10 @@ from django.urls import reverse
 
 # AA Belt Radar
 from beltradar import views
-from beltradar.models import BeltSurveySession, BeltTimer
+from beltradar.models import BeltSurveySession
 
 # AA Beltradar
 from beltradar.tests import BeltRadarTestCase
-from beltradar.tests.testdata.utils import create_user_from_evecharacter
 
 MODULE_PATH = "beltradar.views."
 

@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [0.2.0]- 2026-08-02
+
 ### Added
 
 - Belt Respawn Timer
@@ -169,4 +171,6 @@ Section Order:
 [0.0.7]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.6...v0.0.7 "v0.0.7"
 [0.0.8]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.7...v0.0.8 "v0.0.8"
 [0.0.9]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.8...v0.0.9 "v0.0.9"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.9...HEAD "In Development"
+[0.1.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.9...v0.1.0 "v0.1.0"
+[0.2.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.1.0...v0.2.0 "v0.2.0"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.2.0...HEAD "In Development"

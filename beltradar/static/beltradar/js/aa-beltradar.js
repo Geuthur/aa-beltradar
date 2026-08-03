@@ -122,3 +122,168 @@ const _exportTableToCSV = (dt, columnIndex, filename = 'beltradar.csv') => {
     downloadLink.click();
     document.body.removeChild(downloadLink);
 };
+
+/**
+* Local POST adapter: keeps global fetchPost untouched while improving error details.
+* Reads JSON error payload (message/error/detail) when statusText is empty.
+*/
+const fetchPostBeltRadar = async ({
+    url,
+    csrfToken = null,
+    payload = null,
+    responseIsJson = true
+}) => {
+    if (!csrfToken) {
+        throw new Error('CSRF token is required for POST requests');
+    }
+
+    if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
+        throw new Error('Payload must be an object when using POST method');
+    }
+
+    const headers = {
+        'X-CSRFToken': csrfToken,
+    };
+
+    if (responseIsJson) {
+        headers.Accept = 'application/json'; // jshint ignore:line
+        headers['Content-Type'] = 'application/json';
+    }
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: payload ? JSON.stringify(payload) : null,
+    });
+
+    if (!response.ok) {
+        let details;
+        const contentType = (response.headers.get('content-type') || '').toLowerCase();
+
+        try {
+            if (contentType.includes('application/json')) {
+                const data = await response.clone().json();
+                details = data?.message || data?.error || data?.detail || '';
+            } else {
+                details = (await response.clone().text()).trim();
+            }
+        } catch (parseError) {
+            details = '';
+        }
+
+        const statusText = (response.statusText || '').trim() || 'HTTP Error';
+        const msg = details
+            ? `Error: ${response.status} - ${statusText} | ${details}`
+            : `Error: ${response.status} - ${statusText}`;
+
+        throw new Error(msg);
+    }
+
+    return responseIsJson ? await response.json() : await response.text();
+};
+
+/**
+* Local GET adapter: keeps global fetchGet untouched while improving error details.
+* Reads JSON error payload (message/error/detail) when statusText is empty.
+*/
+const fetchGetBeltRadar = async ({
+    url,
+    payload = null,
+    responseIsJson = true
+}) => {
+    let requestUrl = url;
+
+    if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
+        throw new Error('Payload must be an object when using GET method');
+    }
+
+    if (payload) {
+        const queryParams = new URLSearchParams(payload).toString(); // jshint ignore:line
+        requestUrl += (url.includes('?') ? '&' : '?') + queryParams;
+    }
+
+    const headers = {};
+    if (responseIsJson) {
+        headers.Accept = 'application/json'; // jshint ignore:line
+    }
+
+    const response = await fetch(requestUrl, {
+        method: 'GET',
+        headers,
+    });
+
+    if (!response.ok) {
+        let details;
+        const contentType = (response.headers.get('content-type') || '').toLowerCase();
+
+        try {
+            if (contentType.includes('application/json')) {
+                const data = await response.clone().json();
+                details = data?.message || data?.error || data?.detail || '';
+            } else {
+                details = (await response.clone().text()).trim();
+            }
+        } catch (parseError) {
+            details = '';
+        }
+
+        const statusText = (response.statusText || '').trim() || 'HTTP Error';
+        const msg = details
+            ? `Error: ${response.status} - ${statusText} | ${details}`
+            : `Error: ${response.status} - ${statusText}`;
+
+        throw new Error(msg);
+    }
+
+    return responseIsJson ? await response.json() : await response.text();
+};
+
+const sizeChoices = {
+    asteroid_belt: [
+        ['small', 'Small'],
+        ['medium', 'Medium'],
+        ['large', 'Large'],
+        ['enormous', 'Enormous'],
+        ['colossal', 'Colossal'],
+    ],
+    arrey_belt: [
+        ['small', 'Small'],
+        ['medium', 'Medium'],
+        ['large', 'Large'],
+    ],
+    mercobelt: [
+        ['small', 'Small'],
+        ['medium', 'Medium'],
+        ['large', 'Large'],
+        ['enormous', 'Enormous'],
+    ],
+    ice_belt: [['ice', 'Ice']],
+};
+
+const updateBeltSizeChoices = ({beltTypeSelect, beltSizeSelect}) => {
+    const selectedType = beltTypeSelect.value;
+    const allowedChoices = sizeChoices[selectedType] || [
+        ['small', 'Small'],
+        ['medium', 'Medium'],
+        ['large', 'Large'],
+        ['enormous', 'Enormous'],
+        ['colossal', 'Colossal'],
+        ['ice', 'Ice'],
+    ];
+    const previousValue = beltSizeSelect.value;
+
+    beltSizeSelect.innerHTML = '';
+
+    allowedChoices.forEach(([value, label]) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        beltSizeSelect.appendChild(option);
+    });
+
+    if (allowedChoices.some(([value]) => value === previousValue)) {
+        beltSizeSelect.value = previousValue;
+    } else {
+        beltSizeSelect.value = allowedChoices[0]?.[0] || '';
+    }
+};

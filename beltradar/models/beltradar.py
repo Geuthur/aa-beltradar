@@ -30,6 +30,13 @@ from beltradar.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
+def generate_unique_public_id(length=12):
+    """Generate a unique public ID."""
+    unique_id = str(uuid.uuid4())
+    unique_id = unique_id.replace("-", "")
+    return unique_id[:length]
+
+
 class UserSettings(models.Model):
     class Meta:
         default_permissions = ()  # Remove standard permissions
@@ -60,19 +67,14 @@ class BeltSurveySession(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="br_user_sessions"
     )
-    public_id = models.CharField(max_length=255, unique=True, editable=False)
+    public_id = models.CharField(
+        max_length=36, default=generate_unique_public_id, unique=True, editable=False
+    )
     name = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} ({self.public_id})"
-
-    @staticmethod
-    def generate_unique_public_id(length=12):
-        """Generate a unique public ID for a new BeltSurveySession."""
-        unique_id = str(uuid.uuid4())
-        unique_id = unique_id.replace("-", "")
-        return unique_id[:length]
 
     def get_entries_for_snapshot(self, snapshot):
         """Get all entries for a specific snapshot. This is the preferred method for accessing snapshot data."""
@@ -316,12 +318,22 @@ class BeltTimer(models.Model):
     class Meta:
         default_permissions = ()  # Remove standard permissions
 
-    session = models.ManyToManyField(BeltSurveySession, related_name="br_timer")
+    objects: BeltRadarManager = BeltRadarManager()
+
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="br_user_timers"
+    )
+    public_id = models.CharField(
+        max_length=36, default=generate_unique_public_id, editable=False, unique=True
+    )
     belt_id = models.CharField(max_length=7)
     belt_name = models.CharField(max_length=100)
     belt_size = models.CharField(choices=BeltSizeChoice.choices, max_length=10)
     belt_type = models.CharField(choices=BeltTypeChoice.choices, max_length=15)
     eta = models.DateTimeField(null=True, blank=True)
+
+    # Belt Timer visibility
+    public = models.BooleanField(default=False)
 
     # Notification System
     sent_notification = models.BooleanField(default=False)

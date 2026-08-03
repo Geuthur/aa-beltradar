@@ -118,15 +118,15 @@ class TestViewAccess(BeltRadarTestCase):
         with self.assertRaises(Http404):
             views.view_session(request, public_id=test_uuid)
 
-    def test_view_my_sessions(self):
+    def test_view_my_beltradar(self):
         """
         Test should render view my sessions view.
         """
         # given
-        request = self.factory.get(reverse("beltradar:view_my_sessions"))
+        request = self.factory.get(reverse("beltradar:view_my_beltradar"))
         request.user = self.user
         # when
-        response = views.view_my_sessions(request)
+        response = views.view_my_beltradar(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "My Sessions")

@@ -1,5 +1,5 @@
 # Standard Library
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 # Django
 from django.db import models
@@ -24,12 +24,15 @@ if TYPE_CHECKING:
     # AA Belt Radar
     from beltradar.models import BeltSurveyEntry as BeltSurveyEntryContext
     from beltradar.models import BeltSurveySession as BeltSurveyContext
+    from beltradar.models import BeltTimer as BeltTimerContext
     from beltradar.models import EveMarketPrice as EveTypePriceContext
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class BeltRadarQuerySet(models.QuerySet["BeltSurveyContext"]):
+class BeltRadarQuerySet(
+    models.QuerySet[Union["BeltSurveyContext", "BeltTimerContext"]]
+):
     def visible_to(self, user):
         """Get all survey sessions visible to the user."""
         # superusers get all visible
@@ -90,7 +93,7 @@ class BeltRadarQuerySet(models.QuerySet["BeltSurveyContext"]):
             return self.none()
 
 
-class BeltRadarManager(models.Manager["BeltSurveyContext"]):
+class BeltRadarManager(models.Manager[Union["BeltSurveyContext", "BeltTimerContext"]]):
     def get_queryset(self) -> BeltRadarQuerySet:
         return BeltRadarQuerySet(self.model, using=self._db)
 

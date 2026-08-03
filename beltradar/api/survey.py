@@ -7,7 +7,6 @@ from http import HTTPStatus
 from ninja import NinjaAPI
 
 # Django
-from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import QuerySet
@@ -22,9 +21,11 @@ from eve_sde.models import ItemType
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
-from beltradar.api.helpers.core import get_owner_or_none, get_public_id_or_none
+from beltradar.api.helpers.core import (
+    get_owner_or_none,
+    get_public_id_or_none,
+)
 from beltradar.api.helpers.icons import (
-    get_belt_timer_manage_action_icons,
     get_snapshot_delete_button,
     get_survey_manage_action_icons,
 )
@@ -32,7 +33,6 @@ from beltradar.helpers.eveonline import get_icon_render_url
 from beltradar.models.beltradar import (
     BeltSurveyEntry,
     BeltSurveySession,
-    BeltTimer,
     EveMarketPrice,
 )
 from beltradar.providers import AppLogger
@@ -233,7 +233,7 @@ class BeltRadarSurveyApiEndpoints:
             },
             tags=self.tags,
         )
-        def get_user_sessions(request):
+        def get_sessions(request):
             """Get all survey sessions for the current user."""
             # Get all sessions visible to the user, ordered by creation date descending
             sessions = BeltSurveySession.objects.visible_to(request.user).order_by(
@@ -570,153 +570,3 @@ class BeltRadarSurveyApiEndpoints:
                 + ". Errors: "
                 + ", ".join(survey_data.erros if survey_data else ["No data"]),
             }
-
-        @api.post(
-            "session/{public_id}/belt-timer/manage/add/",
-            response={
-                HTTPStatus.OK: dict,
-                HTTPStatus.BAD_REQUEST: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
-            },
-            tags=self.tags,
-        )
-        def add_belt_timer(request, public_id: str):
-            """
-            Add a new belt timer to a survey session.
-
-            This Endpoint allows users to add a new belt timer to an existing survey session.
-            The user must have permission to add entries to the survey session, and the survey session must exist.
-
-            Args:
-                public_id (str): The public UUID of the survey session.
-                parsed_data: A JSON object containing the belt timer data, including belt ID, belt name, belt type, ETA, and snapshot identifier.
-            Returns:
-                200: A success message indicating the belt timer was added.
-                400: An error message if the input data is invalid or cannot be parsed.
-                403: An error message if the user does not have permission or the survey session is not found.
-                404: An error message if the survey session is not found.
-            """
-            # Check if the survey session exists
-            try:
-                session = BeltSurveySession.objects.get(public_id=public_id)
-            except ObjectDoesNotExist:
-                msg = _("Survey session not found.")
-                return HTTPStatus.NOT_FOUND, {"error": msg}
-
-            # Check if the user has permission to add entries to this survey session
-            perms = get_public_id_or_none(
-                request=request,
-                public_id=public_id,
-            )[0]
-
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
-
-            # Validate the form data
-            form = forms.BeltTimerForm(data=json.loads(request.body))
-            if form.is_valid():
-                with transaction.atomic():
-                    timer: BeltTimer = form.save()
-                    timer.session.set([session])
-
-                    return HTTPStatus.OK, {
-                        "success": True,
-                        "message": _("Survey entry added successfully."),
-                    }
-            msg = _("Invalid input data. Please check the format and try again.")
-            return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
-
-        @api.get(
-            "view/session/{public_id}/belt-timer/",
-            response={
-                HTTPStatus.OK: list[schema.BeltTimerSchema],
-                HTTPStatus.FORBIDDEN: str,
-            },
-            tags=self.tags,
-        )
-        def get_session_belt_timer(request, public_id: str):
-            """Get belt timer details for a specific public_id."""
-            if not request.user.has_perm("beltradar.basic_access"):
-                return 403, _("You do not have permission to access this resource.")
-
-            try:
-                session = BeltSurveySession.objects.get(public_id=public_id)
-            except ObjectDoesNotExist:
-                return 403, _("Survey session not found or not public.")
-
-            if session.br_timer is None:
-                return 404, _("No belt timer found for this survey session.")
-
-            belt_timer_list: list[schema.BeltTimerSchema] = []
-            for timer in session.br_timer.all():
-                belt_timer_list.append(
-                    schema.BeltTimerSchema(
-                        public_id=str(session.public_id),
-                        belt_id=timer.belt_id,
-                        belt_name=timer.belt_name,
-                        belt_size=timer.get_belt_size_display,
-                        belt_type=timer.get_belt_type_display,
-                        eta=timer.eta,
-                        eta_natural=naturaltime(timer.eta) if timer.eta else None,
-                        html=str(
-                            get_belt_timer_manage_action_icons(
-                                request=request,
-                                public_id=session.public_id,
-                                timer_id=timer.pk,
-                            )
-                        ),
-                    )
-                )
-            return 200, belt_timer_list
-
-        @api.post(
-            "session/{public_id}/belt-timer/{timer_id}/manage/delete/",
-            response={
-                HTTPStatus.OK: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
-            },
-            tags=self.tags,
-        )
-        def delete_belt_timer(request, public_id: str, timer_id: int):
-            """
-            Delete a specific belt timer in a survey session.
-
-            This Endpoint allows users to delete a specific belt timer within a survey session.
-            The user must have permission to delete the survey session, and the survey session must exist.
-
-            Args:
-                public_id (str): The public UUID of the survey session.
-                timer_id (int): The ID of the belt timer to delete.
-            Returns:
-                200: A success message indicating the belt timer was deleted.
-                403: An error message if the user does not have permission or the session is not found.
-                404: An error message if the belt timer is not found.
-            """
-            # Check if the survey session exists
-            try:
-                session = BeltSurveySession.objects.get(public_id=public_id)
-            except ObjectDoesNotExist:
-                msg = _("Survey session not found.")
-                return HTTPStatus.NOT_FOUND, {"error": msg}
-
-            # Check if the user has permission to delete this snapshot (by checking if they can delete the survey session)
-            perms = get_owner_or_none(
-                request=request,
-                character_id=session.owner.profile.main_character.character_id,
-            )[0]
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
-
-            try:
-                session.br_timer.get(id=timer_id).delete()
-            except ObjectDoesNotExist:
-                msg = _("Belt timer not found.")
-                return HTTPStatus.NOT_FOUND, {"error": msg}
-
-            # If the belt timer was deleted successfully, return a success message
-            msg = _("Belt timer deleted successfully.")
-            return HTTPStatus.OK, {"success": True, "message": msg}

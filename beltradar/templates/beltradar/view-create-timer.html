@@ -15,11 +15,6 @@
     <div class="card">
         <div class="card-header bg-primary rounded d-flex align-items-center">
             <h3>{% translate "Create Belt Timer" %}</h3>
-            <div class="px-2">
-                <a href="{% url 'beltradar:view_session' public_id=session.public_id %}">
-                    <span class="btn btn-secondary">{% translate 'Back to Session' %}</span>
-                </a>
-            </div>
         </div>
     </div>
 {% endblock aabeltradar_header %}
@@ -30,7 +25,7 @@
             <p class="text-muted">
                 {% translate "Note: Only create a Timer if you have finished the belt. The Timer starts immediately." %}
             </p>
-            {% include 'beltradar/partials/forms/create_belt_timer.html' %}
+            {% include 'beltradar/partials/forms/create-timer.html' %}
         </div>
     </div>
 {% endblock aabeltradar_block %}
@@ -60,58 +55,8 @@
                 return;
             }
 
-            const sizeChoices = {
-                asteroid_belt: [
-                    ["small", "Small"],
-                    ["medium", "Medium"],
-                    ["large", "Large"],
-                    ["enormous", "Enormous"],
-                    ["colossal", "Colossal"],
-                ],
-                arrey_belt: [
-                    ["small", "Small"],
-                    ["medium", "Medium"],
-                    ["large", "Large"],
-                ],
-                mercobelt: [
-                    ["small", "Small"],
-                    ["medium", "Medium"],
-                    ["large", "Large"],
-                    ["enormous", "Enormous"],
-                ],
-                ice_belt: [["ice", "Ice"]],
-            };
-
-            const updateBeltSizeChoices = () => {
-                const selectedType = beltTypeSelect.value;
-                const allowedChoices = sizeChoices[selectedType] || [
-                    ["small", "Small"],
-                    ["medium", "Medium"],
-                    ["large", "Large"],
-                    ["enormous", "Enormous"],
-                    ["colossal", "Colossal"],
-                    ["ice", "Ice"],
-                ];
-                const previousValue = beltSizeSelect.value;
-
-                beltSizeSelect.innerHTML = "";
-
-                allowedChoices.forEach(([value, label]) => {
-                    const option = document.createElement("option");
-                    option.value = value;
-                    option.textContent = label;
-                    beltSizeSelect.appendChild(option);
-                });
-
-                if (allowedChoices.some(([value]) => value === previousValue)) {
-                    beltSizeSelect.value = previousValue;
-                } else {
-                    beltSizeSelect.value = allowedChoices[0]?.[0] || "";
-                }
-            };
-
-            beltTypeSelect.addEventListener("change", updateBeltSizeChoices);
-            updateBeltSizeChoices();
+            beltTypeSelect.addEventListener("change", () => updateBeltSizeChoices({beltTypeSelect, beltSizeSelect}));
+            updateBeltSizeChoices({beltTypeSelect, beltSizeSelect});
         });
     </script>
     {% include 'beltradar/bundles/aa-beltradar-js.html' %}

@@ -39,10 +39,13 @@ ______________________________________________________________________
 - Respawn Timer for Belts
 - Compressed Price
 - Discord Notification (optional)
+- Public/Private Respawn Timers
+- Discord Webhook for Respawn Timer
 
 ## Upcoming<a name="upcoming"></a>
 
 - Graphical Upgrades
+- Auto Respawn Timer from Session per Survey
 
 ## Highlights<a name="highlights"></a>
 
@@ -154,6 +157,7 @@ The Following Settings can be setting up in the `local.py`
 | ---------------------------- | ------------------------------------------------- | -------------- |
 | `BELT_RADAR_APP_NAME`        | Set the name of the APP                           | `"Belt Radar"` |
 | `BELT_RADAR_TASK_TIME_LIMIT` | Defines the time (in seconds) a task will timeout | `1200`         |
+| `BELT_RADAR_WEBHOOK_URL`     | Defines URL for Webhook notification              | None           |
 
 ## Translations<a name="translations"></a>
 

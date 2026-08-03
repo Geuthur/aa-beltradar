@@ -142,12 +142,13 @@ class BeltSurveySessionForm(forms.ModelForm):
 class BeltTimerForm(forms.ModelForm):
     class Meta:
         model = BeltTimer
-        fields = ["belt_id", "belt_name", "belt_type", "belt_size"]
+        fields = ["belt_id", "belt_name", "belt_type", "belt_size", "public"]
         labels = {
             "belt_id": "Belt ID",
             "belt_name": "Belt Name",
             "belt_type": "Belt Type",
             "belt_size": "Belt Size",
+            "public": "Public",
         }
         help_texts = {
             "belt_id": _(
@@ -156,6 +157,9 @@ class BeltTimerForm(forms.ModelForm):
             "belt_name": _("The name of the belt."),
             "belt_type": _("The type of belt."),
             "belt_size": _("The size of the belt."),
+            "public": _(
+                "If checked, this belt timer will be visible to other users. Otherwise, it will be private."
+            ),
         }
 
 

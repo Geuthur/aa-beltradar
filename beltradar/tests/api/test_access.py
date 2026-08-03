@@ -109,14 +109,14 @@ class TestApiEndpoints(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
-    def test_get_user_sessions_should_200(self):
+    def test_get_sessions_should_200(self):
         """
         Test should return 200 OK when user has permissions and resource exists.
         """
         # Test Data
         BeltSessionFactory(owner=self.user)
         BeltSessionFactory(owner=self.user)
-        url = reverse(f"{API_URL}:get_user_sessions")
+        url = reverse(f"{API_URL}:get_sessions")
         self.client.force_login(self.user)
 
         # Test Action

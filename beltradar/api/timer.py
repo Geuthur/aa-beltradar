@@ -20,6 +20,7 @@ from beltradar.api import schema
 from beltradar.api.helpers.core import get_belt_timer_or_none
 from beltradar.api.helpers.icons import (
     get_belt_timer_manage_action_icons,
+    get_timer_public_icon,
 )
 from beltradar.models.beltradar import (
     BeltTimer,
@@ -78,8 +79,16 @@ class BeltRadarBeltTimerApiEndpoints:
                         belt_name=timer.belt_name,
                         belt_size=timer.get_belt_size_display,
                         belt_type=timer.get_belt_type_display,
-                        eta=timer.eta,
-                        eta_natural=naturaltime(timer.eta) if timer.eta else None,
+                        eta=schema.DataTableSchema(
+                            raw=timer.eta,
+                            display=naturaltime(timer.eta) if timer.eta else "",
+                            sort=str(timer.eta),
+                        ),
+                        public=schema.DataTableSchema(
+                            raw=timer.public,
+                            display=get_timer_public_icon(timer=timer),
+                            sort=str(timer.public),
+                        ),
                         html=str(
                             get_belt_timer_manage_action_icons(
                                 request=request,
@@ -117,13 +126,21 @@ class BeltRadarBeltTimerApiEndpoints:
                         belt_name=timer.belt_name,
                         belt_size=timer.get_belt_size_display,
                         belt_type=timer.get_belt_type_display,
-                        eta=timer.eta,
-                        eta_natural=naturaltime(timer.eta) if timer.eta else None,
+                        eta=schema.DataTableSchema(
+                            raw=timer.eta,
+                            display=naturaltime(timer.eta) if timer.eta else "",
+                            sort=str(timer.eta),
+                        ),
+                        public=schema.DataTableSchema(
+                            raw=timer.public,
+                            display=get_timer_public_icon(timer=timer),
+                            sort=str(timer.public),
+                        ),
                         html=str(
                             get_belt_timer_manage_action_icons(
                                 request=request,
                                 timer_id=timer.pk,
-                                character_id=request.user.profile.main_character.character_id,
+                                character_id=timer.owner.profile.main_character.character_id,
                             )
                         ),
                     )

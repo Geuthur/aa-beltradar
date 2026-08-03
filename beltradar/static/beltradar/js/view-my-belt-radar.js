@@ -200,9 +200,16 @@ $(document).ready(() => {
             },
             {
                 data: {
-                    display: (data) => data.eta_natural ? data.eta_natural : data.eta,
-                    sort: (data) => data.eta,
-                    filter: (data) => data.eta,
+                    display: (data) => data.eta.display,
+                    sort: (data) => data.eta.sort,
+                    filter: (data) => data.eta.raw,
+                }
+            },
+            {
+                data: {
+                    display: (data) => data.public.display,
+                    sort: (data) => data.public.sort,
+                    filter: (data) => data.public.raw,
                 }
             },
             {

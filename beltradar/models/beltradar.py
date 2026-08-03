@@ -67,11 +67,20 @@ class BeltSurveySession(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="br_user_sessions"
     )
-    public_id = models.CharField(
-        max_length=36, default=generate_unique_public_id, unique=True, editable=False
-    )
+    public_id = models.CharField(max_length=36, default="")
     name = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to automatically generate a unique public_id before saving the BeltSurveySession instance.
+        This ensures that each session has a unique identifier that can be used for public access or sharing.
+        """
+        # Generate a unique public_id if it is not already set
+        if self.public_id == "":
+            self.public_id = generate_unique_public_id()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} ({self.public_id})"
@@ -323,9 +332,7 @@ class BeltTimer(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="br_user_timers"
     )
-    public_id = models.CharField(
-        max_length=36, default=generate_unique_public_id, editable=False, unique=True
-    )
+    public_id = models.CharField(max_length=36, default="")
     belt_id = models.CharField(max_length=7)
     belt_name = models.CharField(max_length=100)
     belt_size = models.CharField(choices=BeltSizeChoice.choices, max_length=10)
@@ -379,9 +386,17 @@ class BeltTimer(models.Model):
         if self.eta is None:
             self.eta = None
 
-    # Override the save method to automatically generate the ETA before saving the BeltTimer instance
     def save(self, *args, **kwargs):
+        """
+        Override the save method to automatically generate the ETA before saving the BeltTimer instance.
+        This ensures that each timer has an accurate estimated time of respawn based on the belt type
+        """
         self.generate_eta()
+
+        # Generate a unique public_id if it is not already set
+        if self.public_id == "":
+            self.public_id = generate_unique_public_id()
+
         super().save(*args, **kwargs)
 
     def __str__(self):

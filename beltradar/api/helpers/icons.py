@@ -1,3 +1,6 @@
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
@@ -14,6 +17,11 @@ from beltradar.api.helpers.core import get_belt_timer_or_none, get_public_id_or_
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
+
+
+if TYPE_CHECKING:
+    # AA Belt Radar
+    from beltradar.models.beltradar import BeltTimer
 
 
 @permissions_required(
@@ -337,3 +345,37 @@ def get_timer_delete_button(
         f'title="{title}">{icon}</button>'
     )
     return delete_button
+
+
+def get_timer_public_icon(
+    timer: "BeltTimer",
+) -> str:
+    """
+    Generate a public icon for a specific belt timer.
+
+    This function creates an HTML icon indicating whether a belt timer is public or private.
+
+    Args:
+        request (WSGIRequest): The HTTP request object.
+        timer (BeltTimer): The belt timer object.
+    Returns:
+        String: HTML string containing the public/private icon.
+    """
+
+    # Define the icon and tooltip based on the public status of the belt timer
+    if timer.public:
+        icon = '<i class="fa-solid fa-globe"></i>'
+        title = _("Public Belt Timer")
+        color = "success"
+    else:
+        icon = '<i class="fa-solid fa-lock"></i>'
+        title = _("Private Belt Timer")
+        color = "secondary"
+
+    # Create the HTML for the public/private icon
+    public_icon = (
+        f'<span class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-tooltip="aa-beltradar" '
+        f'title="{title}">{icon}</span>'
+    )
+    return public_icon

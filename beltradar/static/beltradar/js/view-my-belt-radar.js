@@ -8,6 +8,7 @@ $(document).ready(() => {
     const BeltRadarBeltTimerTable = $('#beltradar-belt-timer-table');
     /* Modals */
     const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
+    const modalRequestSwitchBeltTimer = $('#beltradar-accept-switch-belt-timer');
     const modalRequestDeleteBeltTimer = $('#beltradar-accept-delete-belt-timer');
     const modalRequestAddBeltTimer = $('#beltradar-add-belt-timer');
 
@@ -160,7 +161,8 @@ $(document).ready(() => {
         layout: aaBeltRadarSettings.dataTables.layout,
         ordering: aaBeltRadarSettings.dataTables.ordering,
         columnControl: aaBeltRadarSettings.dataTables.columnControl,
-        order: [[2, 'desc']],
+        // Sort by ETA (column index 5) so the next expiring timer is always first.
+        order: [[5, 'asc'], [0, 'asc']],
         columnDefs: [],
         columns: [
             {
@@ -201,7 +203,7 @@ $(document).ready(() => {
             {
                 data: {
                     display: (data) => data.eta.display,
-                    sort: (data) => data.eta.sort,
+                    sort: (data) => data.is_expired ? '9999-12-31 23:59:59.999999+00:00' : data.eta.sort,
                     filter: (data) => data.eta.raw,
                 }
             },
@@ -225,6 +227,11 @@ $(document).ready(() => {
         },
         drawCallback: function () {
             _bootstrapTooltip({selector: '#beltradar-belt-timer-table'});
+        },
+        rowCallback: function(row, data) {
+            if (data.is_expired) {
+                $(row).addClass('text-muted text-decoration-line-through opacity-50');
+            }
         },
     });
 
@@ -377,4 +384,44 @@ $(document).ready(() => {
             modalRequestDeleteBeltTimer.find('#modal-button-confirm-accept-request').unbind('click');
         });
 
+    /**
+    * Table :: Belt-Timer :: Switch Button Click Handler
+    * Open Switch Belt-Timer Modal
+    * On Confirmation send a request to the API Endpoint, reload the Belt-Timer DataTable, close the modal
+    * and reopen the previous Belt-Timer Modal
+    */
+    modalRequestSwitchBeltTimer.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestSwitchBeltTimer.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestSwitchBeltTimer.find('#modal-button-confirm-accept-request').on('click', () => {
+            fetchPostBeltRadar({
+                url: url,
+                csrfToken: csrfMiddlewareToken,
+                payload: {}
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        fetchGetBeltRadar({
+                            url: aaBeltRadarSettings.url.Timers,
+                        })
+                            .then((newData) => {
+                                _reloadSurveyBeltTimerData(newData);
+                                modalRequestSwitchBeltTimer.modal('hide');
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching Survey Snapshot DataTable:', error);
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting switch request: ${error.message}`);
+                });
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestSwitchBeltTimer.find('#modal-button-confirm-accept-request').unbind('click');
+        });
 });

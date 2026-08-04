@@ -46,6 +46,15 @@ class DeleteBeltTimerForm(forms.Form):
         fields = ["timer_id"]
 
 
+class SwitchBeltTimerForm(forms.Form):
+    """
+    Form to confirm belt timer switch.
+    """
+
+    class Meta:
+        fields = ["timer_id"]
+
+
 class AddSurveyForm(forms.Form):
     raw_data = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 20, "cols": 80}),

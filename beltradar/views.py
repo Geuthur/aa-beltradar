@@ -80,6 +80,7 @@ def view_belt_radar(request):
         "title": "Survey Sessions Overview",
         "forms": {
             "add_belt_timer": forms.BeltTimerForm(),
+            "switch_belt_timer": forms.SwitchBeltTimerForm(),
             "delete_survey": forms.DeleteSurveyForm(),
             "delete_belt_timer": forms.DeleteBeltTimerForm(),
         },
@@ -99,6 +100,7 @@ def view_my_beltradar(request, character_id=None):
         "character_id": character_id,
         "forms": {
             "add_belt_timer": forms.BeltTimerForm(),
+            "switch_belt_timer": forms.SwitchBeltTimerForm(),
             "delete_survey": forms.DeleteSurveyForm(),
             "delete_belt_timer": forms.DeleteBeltTimerForm(),
         },

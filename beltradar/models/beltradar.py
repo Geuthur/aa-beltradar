@@ -402,6 +402,13 @@ class BeltTimer(models.Model):
     def __str__(self):
         return f"{self.belt_id} - {self.belt_name} - {self.belt_type} - ETA: {self.eta}"
 
+    @property
+    def is_expired(self):
+        """Check if the belt timer has expired based on the current time and the ETA."""
+        if self.eta is None:
+            return False
+        return timezone.now() >= self.eta
+
 
 class EveMarketPrice(models.Model):
 

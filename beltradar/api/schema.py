@@ -41,6 +41,7 @@ class BeltTimerSchema(Schema):
     belt_type: str
     eta: DataTableSchema
     public: DataTableSchema
+    is_expired: bool | None = None
     html: str | None = None
 
 

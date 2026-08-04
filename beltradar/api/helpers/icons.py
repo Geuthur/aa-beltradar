@@ -361,6 +361,12 @@ def get_timer_public_icon(
     Returns:
         String: HTML string containing the public/private icon.
     """
+    switch_button_url = reverse(
+        "beltradar:api:switch_belt_timer_public",
+        kwargs={
+            "timer_id": timer.pk,
+        },
+    )
 
     # Define the icon and tooltip based on the public status of the belt timer
     if timer.public:
@@ -374,8 +380,11 @@ def get_timer_public_icon(
 
     # Create the HTML for the public/private icon
     public_icon = (
-        f'<span class="btn btn-{color} btn-sm btn-square me-2" '
+        f'<button data-action="{switch_button_url}" '
+        f'class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-toggle="modal" '
+        'data-bs-target="#beltradar-accept-switch-belt-timer" '
         'data-bs-tooltip="aa-beltradar" '
-        f'title="{title}">{icon}</span>'
+        f'title="{title}">{icon}</button>'
     )
     return public_icon

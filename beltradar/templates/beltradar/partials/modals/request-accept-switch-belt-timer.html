@@ -1,0 +1,43 @@
+{% load django_bootstrap5 %}
+{% load i18n %}
+
+<!-- accept switch belt timer modal -->
+<div class="modal fade" id="beltradar-accept-switch-belt-timer" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title fs-5">
+                    {% translate "Accept Switch Belt Timer" %}
+                </div>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>
+                    {% translate "Are you sure you want to switch this belt timer?" %}
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% bootstrap_form forms.switch_belt_timer %}
+                </form>
+                {% include 'beltradar/partials/common/spinner.html' %}
+                {% include 'beltradar/partials/common/error.html' %}
+            </div>
+
+            <div class="modal-footer">
+                <button id="modal-button-cancel-accept-request" type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-hand"></i>
+                    {% translate "Cancel" %}
+                </button>
+
+                <button id="modal-button-confirm-accept-request" type="button" class="btn btn-success btn-sm">
+                    <i class="fa-solid fa-check"></i>
+                    {% translate "Accept Switch Belt Timer" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

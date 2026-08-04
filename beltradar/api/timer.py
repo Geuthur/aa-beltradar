@@ -89,6 +89,7 @@ class BeltRadarBeltTimerApiEndpoints:
                             display=get_timer_public_icon(timer=timer),
                             sort=str(timer.public),
                         ),
+                        is_expired=timer.is_expired,
                         html=str(
                             get_belt_timer_manage_action_icons(
                                 request=request,
@@ -136,6 +137,7 @@ class BeltRadarBeltTimerApiEndpoints:
                             display=get_timer_public_icon(timer=timer),
                             sort=str(timer.public),
                         ),
+                        is_expired=timer.is_expired,
                         html=str(
                             get_belt_timer_manage_action_icons(
                                 request=request,
@@ -240,4 +242,51 @@ class BeltRadarBeltTimerApiEndpoints:
 
             # If the belt timer was deleted successfully, return a success message
             msg = _("Belt timer deleted successfully.")
+            return HTTPStatus.OK, {"success": True, "message": msg}
+
+        @api.post(
+            "belt-timer/{timer_id}/manage/switch-public/",
+            response={
+                HTTPStatus.OK: dict,
+                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.NOT_FOUND: dict,
+            },
+            tags=self.tags,
+        )
+        def switch_belt_timer_public(request, timer_id: int):
+            """
+            Switch the public status of a specific belt timer in a survey session.
+
+            This Endpoint allows users to switch the public status of a specific belt timer within a survey session.
+            The user must have permission to modify the survey session, and the survey session must exist.
+
+            Args:
+                timer_id (int): The ID of the belt timer to switch public status.
+            Returns:
+                200: A success message indicating the belt timer's public status was switched.
+                403: An error message if the user does not have permission or the session is not found.
+                404: An error message if the belt timer is not found.
+            """
+            # Check if the survey session exists
+            try:
+                timer = BeltTimer.objects.get(pk=timer_id)
+            except ObjectDoesNotExist:
+                msg = _("Belt timer not found.")
+                return HTTPStatus.NOT_FOUND, {"error": msg}
+
+            # Check if the user has permission to modify this snapshot (by checking if they can modify the survey session)
+            perms = get_belt_timer_or_none(
+                request=request,
+                character_id=timer.owner.profile.main_character.character_id,
+            )[0]
+            if not perms:
+                msg = _("Permission Denied.")
+                return HTTPStatus.FORBIDDEN, {"error": msg}
+
+            # Switch the public status of the belt timer
+            timer.public = not timer.public
+            timer.save()
+
+            # If the belt timer's public status was switched successfully, return a success message
+            msg = _("Belt timer public status switched successfully.")
             return HTTPStatus.OK, {"success": True, "message": msg}

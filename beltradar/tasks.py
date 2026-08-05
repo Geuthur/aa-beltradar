@@ -1,14 +1,10 @@
 """App Tasks"""
 
-# Standard Library
-from urllib.parse import urljoin
-
 # Third Party
 from celery import Task, shared_task
 
 # Django
 from django.conf import settings
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -18,9 +14,12 @@ from allianceauth.services.tasks import QueueOnce
 
 # AA Belt Radar
 from beltradar import __title__, app_settings
-from beltradar.models import BeltSurveySession, BeltTimer, EveMarketPrice, UserSettings
+from beltradar.models import BeltTimer, EveMarketPrice, UserSettings
 from beltradar.providers import AppLogger, retry_task_on_esi_error
-from beltradar.thirdparty.discord import send_user_notification
+from beltradar.thirdparty.discord import (
+    send_user_notification,
+    send_webhook_notification,
+)
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
@@ -50,49 +49,49 @@ TASK_DEFAULTS_BIND_ONCE_SESSION = {
 @shared_task(**TASK_DEFAULTS_ONCE)
 def update_all_belt_radar(runs: int = 0):
     """Update all belt radar data."""
-    sessions = BeltSurveySession.objects.all()
+    belt_timers = BeltTimer.objects.all()
     user_notifications = {}
+    webhook_notifications = []
     updated_timers = []
     now = timezone.now()
 
-    for session in sessions:
+    for belt_timer in belt_timers:
         # Get or create user settings for the session owner
-        user_settings = UserSettings.objects.get_or_create(user=session.owner)[0]
+        user_settings = UserSettings.objects.get_or_create(user=belt_timer.owner)[0]
 
         # Create a list of notifications for the user if the session has any timers that have expired
         if not user_notifications.get(user_settings.user.pk):
             user_notifications[user_settings.user.pk] = []
 
-        # Check if any timers have expired and add a notification message for the user
-        for timer in session.br_timer.all():
-            # Check if the timer has expired and if a notification has not been sent yet
-            if timer.eta and timer.eta < now and timer.sent_notification is False:
-                logger.debug(
-                    "Timer for belt %s has expired. trying to send notification.",
-                    session,
-                )
+        # Check if the timer has expired and if a notification has not been sent yet
+        if (
+            belt_timer.eta
+            and belt_timer.eta < now
+            and belt_timer.sent_notification is False
+        ):
+            logger.debug(
+                "Timer for belt %s has expired. trying to send notification.",
+                belt_timer.belt_id,
+            )
 
-                # Create a notification message for the user with a link to the session
-                url = urljoin(
-                    settings.SITE_URL,
-                    reverse(
-                        "beltradar:view_session",
-                        args=[session.public_id],
-                    ),
-                )
-                msg = _("Belt ID: **{belt_id}** - [Session]({url})").format(
-                    belt_id=timer.belt_id,
-                    url=url,
-                )
+            msg = _("Belt ID: **{belt_id}** ({belt_type} - {belt_size})").format(
+                belt_id=belt_timer.belt_id,
+                belt_type=belt_timer.get_belt_type_display(),
+                belt_size=belt_timer.get_belt_size_display(),
+            )
 
-                # Add the notification message to the user's list of notifications if notifications are not disabled
-                if user_settings.disable_notifications is False:
-                    user_notifications[user_settings.user.pk].append(msg)
+            # Add the notification message to the user's list of notifications if notifications are not disabled
+            if user_settings.disable_notifications is False:
+                user_notifications[user_settings.user.pk].append(msg)
 
-                # Mark the timer as having sent a notification to avoid sending duplicate notifications
-                timer.sent_notification = True
-                # Add the timer to the list of updated timers to be saved later
-                updated_timers.append(timer)
+            # Send a webhook notification if a webhook URL is configured in the app settings.
+            if belt_timer.public is True:
+                webhook_notifications.append(msg)
+
+            # Mark the timer as having sent a notification to avoid sending duplicate notifications
+            belt_timer.sent_notification = True
+            # Add the timer to the list of updated timers to be saved later
+            updated_timers.append(belt_timer)
         # Increment the run counter
         runs = runs + 1
 
@@ -119,6 +118,22 @@ def update_all_belt_radar(runs: int = 0):
                 embed_message=True,
                 level="info",
             )
+
+    if webhook_notifications:
+        logger.debug(
+            "Sending %s webhook notifications for expired timers.",
+            len(webhook_notifications),
+        )
+        message = "\n".join(webhook_notifications)
+        message += _("\n\nhas respawned.")
+
+        send_webhook_notification.delay(
+            webhook_url=settings.BELT_RADAR_WEBHOOK_URL,
+            title=_("Belt Radar Notification"),
+            message=message,
+            embed_message=True,
+            level="info",
+        )
     logger.info("Queued %s Session Tasks", runs)
 
 

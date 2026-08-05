@@ -14,13 +14,14 @@
 {% block aabeltradar_header %}
     <div class="card">
         <div class="card-header bg-primary rounded d-flex align-items-center">
-            <h3>{% translate "My Sessions" %}</h3>
+            <h3>{% translate "My Belt Radar" %}</h3>
         </div>
     </div>
 {% endblock aabeltradar_header %}
 
 {% block aabeltradar_block %}
-    {% include 'beltradar/partials/view-my-sessions/survey-sessions-table.html' %}
+    {% include 'beltradar/partials/view-my-belt-radar/survey-session-table.html' %}
+    {% include 'beltradar/partials/view-my-belt-radar/belt-timer-table.html' %}
 {% endblock aabeltradar_block %}
 
 
@@ -38,6 +39,7 @@
         const aaBeltRadarSettingsOverride = {
             url: {
                 mySessions: "{% url 'beltradar:api:get_my_sessions' character_id=character_id %}",
+                myTimers: "{% url 'beltradar:api:get_my_belt_timer' character_id=character_id %}",
             },
             translations: {
                 errorLoadingData: "{% translate 'An error occurred while loading sessions data.' %}"
@@ -45,8 +47,12 @@
         };
     </script>
     {% include 'beltradar/bundles/aa-beltradar-js.html' %}
+    {% include 'beltradar/bundles/view-my-belt-radar-js.html' %}
     {% include 'bundles/datatables-2-js-bs5.html' %}
     {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
-        <!-- load modals -->
+    <!-- load modals -->
+    {% include 'beltradar/partials/modals/request-accept-delete-belt-timer.html' %}
+    {% include 'beltradar/partials/modals/request-accept-switch-belt-timer.html' %}
     {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
+    {% include 'beltradar/partials/modals/request-add-belt-timer.html' %}
 {% endblock extra_javascript %}

@@ -2,6 +2,9 @@
 import socket
 from unittest.mock import Mock
 
+# Third Party
+from app_utils.allianceauth import get_redis_client
+
 # Django
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -9,6 +12,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.test import RequestFactory, TestCase
 
 # AA Belt Radar
+from beltradar import __app_name__
 from beltradar.tests.testdata.beltradar import UserMainFactory
 
 

@@ -14,19 +14,17 @@
 {% block aabeltradar_header %}
     <div class="card">
         <div class="card-header bg-primary rounded d-flex align-items-center">
-            <h3>{% translate "User Sessions" %}</h3>
+            <h3>{% translate "User Settings" %}</h3>
         </div>
     </div>
 {% endblock aabeltradar_header %}
 
 {% block aabeltradar_block %}
-    {% include 'beltradar/partials/view-user-sessions/survey-sessions-table.html' %}
+    {% include 'beltradar/partials/view-my-settings/settings.html' %}
 {% endblock aabeltradar_block %}
 
 
 {% block extra_css %}
-    {% include 'bundles/datatables-2-css-bs5.html' %}
-    {% include 'bundles/datatables-2-columncontrol-css-bs5.html' %}
     {% include 'beltradar/bundles/aa-beltradar-css.html' %}
 {% endblock %}
 
@@ -36,17 +34,11 @@
          * Override settings for Belt Radar
          */
         const aaBeltRadarSettingsOverride = {
-            url: {
-                userSessions: "{% url 'beltradar:api:get_user_sessions' %}",
-            },
+            url: {},
             translations: {
                 errorLoadingData: "{% translate 'An error occurred while loading sessions data.' %}"
             }
         };
     </script>
     {% include 'beltradar/bundles/aa-beltradar-js.html' %}
-    {% include 'bundles/datatables-2-js-bs5.html' %}
-    {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
-        <!-- load modals -->
-    {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
 {% endblock extra_javascript %}

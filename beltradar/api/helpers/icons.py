@@ -1,3 +1,6 @@
+# Standard Library
+from typing import TYPE_CHECKING
+
 # Django
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
@@ -10,10 +13,15 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__
-from beltradar.api.helpers.core import get_public_id_or_none
+from beltradar.api.helpers.core import get_belt_timer_or_none, get_public_id_or_none
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
+
+
+if TYPE_CHECKING:
+    # AA Belt Radar
+    from beltradar.models.beltradar import BeltTimer
 
 
 @permissions_required(
@@ -54,8 +62,8 @@ def get_survey_manage_action_icons(
 )
 def get_belt_timer_manage_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
-    public_id: str,
     timer_id: int,
+    character_id: int,
 ) -> str | HttpResponse:
     """
     Generate HTML Action Icons for the My Sessions view.
@@ -70,7 +78,7 @@ def get_belt_timer_manage_action_icons(
     """
     beltradar_request_icons = "<div class='d-flex justify-content-end'>"
     beltradar_request_icons += get_timer_delete_button(
-        request=request, public_id=public_id, timer_id=timer_id
+        request=request, timer_id=timer_id, character_id=character_id
     )
     beltradar_request_icons += "</div>"
     return beltradar_request_icons
@@ -143,6 +151,9 @@ def get_survey_delete_button(
 
     perms = get_public_id_or_none(request=request, public_id=public_id)[0]
     if not perms:
+        logger.debug(
+            f"User {request.user} does not have permission to delete survey session {public_id}"
+        )
         return (
             ""  # Return an empty string if the user does not have permission to delete
         )
@@ -252,7 +263,7 @@ def get_survey_view_button(
 
 
 def get_add_belt_timer_button(
-    request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
+    request: WSGIRequest,  # pylint: disable=unused-argument
 ) -> str:
     """
     Generate an add button for a specific belt timer.
@@ -261,7 +272,7 @@ def get_add_belt_timer_button(
     When clicked, it triggers a modal to display the add belt timer form.
 
     Args:
-        public_id (str): The public UUID of the survey session.
+        request (WSGIRequest): The HTTP request object.
     Returns:
         String: HTML string containing the add button.
     """
@@ -269,9 +280,6 @@ def get_add_belt_timer_button(
     # Generate the URL for the add request
     button_request_add_url = reverse(
         "beltradar:api:add_belt_timer",
-        kwargs={
-            "public_id": public_id,
-        },
     )
 
     # Define the icon and tooltip for the add button
@@ -293,8 +301,8 @@ def get_add_belt_timer_button(
 
 def get_timer_delete_button(
     request: WSGIRequest,
-    public_id: str,
     timer_id: int,  # pylint: disable=unused-argument
+    character_id: int,  # pylint: disable=unused-argument
 ) -> str:
     """
     Generate a delete button for a specific belt timer.
@@ -303,13 +311,12 @@ def get_timer_delete_button(
     When clicked, it triggers a modal to confirm the deletion of the belt timer.
 
     Args:
-        public_id (str): The public UUID of the survey session.
         timer_id (int): The ID of the belt timer.
     Returns:
         String: HTML string containing the delete button.
     """
 
-    perms = get_public_id_or_none(request=request, public_id=public_id)[0]
+    perms = get_belt_timer_or_none(request=request, character_id=character_id)[0]
     if not perms:
         return (
             ""  # Return an empty string if the user does not have permission to delete
@@ -319,7 +326,6 @@ def get_timer_delete_button(
     button_request_delete_url = reverse(
         "beltradar:api:delete_belt_timer",
         kwargs={
-            "public_id": public_id,
             "timer_id": timer_id,
         },
     )
@@ -339,3 +345,47 @@ def get_timer_delete_button(
         f'title="{title}">{icon}</button>'
     )
     return delete_button
+
+
+def switch_belt_timer_state(
+    timer: "BeltTimer",
+) -> str:
+    """
+    Generate a switch state icon for a specific belt timer.
+
+    This function creates an HTML icon indicating whether a belt timer is public or private.
+
+    Args:
+        timer (BeltTimer): The belt timer object.
+    Returns:
+        String: HTML string containing the switch state icon.
+    """
+    switch_button_url = reverse(
+        "beltradar:api:modify_belt_timer",
+        kwargs={
+            "timer_id": timer.pk,
+            "field": "public",
+            "value": str(not timer.public).capitalize(),
+        },
+    )
+
+    # Define the icon and tooltip based on the public status of the belt timer
+    if timer.public:
+        icon = '<i class="fa-solid fa-globe"></i>'
+        title = _("Public Belt Timer")
+        color = "success"
+    else:
+        icon = '<i class="fa-solid fa-lock"></i>'
+        title = _("Private Belt Timer")
+        color = "secondary"
+
+    # Create the HTML for the public/private icon
+    public_icon = (
+        f'<button data-action="{switch_button_url}" '
+        f'class="btn btn-{color} btn-sm btn-square me-2" '
+        'data-bs-toggle="modal" '
+        'data-bs-target="#beltradar-accept-switch-belt-timer" '
+        'data-bs-tooltip="aa-beltradar" '
+        f'title="{title}">{icon}</button>'
+    )
+    return public_icon

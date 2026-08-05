@@ -10,7 +10,7 @@ from django.urls import reverse
 
 # AA Belt Radar
 from beltradar import views
-from beltradar.models import BeltSurveySession
+from beltradar.models import BeltSurveySession, BeltTimer
 
 # AA Beltradar
 from beltradar.tests import BeltRadarTestCase
@@ -118,15 +118,15 @@ class TestViewAccess(BeltRadarTestCase):
         with self.assertRaises(Http404):
             views.view_session(request, public_id=test_uuid)
 
-    def test_view_my_sessions(self):
+    def test_view_my_beltradar(self):
         """
         Test should render view my sessions view.
         """
         # given
-        request = self.factory.get(reverse("beltradar:view_my_sessions"))
+        request = self.factory.get(reverse("beltradar:view_my_beltradar"))
         request.user = self.user
         # when
-        response = views.view_my_sessions(request)
+        response = views.view_my_beltradar(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "My Sessions")
@@ -143,3 +143,27 @@ class TestViewAccess(BeltRadarTestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "My Settings")
+
+    def test_create_timer_post(self):
+        """
+        Test should create timer and redirect to view my timers.
+        """
+        # given
+        request = self.factory.post(
+            reverse("beltradar:create_belt_timer"),
+            data={
+                "belt_id": "XYZ-123",
+                "belt_name": "Test Belt",
+                "belt_type": "asteroid_belt",
+                "belt_size": "large",
+                "public": False,
+            },
+        )
+        request.user = self.user
+        # when
+        response = views.create_belt_timer(request)
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        timer = BeltTimer.objects.get(belt_name="Test Belt")
+        self.assertEqual(response.url, reverse("beltradar:view_my_beltradar"))
+        self.assertEqual(timer.owner, self.user)

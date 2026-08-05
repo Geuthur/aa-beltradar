@@ -14,18 +14,14 @@
 {% block aabeltradar_header %}
     <div class="card">
         <div class="card-header bg-primary rounded d-flex align-items-center">
-            <h3>{% translate "View Session" %}</h3>
-            <div class="px-2">
-                {{ delete_button|safe }}
-            </div>
+            <h3>{% translate "Public Belt Radar" %}</h3>
         </div>
     </div>
 {% endblock aabeltradar_header %}
 
 {% block aabeltradar_block %}
-    {% include 'beltradar/partials/view-session/session.html' %}
-    {% include 'beltradar/partials/view-session/survey-table.html' %}
-    {% include 'beltradar/partials/view-session/charts.html' %}
+    {% include 'beltradar/partials/view-belt-radar/survey-session-table.html' %}
+    {% include 'beltradar/partials/view-belt-radar/belt-timer-table.html' %}
 {% endblock aabeltradar_block %}
 
 
@@ -36,32 +32,27 @@
 {% endblock %}
 
 {% block extra_javascript %}
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         /**
          * Override settings for Belt Radar
          */
         const aaBeltRadarSettingsOverride = {
             url: {
-                surveySessionEntry: "{% url 'beltradar:api:get_survey_entry' public_id=session.public_id %}",
-                index: "{% url 'beltradar:index' %}",
+                Sessions: "{% url 'beltradar:api:get_sessions' %}",
+                Timers: "{% url 'beltradar:api:get_belt_timers' %}",
             },
             translations: {
-                loading: "{% translate 'Loading...' %}",
-                noData: "{% translate 'No mining chart data available.' %}",
-                oreSurveyHeading: "{% translate 'Last Snapshot' %}",
-                firstScan: "{% translate 'First Scan' %}",
-                lastScan: "{% translate 'Last Scan' %}",
+                errorLoadingData: "{% translate 'An error occurred while loading sessions data.' %}"
             }
         };
     </script>
     {% include 'beltradar/bundles/aa-beltradar-js.html' %}
-    {% include 'beltradar/bundles/view-session-js.html' %}
+    {% include 'beltradar/bundles/view-belt-radar-js.html' %}
     {% include 'bundles/datatables-2-js-bs5.html' %}
     {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
-    {% include "bundles/moment-js.html" with locale=True %}
     <!-- load modals -->
+    {% include 'beltradar/partials/modals/request-accept-delete-belt-timer.html' %}
+    {% include 'beltradar/partials/modals/request-accept-switch-belt-timer.html' %}
     {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
-    {% include 'beltradar/partials/modals/request-accept-delete-snapshot.html' %}
-    {% include 'beltradar/partials/modals/request-add-survey.html' %}
+    {% include 'beltradar/partials/modals/request-add-belt-timer.html' %}
 {% endblock extra_javascript %}

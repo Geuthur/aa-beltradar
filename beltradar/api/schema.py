@@ -1,8 +1,19 @@
+# Standard Library
+from typing import Any
+
 # Third Party
 from ninja import Schema
 
 # Django
 from django.utils import timezone
+
+
+class DataTableSchema(Schema):
+    raw: Any
+    display: str
+    sort: str | None = None
+    translation: str | None = None
+    dropdown_text: str | None = None
 
 
 class SessionSchema(Schema):
@@ -28,8 +39,9 @@ class BeltTimerSchema(Schema):
     belt_name: str
     belt_size: str
     belt_type: str
-    eta: timezone.datetime | None = None
-    eta_natural: str | None = None
+    eta: DataTableSchema
+    public: DataTableSchema
+    is_expired: bool | None = None
     html: str | None = None
 
 

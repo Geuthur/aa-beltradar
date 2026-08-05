@@ -29,3 +29,5 @@ BELT_RADAR_STALE_TYPES = getattr(
         "beltradar": 30,
     },
 )
+
+BELT_RADAR_WEBHOOK_URL = getattr(settings, "BELT_RADAR_WEBHOOK_URL", None)

@@ -7,7 +7,6 @@ from http import HTTPStatus
 from ninja import NinjaAPI
 
 # Django
-from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import QuerySet
@@ -22,17 +21,18 @@ from eve_sde.models import ItemType
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
-from beltradar.api.helpers.core import get_owner_or_none, get_public_id_or_none
+from beltradar.api.helpers.core import (
+    get_owner_or_none,
+    get_public_id_or_none,
+)
 from beltradar.api.helpers.icons import (
-    get_belt_timer_manage_action_icons,
     get_snapshot_delete_button,
     get_survey_manage_action_icons,
 )
-from beltradar.helpers.eveonline import get_icon_render_url
+from beltradar.helpers.eveonline import get_character_portrait_url, get_icon_render_url
 from beltradar.models.beltradar import (
     BeltSurveyEntry,
     BeltSurveySession,
-    BeltTimer,
     EveMarketPrice,
 )
 from beltradar.providers import AppLogger
@@ -114,14 +114,26 @@ class BeltRadarSurveyApiEndpoints:
 
     def session_stats(self, session: BeltSurveySession) -> schema.SnapShotStatsSchema:
         """Calculate belt stats for the latest snapshot of the given survey session."""
+        # Get the first and last entries for the session
+        f_entries = session.br_entries.filter(snapshot=session.snapshots.first())
+        l_entries = session.br_entries.filter(snapshot=session.snapshots.last())
+
+        # Calculate belt size, remaining volume, and mined volume
+        belt_size_m3 = f_entries.belt_size_m3()
+        belt_left_m3 = l_entries.belt_size_m3()
+        rate_per_s = session.br_entries.rate_per_s(
+            first_entries=f_entries, second_entries=l_entries
+        )
+        progress_percent = round(session.br_entries.session_progress_percentage(), 2)
+
         return schema.SnapShotStatsSchema(
-            belt_volume=session.belt_size_m3,
-            belt_volume_left_m3=session.belt_left_m3,
-            remaining_asteroids=session.remaining_asteroids,
-            total_asteroids=session.total_asteroids,
-            progress_percent=round(session.progress_percent, 2),
-            mining_rate_m3_per_s=round(session.mining_rate_m3_per_s, 4),
-            finish_eta=session.finish_eta,
+            belt_volume=belt_size_m3,
+            belt_volume_left_m3=belt_left_m3,
+            remaining_asteroids=l_entries.asteroid_count(),
+            total_asteroids=f_entries.asteroid_count(),
+            progress_percent=progress_percent,
+            mining_rate_m3_per_s=round(rate_per_s, 4),
+            finish_eta=session.br_entries.session_finish_eta(),
         )
 
     def aggregate_entries_by_ore(
@@ -216,7 +228,12 @@ class BeltRadarSurveyApiEndpoints:
                     public_id=str(session.public_id),
                     name=session.name,
                     created_at=session.created_at,
-                    owner=str(session.owner),
+                    owner=get_character_portrait_url(
+                        character_id=session.owner.profile.main_character.character_id,
+                        character_name=session.owner.profile.main_character.character_name,
+                        as_html=True,
+                        display_name=True,
+                    ),
                     html=str(
                         get_survey_manage_action_icons(
                             request=request, public_id=session.public_id
@@ -227,13 +244,13 @@ class BeltRadarSurveyApiEndpoints:
             return HTTPStatus.OK, survey_list
 
         @api.get(
-            "view/user-sessions/",
+            "view/public-sessions/",
             response={
                 HTTPStatus.OK: list[schema.BeltSurveySessionSchema],
             },
             tags=self.tags,
         )
-        def get_user_sessions(request):
+        def get_sessions(request):
             """Get all survey sessions for the current user."""
             # Get all sessions visible to the user, ordered by creation date descending
             sessions = BeltSurveySession.objects.visible_to(request.user).order_by(
@@ -247,7 +264,12 @@ class BeltRadarSurveyApiEndpoints:
                     public_id=str(session.public_id),
                     name=session.name,
                     created_at=session.created_at,
-                    owner=str(session.owner),
+                    owner=get_character_portrait_url(
+                        character_id=session.owner.profile.main_character.character_id,
+                        character_name=session.owner.profile.main_character.character_name,
+                        as_html=True,
+                        display_name=True,
+                    ),
                     html=str(
                         get_survey_manage_action_icons(
                             request=request, public_id=session.public_id
@@ -281,8 +303,9 @@ class BeltRadarSurveyApiEndpoints:
                     "error": _("Survey session not found or not public.")
                 }
 
-            # Get the most recent survey entry for this session (if any)
-            last_entries = session.get_entries_for_snapshot(session.last_entry_snapshot)
+            last_entries = session.br_entries.filter(
+                snapshot=session.snapshots.last()
+            )  # Get entries for the last timestamp
 
             # Aggregate data for the last snapshot
             aggregated_items = self.aggregate_entries_by_ore(entries=last_entries)
@@ -310,10 +333,10 @@ class BeltRadarSurveyApiEndpoints:
                     name=session.name,
                     created_at=session.created_at,
                     owner=str(session.owner),
-                    first_entry_timestamp=session.first_entry_timestamp,
-                    last_entry_timestamp=session.last_entry_timestamp,
+                    first_entry_timestamp=session.first_timestamp,
+                    last_entry_timestamp=session.last_timestamp,
                 ),
-                snapshot=session.last_entry_snapshot,
+                snapshot=session.snapshots.last(),
                 entries=snapshot_list,
                 charts=self.ore_mining_stats(session=session),
                 stats=self.session_stats(session=session),
@@ -321,13 +344,13 @@ class BeltRadarSurveyApiEndpoints:
                     get_snapshot_delete_button(
                         request=request,
                         public_id=session.public_id,
-                        snapshot=session.last_entry_snapshot,
+                        snapshot=session.snapshots.last(),
                     )
                 ),
             )
 
         @api.post(
-            "session/{public_id}/manage/delete/",
+            "manage/delete-session/{public_id}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.FORBIDDEN: dict,
@@ -372,7 +395,7 @@ class BeltRadarSurveyApiEndpoints:
             return HTTPStatus.OK, {"success": True, "message": msg}
 
         @api.post(
-            "session/{public_id}/snapshot/{snapshot}/manage/delete/",
+            "manage/delete-snapshot/{public_id}/snapshot/{snapshot}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.FORBIDDEN: dict,
@@ -421,7 +444,7 @@ class BeltRadarSurveyApiEndpoints:
             return HTTPStatus.OK, {"success": True, "message": msg}
 
         @api.post(
-            "session/{public_id}/manage/add/",
+            "manage/add-survey-entry/{public_id}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.BAD_REQUEST: dict,
@@ -570,153 +593,3 @@ class BeltRadarSurveyApiEndpoints:
                 + ". Errors: "
                 + ", ".join(survey_data.erros if survey_data else ["No data"]),
             }
-
-        @api.post(
-            "session/{public_id}/belt-timer/manage/add/",
-            response={
-                HTTPStatus.OK: dict,
-                HTTPStatus.BAD_REQUEST: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
-            },
-            tags=self.tags,
-        )
-        def add_belt_timer(request, public_id: str):
-            """
-            Add a new belt timer to a survey session.
-
-            This Endpoint allows users to add a new belt timer to an existing survey session.
-            The user must have permission to add entries to the survey session, and the survey session must exist.
-
-            Args:
-                public_id (str): The public UUID of the survey session.
-                parsed_data: A JSON object containing the belt timer data, including belt ID, belt name, belt type, ETA, and snapshot identifier.
-            Returns:
-                200: A success message indicating the belt timer was added.
-                400: An error message if the input data is invalid or cannot be parsed.
-                403: An error message if the user does not have permission or the survey session is not found.
-                404: An error message if the survey session is not found.
-            """
-            # Check if the survey session exists
-            try:
-                session = BeltSurveySession.objects.get(public_id=public_id)
-            except ObjectDoesNotExist:
-                msg = _("Survey session not found.")
-                return HTTPStatus.NOT_FOUND, {"error": msg}
-
-            # Check if the user has permission to add entries to this survey session
-            perms = get_public_id_or_none(
-                request=request,
-                public_id=public_id,
-            )[0]
-
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
-
-            # Validate the form data
-            form = forms.BeltTimerForm(data=json.loads(request.body))
-            if form.is_valid():
-                with transaction.atomic():
-                    timer: BeltTimer = form.save()
-                    timer.session.set([session])
-
-                    return HTTPStatus.OK, {
-                        "success": True,
-                        "message": _("Survey entry added successfully."),
-                    }
-            msg = _("Invalid input data. Please check the format and try again.")
-            return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
-
-        @api.get(
-            "view/session/{public_id}/belt-timer/",
-            response={
-                HTTPStatus.OK: list[schema.BeltTimerSchema],
-                HTTPStatus.FORBIDDEN: str,
-            },
-            tags=self.tags,
-        )
-        def get_session_belt_timer(request, public_id: str):
-            """Get belt timer details for a specific public_id."""
-            if not request.user.has_perm("beltradar.basic_access"):
-                return 403, _("You do not have permission to access this resource.")
-
-            try:
-                session = BeltSurveySession.objects.get(public_id=public_id)
-            except ObjectDoesNotExist:
-                return 403, _("Survey session not found or not public.")
-
-            if session.br_timer is None:
-                return 404, _("No belt timer found for this survey session.")
-
-            belt_timer_list: list[schema.BeltTimerSchema] = []
-            for timer in session.br_timer.all():
-                belt_timer_list.append(
-                    schema.BeltTimerSchema(
-                        public_id=str(session.public_id),
-                        belt_id=timer.belt_id,
-                        belt_name=timer.belt_name,
-                        belt_size=timer.get_belt_size_display,
-                        belt_type=timer.get_belt_type_display,
-                        eta=timer.eta,
-                        eta_natural=naturaltime(timer.eta) if timer.eta else None,
-                        html=str(
-                            get_belt_timer_manage_action_icons(
-                                request=request,
-                                public_id=session.public_id,
-                                timer_id=timer.pk,
-                            )
-                        ),
-                    )
-                )
-            return 200, belt_timer_list
-
-        @api.post(
-            "session/{public_id}/belt-timer/{timer_id}/manage/delete/",
-            response={
-                HTTPStatus.OK: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
-            },
-            tags=self.tags,
-        )
-        def delete_belt_timer(request, public_id: str, timer_id: int):
-            """
-            Delete a specific belt timer in a survey session.
-
-            This Endpoint allows users to delete a specific belt timer within a survey session.
-            The user must have permission to delete the survey session, and the survey session must exist.
-
-            Args:
-                public_id (str): The public UUID of the survey session.
-                timer_id (int): The ID of the belt timer to delete.
-            Returns:
-                200: A success message indicating the belt timer was deleted.
-                403: An error message if the user does not have permission or the session is not found.
-                404: An error message if the belt timer is not found.
-            """
-            # Check if the survey session exists
-            try:
-                session = BeltSurveySession.objects.get(public_id=public_id)
-            except ObjectDoesNotExist:
-                msg = _("Survey session not found.")
-                return HTTPStatus.NOT_FOUND, {"error": msg}
-
-            # Check if the user has permission to delete this snapshot (by checking if they can delete the survey session)
-            perms = get_owner_or_none(
-                request=request,
-                character_id=session.owner.profile.main_character.character_id,
-            )[0]
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
-
-            try:
-                session.br_timer.get(id=timer_id).delete()
-            except ObjectDoesNotExist:
-                msg = _("Belt timer not found.")
-                return HTTPStatus.NOT_FOUND, {"error": msg}
-
-            # If the belt timer was deleted successfully, return a success message
-            msg = _("Belt timer deleted successfully.")
-            return HTTPStatus.OK, {"success": True, "message": msg}

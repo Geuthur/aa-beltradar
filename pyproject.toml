@@ -42,7 +42,9 @@ optional-dependencies.tests-allianceauth-latest = [
     "aa-discordnotify",
     "allianceauth-discordbot",
     "coverage",
+    "dhooks-lite>=1,<2",
     "factory-boy",
+    "pook",
 ]
 urls.Changelog = "https://github.com/Geuthur/aa-beltradar/blob/master/CHANGELOG.md"
 urls.Discord = "https://discord.gg/WrHzA4rnxA"

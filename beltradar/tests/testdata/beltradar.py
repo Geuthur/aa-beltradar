@@ -2,7 +2,8 @@
 import factory
 
 # AA Belt Radar
-from beltradar.models import BeltSurveyEntry, BeltSurveySession
+from beltradar.models import BeltSurveyEntry, BeltSurveySession, BeltTimer
+from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.tests.testdata.factory import (
     BaseMetaFactory,
     EveCharacterFactory,
@@ -70,3 +71,27 @@ class BeltSurveyEntryFactory(
     note = None
     price_compressed = None
     price = None
+
+
+class BeltTimerFactory(
+    factory.django.DjangoModelFactory, metaclass=BaseMetaFactory[BeltTimer]
+):
+    """Generate a BeltTimer object with default values."""
+
+    class Meta:
+        model = BeltTimer
+        django_get_or_create = ("owner", "public_id")
+
+    owner = factory.SubFactory(UserMainFactory)
+    public_id = factory.Faker("uuid4")
+    belt_id = factory.Faker("random_int", min=1, max=100)
+    belt_name = factory.Faker("word")
+    belt_size = factory.Faker(
+        "random_element", elements=[choice[0] for choice in BeltSizeChoice.choices]
+    )
+    belt_type = factory.Faker(
+        "random_element", elements=[choice[0] for choice in BeltTypeChoice.choices]
+    )
+    eta = None
+    public = False
+    sent_notification = False

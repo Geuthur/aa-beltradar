@@ -11,9 +11,27 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- `dhook-lite` dependency
+- Discord Webhook support for Belt Timer Respawn
+  - `BELT_RADAR_WEBHOOK_URL` Setting for Webhook Support
+
 ### Changed
 
 - `DownTimeError` Will no longer send out warning logs
+- Refactor templates & url viewnames
+- Added `User` Field in Belt Timer Model
+- Optimized JS Function `updateBeltSizeChoices`
+- Belt Timer no longer assign to a session
+- Renamed `All Sessions` to `Belt Radar`
+- Renamed `My Sessions` to `My Belt Radar`
+- Refactor `BeltSurveySession`
+- Moved "Estimated Finish" time to ETA:
+
+### Removed
+
+- `session` field from Belt Timer Model
 
 ## [0.2.0]- 2026-08-02
 

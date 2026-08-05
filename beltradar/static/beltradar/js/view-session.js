@@ -1,9 +1,8 @@
-/* global aaBeltRadarSettings, aaBeltRadarSettingsOverride, _bootstrapTooltip, DataTable, numberFormatter, moment, ApexCharts */
+/* global aaBeltRadarSettings, aaBeltRadarSettingsOverride, _bootstrapTooltip, DataTable, numberFormatter, moment, ApexCharts, fetchGetBeltRadar, fetchPostBeltRadar */
 
 $(document).ready(() => {
     /* DataTable for Belt Radar Session Entries */
     const BeltRadarSessionEntryTable = $('#beltradar-session-entry-table');
-    const BeltRadarBeltTimerTable = $('#beltradar-belt-timer-table');
     /* Session details elements */
     const sessionContainer = $('#session-details-container');
     const sessionNameEl = $('#session-name');
@@ -27,124 +26,6 @@ $(document).ready(() => {
     const modalRequestDeleteSnapshot = $('#beltradar-accept-delete-snapshot');
     const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
     const modalRequestAddSurvey = $('#beltradar-add-survey');
-    const modalRequestDeleteBeltTimer = $('#beltradar-accept-delete-belt-timer');
-    const modalRequestAddBeltTimer = $('#beltradar-add-belt-timer');
-
-    /**
-    * Local POST adapter: keeps global fetchPost untouched while improving error details.
-    * Reads JSON error payload (message/error/detail) when statusText is empty.
-    */
-    const fetchPostBeltRadar = async ({
-        url,
-        csrfToken = null,
-        payload = null,
-        responseIsJson = true
-    }) => {
-        if (!csrfToken) {
-            throw new Error('CSRF token is required for POST requests');
-        }
-
-        if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
-            throw new Error('Payload must be an object when using POST method');
-        }
-
-        const headers = {
-            'X-CSRFToken': csrfToken,
-        };
-
-        if (responseIsJson) {
-            headers.Accept = 'application/json'; // jshint ignore:line
-            headers['Content-Type'] = 'application/json';
-        }
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers,
-            body: payload ? JSON.stringify(payload) : null,
-        });
-
-        if (!response.ok) {
-            let details;
-            const contentType = (response.headers.get('content-type') || '').toLowerCase();
-
-            try {
-                if (contentType.includes('application/json')) {
-                    const data = await response.clone().json();
-                    details = data?.message || data?.error || data?.detail || '';
-                } else {
-                    details = (await response.clone().text()).trim();
-                }
-            } catch (parseError) {
-                details = '';
-            }
-
-            const statusText = (response.statusText || '').trim() || 'HTTP Error';
-            const msg = details
-                ? `Error: ${response.status} - ${statusText} | ${details}`
-                : `Error: ${response.status} - ${statusText}`;
-
-            throw new Error(msg);
-        }
-
-        return responseIsJson ? await response.json() : await response.text();
-    };
-
-    /**
-    * Local GET adapter: keeps global fetchGet untouched while improving error details.
-    * Reads JSON error payload (message/error/detail) when statusText is empty.
-    */
-    const fetchGetBeltRadar = async ({
-        url,
-        payload = null,
-        responseIsJson = true
-    }) => {
-        let requestUrl = url;
-
-        if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
-            throw new Error('Payload must be an object when using GET method');
-        }
-
-        if (payload) {
-            const queryParams = new URLSearchParams(payload).toString(); // jshint ignore:line
-            requestUrl += (url.includes('?') ? '&' : '?') + queryParams;
-        }
-
-        const headers = {};
-        if (responseIsJson) {
-            headers.Accept = 'application/json'; // jshint ignore:line
-        }
-
-        const response = await fetch(requestUrl, {
-            method: 'GET',
-            headers,
-        });
-
-        if (!response.ok) {
-            let details;
-            const contentType = (response.headers.get('content-type') || '').toLowerCase();
-
-            try {
-                if (contentType.includes('application/json')) {
-                    const data = await response.clone().json();
-                    details = data?.message || data?.error || data?.detail || '';
-                } else {
-                    details = (await response.clone().text()).trim();
-                }
-            } catch (parseError) {
-                details = '';
-            }
-
-            const statusText = (response.statusText || '').trim() || 'HTTP Error';
-            const msg = details
-                ? `Error: ${response.status} - ${statusText} | ${details}`
-                : `Error: ${response.status} - ${statusText}`;
-
-            throw new Error(msg);
-        }
-
-        return responseIsJson ? await response.json() : await response.text();
-    };
-
 
     /* Initial Data Fetch */
     fetchGetBeltRadar({
@@ -308,17 +189,25 @@ $(document).ready(() => {
         sessionProgressBarEl.attr('aria-valuenow', progressPercent.toFixed(2));
         sessionProgressionEl.text(`(${progressPercent.toFixed(0)}%)`);
 
-        const lastScanLabel = sessionLastScanEl.data('last-scan-label') || aaBeltRadarSettings.translations.lastScan;
+        /* Update first and last scan timestamps with tooltips */
+        const firstScanLabel = aaBeltRadarSettings.translations.firstScan;
+        const firstScanText = formatTimeOrNA(firstEntryTimestamp);
+        sessionFirstScanEl.text(firstScanText);
+        sessionFirstScanEl.attr('title', `${firstScanLabel}: ${firstScanText}`);
+        sessionFirstScanEl.attr('data-bs-tooltip', 'aa-beltradar');
+
+        const lastScanLabel = aaBeltRadarSettings.translations.lastScan;
         const lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
         sessionLastScanEl.text(lastScanText === 'N/A' ? '' : lastScanText);
         sessionLastScanEl.attr('title', `${lastScanLabel}: ${lastScanText}`);
+        sessionLastScanEl.attr('data-bs-tooltip', 'aa-beltradar');
 
-        sessionFirstScanEl.text(formatTimeOrNA(firstEntryTimestamp));
         sessionFinishTimeEl.text(formatTimeOrNA(stats.finish_eta));
 
         sessionBeltSizeEl.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
         sessionSpeedEl.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
         sessionEtaEl.text(stats.finish_eta ? moment(stats.finish_eta).fromNow() : 'N/A');
+        _bootstrapTooltip();
     };
 
     /**
@@ -555,227 +444,6 @@ $(document).ready(() => {
             modalRequestAddSurvey.find('textarea[name="raw_data"]').val('');
             modalRequestAddSurvey.find('#beltradar-spinner').addClass('d-none');
             modalRequestAddSurvey.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
-        });
-
-
-    /**
-    * DataTable for Belt Radar Session - Belt Timer
-    * Initialized empty and filled after async fetch.
-    */
-    const BeltRadarBeltTimerDataTable = new DataTable(BeltRadarBeltTimerTable, {
-        data: [],
-        language: aaBeltRadarSettings.dataTables.language,
-        layout: aaBeltRadarSettings.dataTables.layout,
-        ordering: aaBeltRadarSettings.dataTables.ordering,
-        columnControl: aaBeltRadarSettings.dataTables.columnControl,
-        order: [[2, 'desc']],
-        columnDefs: [],
-        columns: [
-            {
-                data: {
-                    display: (data) => data.public_id,
-                    sort: (data) => data.public_id,
-                    filter: (data) => data.public_id,
-                }
-            },
-            {
-                data: {
-                    display: (data) => data.belt_id,
-                    sort: (data) => data.belt_id,
-                    filter: (data) => data.belt_id,
-                }
-            },
-            {
-                data: {
-                    display: (data) => data.belt_name,
-                    sort: (data) => data.belt_name,
-                    filter: (data) => data.belt_name,
-                }
-            },
-            {
-                data: {
-                    display: (data) => data.belt_size,
-                    sort: (data) => data.belt_size,
-                    filter: (data) => data.belt_size,
-                }
-            },
-            {
-                data: {
-                    display: (data) => data.belt_type,
-                    sort: (data) => data.belt_type,
-                    filter: (data) => data.belt_type,
-                }
-            },
-            {
-                data: {
-                    display: (data) => data.eta_natural ? data.eta_natural : data.eta,
-                    sort: (data) => data.eta,
-                    filter: (data) => data.eta,
-                }
-            },
-            {
-                data: {
-                    display: (data) => data.html,
-                    sort: (data) => data.html,
-                    filter: (data) => data.html,
-                }
-            },
-        ],
-        initComplete: function() {
-            _bootstrapTooltip({selector: '#beltradar-belt-timer-table'});
-        },
-        drawCallback: function () {
-            _bootstrapTooltip({selector: '#beltradar-belt-timer-table'});
-        },
-    });
-
-    fetchGetBeltRadar({
-        url: aaBeltRadarSettings.url.userBeltTimer,
-    })
-        .then((data) => {
-            BeltRadarBeltTimerDataTable.clear().rows.add(data).draw();
-        })
-        .catch((error) => {
-            console.error('Error fetching User Belt Timer DataTable:', error);
-            BeltRadarBeltTimerDataTable.clear().draw();
-        });
-
-    /**
-    * View :: Reload Belt Timer Function
-    * On Confirmation send a request to the API Endpoint, reload the Belt Timer DataTable, close the modal
-    * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
-    * @returns {Promise} - A Promise that resolves when the API request is complete
-    */
-    const _reloadSurveyBeltTimerData = (tableData) => {
-        const dt = BeltRadarBeltTimerTable.DataTable();
-        dt.clear().rows.add(tableData).draw();
-        BeltRadarBeltTimerTable.addClass('highlight');
-
-        setTimeout(() => {
-            BeltRadarBeltTimerTable.removeClass('highlight');
-        }, 2000);
-    };
-
-
-    /**
-    * View :: Belt Timer :: Add Belt Timer Button Click Handler
-    * Open Add Belt Timer Modal
-    * On Confirmation send a request to the API Endpoint, reload the Belt Timer DataTable, close the modal
-    * and reopen the previous Belt Timer Modal
-    */
-    modalRequestAddBeltTimer.on('show.bs.modal', (event) => {
-        const button = $(event.relatedTarget);
-        const url = button.data('action');
-        const form = modalRequestAddBeltTimer.find('form');
-        const nativeForm = form.get(0);
-        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
-        const beltIdInput = form.find('input[name="belt_id"]');
-        const beltNameInput = form.find('input[name="belt_name"]');
-        const beltTypeSelect = form.find('select[name="belt_type"]');
-        const beltSizeSelect = form.find('select[name="belt_size"]');
-
-        const sizeChoices = {
-            asteroid_belt: [
-                ['small', 'Small'],
-                ['medium', 'Medium'],
-                ['large', 'Large'],
-                ['enormous', 'Enormous'],
-                ['colossal', 'Colossal'],
-            ],
-            arrey_belt: [
-                ['small', 'Small'],
-                ['medium', 'Medium'],
-                ['large', 'Large'],
-            ],
-            mercobelt: [
-                ['small', 'Small'],
-                ['medium', 'Medium'],
-                ['large', 'Large'],
-                ['enormous', 'Enormous'],
-            ],
-            ice_belt: [['ice', 'Ice']],
-        };
-
-        const updateBeltSizeChoices = () => {
-            const selectedType = beltTypeSelect.val();
-            const allowedChoices = sizeChoices[selectedType] || [
-                ['small', 'Small'],
-                ['medium', 'Medium'],
-                ['large', 'Large'],
-                ['enormous', 'Enormous'],
-                ['colossal', 'Colossal'],
-                ['ice', 'Ice'],
-            ];
-            const previousValue = beltSizeSelect.val();
-
-            beltSizeSelect.empty();
-
-            allowedChoices.forEach(([value, label]) => {
-                beltSizeSelect.append(
-                    $('<option></option>')
-                        .attr('value', value)
-                        .text(label)
-                );
-            });
-
-            const hasPreviousValue = allowedChoices.some(([value]) => value === previousValue);
-            beltSizeSelect.val(hasPreviousValue ? previousValue : (allowedChoices[0]?.[0] || ''));
-        };
-
-        beltTypeSelect.off('change.brBeltTimer').on('change.brBeltTimer', updateBeltSizeChoices);
-        updateBeltSizeChoices();
-
-        modalRequestAddBeltTimer.find('#modal-button-confirm-add-request').on('click', () => {
-            if (nativeForm && !nativeForm.checkValidity()) {
-                nativeForm.reportValidity();
-                return;
-            }
-
-            modalRequestAddBeltTimer.find('#beltradar-spinner').removeClass('d-none');
-            modalRequestAddBeltTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
-            fetchPostBeltRadar({
-                url: url,
-                csrfToken: csrfMiddlewareToken,
-                payload: {
-                    belt_id: beltIdInput.val(),
-                    belt_name: beltNameInput.val(),
-                    belt_type: beltTypeSelect.val(),
-                    belt_size: beltSizeSelect.val(),
-                }
-            })
-                .then((data) => {
-                    if (data.success === true) {
-                        fetchGetBeltRadar({
-                            url: aaBeltRadarSettings.url.userBeltTimer,
-                        })
-                            .then((freshData) => {
-                                _reloadSurveyBeltTimerData(freshData);
-                                modalRequestAddBeltTimer.modal('hide');
-                            })
-                            .catch((error) => {
-                                console.error('Error fetching Survey Snapshot DataTable after add:', error);
-                                modalRequestAddBeltTimer.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
-                            });
-                    }
-                })
-                .catch((error) => {
-                    console.error(`Error posting add survey belt timer request: ${error.message}`);
-                    modalRequestAddBeltTimer.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
-                })
-                .finally(() => {
-                    modalRequestAddBeltTimer.find('#beltradar-spinner').addClass('d-none');
-                });
-        });
-    })
-        .on('hide.bs.modal', () => {
-            modalRequestAddBeltTimer.find('#modal-button-confirm-add-request').unbind('click');
-            modalRequestAddBeltTimer.find('input[name="belt_id"]').val('');
-            modalRequestAddBeltTimer.find('input[name="belt_name"]').val('');
-            modalRequestAddBeltTimer.find('select[name="belt_type"]').off('change.brBeltTimer');
-            modalRequestAddBeltTimer.find('select[name="belt_type"]').val('');
-            modalRequestAddBeltTimer.find('select[name="belt_size"]').val('');
-            modalRequestAddBeltTimer.find('#beltradar-spinner').addClass('d-none');
-            modalRequestAddBeltTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
         });
 
 });

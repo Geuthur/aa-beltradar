@@ -37,7 +37,7 @@ class BeltRadarBeltTimerApiEndpoints:
     def __init__(self, api: NinjaAPI):
 
         @api.get(
-            "belt-timer/{character_id}/view/my-timer/",
+            "view/my-timer/{character_id}/",
             response={
                 HTTPStatus.OK: list[schema.BeltTimerSchema],
                 HTTPStatus.FORBIDDEN: dict,
@@ -102,7 +102,7 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.OK, belt_timer_list
 
         @api.get(
-            "belt-timer/view/timers/",
+            "view/timers/",
             response={
                 HTTPStatus.OK: list[schema.BeltTimerSchema],
             },
@@ -150,7 +150,7 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.OK, belt_timer_list
 
         @api.post(
-            "belt-timer/manage/add-timer/",
+            "manage/add-timer/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.BAD_REQUEST: dict,
@@ -195,7 +195,7 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
         @api.post(
-            "belt-timer/{timer_id}/manage/delete-timer/",
+            "manage/delete-timer/{timer_id}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.FORBIDDEN: dict,
@@ -245,7 +245,7 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.OK, {"success": True, "message": msg}
 
         @api.post(
-            "belt-timer/{timer_id}/manage/switch-public/",
+            "manage/switch-public/{timer_id}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.FORBIDDEN: dict,

@@ -239,7 +239,7 @@ class BeltRadarSurveyApiEndpoints:
             return HTTPStatus.OK, survey_list
 
         @api.get(
-            "view/user-sessions/",
+            "view/public-sessions/",
             response={
                 HTTPStatus.OK: list[schema.BeltSurveySessionSchema],
             },
@@ -340,7 +340,7 @@ class BeltRadarSurveyApiEndpoints:
             )
 
         @api.post(
-            "session/{public_id}/manage/delete/",
+            "manage/delete-session/{public_id}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.FORBIDDEN: dict,
@@ -385,7 +385,7 @@ class BeltRadarSurveyApiEndpoints:
             return HTTPStatus.OK, {"success": True, "message": msg}
 
         @api.post(
-            "session/{public_id}/snapshot/{snapshot}/manage/delete/",
+            "manage/delete-snapshot/{public_id}/snapshot/{snapshot}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.FORBIDDEN: dict,
@@ -434,7 +434,7 @@ class BeltRadarSurveyApiEndpoints:
             return HTTPStatus.OK, {"success": True, "message": msg}
 
         @api.post(
-            "session/{public_id}/manage/add/",
+            "manage/add-survey-entry/{public_id}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.BAD_REQUEST: dict,

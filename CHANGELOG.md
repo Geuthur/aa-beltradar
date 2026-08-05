@@ -26,6 +26,8 @@ Section Order:
 - Belt Timer no longer assign to a session
 - Renamed `All Sessions` to `Belt Radar`
 - Renamed `My Sessions` to `My Belt Radar`
+- Refactor `BeltSurveySession`
+- Moved "Estimated Finish" time to ETA:
 
 ### Removed
 

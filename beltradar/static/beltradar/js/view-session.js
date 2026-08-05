@@ -189,17 +189,25 @@ $(document).ready(() => {
         sessionProgressBarEl.attr('aria-valuenow', progressPercent.toFixed(2));
         sessionProgressionEl.text(`(${progressPercent.toFixed(0)}%)`);
 
-        const lastScanLabel = sessionLastScanEl.data('last-scan-label') || aaBeltRadarSettings.translations.lastScan;
+        /* Update first and last scan timestamps with tooltips */
+        const firstScanLabel = aaBeltRadarSettings.translations.firstScan;
+        const firstScanText = formatTimeOrNA(firstEntryTimestamp);
+        sessionFirstScanEl.text(firstScanText);
+        sessionFirstScanEl.attr('title', `${firstScanLabel}: ${firstScanText}`);
+        sessionFirstScanEl.attr('data-bs-tooltip', 'aa-beltradar');
+
+        const lastScanLabel = aaBeltRadarSettings.translations.lastScan;
         const lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
         sessionLastScanEl.text(lastScanText === 'N/A' ? '' : lastScanText);
         sessionLastScanEl.attr('title', `${lastScanLabel}: ${lastScanText}`);
+        sessionLastScanEl.attr('data-bs-tooltip', 'aa-beltradar');
 
-        sessionFirstScanEl.text(formatTimeOrNA(firstEntryTimestamp));
         sessionFinishTimeEl.text(formatTimeOrNA(stats.finish_eta));
 
         sessionBeltSizeEl.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
         sessionSpeedEl.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
         sessionEtaEl.text(stats.finish_eta ? moment(stats.finish_eta).fromNow() : 'N/A');
+        _bootstrapTooltip();
     };
 
     /**

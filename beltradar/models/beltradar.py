@@ -20,9 +20,10 @@ from eve_sde.models import ItemType
 # AA Belt Radar
 from beltradar import __title__
 from beltradar.managers import (
-    BeltRadarManager,
+    AccessManager,
     BeltSurveyEntryManager,
     EveMarketPriceManager,
+    SessionManager,
 )
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.providers import AppLogger
@@ -62,7 +63,7 @@ class BeltSurveySession(models.Model):
     class Meta:
         default_permissions = ()  # Remove standard permissions
 
-    objects: BeltRadarManager = BeltRadarManager()
+    objects: SessionManager = SessionManager()
 
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="br_user_sessions"
@@ -85,158 +86,28 @@ class BeltSurveySession(models.Model):
     def __str__(self):
         return f"{self.name} ({self.public_id})"
 
-    def get_entries_for_snapshot(self, snapshot):
-        """Get all entries for a specific snapshot. This is the preferred method for accessing snapshot data."""
-        return self.br_entries.for_snapshot(snapshot)
-
-    def first_entry(self):
-        """Get the earliest survey entry in this session, or None if there are no entries."""
-        return self.br_entries.order_by("timestamp").first()
+    @cached_property
+    def snapshots(self):
+        """Get all timestamps for this session's survey entries."""
+        return self.br_entries.snapshots()
 
     @cached_property
-    def first_entry_snapshot(self):
-        """Get the snapshot identifier of the earliest entry in this session, or None if there are no entries."""
+    def first_timestamp(self):
+        """Get the first timestamp for this session's survey entries."""
         return (
-            self.br_entries.order_by("timestamp")
-            .values_list("snapshot", flat=True)
-            .first()
+            self.br_entries.filter().order_by("timestamp").first().timestamp
+            if self.br_entries.exists()
+            else None
         )
 
     @cached_property
-    def first_entry_timestamp(self):
-        """Get the timestamp of the earliest entry in this session, or None if there are no entries."""
+    def last_timestamp(self):
+        """Get the last timestamp for this session's survey entries."""
         return (
-            self.br_entries.order_by("timestamp")
-            .values_list("timestamp", flat=True)
-            .first()
+            self.br_entries.filter().order_by("-timestamp").first().timestamp
+            if self.br_entries.exists()
+            else None
         )
-
-    def last_entry(self):
-        """Get the most recent survey entry in this session, or None if there are no entries."""
-        return self.br_entries.order_by("-timestamp").first()
-
-    @cached_property
-    def last_entry_snapshot(self):
-        """Get the snapshot identifier of the most recent entry in this session, or None if there are no entries."""
-        return (
-            self.br_entries.order_by("-timestamp")
-            .values_list("snapshot", flat=True)
-            .first()
-        )
-
-    @cached_property
-    def last_entry_timestamp(self):
-        """Get the timestamp of the most recent entry in this session, or None if there are no entries."""
-        return (
-            self.br_entries.order_by("-timestamp")
-            .values_list("timestamp", flat=True)
-            .first()
-        )
-
-    @cached_property
-    def previous_entry_snapshot(self):
-        """Get the snapshot identifier of the entry before the most recent one in this session, or None if there are no previous entries."""
-        snapshot = self.last_entry_snapshot
-        if not snapshot:
-            return None
-        previous_entry = (
-            self.br_entries.exclude(snapshot=snapshot).order_by("-timestamp").first()
-        )
-        if not previous_entry:
-            return None
-        return previous_entry.snapshot
-
-    @property
-    def belt_size_m3(self):
-        """Calculate the total size of the belt in m3."""
-        if not self.first_entry_snapshot:
-            return 0
-        entries = self.get_entries_for_snapshot(self.first_entry_snapshot)
-        return sum(entry.volume_left for entry in entries)
-
-    @property
-    def belt_left_m3(self):
-        """Calculate the volume left in the belt from the most recent snapshot."""
-        if not self.last_entry_snapshot:
-            return 0
-        entries = self.get_entries_for_snapshot(self.last_entry_snapshot)
-        return sum(entry.volume_left for entry in entries)
-
-    @property
-    def remaining_asteroids(self):
-        """Calculate the number of remaining asteroids in the most recent snapshot."""
-        if not self.last_entry_snapshot:
-            return 0
-        entries = self.get_entries_for_snapshot(self.last_entry_snapshot)
-        return sum(1 for entry in entries if entry.volume_left > 0)
-
-    @property
-    def total_asteroids(self):
-        """Calculate the total number of asteroids in the belt."""
-        if not self.first_entry_snapshot:
-            return 0
-        entries = self.get_entries_for_snapshot(self.first_entry_snapshot)
-        return sum(1 for entry in entries if entry.units > 0)
-
-    @property
-    def progress_percent(self):
-        """Calculate the percentage of the belt that has been mined."""
-        size = float(self.belt_size_m3)
-        if size == 0:
-            return 0.0
-        left = float(self.belt_left_m3)
-        mined = size - left
-        return (mined / size) * 100.0
-
-    @property
-    def previous_entry_duration(self):
-        """Calculate the duration between the last two snapshots in seconds."""
-        last = self.last_entry()
-        previous_snapshot = self.previous_entry_snapshot
-        if not last or not previous_snapshot:
-            return 0.0
-        previous_entries = self.get_entries_for_snapshot(previous_snapshot)
-        if not previous_entries:
-            return 0.0
-        previous = max(previous_entries, key=lambda e: e.timestamp)
-        return (last.timestamp - previous.timestamp).total_seconds()
-
-    @property
-    def mining_rate_m3_per_s(self):
-        """Calculate mining speed in m3/s."""
-        duration = self.previous_entry_duration
-        previous_snapshot = self.previous_entry_snapshot
-        if not previous_snapshot or duration <= 0:
-            return 0.0
-        previous_entries = self.get_entries_for_snapshot(previous_snapshot)
-        if not previous_entries:
-            return 0.0
-        previous_left_m3 = sum(entry.volume_left for entry in previous_entries)
-        mined_m3 = previous_left_m3 - self.belt_left_m3
-        return mined_m3 / duration
-
-    @property
-    def finish_eta(self):
-        """Calculate the estimated time of completion for mining the belt."""
-        rate = float(self.mining_rate_m3_per_s)
-        if rate <= 0:
-            return None
-        left = float(self.belt_left_m3)
-        eta_seconds = left / rate
-        try:
-            return self.last_entry().timestamp + timezone.timedelta(seconds=eta_seconds)
-        except (OverflowError, OSError):
-            return None
-
-    @property
-    def is_fresh(self):
-        last = self.last_entry()
-        if not last:
-            return False
-        age_seconds = (timezone.now() - last.timestamp).total_seconds()
-        return (
-            age_seconds < 300
-        )  # consider fresh if last entry is less than 5 minutes old
 
 
 class BeltSurveyEntry(models.Model):
@@ -265,6 +136,9 @@ class BeltSurveyEntry(models.Model):
     price_compressed = models.FloatField(null=True, blank=True)
     price = models.FloatField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.session.name} - {self.eve_type.name} - {self.timestamp} - {self.volume_left} m3 left"
+
     @property
     def income_per_h(self):
         """
@@ -276,7 +150,7 @@ class BeltSurveyEntry(models.Model):
         Returns:
             float: The estimated income in ISK per hour based on the price.
         """
-        return self.price_per_m3 * self.session.mining_rate_m3_per_s
+        return self.price_per_m3 * self.session.br_entries.rate_per_s()
 
     @property
     def income_cmp_per_h(self):
@@ -289,7 +163,7 @@ class BeltSurveyEntry(models.Model):
         Returns:
             float: The estimated income in ISK per hour based on the compressed price.
         """
-        return self.price_cmp_per_m3 * self.session.mining_rate_m3_per_s
+        return self.price_cmp_per_m3 * self.session.br_entries.rate_per_s()
 
     @property
     def price_per_m3(self):
@@ -320,6 +194,15 @@ class BeltSurveyEntry(models.Model):
             return 0
         return self.price_compressed / (self.eve_type.volume / 100)
 
+    # pylint: disable=useless-parent-delegation
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to automatically generate a unique snapshot ID before saving the BeltSurveyEntry instance.
+        This ensures that each entry has a unique identifier that can be used for tracking and analysis.
+        """
+        # TODO: Create Respawn Timer for Session if 80% of the belt is mined and no timer exists
+        super().save(*args, **kwargs)
+
 
 class BeltTimer(models.Model):
     """Represents a timer for a belt, which can be used to track when the belt will be depleted."""
@@ -327,7 +210,7 @@ class BeltTimer(models.Model):
     class Meta:
         default_permissions = ()  # Remove standard permissions
 
-    objects: BeltRadarManager = BeltRadarManager()
+    objects: AccessManager = AccessManager()
 
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="br_user_timers"

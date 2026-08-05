@@ -114,14 +114,26 @@ class BeltRadarSurveyApiEndpoints:
 
     def session_stats(self, session: BeltSurveySession) -> schema.SnapShotStatsSchema:
         """Calculate belt stats for the latest snapshot of the given survey session."""
+        # Get the first and last entries for the session
+        f_entries = session.br_entries.filter(snapshot=session.snapshots.first())
+        l_entries = session.br_entries.filter(snapshot=session.snapshots.last())
+
+        # Calculate belt size, remaining volume, and mined volume
+        belt_size_m3 = f_entries.belt_size_m3()
+        belt_left_m3 = l_entries.belt_size_m3()
+        rate_per_s = session.br_entries.rate_per_s(
+            first_entries=f_entries, second_entries=l_entries
+        )
+        progress_percent = round(session.br_entries.session_progress_percentage(), 2)
+
         return schema.SnapShotStatsSchema(
-            belt_volume=session.belt_size_m3,
-            belt_volume_left_m3=session.belt_left_m3,
-            remaining_asteroids=session.remaining_asteroids,
-            total_asteroids=session.total_asteroids,
-            progress_percent=round(session.progress_percent, 2),
-            mining_rate_m3_per_s=round(session.mining_rate_m3_per_s, 4),
-            finish_eta=session.finish_eta,
+            belt_volume=belt_size_m3,
+            belt_volume_left_m3=belt_left_m3,
+            remaining_asteroids=l_entries.asteroid_count(),
+            total_asteroids=f_entries.asteroid_count(),
+            progress_percent=progress_percent,
+            mining_rate_m3_per_s=round(rate_per_s, 4),
+            finish_eta=session.br_entries.session_finish_eta(),
         )
 
     def aggregate_entries_by_ore(
@@ -281,8 +293,9 @@ class BeltRadarSurveyApiEndpoints:
                     "error": _("Survey session not found or not public.")
                 }
 
-            # Get the most recent survey entry for this session (if any)
-            last_entries = session.get_entries_for_snapshot(session.last_entry_snapshot)
+            last_entries = session.br_entries.filter(
+                snapshot=session.snapshots.last()
+            )  # Get entries for the last timestamp
 
             # Aggregate data for the last snapshot
             aggregated_items = self.aggregate_entries_by_ore(entries=last_entries)
@@ -310,10 +323,10 @@ class BeltRadarSurveyApiEndpoints:
                     name=session.name,
                     created_at=session.created_at,
                     owner=str(session.owner),
-                    first_entry_timestamp=session.first_entry_timestamp,
-                    last_entry_timestamp=session.last_entry_timestamp,
+                    first_entry_timestamp=session.first_timestamp,
+                    last_entry_timestamp=session.last_timestamp,
                 ),
-                snapshot=session.last_entry_snapshot,
+                snapshot=session.snapshots.last(),
                 entries=snapshot_list,
                 charts=self.ore_mining_stats(session=session),
                 stats=self.session_stats(session=session),
@@ -321,7 +334,7 @@ class BeltRadarSurveyApiEndpoints:
                     get_snapshot_delete_button(
                         request=request,
                         public_id=session.public_id,
-                        snapshot=session.last_entry_snapshot,
+                        snapshot=session.snapshots.last(),
                     )
                 ),
             )

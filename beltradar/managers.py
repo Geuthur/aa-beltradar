@@ -254,7 +254,7 @@ class BeltSurveyEntryQuerySet(models.QuerySet["BeltSurveyEntryContext"]):
 
         # If either of the entry sets is empty, we cannot calculate the finish time
         if not p_entries.exists() or not l_entries.exists():
-            return None
+            return 0.0
 
         initial_volume = p_entries.belt_size_m3()
         current_volume = l_entries.belt_size_m3()
@@ -271,7 +271,7 @@ class BeltSurveyEntryQuerySet(models.QuerySet["BeltSurveyEntryContext"]):
 
         # If there are less than 2 snapshots, we cannot calculate progress percentage
         if not snapshots or snapshots.count() < 2:
-            return 0.0
+            return None
 
         # Get the entries for the last and previous snapshots
         p_entries = self.for_snapshot(self.previous_snapshot(snapshots.last()))

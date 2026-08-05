@@ -171,11 +171,18 @@ $(document).ready(() => {
     /* Helper function to format timestamps or return 'N/A' if value is not present */
     const formatTimeOrNA = (value) => (value ? moment(value).utc().format('HH:mm') : 'N/A');
 
+    /* Keep Bootstrap tooltip source attributes in sync when values change after initialisation. */
+    const setTooltipTitle = (element, title) => {
+        element.attr('title', title);
+        element.attr('data-bs-original-title', title);
+        element.attr('data-bs-tooltip', 'aa-beltradar');
+    };
+
     /* Function to update session stats in the heading based on the latest snapshot data */
     const updateSessionStats = (tableData) => {
         const stats = tableData?.stats ?? {};
-        const firstEntryTimestamp = tableData?.session?.first_entry_timestamp ?? null;
-        const lastSnapshotTimestamp = tableData?.session?.last_entry_timestamp ?? null;
+        let firstEntryTimestamp = tableData?.session?.first_entry_timestamp ?? null;
+        let lastSnapshotTimestamp = tableData?.session?.last_entry_timestamp ?? null;
 
         sessionNameEl.text(tableData?.session?.name ?? '-');
         sessionCreatedAtEl.text(tableData?.session?.created_at ? moment(tableData.session.created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
@@ -191,16 +198,19 @@ $(document).ready(() => {
 
         /* Update first and last scan timestamps with tooltips */
         const firstScanLabel = aaBeltRadarSettings.translations.firstScan;
-        const firstScanText = formatTimeOrNA(firstEntryTimestamp);
+        let firstScanText = formatTimeOrNA(firstEntryTimestamp);
         sessionFirstScanEl.text(firstScanText);
-        sessionFirstScanEl.attr('title', `${firstScanLabel}: ${firstScanText}`);
-        sessionFirstScanEl.attr('data-bs-tooltip', 'aa-beltradar');
+        setTooltipTitle(sessionFirstScanEl, `${firstScanLabel}: ${firstScanText}`);
 
         const lastScanLabel = aaBeltRadarSettings.translations.lastScan;
-        const lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
-        sessionLastScanEl.text(lastScanText === 'N/A' ? '' : lastScanText);
-        sessionLastScanEl.attr('title', `${lastScanLabel}: ${lastScanText}`);
-        sessionLastScanEl.attr('data-bs-tooltip', 'aa-beltradar');
+        let lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
+        /* If the last snapshot timestamp is the same as the first entry timestamp, clear the text. */
+        if (lastSnapshotTimestamp === firstEntryTimestamp) {
+            sessionLastScanEl.text('');
+        } else {
+            sessionLastScanEl.text(lastScanText);
+            setTooltipTitle(sessionLastScanEl, `${lastScanLabel}: ${lastScanText}`);
+        }
 
         sessionFinishTimeEl.text(formatTimeOrNA(stats.finish_eta));
 

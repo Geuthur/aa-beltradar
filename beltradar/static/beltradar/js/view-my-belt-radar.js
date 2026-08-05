@@ -405,7 +405,7 @@ $(document).ready(() => {
                 .then((data) => {
                     if (data.success === true) {
                         fetchGetBeltRadar({
-                            url: aaBeltRadarSettings.url.Timers,
+                            url: aaBeltRadarSettings.url.myTimers,
                         })
                             .then((newData) => {
                                 _reloadSurveyBeltTimerData(newData);

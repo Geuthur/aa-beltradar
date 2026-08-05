@@ -29,7 +29,7 @@ from beltradar.api.helpers.icons import (
     get_snapshot_delete_button,
     get_survey_manage_action_icons,
 )
-from beltradar.helpers.eveonline import get_icon_render_url
+from beltradar.helpers.eveonline import get_character_portrait_url, get_icon_render_url
 from beltradar.models.beltradar import (
     BeltSurveyEntry,
     BeltSurveySession,
@@ -228,7 +228,12 @@ class BeltRadarSurveyApiEndpoints:
                     public_id=str(session.public_id),
                     name=session.name,
                     created_at=session.created_at,
-                    owner=str(session.owner),
+                    owner=get_character_portrait_url(
+                        character_id=session.owner.profile.main_character.character_id,
+                        character_name=session.owner.profile.main_character.character_name,
+                        as_html=True,
+                        display_name=True,
+                    ),
                     html=str(
                         get_survey_manage_action_icons(
                             request=request, public_id=session.public_id
@@ -259,7 +264,12 @@ class BeltRadarSurveyApiEndpoints:
                     public_id=str(session.public_id),
                     name=session.name,
                     created_at=session.created_at,
-                    owner=str(session.owner),
+                    owner=get_character_portrait_url(
+                        character_id=session.owner.profile.main_character.character_id,
+                        character_name=session.owner.profile.main_character.character_name,
+                        as_html=True,
+                        display_name=True,
+                    ),
                     html=str(
                         get_survey_manage_action_icons(
                             request=request, public_id=session.public_id

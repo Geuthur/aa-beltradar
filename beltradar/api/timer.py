@@ -20,7 +20,7 @@ from beltradar.api import schema
 from beltradar.api.helpers.core import get_belt_timer_or_none
 from beltradar.api.helpers.icons import (
     get_belt_timer_manage_action_icons,
-    get_timer_public_icon,
+    switch_belt_timer_state,
 )
 from beltradar.models.beltradar import (
     BeltTimer,
@@ -37,7 +37,7 @@ class BeltRadarBeltTimerApiEndpoints:
     def __init__(self, api: NinjaAPI):
 
         @api.get(
-            "view/my-timer/{character_id}/",
+            "view/my-belt-timer/{character_id}/",
             response={
                 HTTPStatus.OK: list[schema.BeltTimerSchema],
                 HTTPStatus.FORBIDDEN: dict,
@@ -86,7 +86,7 @@ class BeltRadarBeltTimerApiEndpoints:
                         ),
                         public=schema.DataTableSchema(
                             raw=timer.public,
-                            display=get_timer_public_icon(timer=timer),
+                            display=switch_belt_timer_state(timer=timer),
                             sort=str(timer.public),
                         ),
                         is_expired=timer.is_expired,
@@ -102,7 +102,7 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.OK, belt_timer_list
 
         @api.get(
-            "view/timers/",
+            "view/belt-timers/",
             response={
                 HTTPStatus.OK: list[schema.BeltTimerSchema],
             },
@@ -134,7 +134,7 @@ class BeltRadarBeltTimerApiEndpoints:
                         ),
                         public=schema.DataTableSchema(
                             raw=timer.public,
-                            display=get_timer_public_icon(timer=timer),
+                            display=switch_belt_timer_state(timer=timer),
                             sort=str(timer.public),
                         ),
                         is_expired=timer.is_expired,
@@ -150,7 +150,7 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.OK, belt_timer_list
 
         @api.post(
-            "manage/add-timer/",
+            "manage/add-belt-timer/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.BAD_REQUEST: dict,
@@ -195,7 +195,7 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
         @api.post(
-            "manage/delete-timer/{timer_id}/",
+            "manage/belt-timer/{timer_id}/delete/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.FORBIDDEN: dict,
@@ -245,25 +245,28 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.OK, {"success": True, "message": msg}
 
         @api.post(
-            "manage/switch-public/{timer_id}/",
+            "manage/belt-timer/{timer_id}/switch/{field}/value/{value}/",
             response={
                 HTTPStatus.OK: dict,
+                HTTPStatus.BAD_REQUEST: dict,
                 HTTPStatus.FORBIDDEN: dict,
                 HTTPStatus.NOT_FOUND: dict,
             },
             tags=self.tags,
         )
-        def switch_belt_timer_public(request, timer_id: int):
+        def modify_belt_timer(request, timer_id: int, field: str, value: str):
             """
-            Switch the public status of a specific belt timer in a survey session.
+            Modify a specific field of a belt timer in a survey session.
 
-            This Endpoint allows users to switch the public status of a specific belt timer within a survey session.
+            This Endpoint allows users to modify a specific field of a belt timer within a survey session.
             The user must have permission to modify the survey session, and the survey session must exist.
 
             Args:
-                timer_id (int): The ID of the belt timer to switch public status.
+                timer_id (int): The ID of the belt timer to modify.
+                field (str): The field of the belt timer to modify.
             Returns:
-                200: A success message indicating the belt timer's public status was switched.
+                200: A success message indicating the belt timer was modified.
+                400: An error message if the input data is invalid or cannot be parsed.
                 403: An error message if the user does not have permission or the session is not found.
                 404: An error message if the belt timer is not found.
             """
@@ -283,10 +286,16 @@ class BeltRadarBeltTimerApiEndpoints:
                 msg = _("Permission Denied.")
                 return HTTPStatus.FORBIDDEN, {"error": msg}
 
-            # Switch the public status of the belt timer
-            timer.public = not timer.public
-            timer.save()
-
-            # If the belt timer's public status was switched successfully, return a success message
-            msg = _("Belt timer public status switched successfully.")
-            return HTTPStatus.OK, {"success": True, "message": msg}
+            # Modify the specified field of the belt timer
+            if hasattr(timer, field):
+                setattr(timer, field, value)
+                msg = _(f"Belt timer {field} updated successfully.")
+                # Save the changes to the database
+                try:
+                    timer.save()
+                except Exception as e:  # pylint: disable=broad-except
+                    msg = _(f"Failed to update belt timer {field}: {str(e)}")
+                    return HTTPStatus.BAD_REQUEST, {"error": msg}
+                return HTTPStatus.OK, {"success": True, "message": msg}
+            msg = _("Invalid Method")
+            return HTTPStatus.BAD_REQUEST, {"error": msg}

@@ -347,24 +347,25 @@ def get_timer_delete_button(
     return delete_button
 
 
-def get_timer_public_icon(
+def switch_belt_timer_state(
     timer: "BeltTimer",
 ) -> str:
     """
-    Generate a public icon for a specific belt timer.
+    Generate a switch state icon for a specific belt timer.
 
     This function creates an HTML icon indicating whether a belt timer is public or private.
 
     Args:
-        request (WSGIRequest): The HTTP request object.
         timer (BeltTimer): The belt timer object.
     Returns:
-        String: HTML string containing the public/private icon.
+        String: HTML string containing the switch state icon.
     """
     switch_button_url = reverse(
-        "beltradar:api:switch_belt_timer_public",
+        "beltradar:api:modify_belt_timer",
         kwargs={
             "timer_id": timer.pk,
+            "field": "public",
+            "value": str(not timer.public).capitalize(),
         },
     )
 

@@ -266,15 +266,15 @@ class BeltTimer(models.Model):
         if self.belt_type == BeltTypeChoice.ICE_BELT:
             if self.belt_size == BeltSizeChoice.ICE:
                 self.eta = now + timezone.timedelta(hours=8)
-        if self.eta is None:
-            self.eta = None
+        return self.eta
 
     def save(self, *args, **kwargs):
         """
         Override the save method to automatically generate the ETA before saving the BeltTimer instance.
         This ensures that each timer has an accurate estimated time of respawn based on the belt type
         """
-        self.generate_eta()
+        if self.eta is None:
+            self.generate_eta()
 
         # Generate a unique public_id if it is not already set
         if self.public_id == "":

@@ -20,8 +20,10 @@ $(document).ready(() => {
     const sessionEtaEl = $('#session-eta');
     /* Chart Element */
     const chartEl = $('#chart');
+    const trafficChartEl = $('#traffic');
     /* Apex chart instance */
     let miningChart = null;
+    let trafficChart = null;
     /* Modals */
     const modalRequestDeleteSnapshot = $('#beltradar-accept-delete-snapshot');
     const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
@@ -44,6 +46,8 @@ $(document).ready(() => {
             // Render Mining Chart with the same data if available, otherwise try to find it in the root of the response
             const chartData = data?.data?.charts ?? data?.charts ?? { categories: [], series: [] };
             renderMiningChart(chartData);
+            const trafficChartData = data?.data?.traffic ?? data?.traffic ?? { categories: [], series: [] };
+            renderTrafficChart(trafficChartData);
             updateSessionStats(data);
         })
         .catch((error) => {
@@ -283,6 +287,83 @@ $(document).ready(() => {
     };
 
     /**
+    * Render Traffic Chart using ApexCharts
+    * @param {Object} chartData - The data for the chart, expected to have categories and series properties
+    */
+    const renderTrafficChart = (chartData) => {
+        if (trafficChart) {
+            trafficChart.destroy();
+            trafficChart = null;
+        }
+
+        // Clear existing chart or messages before rendering new chart
+        trafficChartEl.empty();
+
+        if (!Array.isArray(chartData.categories) || chartData.categories.length === 0) {
+            console.warn('No categories available for traffic chart. Chart will not be rendered.');
+            trafficChartEl.html(`<div class="text-muted text-center p-4 w-100">${aaBeltRadarSettings.translations.noData}</div>`);
+            return;
+        }
+
+        const options = {
+            series: Array.isArray(chartData.series) ? chartData.series : [],
+            chart: {
+                type: 'line',
+                height: 380,
+                toolbar: { show: false }
+            },
+            stroke: {
+                width: [0, 4],
+                curve: 'smooth',
+            },
+            title: {
+                text: 'Mining Speed',
+            },
+            dataLabels: {
+                enabled: true,
+                enabledOnSeries: [1],
+                formatter: function (val) {
+                    return val.toLocaleString() + ' m³/s';
+                },
+            },
+            labels: Array.isArray(chartData.categories) ? chartData.categories : [],
+            yaxis: [
+                {
+                    title: {
+                        text: 'Volume Left (m³)',
+                    },
+                },
+                {
+                    opposite: true,
+                    title: {
+                        text: 'Speed (m³/s)',
+                    },
+                },
+            ],
+            tooltip: {
+                shared: true,
+                intersect: false,
+                y: {
+                    formatter: function (val, { seriesIndex }) {
+                        if (seriesIndex === 0) {
+                            return val.toLocaleString() + ' m³';
+                        } else if (seriesIndex === 1) {
+                            return val.toLocaleString() + ' m³/s';
+                        }
+                        return val;
+                    },
+                },
+            },
+            theme: {
+                mode: 'dark',
+            },
+        };
+        trafficChart = new ApexCharts(trafficChartEl[0], options);
+        trafficChart.render();
+    };
+
+
+    /**
     * View :: Reload Survey Snapshot Function
     * On Confirmation send a request to the API Endpoint, reload the Survey Snapshot DataTable, close the modal
     * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
@@ -309,6 +390,8 @@ $(document).ready(() => {
 
         const chartData = tableData?.data?.charts ?? tableData?.charts ?? { categories: [], series: [] };
         renderMiningChart(chartData);
+        const trafficChartData = tableData?.data?.traffic ?? tableData?.traffic ?? { categories: [], series: [] };
+        renderTrafficChart(trafficChartData);
         updateSessionStats(tableData);
     };
 

@@ -1,9 +1,24 @@
 {% load i18n %}
-<div class="card card-body rounded mt-2">
-    <div id="chart">
-        <div class="d-flex justify-content-center align-items-center w-100">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">{% translate "Loading..." %}</span>
+<div class="row mt-2">
+    <div class="col-md-6">
+        <div class="card card-body rounded">
+            <div id="chart">
+                <div class="d-flex justify-content-center align-items-center w-100">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">{% translate "Loading..." %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-body rounded">
+            <div id="traffic">
+                <div class="d-flex justify-content-center align-items-center w-100">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">{% translate "Loading..." %}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1,6 +1,5 @@
 # Standard Library
 import json
-from collections import defaultdict
 from http import HTTPStatus
 
 # Third Party
@@ -9,7 +8,6 @@ from ninja import NinjaAPI
 # Django
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
@@ -21,6 +19,10 @@ from eve_sde.models import ItemType
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
+from beltradar.api.helpers.charts import (
+    generate_apex_chart_mining_data,
+    generate_apex_chart_traffic_data,
+)
 from beltradar.api.helpers.core import (
     get_owner_or_none,
     get_public_id_or_none,
@@ -29,7 +31,7 @@ from beltradar.api.helpers.icons import (
     get_snapshot_delete_button,
     get_survey_manage_action_icons,
 )
-from beltradar.helpers.eveonline import get_character_portrait_url, get_icon_render_url
+from beltradar.helpers.eveonline import get_character_portrait_url
 from beltradar.models.beltradar import (
     BeltSurveyEntry,
     BeltSurveySession,
@@ -42,75 +44,6 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 class BeltRadarSurveyApiEndpoints:
     tags = ["Survey"]
-
-    # pylint: disable=too-many-locals
-    def ore_mining_stats(
-        self,
-        session: BeltSurveySession,
-    ) -> schema.OreChartDataSchema:
-        """Calculate per-ore mining progress from first to last snapshot."""
-        ordered_entries = list(
-            session.br_entries.select_related("eve_type").order_by("timestamp")
-        )
-        if len(ordered_entries) < 2:
-            return schema.OreChartDataSchema()
-
-        snapshots: dict[str, dict[str, object]] = {}
-        for entry in ordered_entries:
-            snapshot_key = str(
-                entry.snapshot or entry.timestamp.replace(microsecond=0).isoformat()
-            )
-            if snapshot_key not in snapshots:
-                snapshots[snapshot_key] = {
-                    "timestamp": entry.timestamp,
-                    "ores": defaultdict(float),
-                }
-
-            snapshot = snapshots[snapshot_key]
-            if entry.timestamp > snapshot["timestamp"]:
-                snapshot["timestamp"] = entry.timestamp
-
-            ore_name = entry.eve_type.name if entry.eve_type else "Unknown"
-            try:
-                vol_left = float(getattr(entry, "volume_left", None) or 0.0)
-            except (TypeError, ValueError):
-                vol_left = 0.0
-            snapshot["ores"][ore_name] += max(0.0, vol_left)
-
-        ordered_snapshots = sorted(
-            snapshots.values(), key=lambda item: item["timestamp"]
-        )
-        if len(ordered_snapshots) < 2:
-            return schema.OreChartDataSchema()
-
-        start_map = dict(ordered_snapshots[0]["ores"])
-        end_map = dict(ordered_snapshots[-1]["ores"])
-
-        ore_names = sorted(set(start_map.keys()) | set(end_map.keys()))
-        categories: list[str] = []
-        progress_data: list[float] = []
-
-        for ore_name in ore_names:
-            start_volume = max(0.0, float(start_map.get(ore_name, 0.0)))
-            volume_left = max(0.0, float(end_map.get(ore_name, 0.0)))
-
-            volume_mined = max(0.0, start_volume - volume_left)
-            progress_percent = (
-                min(100.0, max(0.0, (volume_mined / start_volume) * 100.0))
-                if start_volume > 0
-                else 0.0
-            )
-            categories.append(ore_name)
-            progress_data.append(round(progress_percent, 2))
-        return schema.OreChartDataSchema(
-            categories=categories,
-            series=[
-                schema.OreMiningChartSeriesSchema(
-                    name="Mined %",
-                    data=progress_data,
-                )
-            ],
-        )
 
     def session_stats(self, session: BeltSurveySession) -> schema.SnapShotStatsSchema:
         """Calculate belt stats for the latest snapshot of the given survey session."""
@@ -135,37 +68,6 @@ class BeltRadarSurveyApiEndpoints:
             mining_rate_m3_per_s=round(rate_per_s, 4),
             finish_eta=session.br_entries.session_finish_eta(),
         )
-
-    def aggregate_entries_by_ore(
-        self, entries: QuerySet[BeltSurveyEntry]
-    ) -> dict[str, dict[str, object]]:
-        """Aggregate survey entries by ore name, summing units and volume left."""
-        aggregated: dict[str, dict[str, object]] = {}
-        for entry in entries.select_related("eve_type"):
-            ore_name = entry.eve_type.name if entry.eve_type else "Unknown"
-            if ore_name not in aggregated:
-                aggregated[ore_name] = {
-                    "portrait": (
-                        get_icon_render_url(type_id=entry.eve_type.id, as_html=True)
-                        if entry.eve_type
-                        else None
-                    ),
-                    "units": 0,
-                    "volume_left": 0.0,
-                    "price_per_m3": entry.price_per_m3,
-                    "price_cmp_per_m3": entry.price_cmp_per_m3,
-                    "income_per_h": entry.income_per_h,
-                    "income_cmp_per_h": entry.income_cmp_per_h,
-                    "timestamp": entry.timestamp,
-                    "snapshot": entry.snapshot,
-                }
-            aggregated[ore_name]["units"] += entry.units
-            try:
-                vol_left = float(getattr(entry, "volume_left", None) or 0.0)
-            except (TypeError, ValueError):
-                vol_left = 0.0
-            aggregated[ore_name]["volume_left"] += max(0.0, vol_left)
-        return aggregated
 
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
@@ -308,7 +210,9 @@ class BeltRadarSurveyApiEndpoints:
             )  # Get entries for the last timestamp
 
             # Aggregate data for the last snapshot
-            aggregated_items = self.aggregate_entries_by_ore(entries=last_entries)
+            aggregated_items = BeltSurveyEntry.objects.aggregate_entries_by_ore(
+                entries=last_entries
+            )
 
             # Create a list of survey entries for the current user, ordered by timestamp
             snapshot_list: list[schema.OreSchema] = []
@@ -338,7 +242,8 @@ class BeltRadarSurveyApiEndpoints:
                 ),
                 snapshot=session.snapshots.last(),
                 entries=snapshot_list,
-                charts=self.ore_mining_stats(session=session),
+                charts=generate_apex_chart_mining_data(session=session),
+                traffic=generate_apex_chart_traffic_data(session=session),
                 stats=self.session_stats(session=session),
                 delete_html=str(
                     get_snapshot_delete_button(
@@ -453,7 +358,9 @@ class BeltRadarSurveyApiEndpoints:
             },
             tags=self.tags,
         )
-        def add_survey_entry(request, public_id: str):
+        def add_survey_entry(
+            request, public_id: str
+        ):  # pylint: disable=too-many-locals
             """
             Add a new survey entry to a survey session.
 
@@ -505,7 +412,7 @@ class BeltRadarSurveyApiEndpoints:
             # If no valid entries were parsed from the input data, return an error message
             if not survey_data or not survey_data.entries:
                 msg = _("No valid entries to add. Errors: ") + ", ".join(
-                    survey_data.erros if survey_data else ["No data"]
+                    survey_data.errors if survey_data else ["No data"]
                 )
                 return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
@@ -591,5 +498,5 @@ class BeltRadarSurveyApiEndpoints:
                 "message": _("No valid entries to add. Missing types: ")
                 + ", ".join(missing_types)
                 + ". Errors: "
-                + ", ".join(survey_data.erros if survey_data else ["No data"]),
+                + ", ".join(survey_data.errors if survey_data else ["No data"]),
             }

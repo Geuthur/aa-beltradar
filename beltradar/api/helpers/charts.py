@@ -38,15 +38,15 @@ def generate_apex_chart_mining_data(session: BeltSurveySession):
     first_data = session.br_entries.for_snapshot(first_snapshot)
     # Get the distinct ore categories from the first snapshot
     ore_categories: list[str] = (
-        first_data.values_list("eve_type__name_en", flat=True)
-        .order_by("eve_type__name_en")
+        first_data.values_list("eve_type__name", flat=True)
+        .order_by("eve_type__name")
         .distinct()
     )
     # Loop through each ore category and calculate the volume left in the first snapshot
     for ore in ore_categories:
         volume_left = (
-            first_data.filter(eve_type__name_en=ore)
-            .order_by("eve_type__name_en")
+            first_data.filter(eve_type__name=ore)
+            .order_by("eve_type__name")
             .aggregate(models.Sum("volume_left"))["volume_left__sum"]
             or 0
         )
@@ -58,8 +58,8 @@ def generate_apex_chart_mining_data(session: BeltSurveySession):
     for ore in ore_categories:
         # Calculate the volume left for each ore type in the last snapshot
         volume_left = (
-            last_data.filter(eve_type__name_en=ore)
-            .order_by("eve_type__name_en")
+            last_data.filter(eve_type__name=ore)
+            .order_by("eve_type__name")
             .aggregate(models.Sum("volume_left"))["volume_left__sum"]
             or 0
         )

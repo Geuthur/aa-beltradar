@@ -127,7 +127,7 @@ class AddSurveyForm(forms.Form):
             }
 
             processed_lines.append(OreSchema(**item))
-        return OreSchemaResponse(erros=form_errors, entries=processed_lines)
+        return OreSchemaResponse(errors=form_errors, entries=processed_lines)
 
     def clean_raw_data(self):
         """

@@ -15,6 +15,7 @@ from eve_sde.models import ItemType
 # AA Belt Radar
 from beltradar import __title__
 from beltradar.app_settings import BELT_RADAR_BULK_BATCH_SIZE
+from beltradar.helpers.eveonline import get_icon_render_url
 from beltradar.providers import AppLogger, esi
 
 if TYPE_CHECKING:
@@ -177,6 +178,14 @@ class BeltSurveyEntryQuerySet(models.QuerySet["BeltSurveyEntryContext"]):
         """Get all snapshots in this queryset."""
         return self.values_list("snapshot", flat=True).order_by("timestamp").distinct()
 
+    def snapshot_entries(self) -> list[list["BeltSurveyEntryContext"]]:
+        """Get all entries grouped by snapshot."""
+        snapshots = self.snapshots()
+        snapshot_entries = []
+        for snapshot in snapshots:
+            snapshot_entries.append(self.for_snapshot(snapshot))
+        return snapshot_entries
+
     def belt_size_m3(self):
         """Get the total volume_left for all entries in this queryset."""
         belt_size = self.aggregate(total_volume=models.Sum("volume_left"))[
@@ -235,7 +244,23 @@ class BeltSurveyEntryQuerySet(models.QuerySet["BeltSurveyEntryContext"]):
         # If the mined volume is zero or negative, return 0.0 to avoid negative rates
         if mined_m3 <= 0:
             return 0.0
-        return mined_m3 / duration
+        return round(mined_m3 / duration, 2)
+
+    def rate_per_s_for_snapshot(self, snapshot: str):
+        """Calculate the mining rate in m3/s for a specific snapshot."""
+        previous_snapshot = self.previous_snapshot(snapshot)
+        if previous_snapshot is None:
+            return 0.0
+
+        first_entries = self.for_snapshot(previous_snapshot)
+        second_entries = self.for_snapshot(snapshot)
+
+        return self.rate_per_s(first_entries, second_entries)
+
+    def timestamp_for_snapshot(self, snapshot: str):
+        """Get the timestamp for a specific snapshot."""
+        entry = self.filter(snapshot=snapshot).order_by("timestamp").first()
+        return entry.timestamp if entry else None
 
     def asteroid_count(self):
         """Get the number of asteroids with volume > 0."""
@@ -328,6 +353,10 @@ class BeltSurveyEntryManager(models.Manager["BeltSurveyEntryContext"]):
         """Get all snapshots in this queryset."""
         return self.get_queryset().snapshots()
 
+    def snapshot_entries(self):
+        """Get all entries grouped by snapshot."""
+        return self.get_queryset().snapshot_entries()
+
     def belt_size_m3(self):
         """Get the total volume_left for all entries."""
         return self.get_queryset().belt_size_m3()
@@ -339,6 +368,10 @@ class BeltSurveyEntryManager(models.Manager["BeltSurveyEntryContext"]):
     def rate_per_s(self, first_entries=None, second_entries=None):
         """Calculate the mining rate in m3/s based on the last two snapshots."""
         return self.get_queryset().rate_per_s(first_entries, second_entries)
+
+    def rate_per_s_for_snapshot(self, snapshot):
+        """Calculate the mining rate in m3/s for a specific snapshot."""
+        return self.get_queryset().rate_per_s_for_snapshot(snapshot)
 
     def duration(self, first_entry, last_entry):
         """Calculate the duration in seconds for this queryset."""
@@ -358,12 +391,46 @@ class BeltSurveyEntryManager(models.Manager["BeltSurveyEntryContext"]):
 
     def snapshot_stats(self, snapshot):
         """Get aggregated stats for a snapshot. Returns a dict with total_volume and asteroid_count."""
-        entries = self.get_queryset().for_snapshot(snapshot)
+        timestamp = self.get_queryset().timestamp_for_snapshot(snapshot)
+        rate_per_s = self.get_queryset().rate_per_s_for_snapshot(snapshot)
+        volume_left = self.get_queryset().belt_size_m3_for_snapshot(snapshot)
+
         return {
-            "total_volume": sum(e.volume_left for e in entries),
-            "asteroid_count": sum(1 for e in entries if e.volume_left > 0),
-            "entry_count": entries.count(),
+            "timestamp": timestamp,
+            "rate_per_s": rate_per_s,
+            "volume_left": volume_left,
         }
+
+    def aggregate_entries_by_ore(
+        self, entries: models.QuerySet["BeltSurveyEntryContext"]
+    ) -> dict[str, dict[str, object]]:
+        """Aggregate survey entries by ore name, summing units and volume left."""
+        aggregated: dict[str, dict[str, object]] = {}
+        for entry in entries.select_related("eve_type"):
+            ore_name = entry.eve_type.name if entry.eve_type else "Unknown"
+            if ore_name not in aggregated:
+                aggregated[ore_name] = {
+                    "portrait": (
+                        get_icon_render_url(type_id=entry.eve_type.id, as_html=True)
+                        if entry.eve_type
+                        else None
+                    ),
+                    "units": 0,
+                    "volume_left": 0.0,
+                    "price_per_m3": entry.price_per_m3,
+                    "price_cmp_per_m3": entry.price_cmp_per_m3,
+                    "income_per_h": entry.income_per_h,
+                    "income_cmp_per_h": entry.income_cmp_per_h,
+                    "timestamp": entry.timestamp,
+                    "snapshot": entry.snapshot,
+                }
+            aggregated[ore_name]["units"] += entry.units
+            try:
+                vol_left = float(getattr(entry, "volume_left", None) or 0.0)
+            except (TypeError, ValueError):
+                vol_left = 0.0
+            aggregated[ore_name]["volume_left"] += max(0.0, vol_left)
+        return aggregated
 
 
 class EveTypePriceQuerySet(models.QuerySet["EveTypePriceContext"]):

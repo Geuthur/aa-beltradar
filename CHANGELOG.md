@@ -11,6 +11,14 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- Traffic Chart
+
+### Changed
+
+- Moved Chart Generation from API Endpoint to Helper Function
+
 ## [0.5.0]- 2026-08-05
 
 ### Added

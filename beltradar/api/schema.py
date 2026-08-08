@@ -60,18 +60,19 @@ class OreSchema(Schema):
 
 
 class OreSchemaResponse(Schema):
-    erros: list[str] = []
+    errors: list[str] = []
     entries: list[OreSchema] = []
 
 
-class OreMiningChartSeriesSchema(Schema):
+class ApexChartSeriesDataSchema(Schema):
     name: str
     data: list[float]
+    type: str | None = None
 
 
-class OreChartDataSchema(Schema):
+class ApexChartSchema(Schema):
     categories: list[str] = []
-    series: list[OreMiningChartSeriesSchema] = []
+    series: list[ApexChartSeriesDataSchema] = []
 
 
 class SnapShotStatsSchema(Schema):
@@ -89,6 +90,7 @@ class SnapShotSchema(Schema):
     session: SessionSchema
     snapshot: str | None = None
     entries: list[OreSchema]
-    charts: OreChartDataSchema | None = None
+    charts: ApexChartSchema | None = None
+    traffic: ApexChartSchema | None = None
     stats: SnapShotStatsSchema | None = None
     delete_html: str | None = None

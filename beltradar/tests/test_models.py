@@ -169,7 +169,8 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         # Test Action
         mining_rate = self.session.br_entries.rate_per_s()
         # Expected Result
-        self.assertEqual(mining_rate, 2500 / (3 * 3600))
+        expected_rate = round(2500 / (3 * 3600), 2)
+        self.assertEqual(mining_rate, expected_rate)
 
     def test_finish_eta(self):
         """

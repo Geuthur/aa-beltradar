@@ -33,10 +33,10 @@ class TestViewAccess(BeltRadarTestCase):
         request = self.factory.get(reverse("beltradar:index"))
         request.user = self.user
         # when
-        response = views.index(request)
+        response = views.view_belt_radar(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Index")
+        self.assertContains(response, "Survey Sessions Overview")
 
     def test_create_session(self):
         """

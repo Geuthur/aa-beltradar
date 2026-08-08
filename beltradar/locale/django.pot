@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Belt Radar 0.5.1\n"
+"Project-Id-Version: AA Belt Radar 0.5.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-08-08 13:54+0200\n"
+"POT-Creation-Date: 2026-08-08 16:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -104,7 +104,7 @@ msgid "Invalid input data. Please check the format and try again."
 msgstr ""
 
 #: beltradar/api/survey.py:414
-msgid "No valid entries to add. Errors: "
+msgid "No valid entries to add. Errors:"
 msgstr ""
 
 #: beltradar/api/survey.py:494 beltradar/api/timer.py:192
@@ -112,7 +112,7 @@ msgid "Survey entry added successfully."
 msgstr ""
 
 #: beltradar/api/survey.py:498
-msgid "No valid entries to add. Missing types: "
+msgid "No valid entries to add. Missing types:"
 msgstr ""
 
 #: beltradar/api/timer.py:64
@@ -341,6 +341,7 @@ msgstr ""
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:15
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:15
+#: beltradar/templates/beltradar/partials/view-session/session.html:32
 msgid "Belt Size"
 msgstr ""
 
@@ -408,10 +409,6 @@ msgstr ""
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:19
 msgid "asteroids"
-msgstr ""
-
-#: beltradar/templates/beltradar/partials/view-session/session.html:32
-msgid "Belt size"
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:35

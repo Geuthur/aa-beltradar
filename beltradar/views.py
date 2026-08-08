@@ -24,16 +24,6 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 @login_required
 @permission_required("beltradar.basic_access")
-def index(request):
-    """Index View"""
-    context = {
-        "title": "Index",
-    }
-    return render(request, "beltradar/view-index.html", context=context)
-
-
-@login_required
-@permission_required("beltradar.basic_access")
 def create_session(request):
     context = {
         "title": "Create Belt Survey Session",

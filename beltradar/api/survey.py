@@ -411,7 +411,7 @@ class BeltRadarSurveyApiEndpoints:
 
             # If no valid entries were parsed from the input data, return an error message
             if not survey_data or not survey_data.entries:
-                msg = _("No valid entries to add. Errors: ") + ", ".join(
+                msg = _("No valid entries to add. Errors:") + " , ".join(
                     survey_data.errors if survey_data else ["No data"]
                 )
                 return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}

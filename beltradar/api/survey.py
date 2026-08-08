@@ -495,8 +495,8 @@ class BeltRadarSurveyApiEndpoints:
                 }
             return HTTPStatus.BAD_REQUEST, {
                 "success": False,
-                "message": _("No valid entries to add. Missing types: ")
-                + ", ".join(missing_types)
+                "message": _("No valid entries to add. Missing types:")
+                + " , ".join(missing_types)
                 + ". Errors: "
                 + ", ".join(survey_data.errors if survey_data else ["No data"]),
             }

@@ -3,189 +3,212 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Belt Radar \n"
+"Project-Id-Version: AA Belt Radar\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-08-05 18:38+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2026-08-08 13:54+0200\n"
+"PO-Revision-Date: 2026-08-08 13:55+0000\n"
+"Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
+"Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
+"beltradar/de/>\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.1\n"
+
+#: beltradar/api/helpers/charts.py:83
+msgid "Mined %"
+msgstr "Abgebaut in %"
+
+#: beltradar/api/helpers/charts.py:117
+msgid "Volume Left (m³)"
+msgstr "Verbleibendes Volumen (m³)"
+
+#: beltradar/api/helpers/charts.py:122
+msgid "Speed (m³/s)"
+msgstr "Geschwindigkeit (m³/s)"
 
 #: beltradar/api/helpers/icons.py:121
 msgid "Delete Snapshot"
-msgstr ""
+msgstr "Snapshot Löschen"
 
 #: beltradar/api/helpers/icons.py:171
 msgid "Delete Survey Session"
-msgstr ""
+msgstr "Vermessungs-Sitzung Löschen"
 
 #: beltradar/api/helpers/icons.py:211
 #: beltradar/templates/beltradar/partials/modals/request-add-survey.html:10
 #: beltradar/templates/beltradar/partials/modals/request-add-survey.html:34
 msgid "Add Survey"
-msgstr ""
+msgstr "Vermessung hinzufügen"
 
 #: beltradar/api/helpers/icons.py:251
 msgid "View Survey Session"
-msgstr ""
+msgstr "Vermessungssitzung anschauen"
 
 #: beltradar/api/helpers/icons.py:287
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:10
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:37
 #: beltradar/templates/beltradar/partials/navigation/administration.html:12
 msgid "Add Belt Timer"
-msgstr ""
+msgstr "Belt Timer hinzufügen"
 
 #: beltradar/api/helpers/icons.py:335
 msgid "Delete Belt Timer"
-msgstr ""
+msgstr "Belt Timer löschen"
 
 #: beltradar/api/helpers/icons.py:375
 msgid "Public Belt Timer"
-msgstr ""
+msgstr "Öffentliche Belt Timer"
 
 #: beltradar/api/helpers/icons.py:379
 msgid "Private Belt Timer"
-msgstr ""
+msgstr "Private Belt Timer"
 
-#: beltradar/api/survey.py:185 beltradar/api/survey.py:295
+#: beltradar/api/survey.py:87 beltradar/api/survey.py:197
 #: beltradar/api/timer.py:59
 msgid "You do not have permission to access this resource."
-msgstr ""
+msgstr "Sie haben keine Berechtigung, auf diese Ressource zuzugreifen."
 
-#: beltradar/api/survey.py:192 beltradar/api/survey.py:303
+#: beltradar/api/survey.py:94 beltradar/api/survey.py:205
 msgid "Survey session not found or not public."
-msgstr ""
+msgstr "Vermessungssitzung wurde nicht gefunden oder ist nicht öffentlich."
 
-#: beltradar/api/survey.py:220 beltradar/api/survey.py:388
-#: beltradar/api/survey.py:434 beltradar/api/survey.py:486
+#: beltradar/api/survey.py:122 beltradar/api/survey.py:293
+#: beltradar/api/survey.py:339 beltradar/api/survey.py:393
 #: beltradar/api/timer.py:180 beltradar/api/timer.py:233
 #: beltradar/api/timer.py:286
 msgid "Permission Denied."
-msgstr ""
+msgstr "Zugriff verweigert."
 
-#: beltradar/api/survey.py:379 beltradar/api/survey.py:425
-#: beltradar/api/survey.py:476
+#: beltradar/api/survey.py:284 beltradar/api/survey.py:330
+#: beltradar/api/survey.py:383
 msgid "Survey session not found."
-msgstr ""
+msgstr "Vermessungssitzung nicht gefunden."
 
-#: beltradar/api/survey.py:394
+#: beltradar/api/survey.py:299
 msgid "Survey session and all associated entries deleted successfully."
 msgstr ""
+"Die Vermessungssitzung und alle zugehörigen Einträge wurden erfolgreich "
+"gelöscht."
 
-#: beltradar/api/survey.py:439
+#: beltradar/api/survey.py:344
 msgid "No entries found for the given snapshot."
-msgstr ""
+msgstr "Für den angegebenen Snapshot wurden keine Einträge gefunden."
 
-#: beltradar/api/survey.py:443
+#: beltradar/api/survey.py:348
 msgid "Snapshot deleted successfully."
-msgstr ""
+msgstr "Der Snapshot wurde erfolgreich gelöscht."
 
-#: beltradar/api/survey.py:496 beltradar/api/timer.py:194
+#: beltradar/api/survey.py:403 beltradar/api/timer.py:194
 msgid "Invalid input data. Please check the format and try again."
 msgstr ""
+"Ungültige Eingabedaten. Bitte überprüfen Sie das Format und versuchen Sie es "
+"erneut."
 
-#: beltradar/api/survey.py:507
+#: beltradar/api/survey.py:414
 msgid "No valid entries to add. Errors: "
 msgstr ""
 
-#: beltradar/api/survey.py:587 beltradar/api/timer.py:192
+#: beltradar/api/survey.py:494 beltradar/api/timer.py:192
 msgid "Survey entry added successfully."
-msgstr ""
+msgstr "Der vermessungseintrag wurde erfolgreich hinzugefügt."
 
-#: beltradar/api/survey.py:591
+#: beltradar/api/survey.py:498
 msgid "No valid entries to add. Missing types: "
 msgstr ""
 
 #: beltradar/api/timer.py:64
 msgid "No belt timer found for this character."
-msgstr ""
+msgstr "Für diesen Charakter wurde kein Belt-Timer gefunden."
 
 #: beltradar/api/timer.py:224 beltradar/api/timer.py:240
 #: beltradar/api/timer.py:277
 msgid "Belt timer not found."
-msgstr ""
+msgstr "Belt-Timer nicht gefunden."
 
 #: beltradar/api/timer.py:244
 msgid "Belt timer deleted successfully."
-msgstr ""
+msgstr "Belt-Timer wurde erfolgreich gelöscht."
 
 #: beltradar/api/timer.py:292
 #, python-brace-format
 msgid "Belt timer {field} updated successfully."
-msgstr ""
+msgstr "Der Belt-Timer {field} wurde erfolgreich aktualisiert."
 
 #: beltradar/api/timer.py:297
 msgid "Failed to update belt timer {field}: {str(e)}"
-msgstr ""
+msgstr "Die Aktualisierung des Belt-Timers {field} ist fehlgeschlagen: {str(e)}"
 
 #: beltradar/api/timer.py:300
 msgid "Invalid Method"
-msgstr ""
+msgstr "Ungültige methode"
 
 #: beltradar/forms.py:147
 msgid "A name to identify this survey session."
-msgstr ""
+msgstr "Ein Name zur Identifizierung dieser Vermessungssitzung."
 
 #: beltradar/forms.py:164
 msgid ""
 "The unique identifier for this belt timer. (This is usually the belt's ID in "
 "the game.)"
 msgstr ""
+"Die eindeutige Kennung für diesen Belt-Timer. (Dies ist in der Regel die ID "
+"im Spiel.)"
 
 #: beltradar/forms.py:166
 msgid "The name of the belt."
-msgstr ""
+msgstr "Der Name des Belt."
 
 #: beltradar/forms.py:167
 msgid "The type of belt."
-msgstr ""
+msgstr "Die Art des Belt."
 
 #: beltradar/forms.py:168
 msgid "The size of the belt."
-msgstr ""
+msgstr "Die Größe des Belt."
 
 #: beltradar/forms.py:170
 msgid ""
 "If checked, this belt timer will be visible to other users. Otherwise, it "
 "will be private."
 msgstr ""
+"Wenn dieses Kontrollkästchen aktiviert ist, ist dieser Belt-Timer für andere "
+"Nutzer sichtbar. Andernfalls ist er privat."
 
 #: beltradar/forms.py:180
 msgid "Disable Notifications"
-msgstr ""
+msgstr "Benachrichtigungen deaktivieren"
 
 #: beltradar/forms.py:184
 msgid "Check this box to disable notifications for expired belt timers."
 msgstr ""
+"Aktivieren Sie dieses Kontrollkästchen, um Benachrichtigungen für "
+"abgelaufene Belt-Timer zu deaktivieren."
 
 #: beltradar/models/general.py:14
 msgid "Can access this app, Belt Radar"
-msgstr ""
+msgstr "Kann auf diese App zugreifen: Belt Radar"
 
 #: beltradar/models/general.py:15
 msgid "Can manage Belt Radar"
-msgstr ""
+msgstr "Kann das Belt-Radar verwalten"
 
 #: beltradar/models/general.py:16
 msgid "Admin access to Belt Radar"
-msgstr ""
+msgstr "Administratorzugriff auf Belt Radar"
 
 #: beltradar/tasks.py:77
 #, python-brace-format
 msgid "Belt ID: **{belt_id}** ({belt_type} - {belt_size})"
-msgstr ""
+msgstr "Belt-ID: **{belt_id}** ({belt_type} – {belt_size})"
 
 #: beltradar/tasks.py:111 beltradar/tasks.py:132
 msgid "Belt Radar Notification"
-msgstr ""
+msgstr "Belt-Radar Benachrichtigung"
 
 #: beltradar/tasks.py:113 beltradar/tasks.py:128
 msgid ""
@@ -193,50 +216,54 @@ msgid ""
 "\n"
 "has respawned."
 msgstr ""
+"\n"
+"\n"
+"ist wieder erschienen."
 
 #: beltradar/templates/beltradar/base.html:5
 #: beltradar/templates/beltradar/base.html:9
 #: beltradar/templates/beltradar/partials/navigation/navigation.html:7
 #: beltradar/templates/beltradar/view-index.html:17
 msgid "Belt Radar"
-msgstr ""
+msgstr "Belt Radar"
 
 #: beltradar/templates/beltradar/base.html:64
 msgid "Internal Server Error"
-msgstr ""
+msgstr "Interner Server Fehler"
 
 #: beltradar/templates/beltradar/partials/common/spinner.html:3
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:26
 #: beltradar/templates/beltradar/partials/view-belt-radar/survey-session-table.html:22
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:26
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/survey-session-table.html:22
-#: beltradar/templates/beltradar/partials/view-session/charts.html:6
+#: beltradar/templates/beltradar/partials/view-session/charts.html:8
+#: beltradar/templates/beltradar/partials/view-session/charts.html:19
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:25
 #: beltradar/templates/beltradar/view-session.html:50
 msgid "Loading..."
-msgstr ""
+msgstr "Laden..."
 
 #: beltradar/templates/beltradar/partials/forms/batch_ore.html:16
 msgid "Submit Survey"
-msgstr ""
+msgstr "Vermessung absenden"
 
 #: beltradar/templates/beltradar/partials/forms/create-session.html:11
 msgid "Create Session"
-msgstr ""
+msgstr "Erstelle Sitzung"
 
 #: beltradar/templates/beltradar/partials/forms/create-timer.html:11
 #: beltradar/templates/beltradar/view-create-timer.html:17
 msgid "Create Belt Timer"
-msgstr ""
+msgstr "Erstelle Belt Timer"
 
 #: beltradar/templates/beltradar/partials/forms/settings.html:11
 msgid "Save settings"
-msgstr ""
+msgstr "Einstellungen speichern"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-belt-timer.html:10
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-belt-timer.html:38
 msgid "Accept Delete Belt Timer"
-msgstr ""
+msgstr "Bestätigen Löschen Belt-Timer"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-belt-timer.html:13
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:13
@@ -245,11 +272,11 @@ msgstr ""
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:13
 #: beltradar/templates/beltradar/partials/modals/request-add-survey.html:13
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-belt-timer.html:18
 msgid "Are you sure you want to delete this belt timer?"
-msgstr ""
+msgstr "Möchten Sie diesen Belt-Timer wirklich löschen?"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-belt-timer.html:33
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:31
@@ -258,201 +285,207 @@ msgstr ""
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:32
 #: beltradar/templates/beltradar/partials/modals/request-add-survey.html:29
 msgid "Cancel"
-msgstr ""
+msgstr "Abbrechen"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:10
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:36
 msgid "Accept Delete Snapshot"
-msgstr ""
+msgstr "Akzeptieren Löschen Snapshot"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:18
 msgid "Are you sure you want to delete this snapshot?"
-msgstr ""
+msgstr "Möchten Sie diesen Snapshot wirklich löschen?"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-survey-session.html:10
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-survey-session.html:38
 msgid "Accept Delete Survey Session"
-msgstr ""
+msgstr "Akzeptieren Löschen Vermessungssitzung"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-survey-session.html:18
 msgid "Are you sure you want to delete this survey session?"
-msgstr ""
+msgstr "Möchten Sie diese Vermessungssitzung wirklich löschen?"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-switch-belt-timer.html:10
 #: beltradar/templates/beltradar/partials/modals/request-accept-switch-belt-timer.html:38
 msgid "Accept Switch Belt Timer"
-msgstr ""
+msgstr "Umschalten Belt Timer akzeptieren"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-switch-belt-timer.html:18
 msgid "Are you sure you want to switch this belt timer?"
-msgstr ""
+msgstr "Möchten Sie diesen Belt-Timer wirklich umstellen?"
 
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:18
 msgid ""
 "Note: Only add a Timer if you have finished the belt. The Timer starts "
 "immediately."
 msgstr ""
+"Hinweis: Fügen Sie einen Timer erst hinzu, wenn Sie den Belt vollständig "
+"abgeschlossen haben. Der Timer startet sofort."
 
 #: beltradar/templates/beltradar/partials/navigation/administration.html:6
 msgid "Add Session"
-msgstr ""
+msgstr "Sitzung hinzufügen"
 
 #: beltradar/templates/beltradar/partials/navigation/navigation.html:11
 #: beltradar/templates/beltradar/view-my-belt-radar.html:17
 msgid "My Belt Radar"
-msgstr ""
+msgstr "Mein Belt Radar"
 
 #: beltradar/templates/beltradar/partials/navigation/navigation.html:14
 msgid "My Settings"
-msgstr ""
+msgstr "Meine Einstellungen"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:4
 msgid "Respawn Timers"
-msgstr ""
+msgstr "Respawn Timers"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:12
 #: beltradar/templates/beltradar/partials/view-belt-radar/survey-session-table.html:11
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:12
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/survey-session-table.html:11
 msgid "Public ID"
-msgstr ""
+msgstr "Public-ID"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:13
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:13
 msgid "Belt ID"
-msgstr ""
+msgstr "Belt-ID"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:14
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:14
 msgid "Belt Name"
-msgstr ""
+msgstr "Belt-Name"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:15
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:15
 msgid "Belt Size"
-msgstr ""
+msgstr "Belt-Size"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:16
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:16
 msgid "Belt Type"
-msgstr ""
+msgstr "Belt-Type"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:17
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:17
 #: beltradar/templates/beltradar/partials/view-session/session.html:38
 msgid "ETA"
-msgstr ""
+msgstr "ETA"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:18
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:18
 msgid "Public"
-msgstr ""
+msgstr "Öffentlich"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:19
 #: beltradar/templates/beltradar/partials/view-belt-radar/survey-session-table.html:15
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:19
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/survey-session-table.html:15
 msgid "Actions"
-msgstr ""
+msgstr "Aktionen"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/survey-session-table.html:4
 msgid "Sessions"
-msgstr ""
+msgstr "Sitzungen"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/survey-session-table.html:12
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/survey-session-table.html:12
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/survey-session-table.html:13
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/survey-session-table.html:13
 msgid "Created At"
-msgstr ""
+msgstr "Erstellt am"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/survey-session-table.html:14
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/survey-session-table.html:14
 msgid "Owner"
-msgstr ""
+msgstr "Inhaber"
 
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:4
 msgid "My Respawn Timers"
-msgstr ""
+msgstr "Meine Respawn Timers"
 
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/survey-session-table.html:4
 msgid "My Sessions"
-msgstr ""
+msgstr "Meine Sitzungen"
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:6
 msgid "Session Name:"
-msgstr ""
+msgstr "Sitzung-Name:"
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:9
 msgid "Created At:"
-msgstr ""
+msgstr "Erstellt am:"
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:12
 msgid "Owner:"
-msgstr ""
+msgstr "Inhaber:"
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:19
 msgid "asteroids"
-msgstr ""
+msgstr "Asteroiden"
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:32
 msgid "Belt size"
-msgstr ""
+msgstr "Belt-Size"
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:35
 msgid "Speed"
-msgstr ""
+msgstr "Geschwindigkeit"
 
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:13
 msgid "Ore"
-msgstr ""
+msgstr "Erz"
 
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:14
 msgid "Units Left"
-msgstr ""
+msgstr "Verbleibende Einheiten"
 
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:15
 msgid "Volume Left"
-msgstr ""
+msgstr "Verbleibende Menge"
 
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:16
 msgid "Price"
-msgstr ""
+msgstr "Preis"
 
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:17
 msgid "Price Compressed"
-msgstr ""
+msgstr "Preis komprimiert"
 
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:18
 msgid "Income Compressed"
-msgstr ""
+msgstr "Einkommen komprimiert"
 
 #: beltradar/templates/beltradar/view-belt-radar.html:17
 msgid "Public Belt Radar"
-msgstr ""
+msgstr "Öffentliche Belt Radar"
 
 #: beltradar/templates/beltradar/view-belt-radar.html:45
 #: beltradar/templates/beltradar/view-my-belt-radar.html:45
 #: beltradar/templates/beltradar/view-my-settings.html:39
 msgid "An error occurred while loading sessions data."
-msgstr ""
+msgstr "Beim Laden der Sitzungsdaten ist ein Fehler aufgetreten."
 
 #: beltradar/templates/beltradar/view-create-session.html:17
 msgid "Create Survey Session"
-msgstr ""
+msgstr "Veremessungssitzung erstellen"
 
 #: beltradar/templates/beltradar/view-create-session.html:25
 msgid "Use the form below to create a new belt survey session."
 msgstr ""
+"Verwenden Sie das untenstehende Formular, um eine neue Belt-Vermessung "
+"anzulegen."
 
 #: beltradar/templates/beltradar/view-create-timer.html:26
 msgid ""
 "Note: Only create a Timer if you have finished the belt. The Timer starts "
 "immediately."
 msgstr ""
+"Hinweis: Richten Sie einen Timer erst ein, wenn Sie den Belt abgeschlossen "
+"haben. Der Timer startet sofort."
 
 #: beltradar/templates/beltradar/view-index.html:26
 msgid ""
@@ -482,28 +515,28 @@ msgstr ""
 
 #: beltradar/templates/beltradar/view-my-settings.html:17
 msgid "User Settings"
-msgstr ""
+msgstr "Benutzereinstellungen"
 
 #: beltradar/templates/beltradar/view-session.html:17
 msgid "View Session"
-msgstr ""
+msgstr "Sitzung anzeigen"
 
 #: beltradar/templates/beltradar/view-session.html:51
 msgid "No mining chart data available."
-msgstr ""
+msgstr "Es liegen keine Daten zu Bergbaudiagrammen vor."
 
 #: beltradar/templates/beltradar/view-session.html:52
 msgid "Last Snapshot"
-msgstr ""
+msgstr "Letzter Snapshot"
 
 #: beltradar/templates/beltradar/view-session.html:53
 msgid "First Scan"
-msgstr ""
+msgstr "Erster Scan"
 
 #: beltradar/templates/beltradar/view-session.html:54
 msgid "Last Scan"
-msgstr ""
+msgstr "Letzter Scan"
 
 #: beltradar/views.py:133
 msgid "Settings saved."
-msgstr ""
+msgstr "Einstellungen gespeichert."

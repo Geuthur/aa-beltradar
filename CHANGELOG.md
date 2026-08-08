@@ -11,6 +11,8 @@ Section Order:
 ### Removed
 -->
 
+## [0.5.1]- 2026-08-08
+
 ### Added
 
 - Traffic Chart
@@ -206,4 +208,5 @@ Section Order:
 [0.1.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.0.9...v0.1.0 "v0.1.0"
 [0.2.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.1.0...v0.2.0 "v0.2.0"
 [0.5.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.2.0...v0.5.0 "v0.5.0"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.0...HEAD "In Development"
+[0.5.1]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.0...v0.5.1 "v0.5.1"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.1...HEAD "In Development"

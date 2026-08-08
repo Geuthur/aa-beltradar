@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Belt Radar \n"
+"Project-Id-Version: AA Belt Radar 0.5.1\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-08-05 18:38+0200\n"
+"POT-Creation-Date: 2026-08-08 13:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,18 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: beltradar/api/helpers/charts.py:83
+msgid "Mined %"
+msgstr ""
+
+#: beltradar/api/helpers/charts.py:117
+msgid "Volume Left (m³)"
+msgstr ""
+
+#: beltradar/api/helpers/charts.py:122
+msgid "Speed (m³/s)"
+msgstr ""
 
 #: beltradar/api/helpers/icons.py:121
 msgid "Delete Snapshot"
@@ -54,52 +66,52 @@ msgstr ""
 msgid "Private Belt Timer"
 msgstr ""
 
-#: beltradar/api/survey.py:185 beltradar/api/survey.py:295
+#: beltradar/api/survey.py:87 beltradar/api/survey.py:197
 #: beltradar/api/timer.py:59
 msgid "You do not have permission to access this resource."
 msgstr ""
 
-#: beltradar/api/survey.py:192 beltradar/api/survey.py:303
+#: beltradar/api/survey.py:94 beltradar/api/survey.py:205
 msgid "Survey session not found or not public."
 msgstr ""
 
-#: beltradar/api/survey.py:220 beltradar/api/survey.py:388
-#: beltradar/api/survey.py:434 beltradar/api/survey.py:486
+#: beltradar/api/survey.py:122 beltradar/api/survey.py:293
+#: beltradar/api/survey.py:339 beltradar/api/survey.py:393
 #: beltradar/api/timer.py:180 beltradar/api/timer.py:233
 #: beltradar/api/timer.py:286
 msgid "Permission Denied."
 msgstr ""
 
-#: beltradar/api/survey.py:379 beltradar/api/survey.py:425
-#: beltradar/api/survey.py:476
+#: beltradar/api/survey.py:284 beltradar/api/survey.py:330
+#: beltradar/api/survey.py:383
 msgid "Survey session not found."
 msgstr ""
 
-#: beltradar/api/survey.py:394
+#: beltradar/api/survey.py:299
 msgid "Survey session and all associated entries deleted successfully."
 msgstr ""
 
-#: beltradar/api/survey.py:439
+#: beltradar/api/survey.py:344
 msgid "No entries found for the given snapshot."
 msgstr ""
 
-#: beltradar/api/survey.py:443
+#: beltradar/api/survey.py:348
 msgid "Snapshot deleted successfully."
 msgstr ""
 
-#: beltradar/api/survey.py:496 beltradar/api/timer.py:194
+#: beltradar/api/survey.py:403 beltradar/api/timer.py:194
 msgid "Invalid input data. Please check the format and try again."
 msgstr ""
 
-#: beltradar/api/survey.py:507
+#: beltradar/api/survey.py:414
 msgid "No valid entries to add. Errors: "
 msgstr ""
 
-#: beltradar/api/survey.py:587 beltradar/api/timer.py:192
+#: beltradar/api/survey.py:494 beltradar/api/timer.py:192
 msgid "Survey entry added successfully."
 msgstr ""
 
-#: beltradar/api/survey.py:591
+#: beltradar/api/survey.py:498
 msgid "No valid entries to add. Missing types: "
 msgstr ""
 
@@ -209,7 +221,8 @@ msgstr ""
 #: beltradar/templates/beltradar/partials/view-belt-radar/survey-session-table.html:22
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:26
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/survey-session-table.html:22
-#: beltradar/templates/beltradar/partials/view-session/charts.html:6
+#: beltradar/templates/beltradar/partials/view-session/charts.html:8
+#: beltradar/templates/beltradar/partials/view-session/charts.html:19
 #: beltradar/templates/beltradar/partials/view-session/survey-table.html:25
 #: beltradar/templates/beltradar/view-session.html:50
 msgid "Loading..."

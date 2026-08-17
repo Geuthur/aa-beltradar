@@ -33,6 +33,7 @@
     {% include 'bundles/datatables-2-css-bs5.html' %}
     {% include 'bundles/datatables-2-columncontrol-css-bs5.html' %}
     {% include 'beltradar/bundles/aa-beltradar-css.html' %}
+    {% include 'beltradar/bundles/view-session-css.html' %}
 {% endblock %}
 
 {% block extra_javascript %}
@@ -42,6 +43,27 @@
          * Override settings for Belt Radar
          */
         const aaBeltRadarSettingsOverride = {
+            dataTables: {
+                layout: {
+                    topStart: 'pageLength',
+                    topEnd: null,
+                    bottomStart: [
+                        'info',
+                        {
+                            buttons: [
+                                {
+                                    text: '{% translate "Export CSV" %}',
+                                    className: 'btn-success aa-beltradar-export',
+                                    action: function (e, dt, node) {
+                                        _exportToCSV(dt, '{{ session }}');
+                                    }
+                                },
+                            ]
+                        }
+                    ],
+                    bottomEnd: 'paging'
+                },
+            },
             url: {
                 surveySessionEntry: "{% url 'beltradar:api:get_survey_entry' public_id=session.public_id %}",
                 index: "{% url 'beltradar:index' %}",
@@ -57,9 +79,6 @@
     </script>
     {% include 'beltradar/bundles/aa-beltradar-js.html' %}
     {% include 'beltradar/bundles/view-session-js.html' %}
-    {% include 'bundles/datatables-2-js-bs5.html' %}
-    {% include 'bundles/datatables-2-columncontrol-js-bs5.html' %}
-    {% include "bundles/moment-js.html" with locale=True %}
     <!-- load modals -->
     {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
     {% include 'beltradar/partials/modals/request-accept-delete-snapshot.html' %}

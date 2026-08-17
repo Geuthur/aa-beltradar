@@ -179,7 +179,6 @@ $(document).ready(() => {
     const setTooltipTitle = (element, title) => {
         element.attr('title', title);
         element.attr('data-bs-original-title', title);
-        element.attr('data-bs-tooltip', 'aa-beltradar');
     };
 
     /* Function to update session stats in the heading based on the latest snapshot data */

@@ -11,6 +11,12 @@ Section Order:
 ### Removed
 -->
 
+### Changed
+
+- cast income calculations to int for accurate results in BeltSurveyEntry
+- integrate DataTables buttons extension and export functionality
+- added aa-beltradar-tooltip to scan text
+
 ## [0.5.1]- 2026-08-08
 
 ### Added

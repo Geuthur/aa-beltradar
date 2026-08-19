@@ -20,11 +20,14 @@
             <span id="session-progression"></span></h3>
     </div>
     <div class="progress" style="height:36px;border-radius:6px;overflow:hidden;position:relative;">
-        <div id="session-progress-bar" class="progress-bar progress-bar-warning progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="session-progress-bar" class="progress-bar progress-bar-warning progress-bar-striped progress-bar-animated position-relative" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <small id="session-last-scan" class="position-absolute end-0 top-50 translate-middle-y text-white text-nowrap pe-2" style="z-index:2;" data-bs-tooltip="aa-beltradar">N/A</small>
         </div>
-        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-between align-items-center px-3" style="pointer-events:none; z-index:2;">
-            <small id="session-first-scan" class="text-white pe-auto" data-bs-tooltip="aa-beltradar">N/A</small>
-            <small id="session-last-scan" class="text-white pe-auto" data-bs-tooltip="aa-beltradar">N/A</small>
+        <div class="position-absolute top-0 start-0 w-100 h-100">
+            <small id="session-first-scan" class="position-absolute start-0 top-50 translate-middle-y text-white text-nowrap ps-3 pe-2" data-bs-tooltip="aa-beltradar">N/A</small>
+            <div class="position-absolute end-0 top-50 translate-middle-y d-flex align-items-center gap-3 pe-3">
+                <small id="session-finish-time" class="text-white text-nowrap" data-bs-tooltip="aa-beltradar">N/A</small>
+            </div>
         </div>
     </div>
     <div class="row text-muted small mt-2">
@@ -35,7 +38,7 @@
             <strong>{% translate "Speed" %}: </strong><br><span id="session-speed">0 m³/s</span>
         </div>
         <div class="col-4 text-end">
-            <strong>{% translate "ETA" %}: </strong><span id="session-finish-time">N/A</span>
+            <strong>{% translate "ETA" %}: </strong><span id="session-finish-time-text">N/A</span>
             <br><span id="session-eta">N/A</span>
         </div>
     </div>

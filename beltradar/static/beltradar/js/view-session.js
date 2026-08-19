@@ -15,6 +15,7 @@ $(document).ready(() => {
     const sessionLastScanEl = $('#session-last-scan');
     const sessionFirstScanEl = $('#session-first-scan');
     const sessionFinishTimeEl = $('#session-finish-time');
+    const sessionFinishTimeE2 = $('#session-finish-time-text');
     const sessionBeltSizeEl = $('#session-belt-size');
     const sessionSpeedEl = $('#session-speed');
     const sessionEtaEl = $('#session-eta');
@@ -28,7 +29,6 @@ $(document).ready(() => {
     const modalRequestDeleteSnapshot = $('#beltradar-accept-delete-snapshot');
     const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
     const modalRequestAddSurvey = $('#beltradar-add-survey');
-
     /* Initial Data Fetch */
     fetchGetBeltRadar({
         url: aaBeltRadarSettings.url.surveySessionEntry,
@@ -186,6 +186,7 @@ $(document).ready(() => {
         const stats = tableData?.stats ?? {};
         let firstEntryTimestamp = tableData?.session?.first_entry_timestamp ?? null;
         let lastSnapshotTimestamp = tableData?.session?.last_entry_timestamp ?? null;
+        let finishEta = stats?.finish_eta ?? null;
 
         sessionNameEl.text(tableData?.session?.name ?? '-');
         sessionCreatedAtEl.text(tableData?.session?.created_at ? moment(tableData.session.created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
@@ -205,6 +206,7 @@ $(document).ready(() => {
         sessionFirstScanEl.text(firstScanText);
         setTooltipTitle(sessionFirstScanEl, `${firstScanLabel}: ${firstScanText}`);
 
+        /* Update last scan timestamp with tooltip, but clear the text if it's the same as the first entry timestamp */
         const lastScanLabel = aaBeltRadarSettings.translations.lastScan;
         let lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
         /* If the last snapshot timestamp is the same as the first entry timestamp, clear the text. */
@@ -215,8 +217,17 @@ $(document).ready(() => {
             setTooltipTitle(sessionLastScanEl, `${lastScanLabel}: ${lastScanText}`);
         }
 
-        sessionFinishTimeEl.text(formatTimeOrNA(stats.finish_eta));
+        /* Update finish time and ETA with tooltips */
+        const finishTimeLabel = aaBeltRadarSettings.translations.etaScan;
+        let finishTimeText = formatTimeOrNA(finishEta);
+        sessionFinishTimeEl.text(finishTimeText);
+        setTooltipTitle(sessionFinishTimeEl, `${finishTimeLabel}: ${finishTimeText}`);
 
+        /* Update the finish time text in the second element for better visibility */
+        let finishTimeText2 = formatTimeOrNA(finishEta);
+        sessionFinishTimeE2.text(finishTimeText2);
+
+        /* Update belt size, speed, and ETA */
         sessionBeltSizeEl.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
         sessionSpeedEl.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
         sessionEtaEl.text(stats.finish_eta ? moment(stats.finish_eta).fromNow() : 'N/A');

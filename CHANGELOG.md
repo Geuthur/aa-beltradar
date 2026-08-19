@@ -11,6 +11,10 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- BeltTimer Filter for expired timers
+
 ### Changed
 
 - cast income calculations to int for accurate results in BeltSurveyEntry

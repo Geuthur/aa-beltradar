@@ -1,4 +1,4 @@
-/* global aaBeltRadarSettings, aaBeltRadarSettingsOverride, _bootstrapTooltip, DataTable, numberFormatter, moment, ApexCharts, updateBeltSizeChoices, fetchGetBeltRadar, fetchPostBeltRadar */
+/* global aaBeltRadarSettings, aaBeltRadarSettingsOverride, aaBeltRadarBeltTimerLayout, _bootstrapTooltip, DataTable, numberFormatter, moment, ApexCharts, updateBeltSizeChoices, fetchGetBeltRadar, fetchPostBeltRadar */
 
 $(document).ready(() => {
     /* Initialize Bootstrap Tooltips */
@@ -158,7 +158,7 @@ $(document).ready(() => {
     const BeltRadarBeltTimerDataTable = new DataTable(BeltRadarBeltTimerTable, {
         data: [],
         language: aaBeltRadarSettings.dataTables.language,
-        layout: aaBeltRadarSettings.dataTables.layout,
+        layout: aaBeltRadarBeltTimerLayout,
         ordering: aaBeltRadarSettings.dataTables.ordering,
         columnControl: aaBeltRadarSettings.dataTables.columnControl,
         // Sort by ETA (column index 5) so the next expiring timer is always first.
@@ -224,6 +224,38 @@ $(document).ready(() => {
         ],
         initComplete: function() {
             _bootstrapTooltip({selector: '#beltradar-belt-timer-table'});
+
+            const dt = BeltRadarBeltTimerTable.DataTable();
+
+            /**
+             * Helper function: Filter DataTable using DataTables custom search API
+             */
+            const applyPaymentFilter = (predicate) => {
+                // reset custom filters and add a table-scoped predicate
+                $.fn.dataTable.ext.search = [];
+                $.fn.dataTable.ext.search.push(function(settings, searchData, index, rowData) {
+                    // only apply to this DataTable instance
+                    try {
+                        if (settings.nTable !== dt.table().node()) {
+                            return true;
+                        }
+                    } catch (e) {
+                        console.log('error catch');
+                        return true;
+                    }
+
+                    if (!rowData) return true;
+                    return predicate(rowData);
+                });
+                dt.draw();
+            };
+
+            let dateFilter = new Date(Date.now() - ( 3600 * 1000 * 24 * 7));
+            applyPaymentFilter(rowData => !(new Date(rowData.eta.raw) <= dateFilter));
+
+            $('.request-filter-all').on('change click', () => {
+                applyPaymentFilter(() => true);
+            });
         },
         drawCallback: function () {
             _bootstrapTooltip({selector: '#beltradar-belt-timer-table'});

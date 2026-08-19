@@ -46,6 +46,23 @@
                 errorLoadingData: "{% translate 'An error occurred while loading sessions data.' %}"
             }
         };
+
+        const aaBeltRadarBeltTimerLayout = {
+            topStart: 'pageLength',
+            topEnd: null,
+            bottomStart: [
+                'info',
+                {
+                    buttons: [
+                        {
+                            text: '{% translate "Clear Filter" %}',
+                            className: 'btn-success request-filter-all',
+                        },
+                    ]
+                }
+            ],
+            bottomEnd: 'paging'
+        };
     </script>
     {% include 'beltradar/bundles/aa-beltradar-js.html' %}
     {% include 'beltradar/bundles/view-my-belt-radar-js.html' %}

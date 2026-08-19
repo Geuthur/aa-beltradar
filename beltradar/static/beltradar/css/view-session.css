@@ -1,0 +1,47 @@
+@media all {
+    .session-progress-bar-wrap {
+        container-type: inline-size;
+    }
+
+    .session-progress-overlay {
+        position: absolute;
+        inset: 0;
+        padding: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .session-progress-finish-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        width: auto;
+        max-width: none;
+        min-width: 0;
+        overflow: hidden;
+        padding-right: 0 !important;
+    }
+
+    .session-progress-bar #session-last-scan {
+        max-width: 100%;
+    }
+
+    .session-progress-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        z-index: 2;
+        pointer-events: auto;
+        text-decoration: underline 2px dotted rgb(255 255 255 / 50%);
+    }
+
+    .session-progress-near-complete .session-progress-finish-wrap {
+        visibility: hidden;
+    }
+
+    @container (max-width: 640px) {
+        .session-progress-bar-wrap .session-progress-finish-wrap {
+            max-width: 38%;
+        }
+    }
+}

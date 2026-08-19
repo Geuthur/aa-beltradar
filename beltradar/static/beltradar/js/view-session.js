@@ -199,6 +199,7 @@ $(document).ready(() => {
         sessionProgressBarEl.css('width', `${progressPercent}%`);
         sessionProgressBarEl.attr('aria-valuenow', progressPercent.toFixed(2));
         sessionProgressionEl.text(`(${progressPercent.toFixed(0)}%)`);
+        sessionContainer.toggleClass('session-progress-near-complete', progressPercent >= 90);
 
         /* Update first and last scan timestamps with tooltips */
         const firstScanLabel = aaBeltRadarSettings.translations.firstScan;
@@ -220,6 +221,7 @@ $(document).ready(() => {
         /* Update finish time and ETA with tooltips */
         const finishTimeLabel = aaBeltRadarSettings.translations.etaScan;
         let finishTimeText = formatTimeOrNA(finishEta);
+
         sessionFinishTimeEl.text(finishTimeText);
         setTooltipTitle(sessionFinishTimeEl, `${finishTimeLabel}: ${finishTimeText}`);
 

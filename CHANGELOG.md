@@ -14,12 +14,13 @@ Section Order:
 ### Added
 
 - BeltTimer Filter for expired timers
+- Bootstrap5 Tooltip to Progress Bar
+- DataTables buttons extension and export functionality
 
 ### Changed
 
-- cast income calculations to int for accurate results in BeltSurveyEntry
-- integrate DataTables buttons extension and export functionality
-- added aa-beltradar-tooltip to scan text
+- Convert Raw Numbers to Int for better readability
+- ETA will display 'Done' if it is in the past
 
 ## [0.5.1]- 2026-08-08
 

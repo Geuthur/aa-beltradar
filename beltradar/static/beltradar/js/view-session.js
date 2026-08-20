@@ -15,7 +15,6 @@ $(document).ready(() => {
     const sessionLastScanEl = $('#session-last-scan');
     const sessionFirstScanEl = $('#session-first-scan');
     const sessionFinishTimeEl = $('#session-finish-time');
-    const sessionFinishTimeE2 = $('#session-finish-time-text');
     const sessionBeltSizeEl = $('#session-belt-size');
     const sessionSpeedEl = $('#session-speed');
     const sessionEtaEl = $('#session-eta');
@@ -34,7 +33,7 @@ $(document).ready(() => {
         url: aaBeltRadarSettings.url.surveySessionEntry,
     })
         .then((data) => {
-        // Render DataTable with API response data, ensuring entries is an array to prevent errors and providing a fallback empty array if not present
+            // Render DataTable with API response data, ensuring entries is an array to prevent errors and providing a fallback empty array if not present
             const entries = Array.isArray(data?.entries) ? data.entries : [];
             BeltRadarSessionsDataTable.clear().rows.add(entries).draw();
 
@@ -181,12 +180,20 @@ $(document).ready(() => {
         element.attr('data-bs-original-title', title);
     };
 
-    /* Function to update session stats in the heading based on the latest snapshot data */
+    /** Function to update session stats in the heading based on the latest snapshot data
+     *
+     * @param {Object} tableData - The data for the session, expected to have stats and session properties
+     * @returns {void} - Updates the DOM elements directly
+     */
     const updateSessionStats = (tableData) => {
         const stats = tableData?.stats ?? {};
+        const now = moment();
         let firstEntryTimestamp = tableData?.session?.first_entry_timestamp ?? null;
         let lastSnapshotTimestamp = tableData?.session?.last_entry_timestamp ?? null;
         let finishEta = stats?.finish_eta ?? null;
+        /* Use moment to parse finishEta for comparison and formatting */
+        const finishMoment = moment(finishEta);
+
 
         sessionNameEl.text(tableData?.session?.name ?? '-');
         sessionCreatedAtEl.text(tableData?.session?.created_at ? moment(tableData.session.created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
@@ -221,18 +228,23 @@ $(document).ready(() => {
         /* Update finish time and ETA with tooltips */
         const finishTimeLabel = aaBeltRadarSettings.translations.etaScan;
         let finishTimeText = formatTimeOrNA(finishEta);
-
         sessionFinishTimeEl.text(finishTimeText);
-        setTooltipTitle(sessionFinishTimeEl, `${finishTimeLabel}: ${finishTimeText}`);
-
-        /* Update the finish time text in the second element for better visibility */
-        let finishTimeText2 = formatTimeOrNA(finishEta);
-        sessionFinishTimeE2.text(finishTimeText2);
+        setTooltipTitle(sessionFinishTimeEl, `${finishTimeLabel}: ${moment(finishEta).utc().format('MMM DD HH:mm:ss')}`);
 
         /* Update belt size, speed, and ETA */
         sessionBeltSizeEl.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
         sessionSpeedEl.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
-        sessionEtaEl.text(stats.finish_eta ? moment(stats.finish_eta).fromNow() : 'N/A');
+
+        /* Update ETA text based on whether the finish time is in the past or future */
+        if (finishEta) {
+            if (finishMoment.isBefore(now)) {
+                sessionEtaEl.text(aaBeltRadarSettings.translations.etaPassed);
+            } else {
+                sessionEtaEl.text(moment(stats.finish_eta).fromNow());
+            }
+        }
+
+        /* Re-initialize Bootstrap tooltips after updating the DOM elements */
         _bootstrapTooltip();
     };
 
@@ -379,7 +391,7 @@ $(document).ready(() => {
     * View :: Reload Survey Snapshot Function
     * On Confirmation send a request to the API Endpoint, reload the Survey Snapshot DataTable, close the modal
     * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
-    * @returns {Promise} - A Promise that resolves when the API request is complete
+    * @returns {void} - Updates the DataTable and charts directly
     */
     const _reloadSurveySnapshotData = (tableData) => {
         const dt = BeltRadarSessionEntryTable.DataTable();

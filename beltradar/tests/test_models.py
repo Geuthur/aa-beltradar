@@ -247,3 +247,89 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         # when/then
         expected_eta4 = fixed_now + timezone.timedelta(hours=8)
         self.assertEqual(belt_timer4.eta, expected_eta4)
+
+    def test_price_per_m3(self):
+        """
+        Test should return price per m3 for belt timer.
+        """
+        # given
+        item_type = ItemTypeFactory(
+            id=1,
+            name="Test Ore",
+            volume=10.0,
+        )
+        belt_survey = BeltSurveyEntryFactory(
+            session=self.session,
+            eve_type=item_type,
+            price_compressed=1000.0,
+            price=5000.0,
+        )
+        # when/then
+        expected_price_per_m3 = belt_survey.price / item_type.volume
+        self.assertEqual(belt_survey.price_per_m3, expected_price_per_m3)
+
+    def test_price_cmp_per_m3(self):
+        """
+        Test should return price per m3 for belt timer with cmp ore type.
+        """
+        # given
+        item_type = ItemTypeFactory(
+            id=2,
+            name="Test CMP Ore",
+            volume=5.0,
+        )
+        belt_survey = BeltSurveyEntryFactory(
+            session=self.session,
+            eve_type=item_type,
+            price_compressed=1000.0,
+            price=5000.0,
+        )
+        # when/then
+        expected_price_per_m3 = belt_survey.price_compressed / (item_type.volume / 100)
+        self.assertEqual(belt_survey.price_cmp_per_m3, expected_price_per_m3)
+
+    def test_income_per_h(self):
+        """
+        Test should return income per hour for belt timer.
+        """
+        # given
+        item_type = ItemTypeFactory(
+            id=3,
+            name="Test Ore 3",
+            volume=20.0,
+        )
+        belt_survey = BeltSurveyEntryFactory(
+            session=self.session,
+            eve_type=item_type,
+            price_compressed=2000.0,
+            price=10000.0,
+            volume_left=1000,
+        )
+        # when/then
+        expected_income_per_h = (
+            belt_survey.price / item_type.volume
+        ) * self.session.br_entries.rate_per_s()
+        self.assertEqual(belt_survey.income_per_h, expected_income_per_h)
+
+    def test_income_cmp_per_h(self):
+        """
+        Test should return income per hour for belt timer with cmp ore type.
+        """
+        # given
+        item_type = ItemTypeFactory(
+            id=4,
+            name="Test CMP Ore 4",
+            volume=10.0,
+        )
+        belt_survey = BeltSurveyEntryFactory(
+            session=self.session,
+            eve_type=item_type,
+            price_compressed=2000.0,
+            price=10000.0,
+            volume_left=500,
+        )
+        # when/then
+        expected_income_cmp_per_h = (
+            belt_survey.price_compressed / (item_type.volume / 100)
+        ) * self.session.br_entries.rate_per_s()
+        self.assertEqual(belt_survey.income_cmp_per_h, expected_income_cmp_per_h)

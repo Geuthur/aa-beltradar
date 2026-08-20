@@ -150,7 +150,7 @@ class BeltSurveyEntry(models.Model):
         Returns:
             float: The estimated income in ISK per hour based on the price.
         """
-        return self.price_per_m3 * self.session.br_entries.rate_per_s()
+        return int(self.price_per_m3 * self.session.br_entries.rate_per_s())
 
     @property
     def income_cmp_per_h(self):
@@ -163,7 +163,7 @@ class BeltSurveyEntry(models.Model):
         Returns:
             float: The estimated income in ISK per hour based on the compressed price.
         """
-        return self.price_cmp_per_m3 * self.session.br_entries.rate_per_s()
+        return int(self.price_cmp_per_m3 * self.session.br_entries.rate_per_s())
 
     @property
     def price_per_m3(self):
@@ -177,7 +177,7 @@ class BeltSurveyEntry(models.Model):
         """
         if not self.price or not self.volume_left:
             return 0
-        return self.price / self.eve_type.volume
+        return int(self.price / self.eve_type.volume)
 
     @property
     def price_cmp_per_m3(self):
@@ -192,7 +192,7 @@ class BeltSurveyEntry(models.Model):
         """
         if not self.price_compressed or not self.volume_left:
             return 0
-        return self.price_compressed / (self.eve_type.volume / 100)
+        return int(self.price_compressed / (self.eve_type.volume / 100))
 
     # pylint: disable=useless-parent-delegation
     def save(self, *args, **kwargs):

@@ -11,6 +11,17 @@ Section Order:
 ### Removed
 -->
 
+### Added
+
+- BeltTimer Filter for expired timers
+- Bootstrap5 Tooltip to Progress Bar
+- DataTables buttons extension and export functionality
+
+### Changed
+
+- Convert Raw Numbers to Int for better readability
+- ETA will display 'Done' if it is in the past
+
 ## [0.5.1]- 2026-08-08
 
 ### Added

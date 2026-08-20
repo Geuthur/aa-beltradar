@@ -44,4 +44,28 @@
     .aa-beltradar-add-survey-form .alert-danger {
         animation: br-shake 320ms ease-in-out 1;
     }
+
+    /* DataTables Customization */
+
+    /* Info-Text Styling */
+    div.dt-container div.dt-info {
+        background-color: rgb(5 150 105);
+        font-weight: 600;
+        padding: 8px 14px;
+        border-radius: 6px;
+        display: inline-block;
+    }
+
+    /* Custom Button Styling */
+    div.dt-container .dt-buttons button.dt-button.btn-add {
+        background-color: rgb(16 185 129) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-weight: 600;
+    }
+
+    div.dt-container .dt-buttons button.dt-button.btn-add:hover {
+        background-color: rgb(5 150 105) !important;
+    }
 }

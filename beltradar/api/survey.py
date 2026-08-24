@@ -46,7 +46,16 @@ class BeltRadarSurveyApiEndpoints:
     tags = ["Survey"]
 
     def session_stats(self, session: BeltSurveySession) -> schema.SnapShotStatsSchema:
-        """Calculate belt stats for the latest snapshot of the given survey session."""
+        """
+        Calculate belt stats for the latest snapshot of the given survey session.
+
+        This method retrieves the first and last entries for the session, calculates belt size, remaining volume, mined volume, and other statistics, and returns them in a SnapShotStatsSchema object.
+
+        Args:
+            session (BeltSurveySession): The survey session for which to calculate stats.
+        Returns:
+            SnapShotStatsSchema: An object containing calculated statistics for the survey session.
+        """
         # Get the first and last entries for the session
         f_entries = session.br_entries.filter(snapshot=session.snapshots.first())
         l_entries = session.br_entries.filter(snapshot=session.snapshots.last())
@@ -81,7 +90,19 @@ class BeltRadarSurveyApiEndpoints:
             tags=self.tags,
         )
         def get_survey_session(request, public_id: str):
-            """Get survey session details for a specific public_id."""
+            """
+            Get survey session details for a specific public_id.
+
+            This Endpoint allows users to retrieve details of a specific survey session identified by its public_id.
+            The user must have permission to access the survey session, and the survey session must exist.
+
+            Args:
+                public_id (str): The public UUID of the survey session.
+            Returns:
+                200: A dictionary containing the survey session details in the API response format.
+                403: An error message if the user does not have permission to access the survey session.
+                404: An error message if the survey session is not found or not public.
+            """
             if not request.user.has_perm("beltradar.basic_access"):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("You do not have permission to access this resource.")
@@ -115,7 +136,19 @@ class BeltRadarSurveyApiEndpoints:
             tags=self.tags,
         )
         def get_my_sessions(request, character_id: int):
-            """Get all survey sessions for the current user."""
+            """
+            Get all survey sessions for the current user.
+
+            This Endpoint allows users to retrieve a list of all survey sessions associated with their character ID.
+            The user must have permission to access the survey sessions.
+
+            Args:
+                character_id (int): The character ID of the user.
+            Returns:
+                200: A list of survey sessions in the API response format.
+                403: An error message if the user does not have permission to access the survey sessions.
+                404: An error message if no survey sessions are found for the character.
+            """
             perms = get_owner_or_none(request=request, character_id=character_id)[0]
 
             if perms is False:
@@ -153,7 +186,17 @@ class BeltRadarSurveyApiEndpoints:
             tags=self.tags,
         )
         def get_sessions(request):
-            """Get all survey sessions for the current user."""
+            """
+            Get all survey sessions for the current user.
+
+            This Endpoint allows users to retrieve a list of all survey sessions that are visible to them.
+            The user must have permission to access the survey sessions.
+
+            Returns:
+                200: A list of survey sessions in the API response format.
+                403: An error message if the user does not have permission to access the survey sessions.
+                404: An error message if no survey sessions are found for the user.
+            """
             # Get all sessions visible to the user, ordered by creation date descending
             sessions = BeltSurveySession.objects.visible_to(request.user).order_by(
                 "-created_at"
@@ -191,7 +234,16 @@ class BeltRadarSurveyApiEndpoints:
             tags=self.tags,
         )
         def get_survey_entry(request, public_id: str):
-            """Get all survey entries for the current user."""
+            """
+            Get all survey entries for the current user.
+
+            Args:
+                public_id (str): The public ID of the survey session.
+            Returns:
+                200: The last survey entry for the current user in the API response format.
+                403: An error message if the user does not have permission to access the survey session.
+                404: An error message if the survey session is not found.
+            """
             if not request.user.has_perm("beltradar.basic_access"):
                 return HTTPStatus.FORBIDDEN, {
                     "error": _("You do not have permission to access this resource.")

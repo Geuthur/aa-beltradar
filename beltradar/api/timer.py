@@ -46,7 +46,19 @@ class BeltRadarBeltTimerApiEndpoints:
             tags=self.tags,
         )
         def get_my_belt_timer(request, character_id: int):
-            """Get belt timer details for the user's belt timer."""
+            """
+            Get belt timer details for the user's belt timer.
+
+            This Endpoint allows users to retrieve a list of all belt timers associated with their character ID.
+            The user must have permission to access the belt timer, and the belt timer must exist.
+
+            Args:
+                character_id (int): The character ID of the user.
+            Returns:
+                200: A list of belt timers in the API response format.
+                403: An error message if the user does not have permission or the belt timer is not found.
+                404: An error message if the belt timer is not found.
+            """
             # Check if the user has permission to add entries to this survey session
             perms = get_belt_timer_or_none(
                 request=request,
@@ -109,7 +121,15 @@ class BeltRadarBeltTimerApiEndpoints:
             tags=self.tags,
         )
         def get_belt_timers(request):
-            """Get belt timer details for public timers."""
+            """
+            Get belt timer details for public timers.
+
+            This Endpoint allows users to retrieve a list of all public belt timers.
+            If the user is a superuser, they will receive all belt timers regardless of ownership.
+
+            Returns:
+                200: A list of belt timers in the API response format.
+            """
             # Retrieve all public belt timers
             belt_timers = BeltTimer.objects.filter(public=True)
 

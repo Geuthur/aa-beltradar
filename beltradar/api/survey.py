@@ -29,7 +29,7 @@ from beltradar.api.helpers.core import (
 )
 from beltradar.api.helpers.icons import (
     get_snapshot_delete_button,
-    get_survey_manage_action_icons,
+    survey_manage_action_icons,
 )
 from beltradar.helpers.eveonline import get_character_portrait_url
 from beltradar.models.beltradar import (
@@ -68,6 +68,8 @@ class BeltRadarSurveyApiEndpoints:
         )
         progress_percent = round(session.br_entries.session_progress_percentage(), 2)
 
+        belt_type, belt_size = session.br_entries.session_resolve_belt()
+
         return schema.SnapShotStatsSchema(
             belt_volume=belt_size_m3,
             belt_volume_left_m3=belt_left_m3,
@@ -76,6 +78,8 @@ class BeltRadarSurveyApiEndpoints:
             progress_percent=progress_percent,
             mining_rate_m3_per_s=round(rate_per_s, 4),
             finish_eta=session.br_entries.session_finish_eta(),
+            excpected_belt_type=belt_type.label if belt_type else None,
+            excpected_belt_size=belt_size.label if belt_size else None,
         )
 
     # pylint: disable=too-many-statements
@@ -121,7 +125,7 @@ class BeltRadarSurveyApiEndpoints:
                 created_at=session.created_at,
                 owner=str(session.owner),
                 html=str(
-                    get_survey_manage_action_icons(request=request, public_id=public_id)
+                    survey_manage_action_icons(request=request, public_id=public_id)
                 ),
             )
             return HTTPStatus.OK, survey_session_data
@@ -170,7 +174,7 @@ class BeltRadarSurveyApiEndpoints:
                         display_name=True,
                     ),
                     html=str(
-                        get_survey_manage_action_icons(
+                        survey_manage_action_icons(
                             request=request, public_id=session.public_id
                         )
                     ),
@@ -216,7 +220,7 @@ class BeltRadarSurveyApiEndpoints:
                         display_name=True,
                     ),
                     html=str(
-                        get_survey_manage_action_icons(
+                        survey_manage_action_icons(
                             request=request, public_id=session.public_id
                         )
                     ),

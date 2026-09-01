@@ -15,3 +15,72 @@ DISCORD_EMBED_COLOR_MAP = {
     "warning": DISCORD_EMBED_COLOR_WARNING,
     "danger": DISCORD_EMBED_COLOR_DANGER,
 }
+
+MOON_ORE = [
+    "Bitumens",
+    "Carnotite",
+    "Chromite",
+    "Cinnabar",
+    "Cobaltite",
+    "Coesite",
+    "Euxenite",
+    "Loparite",
+    "Monazite",
+    "Otavite",
+    "Pollucite",
+    "Scheelite",
+    "Sperrylite",
+    "Sylvite",
+    "Titanite",
+    "Vanadinite",
+    "Xenotime",
+    "Ytterbite",
+    "Zeolites",
+    "Zircon",
+]
+
+ICE_ORE = [
+    "Blue Ice",
+    "Clear Icicle",
+    "Dark Glitter",
+    "Gelidus",
+    "Glacial Mass",
+    "Glare Crust",
+    "Krystallos",
+    "White Glaze",
+]
+
+NORMAL_ORE = [
+    "Arkonor",
+    "Bezdnacine",
+    "Bistot",
+    "Crokite",
+    "Dark Ochre",
+    "Ducinium",
+    "Eifyrium",
+    "Gneiss",
+    "Hedbergite",
+    "Hemorphite",
+    "Jaspet",
+    "Kernite",
+    "Mercoxit",
+    "Mordunium",
+    "Omber",
+    "Plagioclase",
+    "Prismaticite",
+    "Pyroxeres",
+    "Rakovene",
+    "Scordite",
+    "Spodumain",
+    "Talassonite",
+    "Veldspar",
+    "Ytirium",
+]
+
+ARRAY_ORE = [
+    "Griemeer",
+    "Hezorime",
+    "Kylixium",
+    "Nocxite",
+    "Ueganite",
+]

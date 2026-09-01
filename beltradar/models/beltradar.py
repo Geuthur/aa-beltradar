@@ -58,7 +58,7 @@ class BeltSurveySession(models.Model):
 
     if TYPE_CHECKING:
         br_entries: BeltSurveyEntryManager
-        br_timer: models.QuerySet["BeltTimer"]
+        br_belt_timer: models.QuerySet["BeltTimer"]
 
     class Meta:
         default_permissions = ()  # Remove standard permissions
@@ -109,6 +109,23 @@ class BeltSurveySession(models.Model):
             else None
         )
 
+    @property
+    def is_timer_ready(self):
+        """Check if a timer can be created for this session based on the number of survey entries."""
+        snapshot_count = self.br_entries.snapshots().count()
+        # Check if it is a valid session with more than 3 snapshots
+        if snapshot_count <= 3:
+            return False
+        # Check if a timer already exists for this session
+        if self.br_belt_timer.exists():
+            return False
+        return True
+
+    @property
+    def has_timer(self):
+        """Check if a timer already exists for this session."""
+        return self.br_belt_timer.exists()
+
 
 class BeltSurveyEntry(models.Model):
     """Represents a single survey entry for a belt, linked to a BeltSurveySession."""
@@ -138,6 +155,15 @@ class BeltSurveyEntry(models.Model):
 
     def __str__(self):
         return f"{self.session.name} - {self.eve_type.name} - {self.timestamp} - {self.volume_left} m3 left"
+
+    # pylint: disable=useless-parent-delegation
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to automatically generate a unique snapshot ID before saving the BeltSurveyEntry instance.
+        This ensures that each entry has a unique identifier that can be used for tracking and analysis.
+        """
+        # TODO: Create Respawn Timer for Session if 80% of the belt is mined and no timer exists
+        super().save(*args, **kwargs)
 
     @property
     def income_per_h(self):
@@ -194,15 +220,6 @@ class BeltSurveyEntry(models.Model):
             return 0
         return int(self.price_compressed / (self.eve_type.volume / 100))
 
-    # pylint: disable=useless-parent-delegation
-    def save(self, *args, **kwargs):
-        """
-        Override the save method to automatically generate a unique snapshot ID before saving the BeltSurveyEntry instance.
-        This ensures that each entry has a unique identifier that can be used for tracking and analysis.
-        """
-        # TODO: Create Respawn Timer for Session if 80% of the belt is mined and no timer exists
-        super().save(*args, **kwargs)
-
 
 class BeltTimer(models.Model):
     """Represents a timer for a belt, which can be used to track when the belt will be depleted."""
@@ -221,6 +238,14 @@ class BeltTimer(models.Model):
     belt_size = models.CharField(choices=BeltSizeChoice.choices, max_length=10)
     belt_type = models.CharField(choices=BeltTypeChoice.choices, max_length=15)
     eta = models.DateTimeField(null=True, blank=True)
+    session = models.ForeignKey(
+        BeltSurveySession,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Optional link to a survey session for this belt timer.",
+        related_name="br_belt_timer",
+    )
 
     # Belt Timer visibility
     public = models.BooleanField(default=False)
@@ -245,7 +270,7 @@ class BeltTimer(models.Model):
             elif self.belt_size == BeltSizeChoice.COLOSSAL:
                 self.eta = now + timezone.timedelta(hours=5)
         # Arrey belts have a different respawn time based on their size (https://wiki.eveuniversity.org/Asteroids_and_ore#Ore_Prospecting_Arrays)
-        if self.belt_type == BeltTypeChoice.ARREY_BELT:
+        if self.belt_type == BeltTypeChoice.ARRAY_BELT:
             if self.belt_size == BeltSizeChoice.SMALL:
                 self.eta = now + timezone.timedelta(hours=1)
             elif self.belt_size == BeltSizeChoice.MEDIUM:

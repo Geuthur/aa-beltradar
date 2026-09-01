@@ -15,7 +15,11 @@ from eve_sde.models.types import ItemType
 from beltradar.models import BeltSurveyEntry, BeltSurveySession
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.tests import BeltRadarTestCase
-from beltradar.tests.testdata.beltradar import BeltSurveyEntryFactory, BeltTimerFactory
+from beltradar.tests.testdata.beltradar import (
+    BeltSessionFactory,
+    BeltSurveyEntryFactory,
+    BeltTimerFactory,
+)
 from beltradar.tests.testdata.factory import ItemTypeFactory
 
 
@@ -88,6 +92,81 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         belt_size_m3 = self.session.br_entries.belt_size_m3()
         # Expected Result
         self.assertEqual(belt_size_m3, 5000)
+
+    def test_session_resolve_belt(self):
+        """Test resolving the type and size from the newest snapshot."""
+        test_cases = (
+            ("Arkonor", 1_880_000, BeltTypeChoice.ASTEROID_BELT, BeltSizeChoice.LARGE),
+            ("Mercoxit", 40_000, BeltTypeChoice.MERCOXIT_BELT, BeltSizeChoice.MEDIUM),
+            ("Blue Ice", 100_000, BeltTypeChoice.ICE_BELT, BeltSizeChoice.ICE),
+            ("Griemeer", 3_000_000, BeltTypeChoice.ARRAY_BELT, BeltSizeChoice.MEDIUM),
+        )
+
+        for index, (ore_name, volume_left, belt_type, belt_size) in enumerate(
+            test_cases
+        ):
+            with self.subTest(ore_name=ore_name):
+                session = BeltSessionFactory()
+                item_type = ItemTypeFactory(id=10_000 + index, name=ore_name)
+                BeltSurveyEntryFactory(
+                    session=session,
+                    snapshot=f"snapshot-{index}",
+                    eve_type=item_type,
+                    volume_left=volume_left,
+                )
+
+                self.assertEqual(
+                    session.br_entries.session_resolve_belt(),
+                    (belt_type, belt_size),
+                )
+
+    def test_session_resolve_belt_with_mercoxit_grades(self):
+        """Test that all Mercoxit grades resolve as a Mercoxit belt."""
+        session = BeltSessionFactory()
+        for index, ore_name in enumerate(
+            ("Mercoxit", "Mercoxit II-Grade", "Mercoxit III-Grade")
+        ):
+            BeltSurveyEntryFactory(
+                session=session,
+                snapshot="mercoxit-grades",
+                eve_type=ItemTypeFactory(id=20_000 + index, name=ore_name),
+                volume_left=40_000 / 3,
+            )
+
+        self.assertEqual(
+            session.br_entries.session_resolve_belt(),
+            (BeltTypeChoice.MERCOXIT_BELT, BeltSizeChoice.MEDIUM),
+        )
+
+    def test_session_resolve_belt_without_entries(self):
+        """Test resolving a session without survey entries."""
+        session = BeltSessionFactory()
+
+        self.assertEqual(session.br_entries.session_resolve_belt(), (None, None))
+
+    def test_is_timer_ready_requires_four_resolved_snapshots(self):
+        """Test timer readiness requires four snapshots and a resolvable belt."""
+        session = BeltSessionFactory()
+        blue_ice = ItemTypeFactory(id=30_000, name="Blue Ice")
+
+        for index in range(3):
+            BeltSurveyEntryFactory(
+                session=session,
+                snapshot=f"snapshot-{index}",
+                eve_type=blue_ice,
+                volume_left=100_000,
+            )
+
+        self.assertFalse(session.is_timer_ready)
+
+        BeltSurveyEntryFactory(
+            session=session,
+            snapshot="snapshot-3",
+            eve_type=blue_ice,
+            volume_left=100_000,
+        )
+
+        self.assertTrue(session.is_timer_ready)
 
     def test_asteroids_count(self):
         """
@@ -220,7 +299,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             belt_id=2,
             belt_name="Test Belt 2",
             belt_size=BeltSizeChoice.MEDIUM,
-            belt_type=BeltTypeChoice.ARREY_BELT,
+            belt_type=BeltTypeChoice.ARRAY_BELT,
         )
         # when/then
         expected_eta2 = fixed_now + timezone.timedelta(hours=4, minutes=20)

@@ -84,6 +84,8 @@ class SnapShotStatsSchema(Schema):
     duration_seconds: float = 0.0
     mining_rate_m3_per_s: float = 0.0
     finish_eta: timezone.datetime | None = None
+    excpected_belt_type: str | None = None
+    excpected_belt_size: str | None = None
 
 
 class SnapShotSchema(Schema):

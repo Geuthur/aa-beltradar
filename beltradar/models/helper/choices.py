@@ -9,8 +9,8 @@ class BeltTypeChoice(models.TextChoices):
 
     ASTEROID_BELT = "asteroid_belt", "Asteroid Belt"
     ICE_BELT = "ice_belt", "Ice Belt"
-    MERCOXIT_BELT = "mercobelt", "Mercocit Belt"
-    ARREY_BELT = "arrey_belt", "Arrey Belt"
+    MERCOXIT_BELT = "mercoxit", "Mercoxit Belt"
+    ARRAY_BELT = "array_belt", "Array Belt"
 
 
 class BeltSizeChoice(models.TextChoices):

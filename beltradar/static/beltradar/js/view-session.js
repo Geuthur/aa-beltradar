@@ -5,19 +5,21 @@ $(document).ready(() => {
     const BeltRadarSessionEntryTable = $('#beltradar-session-entry-table');
     /* Session details elements */
     const sessionContainer = $('#session-details-container');
-    const sessionNameEl = $('#session-name');
-    const sessionCreatedAtEl = $('#session-created-at');
-    const sessionOwnerEl = $('#session-owner');
-    const sessionRemainingAsteroidsEl = $('#session-remaining-asteroids');
-    const sessionTotalAsteroidsEl = $('#session-total-asteroids');
-    const sessionProgressBarEl = $('#session-progress-bar');
-    const sessionProgressionEl = $('#session-progression');
-    const sessionLastScanEl = $('#session-last-scan');
-    const sessionFirstScanEl = $('#session-first-scan');
-    const sessionFinishTimeEl = $('#session-finish-time');
-    const sessionBeltSizeEl = $('#session-belt-size');
-    const sessionSpeedEl = $('#session-speed');
-    const sessionEtaEl = $('#session-eta');
+    const sessionName = $('#session-name');
+    const sessionCreatedAt = $('#session-created-at');
+    const sessionOwner = $('#session-owner');
+    const sessionRemainingAsteroids = $('#session-remaining-asteroids');
+    const sessionTotalAsteroids = $('#session-total-asteroids');
+    const sessionProgressBar = $('#session-progress-bar');
+    const sessionProgression = $('#session-progression');
+    const sessionLastScan = $('#session-last-scan');
+    const sessionFirstScan = $('#session-first-scan');
+    const sessionFinishTime = $('#session-finish-time');
+    const sessionBeltSize = $('#session-belt-size');
+    const sessionSpeed = $('#session-speed');
+    const sessionEta = $('#session-eta');
+    const sessionExpectedBeltType = $('#session-expected-belt-type');
+    const sessionExpectedBeltSize = $('#session-expected-belt-size');
     /* Chart Element */
     const chartEl = $('#chart');
     const trafficChartEl = $('#traffic');
@@ -28,6 +30,9 @@ $(document).ready(() => {
     const modalRequestDeleteSnapshot = $('#beltradar-accept-delete-snapshot');
     const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
     const modalRequestAddSurvey = $('#beltradar-add-survey');
+    const modalRequestCreateTimer = $('#beltradar-accept-create-survey-timer');
+    const modalRequestDeleteBeltTimer = $('#beltradar-accept-delete-belt-timer');
+
     /* Initial Data Fetch */
     fetchGetBeltRadar({
         url: aaBeltRadarSettings.url.surveySessionEntry,
@@ -195,54 +200,58 @@ $(document).ready(() => {
         const finishMoment = moment(finishEta);
 
 
-        sessionNameEl.text(tableData?.session?.name ?? '-');
-        sessionCreatedAtEl.text(tableData?.session?.created_at ? moment(tableData.session.created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
-        sessionOwnerEl.text(tableData?.session?.owner ?? '-');
+        sessionName.text(tableData?.session?.name ?? '-');
+        sessionCreatedAt.text(tableData?.session?.created_at ? moment(tableData.session.created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
+        sessionOwner.text(tableData?.session?.owner ?? '-');
 
-        sessionRemainingAsteroidsEl.text(formatWholeNumber(stats.remaining_asteroids));
-        sessionTotalAsteroidsEl.text(formatWholeNumber(stats.total_asteroids));
+        sessionRemainingAsteroids.text(formatWholeNumber(stats.remaining_asteroids));
+        sessionTotalAsteroids.text(formatWholeNumber(stats.total_asteroids));
 
         const progressPercent = Math.max(0, Math.min(100, Number(stats.progress_percent) || 0));
-        sessionProgressBarEl.css('width', `${progressPercent}%`);
-        sessionProgressBarEl.attr('aria-valuenow', progressPercent.toFixed(2));
-        sessionProgressionEl.text(`(${progressPercent.toFixed(0)}%)`);
+        sessionProgressBar.css('width', `${progressPercent}%`);
+        sessionProgressBar.attr('aria-valuenow', progressPercent.toFixed(2));
+        sessionProgression.text(`(${progressPercent.toFixed(0)}%)`);
         sessionContainer.toggleClass('session-progress-near-complete', progressPercent >= 90);
 
         /* Update first and last scan timestamps with tooltips */
         const firstScanLabel = aaBeltRadarSettings.translations.firstScan;
         let firstScanText = formatTimeOrNA(firstEntryTimestamp);
-        sessionFirstScanEl.text(firstScanText);
-        setTooltipTitle(sessionFirstScanEl, `${firstScanLabel}: ${firstScanText}`);
+        sessionFirstScan.text(firstScanText);
+        setTooltipTitle(sessionFirstScan, `${firstScanLabel}: ${firstScanText}`);
 
         /* Update last scan timestamp with tooltip, but clear the text if it's the same as the first entry timestamp */
         const lastScanLabel = aaBeltRadarSettings.translations.lastScan;
         let lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
         /* If the last snapshot timestamp is the same as the first entry timestamp, clear the text. */
         if (lastSnapshotTimestamp === firstEntryTimestamp) {
-            sessionLastScanEl.text('');
+            sessionLastScan.text('');
         } else {
-            sessionLastScanEl.text(lastScanText);
-            setTooltipTitle(sessionLastScanEl, `${lastScanLabel}: ${lastScanText}`);
+            sessionLastScan.text(lastScanText);
+            setTooltipTitle(sessionLastScan, `${lastScanLabel}: ${lastScanText}`);
         }
 
         /* Update finish time and ETA with tooltips */
         const finishTimeLabel = aaBeltRadarSettings.translations.etaScan;
         let finishTimeText = formatTimeOrNA(finishEta);
-        sessionFinishTimeEl.text(finishTimeText);
-        setTooltipTitle(sessionFinishTimeEl, `${finishTimeLabel}: ${moment(finishEta).utc().format('MMM DD HH:mm:ss')}`);
+        sessionFinishTime.text(finishTimeText);
+        setTooltipTitle(sessionFinishTime, `${finishTimeLabel}: ${moment(finishEta).utc().format('MMM DD HH:mm:ss')}`);
 
         /* Update belt size, speed, and ETA */
-        sessionBeltSizeEl.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
-        sessionSpeedEl.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
+        sessionBeltSize.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
+        sessionSpeed.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
 
         /* Update ETA text based on whether the finish time is in the past or future */
         if (finishEta) {
             if (finishMoment.isBefore(now)) {
-                sessionEtaEl.text(aaBeltRadarSettings.translations.etaPassed);
+                sessionEta.text(aaBeltRadarSettings.translations.etaPassed);
             } else {
-                sessionEtaEl.text(moment(stats.finish_eta).fromNow());
+                sessionEta.text(moment(stats.finish_eta).fromNow());
             }
         }
+
+        /* Update expected belt type and size */
+        sessionExpectedBeltType.text(stats.excpected_belt_type ?? 'N/A');
+        sessionExpectedBeltSize.text(stats.excpected_belt_size ?? 'N/A');
 
         /* Re-initialize Bootstrap tooltips after updating the DOM elements */
         _bootstrapTooltip();
@@ -561,6 +570,76 @@ $(document).ready(() => {
             modalRequestAddSurvey.find('textarea[name="raw_data"]').val('');
             modalRequestAddSurvey.find('#beltradar-spinner').addClass('d-none');
             modalRequestAddSurvey.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+        });
+
+    /**
+    * View :: Survey Sessions :: Create Timer Button Click Handler
+    * Open Create Survey Timer Modal
+    * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+    * and reopen the previous Survey Sessions Modal
+    */
+    modalRequestCreateTimer.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestCreateTimer.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestCreateTimer.find('#modal-button-confirm-accept-request').on('click', () => {
+            modalRequestCreateTimer.find('#beltradar-spinner').removeClass('d-none');
+            modalRequestCreateTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+            fetchPostBeltRadar({
+                url: url,
+                csrfToken: csrfMiddlewareToken,
+                payload: {}
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        modalRequestCreateTimer.modal('hide');
+                        window.location.href = aaBeltRadarSettings.url.session;
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting create timer request: ${error.message}`);
+                    modalRequestCreateTimer.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                });
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestCreateTimer.find('#modal-button-confirm-accept-request').unbind('click');
+            modalRequestCreateTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+        });
+
+    /**
+    * Table :: Belt-Timer :: Delete Button Click Handler
+    * Open Delete Belt-Timer Modal
+    * On Confirmation send a request to the API Endpoint, reload the Belt-Timer DataTable, close the modal
+    * and reopen the previous Belt-Timer Modal
+    */
+    modalRequestDeleteBeltTimer.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestDeleteBeltTimer.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestDeleteBeltTimer.find('#modal-button-confirm-accept-request').on('click', () => {
+            fetchPostBeltRadar({
+                url: url,
+                csrfToken: csrfMiddlewareToken,
+                payload: {}
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        modalRequestDeleteBeltTimer.modal('hide');
+                        window.location.href = aaBeltRadarSettings.url.session;
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting delete request: ${error.message}`);
+                });
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestDeleteBeltTimer.find('#modal-button-confirm-accept-request').unbind('click');
         });
 
 });

@@ -42,7 +42,7 @@ optional-dependencies.tests-allianceauth-latest = [
     "aa-discordnotify",
     "allianceauth-discordbot",
     "coverage",
-    "dhooks-lite>=1,<2",
+    "dhooks-lite>=1,<3",
     "factory-boy",
     "pook",
 ]

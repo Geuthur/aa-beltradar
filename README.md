@@ -41,11 +41,10 @@ ______________________________________________________________________
 - Discord Notification (optional)
 - Public/Private Respawn Timers
 - Discord Webhook for Respawn Timer
+- Automatic Belt Type & Size Expection
+- Automatic Belt Timer after 3 Survey Scans
 
 ## Upcoming<a name="upcoming"></a>
-
-- Graphical Upgrades
-- Auto Respawn Timer from Session per Survey
 
 ## Highlights<a name="highlights"></a>
 

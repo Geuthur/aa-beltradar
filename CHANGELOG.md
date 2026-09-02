@@ -13,6 +13,7 @@ Section Order:
 
 ### Added
 
+- Belt Type & Belt Size Expection
 - BeltTimer Filter for expired timers
 - Bootstrap5 Tooltip to Progress Bar
 - DataTables buttons extension and export functionality

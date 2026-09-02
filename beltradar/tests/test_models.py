@@ -412,3 +412,33 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             belt_survey.price_compressed / (item_type.volume / 100)
         ) * self.session.br_entries.rate_per_s()
         self.assertEqual(belt_survey.income_cmp_per_h, expected_income_cmp_per_h)
+
+    def test_create_belt_timer(self):
+        """
+        Test should create a belt timer for the session.
+        """
+        # given
+        item_type = ItemTypeFactory(
+            name="Arkonor",
+        )
+        BeltSurveyEntryFactory(
+            session=self.session,
+            eve_type=item_type,
+        )
+        BeltSurveyEntryFactory(
+            session=self.session,
+            eve_type=item_type,
+        )
+        BeltSurveyEntryFactory(
+            session=self.session,
+            eve_type=item_type,
+        )
+        BeltSurveyEntryFactory(
+            session=self.session,
+            eve_type=item_type,
+        )
+        # when
+        belt_timer = self.session.create_belt_timer()
+        # then
+        self.assertIsNotNone(belt_timer)
+        self.assertEqual(belt_timer.belt_name, self.session.name)

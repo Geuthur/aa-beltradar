@@ -23,6 +23,7 @@ class SessionSchema(Schema):
     owner: str
     first_entry_timestamp: timezone.datetime | None = None
     last_entry_timestamp: timezone.datetime | None = None
+    total_timestamps: int | None = None
 
 
 class BeltSurveySessionSchema(Schema):
@@ -96,3 +97,4 @@ class SnapShotSchema(Schema):
     traffic: ApexChartSchema | None = None
     stats: SnapShotStatsSchema | None = None
     delete_html: str | None = None
+    create_timer_html: str | None = None

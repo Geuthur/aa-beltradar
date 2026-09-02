@@ -30,6 +30,7 @@ from beltradar.api.helpers.core import (
 from beltradar.api.helpers.icons import (
     get_snapshot_delete_button,
     survey_manage_action_icons,
+    survey_timer_button_icons,
 )
 from beltradar.helpers.eveonline import get_character_portrait_url
 from beltradar.models.beltradar import (
@@ -295,6 +296,7 @@ class BeltRadarSurveyApiEndpoints:
                     owner=str(session.owner),
                     first_entry_timestamp=session.first_timestamp,
                     last_entry_timestamp=session.last_timestamp,
+                    total_timestamps=session.br_entries.snapshots().count(),
                 ),
                 snapshot=session.snapshots.last(),
                 entries=snapshot_list,
@@ -306,6 +308,11 @@ class BeltRadarSurveyApiEndpoints:
                         request=request,
                         public_id=session.public_id,
                         snapshot=session.snapshots.last(),
+                    )
+                ),
+                create_timer_html=str(
+                    survey_timer_button_icons(
+                        request=request, public_id=session.public_id
                     )
                 ),
             )
@@ -404,6 +411,7 @@ class BeltRadarSurveyApiEndpoints:
             msg = _("Snapshot deleted successfully.")
             return HTTPStatus.OK, {"success": True, "message": msg}
 
+        # pylint: disable=too-many-branches
         @api.post(
             "manage/add-survey-entry/{public_id}/",
             response={
@@ -544,6 +552,9 @@ class BeltRadarSurveyApiEndpoints:
 
             if survey_entries:
                 with transaction.atomic():
+                    if not session.br_belt_timer.exists():
+                        # try to create a Belt Timer for the session
+                        session.create_belt_timer()
                     BeltSurveyEntry.objects.bulk_create(survey_entries)
                 return HTTPStatus.OK, {
                     "success": True,

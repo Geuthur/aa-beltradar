@@ -2,7 +2,6 @@
 from typing import TYPE_CHECKING
 
 # Django
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.urls import reverse
@@ -28,7 +27,7 @@ if TYPE_CHECKING:
 def _create_button(
     url_name: str,
     url_kwargs: dict,
-    icon: str,
+    text: str,
     title: str,
     color: str,
     modal_id: str = None,
@@ -40,7 +39,7 @@ def _create_button(
         request (WSGIRequest): The HTTP request object.
         url_name (str): The name of the URL pattern to reverse.
         url_kwargs (dict): The keyword arguments for the URL reversal.
-        icon (str): The HTML for the icon to display on the button.
+        text (str): The HTML for the text or icon to display on the button.
         title (str): The tooltip text for the button.
         color (str): The Bootstrap color class for the button.
         modal_id (str): The ID of the modal to trigger on click.
@@ -58,7 +57,7 @@ def _create_button(
     else:
         button_html += f'a href="{button_url}" '
     button_html += f'class="btn btn-{color} btn-sm btn-square me-2" '
-    button_html += f'data-bs-tooltip="aa-beltradar" title="{title}">{icon}'
+    button_html += f'data-bs-tooltip="aa-beltradar" title="{title}">{text}'
     if modal_id:
         button_html += "</button>"
     else:
@@ -97,6 +96,11 @@ def survey_manage_action_icons(
     return beltradar_request_icons
 
 
+@permissions_required(
+    [
+        "beltradar.basic_access",
+    ]
+)
 def survey_timer_button_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
     public_id: str,
@@ -116,29 +120,28 @@ def survey_timer_button_icons(
     if not perms:
         return "N/A"  # Return an empty string if the user does not have permission to delete
 
-    if not session.br_belt_timer.exists():
-        timer_button_icon = _create_button(
+    if session.is_timer_ready:
+        text = _("Create Belt Timer")
+        return _create_button(
             url_name="beltradar:api:add_survey_timer",
             url_kwargs={"public_id": public_id},
-            icon='<i class="fa-solid fa-plus"></i>',
-            title=_("Create Belt Timer"),
+            text=text,
+            title=text,
             color="success",
             modal_id="beltradar-accept-create-survey-timer",
         )
-    else:
-        try:
-            timer_id = session.br_belt_timer.get(public_id=public_id).pk
-            timer_button_icon = _create_button(
-                url_name="beltradar:api:delete_belt_timer",
-                url_kwargs={"timer_id": timer_id},
-                icon='<i class="fa-solid fa-trash"></i>',
-                title=_("Delete Belt Timer"),
-                color="danger",
-                modal_id="beltradar-accept-delete-belt-timer",
-            )
-        except ObjectDoesNotExist:
-            timer_button_icon = "N/A"
-    return timer_button_icon
+    if session.br_belt_timer.exists():
+        timer_id = session.br_belt_timer.get(public_id=public_id).pk
+        text = _("Delete Belt Timer")
+        return _create_button(
+            url_name="beltradar:api:delete_belt_timer",
+            url_kwargs={"timer_id": timer_id},
+            text=text,
+            title=text,
+            color="danger",
+            modal_id="beltradar-accept-delete-belt-timer",
+        )
+    return "N/A"
 
 
 @permissions_required(
@@ -197,7 +200,7 @@ def get_snapshot_delete_button(
     delete_button = _create_button(
         url_name="beltradar:api:delete_snapshot",
         url_kwargs={"public_id": public_id, "snapshot": snapshot},
-        icon='<i class="fa-solid fa-trash"></i>',
+        text='<i class="fa-solid fa-trash"></i>',
         title=_("Delete Snapshot"),
         color="danger",
         modal_id="beltradar-accept-delete-snapshot",
@@ -233,7 +236,7 @@ def get_survey_delete_button(
     delete_button = _create_button(
         url_name="beltradar:api:delete_survey_session",
         url_kwargs={"public_id": public_id},
-        icon='<i class="fa-solid fa-trash"></i>',
+        text='<i class="fa-solid fa-trash"></i>',
         title=_("Delete Survey Session"),
         color="danger",
         modal_id="beltradar-accept-delete-survey-session",
@@ -259,7 +262,7 @@ def get_add_survey_button(
     add_button = _create_button(
         url_name="beltradar:api:add_survey_entry",
         url_kwargs={"public_id": public_id},
-        icon='<i class="fa-solid fa-plus"></i>',
+        text='<i class="fa-solid fa-plus"></i>',
         title=_("Add Survey"),
         color="success",
         modal_id="beltradar-add-survey",
@@ -285,7 +288,7 @@ def get_survey_view_button(
     view_button = _create_button(
         url_name="beltradar:view_session",
         url_kwargs={"public_id": public_id},
-        icon='<i class="fa-solid fa-eye"></i>',
+        text='<i class="fa-solid fa-eye"></i>',
         title=_("View Survey Session"),
         color="primary",
     )
@@ -310,7 +313,7 @@ def get_add_belt_timer_button(
     add_button = _create_button(
         url_name="beltradar:api:add_belt_timer",
         url_kwargs={},
-        icon='<i class="fa-solid fa-plus"></i>',
+        text='<i class="fa-solid fa-plus"></i>',
         title=_("Add Belt Timer"),
         color="success",
         modal_id="beltradar-add-belt-timer",
@@ -345,7 +348,7 @@ def get_timer_delete_button(
     delete_button = _create_button(
         url_name="beltradar:api:delete_belt_timer",
         url_kwargs={"timer_id": timer_id},
-        icon='<i class="fa-solid fa-trash"></i>',
+        text='<i class="fa-solid fa-trash"></i>',
         title=_("Delete Belt Timer"),
         color="danger",
         modal_id="beltradar-accept-delete-belt-timer",
@@ -384,7 +387,7 @@ def switch_belt_timer_state(
             "field": "public",
             "value": str(not timer.public).capitalize(),
         },
-        icon=icon,
+        text=icon,
         title=title,
         color=color,
         modal_id="beltradar-accept-switch-belt-timer",

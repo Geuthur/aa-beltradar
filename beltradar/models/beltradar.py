@@ -126,6 +126,38 @@ class BeltSurveySession(models.Model):
         """Check if a timer already exists for this session."""
         return self.br_belt_timer.exists()
 
+    def create_belt_timer(self):
+        """Create a new BeltTimer for this session if it is ready."""
+        if not self.is_timer_ready:
+            logger.debug(
+                f"Attempted to create a BeltTimer for session {self.public_id} which is not ready."
+            )
+            return None
+
+        # Determine the belt type and size from the survey entries
+        belt_type, belt_size = self.br_entries.session_resolve_belt()
+
+        if belt_type is None or belt_size is None:
+            logger.debug(
+                f"Could not determine belt type or size for session {self.public_id}. BeltTimer not created."
+            )
+            return None
+
+        # Create a new BeltTimer for this session
+        belt_timer = BeltTimer.objects.create(
+            owner=self.owner,
+            public_id=self.public_id,
+            belt_id=generate_unique_public_id(length=7),
+            belt_name=self.name,
+            belt_size=belt_size,
+            belt_type=belt_type,
+            session=self,
+        )
+        logger.debug(
+            f"Created new BeltTimer {belt_timer.public_id} for session {self.public_id}."
+        )
+        return belt_timer
+
 
 class BeltSurveyEntry(models.Model):
     """Represents a single survey entry for a belt, linked to a BeltSurveySession."""
@@ -243,7 +275,7 @@ class BeltTimer(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="Optional link to a survey session for this belt timer.",
+        help_text=_("Optional link to a survey session for this belt timer."),
         related_name="br_belt_timer",
     )
 
@@ -251,7 +283,10 @@ class BeltTimer(models.Model):
     public = models.BooleanField(default=False)
 
     # Notification System
-    sent_notification = models.BooleanField(default=False)
+    sent_notification = models.BooleanField(
+        default=False,
+        help_text=_("Indicates whether a notification has been sent for this timer."),
+    )
 
     # pylint: disable=too-many-branches
     def generate_eta(self):

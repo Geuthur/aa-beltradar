@@ -48,16 +48,22 @@
     <!-- The Belt Ecpected Type and Size. -->
     <div class="row text-muted small mt-2">
         <div class="col-4 text-start">
-            <strong>{% translate "Expected Belt Type" %}: </strong><br>
+            <strong>{% translate "Belt Type" %}: </strong>
+            <span>
+                <i class="fa-solid fa-circle-question" data-bs-tooltip="aa-beltradar" title="{% translate 'The expected type of the asteroid belt.' %}"></i>
+            </span><br>
             <span id="session-expected-belt-type">N/A</span>
         </div>
         <div class="col-4 text-center">
-            <strong>{% translate "Belt Timer" %}: </strong><br>
-            <span id="session-belt-timer">{{ create_timer|safe }}</span>
+            <strong>{% translate "Belt Size" %}: </strong>
+            <span>
+                <i class="fa-solid fa-circle-question" data-bs-tooltip="aa-beltradar" title="{% translate 'The expected size of the asteroid belt.' %}"></i>
+            </span><br>
+            <span id="session-expected-belt-size">N/A</span>
         </div>
         <div class="col-4 text-end">
-            <strong>{% translate "Expected Belt Size" %}: </strong><br>
-            <span id="session-expected-belt-size">N/A</span>
+            <strong>{% translate "Total Survey" %}: </strong><br>
+            <span id="session-total-survey-entries">N/A</span>
         </div>
     </div>
 </div>

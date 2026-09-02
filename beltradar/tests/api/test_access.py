@@ -2,9 +2,6 @@
 import json
 from http import HTTPStatus
 
-# Third Party
-from skillfarm.tests.testdata.factory import ItemTypeFactory
-
 # Django
 from django.urls import reverse
 
@@ -15,6 +12,7 @@ from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
     BeltSurveyEntryFactory,
     BeltTimerFactory,
+    ItemTypeFactory,
     UserMainFactory,
 )
 

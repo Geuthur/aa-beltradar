@@ -124,7 +124,7 @@ repos:
         args: [--fix, --color, --max-warnings, "0"]
         description: Check for problems in JavaScript files.
         additional_dependencies:
-          - eslint@10.8.0
+          - eslint@10.9.1
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
     rev: v17.14.1
@@ -174,7 +174,7 @@ repos:
         description: Check for compliance with the definitions in the EditorConfig file.
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.31.1
+    rev: 1.32.0
     hooks:
       - id: django-upgrade
         name: Django upgrade
@@ -252,7 +252,7 @@ repos:
           - mdformat-shfmt==0.2.0  # Mdformat plugin to format shell code blocks » https://github.com/hukkin/mdformat-shfmt/tags
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
-    rev: 1.8.1
+    rev: 1.9.0
     hooks:
       - id: tox-ini-fmt
         name: tox.ini formatter
@@ -267,7 +267,7 @@ repos:
         args:
           - --indent=4
         additional_dependencies:
-          - tox==4.58.0  # https://github.com/tox-dev/tox/releases/latest
+          - tox==4.61.1  # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25

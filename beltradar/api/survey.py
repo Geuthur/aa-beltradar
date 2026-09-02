@@ -29,7 +29,8 @@ from beltradar.api.helpers.core import (
 )
 from beltradar.api.helpers.icons import (
     get_snapshot_delete_button,
-    get_survey_manage_action_icons,
+    survey_manage_action_icons,
+    survey_timer_button_icons,
 )
 from beltradar.helpers.eveonline import get_character_portrait_url
 from beltradar.models.beltradar import (
@@ -68,6 +69,8 @@ class BeltRadarSurveyApiEndpoints:
         )
         progress_percent = round(session.br_entries.session_progress_percentage(), 2)
 
+        belt_type, belt_size = session.br_entries.session_resolve_belt()
+
         return schema.SnapShotStatsSchema(
             belt_volume=belt_size_m3,
             belt_volume_left_m3=belt_left_m3,
@@ -76,6 +79,8 @@ class BeltRadarSurveyApiEndpoints:
             progress_percent=progress_percent,
             mining_rate_m3_per_s=round(rate_per_s, 4),
             finish_eta=session.br_entries.session_finish_eta(),
+            excpected_belt_type=belt_type.label if belt_type else None,
+            excpected_belt_size=belt_size.label if belt_size else None,
         )
 
     # pylint: disable=too-many-statements
@@ -121,7 +126,7 @@ class BeltRadarSurveyApiEndpoints:
                 created_at=session.created_at,
                 owner=str(session.owner),
                 html=str(
-                    get_survey_manage_action_icons(request=request, public_id=public_id)
+                    survey_manage_action_icons(request=request, public_id=public_id)
                 ),
             )
             return HTTPStatus.OK, survey_session_data
@@ -151,8 +156,14 @@ class BeltRadarSurveyApiEndpoints:
             """
             perms = get_owner_or_none(request=request, character_id=character_id)[0]
 
+            # pylint: disable=duplicate-code
             if perms is False:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             sessions = BeltSurveySession.objects.filter(
                 owner__profile__main_character__character_id=character_id
@@ -170,7 +181,7 @@ class BeltRadarSurveyApiEndpoints:
                         display_name=True,
                     ),
                     html=str(
-                        get_survey_manage_action_icons(
+                        survey_manage_action_icons(
                             request=request, public_id=session.public_id
                         )
                     ),
@@ -216,7 +227,7 @@ class BeltRadarSurveyApiEndpoints:
                         display_name=True,
                     ),
                     html=str(
-                        get_survey_manage_action_icons(
+                        survey_manage_action_icons(
                             request=request, public_id=session.public_id
                         )
                     ),
@@ -291,6 +302,7 @@ class BeltRadarSurveyApiEndpoints:
                     owner=str(session.owner),
                     first_entry_timestamp=session.first_timestamp,
                     last_entry_timestamp=session.last_timestamp,
+                    total_timestamps=session.br_entries.snapshots().count(),
                 ),
                 snapshot=session.snapshots.last(),
                 entries=snapshot_list,
@@ -302,6 +314,11 @@ class BeltRadarSurveyApiEndpoints:
                         request=request,
                         public_id=session.public_id,
                         snapshot=session.snapshots.last(),
+                    )
+                ),
+                create_timer_html=str(
+                    survey_timer_button_icons(
+                        request=request, public_id=session.public_id
                     )
                 ),
             )
@@ -341,9 +358,14 @@ class BeltRadarSurveyApiEndpoints:
                 request=request,
                 public_id=public_id,
             )[0]
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             # Delete the survey session and all associated entries
             session.delete()
@@ -387,9 +409,15 @@ class BeltRadarSurveyApiEndpoints:
                 request=request,
                 character_id=session.owner.profile.main_character.character_id,
             )[0]
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
+
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             deleted_count = session.br_entries.filter(snapshot=snapshot).delete()[0]
             if deleted_count == 0:
@@ -400,6 +428,7 @@ class BeltRadarSurveyApiEndpoints:
             msg = _("Snapshot deleted successfully.")
             return HTTPStatus.OK, {"success": True, "message": msg}
 
+        # pylint: disable=too-many-branches, too-many-return-statements
         @api.post(
             "manage/add-survey-entry/{public_id}/",
             response={
@@ -440,10 +469,14 @@ class BeltRadarSurveyApiEndpoints:
                 request=request,
                 public_id=public_id,
             )[0]
-
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             # Validate the form data
             form = forms.AddSurveyForm(data=json.loads(request.body))
@@ -540,6 +573,9 @@ class BeltRadarSurveyApiEndpoints:
 
             if survey_entries:
                 with transaction.atomic():
+                    if not session.br_belt_timer.exists():
+                        # try to create a Belt Timer for the session
+                        session.create_belt_timer()
                     BeltSurveyEntry.objects.bulk_create(survey_entries)
                 return HTTPStatus.OK, {
                     "success": True,

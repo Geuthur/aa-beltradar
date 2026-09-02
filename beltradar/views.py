@@ -15,6 +15,7 @@ from beltradar.api.helpers.icons import (
     get_add_belt_timer_button,
     get_add_survey_button,
     get_survey_delete_button,
+    survey_timer_button_icons,
 )
 from beltradar.models import BeltSurveySession, UserSettings
 from beltradar.providers import AppLogger
@@ -53,11 +54,14 @@ def view_session(request, public_id):
             "delete_snapshot": forms.DeleteSnapshotForm(),
             "delete_survey": forms.DeleteSurveyForm(),
             "add_survey": forms.AddSurveyForm(),
+            "create_survey_timer": forms.CreateSurveyTimerForm(),
+            "delete_belt_timer": forms.DeleteBeltTimerForm(),
         },
         "delete_button": get_survey_delete_button(request=request, public_id=public_id),
         "add_survey_button": get_add_survey_button(
             request=request, public_id=public_id
         ),
+        "create_timer": survey_timer_button_icons(request=request, public_id=public_id),
     }
     return render(request, "beltradar/view-session.html", context=context)
 

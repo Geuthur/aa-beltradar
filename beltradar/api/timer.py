@@ -17,13 +17,14 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
-from beltradar.api.helpers.core import get_belt_timer_or_none
+from beltradar.api.helpers.core import get_belt_timer_or_none, get_public_id_or_none
 from beltradar.api.helpers.icons import (
-    get_belt_timer_manage_action_icons,
+    belt_timer_manage_action_icons,
     switch_belt_timer_state,
 )
 from beltradar.models.beltradar import (
     BeltTimer,
+    generate_unique_public_id,
 )
 from beltradar.providers import AppLogger
 
@@ -64,16 +65,13 @@ class BeltRadarBeltTimerApiEndpoints:
                 request=request,
                 character_id=character_id,
             )[0]
-
-            # Check if the user has permission to access this resource
+            # pylint: disable=duplicate-code
             if perms is False:
-                return HTTPStatus.FORBIDDEN, {
-                    "error": _("You do not have permission to access this resource.")
-                }
-
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
             if perms is None:
                 return HTTPStatus.NOT_FOUND, {
-                    "error": _("No belt timer found for this character.")
+                    "error": _("Requested resource not found.")
                 }
 
             # Retrieve all belt timers associated with the user's character ID
@@ -103,7 +101,7 @@ class BeltRadarBeltTimerApiEndpoints:
                         ),
                         is_expired=timer.is_expired,
                         html=str(
-                            get_belt_timer_manage_action_icons(
+                            belt_timer_manage_action_icons(
                                 request=request,
                                 timer_id=timer.pk,
                                 character_id=character_id,
@@ -159,7 +157,7 @@ class BeltRadarBeltTimerApiEndpoints:
                         ),
                         is_expired=timer.is_expired,
                         html=str(
-                            get_belt_timer_manage_action_icons(
+                            belt_timer_manage_action_icons(
                                 request=request,
                                 timer_id=timer.pk,
                                 character_id=timer.owner.profile.main_character.character_id,
@@ -170,7 +168,7 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.OK, belt_timer_list
 
         @api.post(
-            "manage/add-belt-timer/",
+            "manage/belt-timer/create/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.BAD_REQUEST: dict,
@@ -215,6 +213,67 @@ class BeltRadarBeltTimerApiEndpoints:
             return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
         @api.post(
+            "manage/belt-timer/{public_id}/create/",
+            response={
+                HTTPStatus.OK: dict,
+                HTTPStatus.BAD_REQUEST: dict,
+                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.NOT_FOUND: dict,
+            },
+            tags=self.tags,
+        )
+        def add_survey_timer(request, public_id: str):
+            """
+            Add a new survey timer to a survey session.
+
+            This Endpoint allows users to add a new survey timer to an existing survey session.
+            The user must have permission to add entries to the survey session, and the survey session must exist.
+
+            Args:
+                public_id (str): The public UUID of the survey session.
+            Returns:
+                200: A success message indicating the survey timer was added.
+                400: An error message if the input data is invalid or cannot be parsed.
+                403: An error message if the user does not have permission or the survey session is not found.
+                404: An error message if the survey session is not found.
+            """
+            # Check if the user has permission to add entries to this survey session
+            perms, session = get_public_id_or_none(request=request, public_id=public_id)
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
+
+            belt_type, belt_size = session.br_entries.session_resolve_belt()
+
+            if belt_type is None or belt_size is None:
+                msg = _("Survey session does not have a valid belt type or size.")
+                return HTTPStatus.BAD_REQUEST, {"error": msg}
+
+            with transaction.atomic():
+                timer = BeltTimer(
+                    owner=request.user,
+                    public_id=session.public_id,
+                    belt_id=generate_unique_public_id(length=7),
+                    belt_name=session.name,
+                    belt_type=belt_type,
+                    belt_size=belt_size,
+                    session=session,
+                )
+                timer.owner = request.user
+                timer.save()
+                return HTTPStatus.OK, {
+                    "success": True,
+                    "message": _("Survey timer added successfully."),
+                }
+            msg = _("Invalid input data. Please check the format and try again.")
+            return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
+
+        @api.post(
             "manage/belt-timer/{timer_id}/delete/",
             response={
                 HTTPStatus.OK: dict,
@@ -249,9 +308,14 @@ class BeltRadarBeltTimerApiEndpoints:
                 request=request,
                 character_id=timer.owner.profile.main_character.character_id,
             )[0]
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             # Delete the belt timer
             try:
@@ -302,9 +366,14 @@ class BeltRadarBeltTimerApiEndpoints:
                 request=request,
                 character_id=timer.owner.profile.main_character.character_id,
             )[0]
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             # Modify the specified field of the belt timer
             if hasattr(timer, field):

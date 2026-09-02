@@ -15,7 +15,9 @@ from eve_sde.models import ItemType
 # AA Belt Radar
 from beltradar import __title__
 from beltradar.app_settings import BELT_RADAR_BULK_BATCH_SIZE
+from beltradar.constants import ARRAY_ORE, ICE_ORE, NORMAL_ORE
 from beltradar.helpers.eveonline import get_icon_render_url
+from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.providers import AppLogger, esi
 
 if TYPE_CHECKING:
@@ -150,6 +152,21 @@ class SessionManager(AccessManager["SessionContext"]):
 
 
 class BeltSurveyEntryQuerySet(models.QuerySet["BeltSurveyEntryContext"]):
+    @staticmethod
+    def _resolve_belt_size(volume_left, size_volumes):
+        """Return the size whose documented total volume is closest."""
+        return min(size_volumes, key=lambda size: abs(volume_left - size[0]))[1]
+
+    @staticmethod
+    def _contains_ore_variant(ore_names: set[str], ore_list: list[str]) -> bool:
+        """Return whether names include a base ore or one of its named variants."""
+        normalized_base_names = {ore_name.casefold() for ore_name in ore_list}
+        return any(
+            ore_name == base_name or ore_name.startswith(f"{base_name} ")
+            for ore_name in ore_names
+            for base_name in normalized_base_names
+        )
+
     def for_snapshot(self, snapshot: str):
         """Filter entries for a specific snapshot."""
         if snapshot is None:
@@ -330,6 +347,71 @@ class BeltSurveyEntryQuerySet(models.QuerySet["BeltSurveyEntryContext"]):
 
         return l_entries.first().timestamp + timezone.timedelta(seconds=eta_seconds)
 
+    # pylint: disable=too-many-return-statements
+    def session_resolve_belt(self) -> tuple[BeltTypeChoice, BeltSizeChoice] | None:
+        """Resolve the belt type based on the first snapshot entries."""
+        first_snapshot = self.snapshots().first()
+        if first_snapshot is None:
+            return (None, None)
+
+        entries = self.for_snapshot(first_snapshot)
+        ore_names = set(entries.values_list("eve_type__name", flat=True))
+        if not ore_names:
+            return (None, None)
+
+        ore_names = {ore_name.casefold() for ore_name in ore_names}
+        volume_left = entries.belt_size_m3()
+
+        # Check for Ice ores
+        if self._contains_ore_variant(ore_names, ICE_ORE):
+            return BeltTypeChoice.ICE_BELT, BeltSizeChoice.ICE
+
+        # Check for Array ores
+        if self._contains_ore_variant(ore_names, ARRAY_ORE):
+            return (
+                BeltTypeChoice.ARRAY_BELT,
+                self._resolve_belt_size(
+                    volume_left,
+                    (
+                        (1_000_000, BeltSizeChoice.SMALL),
+                        (4_000_000, BeltSizeChoice.MEDIUM),
+                        (10_000_000, BeltSizeChoice.LARGE),
+                    ),
+                ),
+            )
+
+        # Check for Mercoxit ores
+        if any(ore_name.startswith("mercoxit") for ore_name in ore_names):
+            return (
+                BeltTypeChoice.MERCOXIT_BELT,
+                self._resolve_belt_size(
+                    volume_left,
+                    (
+                        (10_000, BeltSizeChoice.SMALL),
+                        (40_000, BeltSizeChoice.MEDIUM),
+                        (240_000, BeltSizeChoice.LARGE),
+                        (960_000, BeltSizeChoice.ENORMOUS),
+                    ),
+                ),
+            )
+
+        # Check for Normal ores
+        if self._contains_ore_variant(ore_names, NORMAL_ORE):
+            return (
+                BeltTypeChoice.ASTEROID_BELT,
+                self._resolve_belt_size(
+                    volume_left,
+                    (
+                        (340_000, BeltSizeChoice.SMALL),
+                        (1_180_000, BeltSizeChoice.MEDIUM),
+                        (1_880_000, BeltSizeChoice.LARGE),
+                        (3_210_000, BeltSizeChoice.ENORMOUS),
+                        (3_900_000, BeltSizeChoice.COLOSSAL),
+                    ),
+                ),
+            )
+        return (None, None)
+
 
 class BeltSurveyEntryManager(models.Manager["BeltSurveyEntryContext"]):
     def get_or_create_respawn_timer(
@@ -388,6 +470,10 @@ class BeltSurveyEntryManager(models.Manager["BeltSurveyEntryContext"]):
     def session_finish_eta(self):
         """Estimate the finish time based on the last two entries."""
         return self.get_queryset().session_finish_eta()
+
+    def session_resolve_belt(self) -> tuple[BeltTypeChoice, BeltSizeChoice] | None:
+        """Resolve the belt type based on the last snapshot entries."""
+        return self.get_queryset().session_resolve_belt()
 
     def snapshot_stats(self, snapshot):
         """Get aggregated stats for a snapshot. Returns a dict with total_volume and asteroid_count."""

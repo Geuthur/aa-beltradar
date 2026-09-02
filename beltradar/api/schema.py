@@ -23,6 +23,7 @@ class SessionSchema(Schema):
     owner: str
     first_entry_timestamp: timezone.datetime | None = None
     last_entry_timestamp: timezone.datetime | None = None
+    total_timestamps: int | None = None
 
 
 class BeltSurveySessionSchema(Schema):
@@ -84,6 +85,8 @@ class SnapShotStatsSchema(Schema):
     duration_seconds: float = 0.0
     mining_rate_m3_per_s: float = 0.0
     finish_eta: timezone.datetime | None = None
+    excpected_belt_type: str | None = None
+    excpected_belt_size: str | None = None
 
 
 class SnapShotSchema(Schema):
@@ -94,3 +97,4 @@ class SnapShotSchema(Schema):
     traffic: ApexChartSchema | None = None
     stats: SnapShotStatsSchema | None = None
     delete_html: str | None = None
+    create_timer_html: str | None = None

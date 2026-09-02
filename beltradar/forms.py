@@ -46,6 +46,15 @@ class DeleteBeltTimerForm(forms.Form):
         fields = ["timer_id"]
 
 
+class CreateSurveyTimerForm(forms.Form):
+    """
+    Form to confirm survey create timer.
+    """
+
+    class Meta:
+        fields = ["public_id"]
+
+
 class SwitchBeltTimerForm(forms.Form):
     """
     Form to confirm belt timer switch.

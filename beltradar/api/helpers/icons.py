@@ -24,12 +24,53 @@ if TYPE_CHECKING:
     from beltradar.models.beltradar import BeltTimer
 
 
+def _create_button(
+    url_name: str,
+    url_kwargs: dict,
+    text: str,
+    title: str,
+    color: str,
+    modal_id: str = None,
+) -> str:
+    """
+    Helper function to create an HTML button with the specified parameters.
+
+    Args:
+        request (WSGIRequest): The HTTP request object.
+        url_name (str): The name of the URL pattern to reverse.
+        url_kwargs (dict): The keyword arguments for the URL reversal.
+        text (str): The HTML for the text or icon to display on the button.
+        title (str): The tooltip text for the button.
+        color (str): The Bootstrap color class for the button.
+        modal_id (str): The ID of the modal to trigger on click.
+
+    Returns:
+        str: HTML string containing the button.
+    """
+    # Generate the URL for the action
+    button_url = reverse(url_name, kwargs=url_kwargs)
+
+    # Create the HTML for the button
+    button_html = "<"
+    if modal_id:
+        button_html += f'button data-action="{button_url}" data-bs-toggle="modal" data-bs-target="#{modal_id}" '
+    else:
+        button_html += f'a href="{button_url}" '
+    button_html += f'class="btn btn-{color} btn-sm btn-square me-2" '
+    button_html += f'data-bs-tooltip="aa-beltradar" title="{title}">{text}'
+    if modal_id:
+        button_html += "</button>"
+    else:
+        button_html += "</a>"
+    return button_html
+
+
 @permissions_required(
     [
         "beltradar.basic_access",
     ]
 )
-def get_survey_manage_action_icons(
+def survey_manage_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
     public_id: str,
 ) -> str | HttpResponse:
@@ -60,7 +101,55 @@ def get_survey_manage_action_icons(
         "beltradar.basic_access",
     ]
 )
-def get_belt_timer_manage_action_icons(
+def survey_timer_button_icons(
+    request: WSGIRequest,  # pylint: disable=unused-argument
+    public_id: str,
+) -> str | HttpResponse:
+    """
+    Generate HTML Action Icons for the My Sessions view.
+
+    This function creates a set of action icons for managing survey sessions.
+    The Buttons include Edit, Delete, and View, each represented by an icon depending on User's permissions.
+
+    Args:
+        request (WSGIRequest): The HTTP request object containing user information.
+    Returns:
+        SafeString: HTML string containing the action icons.
+    """
+    perms, session = get_public_id_or_none(request=request, public_id=public_id)
+    if not perms:
+        return "N/A"  # Return an N/A string if the user does not have permission
+
+    if session.is_timer_ready:
+        text = _("Create Belt Timer")
+        return _create_button(
+            url_name="beltradar:api:add_survey_timer",
+            url_kwargs={"public_id": public_id},
+            text=text,
+            title=text,
+            color="success",
+            modal_id="beltradar-accept-create-survey-timer",
+        )
+    if session.br_belt_timer.exists():
+        timer_id = session.br_belt_timer.get(public_id=public_id).pk
+        text = _("Delete Belt Timer")
+        return _create_button(
+            url_name="beltradar:api:delete_belt_timer",
+            url_kwargs={"timer_id": timer_id},
+            text=text,
+            title=text,
+            color="danger",
+            modal_id="beltradar-accept-delete-belt-timer",
+        )
+    return "N/A"
+
+
+@permissions_required(
+    [
+        "beltradar.basic_access",
+    ]
+)
+def belt_timer_manage_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
     timer_id: int,
     character_id: int,
@@ -107,29 +196,14 @@ def get_snapshot_delete_button(
             ""  # Return an empty string if the user does not have permission to delete
         )
 
-    # Generate the URL for the delete request
-    button_request_delete_url = reverse(
-        "beltradar:api:delete_snapshot",
-        kwargs={
-            "public_id": public_id,
-            "snapshot": snapshot,
-        },
-    )
-
-    # Define the icon and tooltip for the delete button
-    icon = '<i class="fa-solid fa-trash"></i>'
-    title = _("Delete Snapshot")
-    color = "danger"
-
     # Create the HTML for the delete icon button
-    delete_button = (
-        f'<button data-action="{button_request_delete_url}" '
-        f'class="btn btn-{color} btn-sm btn-square me-2" '
-        'data-bs-toggle="modal" '
-        'data-bs-tooltip="aa-beltradar" '
-        'data-bs-target="#beltradar-accept-delete-snapshot" '
-        f'data-snapshot="{snapshot}" '
-        f'title="{title}">{icon}</button>'
+    delete_button = _create_button(
+        url_name="beltradar:api:delete_snapshot",
+        url_kwargs={"public_id": public_id, "snapshot": snapshot},
+        text='<i class="fa-solid fa-trash"></i>',
+        title=_("Delete Snapshot"),
+        color="danger",
+        modal_id="beltradar-accept-delete-snapshot",
     )
     return delete_button
 
@@ -151,34 +225,18 @@ def get_survey_delete_button(
 
     perms = get_public_id_or_none(request=request, public_id=public_id)[0]
     if not perms:
-        logger.debug(
-            f"User {request.user} does not have permission to delete survey session {public_id}"
-        )
         return (
             ""  # Return an empty string if the user does not have permission to delete
         )
 
-    # Generate the URL for the delete request
-    button_request_delete_url = reverse(
-        "beltradar:api:delete_survey_session",
-        kwargs={
-            "public_id": public_id,
-        },
-    )
-
-    # Define the icon and tooltip for the delete button
-    icon = '<i class="fa-solid fa-trash"></i>'
-    title = _("Delete Survey Session")
-    color = "danger"
-
     # Create the HTML for the delete icon button
-    delete_button = (
-        f'<button data-action="{button_request_delete_url}" '
-        f'class="btn btn-{color} btn-sm btn-square me-2" '
-        'data-bs-toggle="modal" '
-        'data-bs-tooltip="aa-beltradar" '
-        'data-bs-target="#beltradar-accept-delete-survey-session" '
-        f'title="{title}">{icon}</button>'
+    delete_button = _create_button(
+        url_name="beltradar:api:delete_survey_session",
+        url_kwargs={"public_id": public_id},
+        text='<i class="fa-solid fa-trash"></i>',
+        title=_("Delete Survey Session"),
+        color="danger",
+        modal_id="beltradar-accept-delete-survey-session",
     )
     return delete_button
 
@@ -197,28 +255,14 @@ def get_add_survey_button(
     Returns:
         String: HTML string containing the add button.
     """
-
-    # Generate the URL for the add request
-    button_request_add_url = reverse(
-        "beltradar:api:add_survey_entry",
-        kwargs={
-            "public_id": public_id,
-        },
-    )
-
-    # Define the icon and tooltip for the add button
-    icon = '<i class="fa-solid fa-plus"></i>'
-    title = _("Add Survey")
-    color = "success"
-
     # Create the HTML for the add icon button
-    add_button = (
-        f'<button data-action="{button_request_add_url}" '
-        f'class="btn btn-{color} btn-sm btn-square me-2" '
-        'data-bs-toggle="modal" '
-        'data-bs-tooltip="aa-beltradar" '
-        'data-bs-target="#beltradar-add-survey" '
-        f'title="{title}">{icon}</button>'
+    add_button = _create_button(
+        url_name="beltradar:api:add_survey_entry",
+        url_kwargs={"public_id": public_id},
+        text='<i class="fa-solid fa-plus"></i>',
+        title=_("Add Survey"),
+        color="success",
+        modal_id="beltradar-add-survey",
     )
     return add_button
 
@@ -237,27 +281,13 @@ def get_survey_view_button(
     Returns:
         String: HTML string containing the view button.
     """
-
-    # Generate the URL for the view request
-    button_request_view_url = reverse(
-        "beltradar:view_session",
-        kwargs={
-            "public_id": public_id,
-        },
-    )
-
-    # Define the icon and tooltip for the view button
-    icon = '<i class="fa-solid fa-eye"></i>'
-    title = _("View Survey Session")
-    color = "primary"
-
     # Create the HTML for the view icon button
-    view_button = (
-        f'<a href="{button_request_view_url}" '
-        f'class="btn btn-{color} btn-sm btn-square me-2" '
-        'data-bs-tooltip="aa-beltradar" '
-        f'title="{title}">{icon}'
-        f"</a>"
+    view_button = _create_button(
+        url_name="beltradar:view_session",
+        url_kwargs={"public_id": public_id},
+        text='<i class="fa-solid fa-eye"></i>',
+        title=_("View Survey Session"),
+        color="primary",
     )
     return view_button
 
@@ -276,25 +306,14 @@ def get_add_belt_timer_button(
     Returns:
         String: HTML string containing the add button.
     """
-
-    # Generate the URL for the add request
-    button_request_add_url = reverse(
-        "beltradar:api:add_belt_timer",
-    )
-
-    # Define the icon and tooltip for the add button
-    icon = '<i class="fa-solid fa-plus"></i>'
-    title = _("Add Belt Timer")
-    color = "success"
-
     # Create the HTML for the add icon button
-    add_button = (
-        f'<button data-action="{button_request_add_url}" '
-        f'class="btn btn-{color} btn-sm btn-square me-2" '
-        'data-bs-toggle="modal" '
-        'data-bs-tooltip="aa-beltradar" '
-        'data-bs-target="#beltradar-add-belt-timer" '
-        f'title="{title}">{icon}</button>'
+    add_button = _create_button(
+        url_name="beltradar:api:add_belt_timer",
+        url_kwargs={},
+        text='<i class="fa-solid fa-plus"></i>',
+        title=_("Add Belt Timer"),
+        color="success",
+        modal_id="beltradar-add-belt-timer",
     )
     return add_button
 
@@ -322,27 +341,14 @@ def get_timer_delete_button(
             ""  # Return an empty string if the user does not have permission to delete
         )
 
-    # Generate the URL for the delete request
-    button_request_delete_url = reverse(
-        "beltradar:api:delete_belt_timer",
-        kwargs={
-            "timer_id": timer_id,
-        },
-    )
-
-    # Define the icon and tooltip for the delete button
-    icon = '<i class="fa-solid fa-trash"></i>'
-    title = _("Delete Belt Timer")
-    color = "danger"
-
     # Create the HTML for the delete icon button
-    delete_button = (
-        f'<button data-action="{button_request_delete_url}" '
-        f'class="btn btn-{color} btn-sm btn-square me-2" '
-        'data-bs-toggle="modal" '
-        'data-bs-tooltip="aa-beltradar" '
-        'data-bs-target="#beltradar-accept-delete-belt-timer" '
-        f'title="{title}">{icon}</button>'
+    delete_button = _create_button(
+        url_name="beltradar:api:delete_belt_timer",
+        url_kwargs={"timer_id": timer_id},
+        text='<i class="fa-solid fa-trash"></i>',
+        title=_("Delete Belt Timer"),
+        color="danger",
+        modal_id="beltradar-accept-delete-belt-timer",
     )
     return delete_button
 
@@ -360,15 +366,6 @@ def switch_belt_timer_state(
     Returns:
         String: HTML string containing the switch state icon.
     """
-    switch_button_url = reverse(
-        "beltradar:api:modify_belt_timer",
-        kwargs={
-            "timer_id": timer.pk,
-            "field": "public",
-            "value": str(not timer.public).capitalize(),
-        },
-    )
-
     # Define the icon and tooltip based on the public status of the belt timer
     if timer.public:
         icon = '<i class="fa-solid fa-globe"></i>'
@@ -380,12 +377,16 @@ def switch_belt_timer_state(
         color = "secondary"
 
     # Create the HTML for the public/private icon
-    public_icon = (
-        f'<button data-action="{switch_button_url}" '
-        f'class="btn btn-{color} btn-sm btn-square me-2" '
-        'data-bs-toggle="modal" '
-        'data-bs-target="#beltradar-accept-switch-belt-timer" '
-        'data-bs-tooltip="aa-beltradar" '
-        f'title="{title}">{icon}</button>'
+    public_icon = _create_button(
+        url_name="beltradar:api:modify_belt_timer",
+        url_kwargs={
+            "timer_id": timer.pk,
+            "field": "public",
+            "value": str(not timer.public).capitalize(),
+        },
+        text=icon,
+        title=title,
+        color=color,
+        modal_id="beltradar-accept-switch-belt-timer",
     )
     return public_icon

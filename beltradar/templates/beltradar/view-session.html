@@ -14,10 +14,11 @@
 {% block aabeltradar_header %}
     <div class="card">
         <div class="card-header bg-primary rounded d-flex align-items-center">
-            <h3>{% translate "View Session" %}</h3>
-            <div class="px-2">
+            <div class="me-2">
                 {{ delete_button|safe }}
             </div>
+            <h3 class="mb-0">{% translate "View Session" %}</h3>
+            <div class="ms-auto" id="session-belt-timer"></div>
         </div>
     </div>
 {% endblock aabeltradar_header %}
@@ -85,4 +86,6 @@
     {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
     {% include 'beltradar/partials/modals/request-accept-delete-snapshot.html' %}
     {% include 'beltradar/partials/modals/request-add-survey.html' %}
+    {% include 'beltradar/partials/modals/request-accept-add-belt-timer.html' %}
+    {% include 'beltradar/partials/modals/request-accept-delete-belt-timer.html' %}
 {% endblock extra_javascript %}

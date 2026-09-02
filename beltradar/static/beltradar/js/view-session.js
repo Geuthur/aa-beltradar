@@ -5,22 +5,26 @@ $(document).ready(() => {
     const BeltRadarSessionEntryTable = $('#beltradar-session-entry-table');
     /* Session details elements */
     const sessionContainer = $('#session-details-container');
-    const sessionNameEl = $('#session-name');
-    const sessionCreatedAtEl = $('#session-created-at');
-    const sessionOwnerEl = $('#session-owner');
-    const sessionRemainingAsteroidsEl = $('#session-remaining-asteroids');
-    const sessionTotalAsteroidsEl = $('#session-total-asteroids');
-    const sessionProgressBarEl = $('#session-progress-bar');
-    const sessionProgressionEl = $('#session-progression');
-    const sessionLastScanEl = $('#session-last-scan');
-    const sessionFirstScanEl = $('#session-first-scan');
-    const sessionFinishTimeEl = $('#session-finish-time');
-    const sessionBeltSizeEl = $('#session-belt-size');
-    const sessionSpeedEl = $('#session-speed');
-    const sessionEtaEl = $('#session-eta');
+    const sessionName = $('#session-name');
+    const sessionCreatedAt = $('#session-created-at');
+    const sessionOwner = $('#session-owner');
+    const sessionRemainingAsteroids = $('#session-remaining-asteroids');
+    const sessionTotalAsteroids = $('#session-total-asteroids');
+    const sessionProgressBar = $('#session-progress-bar');
+    const sessionProgression = $('#session-progression');
+    const sessionLastScan = $('#session-last-scan');
+    const sessionFirstScan = $('#session-first-scan');
+    const sessionFinishTime = $('#session-finish-time');
+    const sessionTotalTimestamps = $('#session-total-survey-entries');
+    const sessionBeltSize = $('#session-belt-size');
+    const sessionSpeed = $('#session-speed');
+    const sessionEta = $('#session-eta');
+    const sessionExpectedBeltType = $('#session-expected-belt-type');
+    const sessionExpectedBeltSize = $('#session-expected-belt-size');
+    const sessionBeltTimer = $('#session-belt-timer');
     /* Chart Element */
-    const chartEl = $('#chart');
-    const trafficChartEl = $('#traffic');
+    const chartContainer = $('#chart');
+    const trafficChartContainer = $('#traffic');
     /* Apex chart instance */
     let miningChart = null;
     let trafficChart = null;
@@ -28,6 +32,9 @@ $(document).ready(() => {
     const modalRequestDeleteSnapshot = $('#beltradar-accept-delete-snapshot');
     const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
     const modalRequestAddSurvey = $('#beltradar-add-survey');
+    const modalRequestCreateTimer = $('#beltradar-accept-create-survey-timer');
+    const modalRequestDeleteBeltTimer = $('#beltradar-accept-delete-belt-timer');
+
     /* Initial Data Fetch */
     fetchGetBeltRadar({
         url: aaBeltRadarSettings.url.surveySessionEntry,
@@ -42,6 +49,10 @@ $(document).ready(() => {
                 $('#ore-survey-heading').html(`${aaBeltRadarSettings.translations.oreSurveyHeading} - ${moment(data.session.last_entry_timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${data.delete_html ?? ''}`);
             }
 
+            // Create Timer Button HTML and insert it into the session-belt-timer container, ensuring the HTML is present in the response to prevent errors and providing a fallback empty string if not available
+            const createTimerHtml = data?.create_timer_html ?? '';
+            sessionBeltTimer.html(createTimerHtml);
+
             // Render Mining Chart with the same data if available, otherwise try to find it in the root of the response
             const chartData = data?.data?.charts ?? data?.charts ?? { categories: [], series: [] };
             renderMiningChart(chartData);
@@ -54,7 +65,7 @@ $(document).ready(() => {
             // Clear the DataTable to show no data and remove loading state
             BeltRadarSessionsDataTable.clear().draw();
             // Show error message in chart area if chart data is not available
-            chartEl.html(`<div class="text-muted text-center p-4">${aaBeltRadarSettings.translations.noData}</div>`);
+            chartContainer.html(`<div class="text-muted text-center p-4">${aaBeltRadarSettings.translations.noData}</div>`);
         });
 
     /**
@@ -162,7 +173,7 @@ $(document).ready(() => {
         },
     });
 
-    /* Helper function to format numbers with locale and options, providing a default value of 0 for invalid inputs */
+    // Helper function to format numbers with locale and options, providing a default value of 0 for invalid inputs
     const formatWholeNumber = (value) => numberFormatter({
         value: Number(value) || 0,
         language: aaBeltRadarSettings.locale,
@@ -171,10 +182,10 @@ $(document).ready(() => {
         }
     });
 
-    /* Helper function to format timestamps or return 'N/A' if value is not present */
+    // Helper function to format timestamps or return 'N/A' if value is not present
     const formatTimeOrNA = (value) => (value ? moment(value).utc().format('HH:mm') : 'N/A');
 
-    /* Keep Bootstrap tooltip source attributes in sync when values change after initialisation. */
+    // Keep Bootstrap tooltip source attributes in sync when values change after initialisation.
     const setTooltipTitle = (element, title) => {
         element.attr('title', title);
         element.attr('data-bs-original-title', title);
@@ -191,58 +202,65 @@ $(document).ready(() => {
         let firstEntryTimestamp = tableData?.session?.first_entry_timestamp ?? null;
         let lastSnapshotTimestamp = tableData?.session?.last_entry_timestamp ?? null;
         let finishEta = stats?.finish_eta ?? null;
-        /* Use moment to parse finishEta for comparison and formatting */
+        // Use moment to parse finishEta for comparison and formatting
         const finishMoment = moment(finishEta);
 
 
-        sessionNameEl.text(tableData?.session?.name ?? '-');
-        sessionCreatedAtEl.text(tableData?.session?.created_at ? moment(tableData.session.created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
-        sessionOwnerEl.text(tableData?.session?.owner ?? '-');
+        sessionName.text(tableData?.session?.name ?? '-');
+        sessionCreatedAt.text(tableData?.session?.created_at ? moment(tableData.session.created_at).utc().format('YYYY-MM-DD HH:mm:ss') : '-');
+        sessionOwner.text(tableData?.session?.owner ?? '-');
 
-        sessionRemainingAsteroidsEl.text(formatWholeNumber(stats.remaining_asteroids));
-        sessionTotalAsteroidsEl.text(formatWholeNumber(stats.total_asteroids));
+        sessionRemainingAsteroids.text(formatWholeNumber(stats.remaining_asteroids));
+        sessionTotalAsteroids.text(formatWholeNumber(stats.total_asteroids));
 
         const progressPercent = Math.max(0, Math.min(100, Number(stats.progress_percent) || 0));
-        sessionProgressBarEl.css('width', `${progressPercent}%`);
-        sessionProgressBarEl.attr('aria-valuenow', progressPercent.toFixed(2));
-        sessionProgressionEl.text(`(${progressPercent.toFixed(0)}%)`);
+        sessionProgressBar.css('width', `${progressPercent}%`);
+        sessionProgressBar.attr('aria-valuenow', progressPercent.toFixed(2));
+        sessionProgression.text(`(${progressPercent.toFixed(0)}%)`);
         sessionContainer.toggleClass('session-progress-near-complete', progressPercent >= 90);
 
-        /* Update first and last scan timestamps with tooltips */
+        // Update first and last scan timestamps with tooltips
         const firstScanLabel = aaBeltRadarSettings.translations.firstScan;
         let firstScanText = formatTimeOrNA(firstEntryTimestamp);
-        sessionFirstScanEl.text(firstScanText);
-        setTooltipTitle(sessionFirstScanEl, `${firstScanLabel}: ${firstScanText}`);
+        sessionFirstScan.text(firstScanText);
+        setTooltipTitle(sessionFirstScan, `${firstScanLabel}: ${firstScanText}`);
 
-        /* Update last scan timestamp with tooltip, but clear the text if it's the same as the first entry timestamp */
+        // Update last scan timestamp with tooltip, but clear the text if it's the same as the first entry timestamp
         const lastScanLabel = aaBeltRadarSettings.translations.lastScan;
         let lastScanText = formatTimeOrNA(lastSnapshotTimestamp);
-        /* If the last snapshot timestamp is the same as the first entry timestamp, clear the text. */
+        // If the last snapshot timestamp is the same as the first entry timestamp, clear the text.
         if (lastSnapshotTimestamp === firstEntryTimestamp) {
-            sessionLastScanEl.text('');
+            sessionLastScan.text('');
         } else {
-            sessionLastScanEl.text(lastScanText);
-            setTooltipTitle(sessionLastScanEl, `${lastScanLabel}: ${lastScanText}`);
+            sessionLastScan.text(lastScanText);
+            setTooltipTitle(sessionLastScan, `${lastScanLabel}: ${lastScanText}`);
         }
 
-        /* Update finish time and ETA with tooltips */
+        // Update finish time and ETA with tooltips
         const finishTimeLabel = aaBeltRadarSettings.translations.etaScan;
         let finishTimeText = formatTimeOrNA(finishEta);
-        sessionFinishTimeEl.text(finishTimeText);
-        setTooltipTitle(sessionFinishTimeEl, `${finishTimeLabel}: ${moment(finishEta).utc().format('MMM DD HH:mm:ss')}`);
+        sessionFinishTime.text(finishTimeText);
+        setTooltipTitle(sessionFinishTime, `${finishTimeLabel}: ${moment(finishEta).utc().format('MMM DD HH:mm:ss')}`);
+
+        // Update total timestamps with tooltip
+        sessionTotalTimestamps.text(formatWholeNumber(tableData?.session?.total_timestamps ?? 0));
 
         /* Update belt size, speed, and ETA */
-        sessionBeltSizeEl.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
-        sessionSpeedEl.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
+        sessionBeltSize.text(`${formatWholeNumber(stats.belt_volume_left_m3)} / ${formatWholeNumber(stats.belt_volume)} m³`);
+        sessionSpeed.text(`${formatWholeNumber(stats.mining_rate_m3_per_s)} m³/s`);
 
         /* Update ETA text based on whether the finish time is in the past or future */
         if (finishEta) {
             if (finishMoment.isBefore(now)) {
-                sessionEtaEl.text(aaBeltRadarSettings.translations.etaPassed);
+                sessionEta.text(aaBeltRadarSettings.translations.etaPassed);
             } else {
-                sessionEtaEl.text(moment(stats.finish_eta).fromNow());
+                sessionEta.text(moment(stats.finish_eta).fromNow());
             }
         }
+
+        /* Update expected belt type and size */
+        sessionExpectedBeltType.text(stats.excpected_belt_type ?? 'N/A');
+        sessionExpectedBeltSize.text(stats.excpected_belt_size ?? 'N/A');
 
         /* Re-initialize Bootstrap tooltips after updating the DOM elements */
         _bootstrapTooltip();
@@ -259,11 +277,11 @@ $(document).ready(() => {
         }
 
         // Clear existing chart or messages before rendering new chart
-        chartEl.empty();
+        chartContainer.empty();
 
         if (!Array.isArray(chartData.categories) || chartData.categories.length === 0) {
             console.warn('No categories available for mining chart. Chart will not be rendered.');
-            chartEl.html(`<div class="text-muted text-center p-4 w-100">${aaBeltRadarSettings.translations.noData}</div>`);
+            chartContainer.html(`<div class="text-muted text-center p-4 w-100">${aaBeltRadarSettings.translations.noData}</div>`);
             return;
         }
 
@@ -306,7 +324,7 @@ $(document).ready(() => {
                 mode: 'dark',
             },
         };
-        miningChart = new ApexCharts(chartEl[0], options);
+        miningChart = new ApexCharts(chartContainer[0], options);
         miningChart.render();
     };
 
@@ -321,11 +339,11 @@ $(document).ready(() => {
         }
 
         // Clear existing chart or messages before rendering new chart
-        trafficChartEl.empty();
+        trafficChartContainer.empty();
 
         if (!Array.isArray(chartData.categories) || chartData.categories.length === 0) {
             console.warn('No categories available for traffic chart. Chart will not be rendered.');
-            trafficChartEl.html(`<div class="text-muted text-center p-4 w-100">${aaBeltRadarSettings.translations.noData}</div>`);
+            trafficChartContainer.html(`<div class="text-muted text-center p-4 w-100">${aaBeltRadarSettings.translations.noData}</div>`);
             return;
         }
 
@@ -382,7 +400,7 @@ $(document).ready(() => {
                 mode: 'dark',
             },
         };
-        trafficChart = new ApexCharts(trafficChartEl[0], options);
+        trafficChart = new ApexCharts(trafficChartContainer[0], options);
         trafficChart.render();
     };
 
@@ -396,22 +414,34 @@ $(document).ready(() => {
     const _reloadSurveySnapshotData = (tableData) => {
         const dt = BeltRadarSessionEntryTable.DataTable();
         const entries = Array.isArray(tableData?.entries) ? tableData.entries : [];
+
+        // Clear the DataTable and add new entries, ensuring entries is an array to prevent errors and providing a fallback empty array if not present
         dt.clear().rows.add(entries).draw();
+        // Update the last snapshot timestamp in the heading, ensuring timestamp is present in the response to prevent errors and providing a fallback message if not available
         if (tableData?.session?.last_entry_timestamp) {
             $('#ore-survey-heading').html(`${aaBeltRadarSettings.translations.oreSurveyHeading} - ${moment(tableData.session.last_entry_timestamp).utc().format('YYYY-MM-DD HH:mm:ss')} - ${tableData.delete_html ?? ''} ${tableData.add_survey ?? ''}`);
         } else {
             $('#ore-survey-heading').html(`${aaBeltRadarSettings.translations.oreSurveyHeading} - N/A`);
         }
+        // Create Timer Button HTML and insert it into the session-belt-timer container
+        const createTimerHtml = tableData?.create_timer_html ?? '';
+        sessionBeltTimer.html(createTimerHtml);
+        console.log('Updated create timer button HTML:', createTimerHtml);
+        console.log('Session Belt Timer Container:', sessionBeltTimer);
+
+        /* Highlight the DataTable and session details container to indicate that new data has been loaded */
         BeltRadarSessionEntryTable.addClass('highlight');
         sessionContainer.addClass('highlight');
-        chartEl.addClass('highlight');
+        chartContainer.addClass('highlight');
 
+        /* Remove the highlight after 2 seconds to indicate that the data has been refreshed */
         setTimeout(() => {
             BeltRadarSessionEntryTable.removeClass('highlight');
             sessionContainer.removeClass('highlight');
-            chartEl.removeClass('highlight');
+            chartContainer.removeClass('highlight');
         }, 2000);
 
+        /* Render Mining Chart with the same data if available, otherwise try to find it in the root of the response */
         const chartData = tableData?.data?.charts ?? tableData?.charts ?? { categories: [], series: [] };
         renderMiningChart(chartData);
         const trafficChartData = tableData?.data?.traffic ?? tableData?.traffic ?? { categories: [], series: [] };
@@ -561,6 +591,94 @@ $(document).ready(() => {
             modalRequestAddSurvey.find('textarea[name="raw_data"]').val('');
             modalRequestAddSurvey.find('#beltradar-spinner').addClass('d-none');
             modalRequestAddSurvey.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+        });
+
+    /**
+    * View :: Survey Sessions :: Create Timer Button Click Handler
+    * Open Create Survey Timer Modal
+    * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+    * and reopen the previous Survey Sessions Modal
+    */
+    modalRequestCreateTimer.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestCreateTimer.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestCreateTimer.find('#modal-button-confirm-accept-request').on('click', () => {
+            modalRequestCreateTimer.find('#beltradar-spinner').removeClass('d-none');
+            modalRequestCreateTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+            fetchPostBeltRadar({
+                url: url,
+                csrfToken: csrfMiddlewareToken,
+                payload: {}
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        fetchGetBeltRadar({
+                            url: aaBeltRadarSettings.url.surveySessionEntry,
+                        })
+                            .then((freshData) => {
+                                _reloadSurveySnapshotData(freshData);
+                                modalRequestCreateTimer.modal('hide');
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching Survey Snapshot DataTable after add:', error);
+                                modalRequestCreateTimer.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting create timer request: ${error.message}`);
+                    modalRequestCreateTimer.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                });
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestCreateTimer.find('#modal-button-confirm-accept-request').unbind('click');
+            modalRequestCreateTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+        });
+
+    /**
+    * Table :: Belt-Timer :: Delete Button Click Handler
+    * Open Delete Belt-Timer Modal
+    * On Confirmation send a request to the API Endpoint, reload the Belt-Timer DataTable, close the modal
+    * and reopen the previous Belt-Timer Modal
+    */
+    modalRequestDeleteBeltTimer.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestDeleteBeltTimer.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestDeleteBeltTimer.find('#modal-button-confirm-accept-request').on('click', () => {
+            fetchPostBeltRadar({
+                url: url,
+                csrfToken: csrfMiddlewareToken,
+                payload: {}
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        fetchGetBeltRadar({
+                            url: aaBeltRadarSettings.url.surveySessionEntry,
+                        })
+                            .then((freshData) => {
+                                _reloadSurveySnapshotData(freshData);
+                                modalRequestDeleteBeltTimer.modal('hide');
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching Survey Snapshot DataTable after delete:', error);
+                                modalRequestDeleteBeltTimer.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting delete request: ${error.message}`);
+                });
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestDeleteBeltTimer.find('#modal-button-confirm-accept-request').unbind('click');
         });
 
 });

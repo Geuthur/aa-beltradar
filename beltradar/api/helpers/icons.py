@@ -118,7 +118,7 @@ def survey_timer_button_icons(
     """
     perms, session = get_public_id_or_none(request=request, public_id=public_id)
     if not perms:
-        return "N/A"  # Return an empty string if the user does not have permission to delete
+        return "N/A"  # Return an N/A string if the user does not have permission
 
     if session.is_timer_ready:
         text = _("Create Belt Timer")
@@ -225,9 +225,6 @@ def get_survey_delete_button(
 
     perms = get_public_id_or_none(request=request, public_id=public_id)[0]
     if not perms:
-        logger.debug(
-            f"User {request.user} does not have permission to delete survey session {public_id}"
-        )
         return (
             ""  # Return an empty string if the user does not have permission to delete
         )

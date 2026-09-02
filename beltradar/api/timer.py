@@ -65,16 +65,13 @@ class BeltRadarBeltTimerApiEndpoints:
                 request=request,
                 character_id=character_id,
             )[0]
-
-            # Check if the user has permission to access this resource
+            # pylint: disable=duplicate-code
             if perms is False:
-                return HTTPStatus.FORBIDDEN, {
-                    "error": _("You do not have permission to access this resource.")
-                }
-
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
             if perms is None:
                 return HTTPStatus.NOT_FOUND, {
-                    "error": _("No belt timer found for this character.")
+                    "error": _("Requested resource not found.")
                 }
 
             # Retrieve all belt timers associated with the user's character ID
@@ -241,15 +238,15 @@ class BeltRadarBeltTimerApiEndpoints:
                 404: An error message if the survey session is not found.
             """
             # Check if the user has permission to add entries to this survey session
-            perm, session = get_public_id_or_none(request=request, public_id=public_id)
-
-            if not perm:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
-
-            if session is None:
-                msg = _("Survey session not found.")
-                return HTTPStatus.NOT_FOUND, {"error": msg}
+            perms, session = get_public_id_or_none(request=request, public_id=public_id)
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             belt_type, belt_size = session.br_entries.session_resolve_belt()
 
@@ -311,9 +308,14 @@ class BeltRadarBeltTimerApiEndpoints:
                 request=request,
                 character_id=timer.owner.profile.main_character.character_id,
             )[0]
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             # Delete the belt timer
             try:
@@ -364,9 +366,14 @@ class BeltRadarBeltTimerApiEndpoints:
                 request=request,
                 character_id=timer.owner.profile.main_character.character_id,
             )[0]
-            if not perms:
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
 
             # Modify the specified field of the belt timer
             if hasattr(timer, field):

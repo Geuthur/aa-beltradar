@@ -22,6 +22,7 @@ Section Order:
 
 - Convert Raw Numbers to Int for better readability
 - ETA will display 'Done' if it is in the past
+- permission checks to return None for not found cases and update related error handling in API endpoints
 
 ## [0.5.1]- 2026-08-08
 

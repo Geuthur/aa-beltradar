@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Belt Radar 1.0.0\n"
+"Project-Id-Version: AA Belt Radar 0.5.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-09-05 19:09+0200\n"
+"POT-Creation-Date: 2026-09-05 19:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -63,7 +63,7 @@ msgid "Delete Session"
 msgstr ""
 
 #: beltradar/api/helpers/icons.py:351
-msgid "View Survey Session"
+msgid "View Session"
 msgstr ""
 
 #: beltradar/api/helpers/icons.py:373
@@ -121,7 +121,7 @@ msgid "Requested resource not found."
 msgstr ""
 
 #: beltradar/api/session.py:379
-msgid "Survey session and all associated entries deleted successfully."
+msgid "Session and all associated entries deleted successfully."
 msgstr ""
 
 #: beltradar/api/snapshot.py:167
@@ -136,20 +136,24 @@ msgstr ""
 msgid "No valid entries to add. Errors:"
 msgstr ""
 
-#: beltradar/api/snapshot.py:326 beltradar/api/timer.py:207
-msgid "Survey entry added successfully."
+#: beltradar/api/snapshot.py:326
+msgid "Snapshot added successfully."
 msgstr ""
 
 #: beltradar/api/snapshot.py:330
 msgid "No valid entries to add. Missing types:"
 msgstr ""
 
+#: beltradar/api/timer.py:207
+msgid "Belt timer added successfully."
+msgstr ""
+
 #: beltradar/api/timer.py:251
-msgid "Survey session does not have a valid belt type or size."
+msgid "Session does not have a valid belt type or size."
 msgstr ""
 
 #: beltradar/api/timer.py:268
-msgid "Survey timer added successfully."
+msgid "Session Belt timer added successfully."
 msgstr ""
 
 #: beltradar/api/timer.py:300 beltradar/api/timer.py:321
@@ -182,9 +186,9 @@ msgstr ""
 msgid "A name to identify this survey session."
 msgstr ""
 
-#: beltradar/forms.py:159 beltradar/models/beltradar.py:79
+#: beltradar/forms.py:159
 msgid ""
-"Indicates whether this session is publicly accessible without public id."
+"If checked, this session will be visible to other users without a public ID."
 msgstr ""
 
 #: beltradar/forms.py:177
@@ -219,8 +223,13 @@ msgstr ""
 msgid "Check this box to disable notifications for expired belt timers."
 msgstr ""
 
+#: beltradar/models/beltradar.py:79
+msgid ""
+"Indicates whether this session is publicly accessible without public id."
+msgstr ""
+
 #: beltradar/models/beltradar.py:313
-msgid "Optional link to a survey session for this belt timer."
+msgid "Optional link to a session for this belt timer."
 msgstr ""
 
 #: beltradar/models/beltradar.py:323
@@ -278,7 +287,7 @@ msgid "Loading..."
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/forms/batch_ore.html:16
-msgid "Submit Survey"
+msgid "Submit Snapshot"
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/forms/settings.html:11
@@ -477,7 +486,7 @@ msgid "The expected size of the asteroid belt."
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:65
-msgid "Total Survey"
+msgid "Total Snapshots"
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/view-session/snapshot-table.html:13

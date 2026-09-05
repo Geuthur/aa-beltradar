@@ -115,5 +115,7 @@ class BeltTimerFactory(
         "random_element", elements=[choice[0] for choice in BeltTypeChoice.choices]
     )
     eta = None
+    session = None
+
     is_public = False
     sent_notification = False

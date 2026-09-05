@@ -23,6 +23,7 @@ from beltradar.api.helpers.icons import (
     get_belt_timer_status_icon,
 )
 from beltradar.models.beltradar import (
+    BeltSurveySnapshot,
     BeltTimer,
     generate_unique_public_id,
 )
@@ -245,7 +246,9 @@ class BeltRadarApiEndpoints:
                     "error": _("Requested resource not found.")
                 }
 
-            belt_type, belt_size = session.br_snapshots.session_resolve_belt()
+            belt_type, belt_size = BeltSurveySnapshot.objects.filter(
+                timestamp=session.first_timestamp
+            ).session_resolve_belt()
 
             if belt_type is None or belt_size is None:
                 msg = _("Session does not have a valid belt type or size.")

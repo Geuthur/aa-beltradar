@@ -315,7 +315,9 @@ class BeltRadarApiEndpoints:
                         for entry_data in snapshot_asteroids
                     ]
                     BeltSurveyEntry.objects.bulk_create(snapshot_asteroids)
-                    snapshot.asteroids.set(snapshot_asteroids)
+                    snapshot.asteroids.set(
+                        BeltSurveyEntry.objects.filter(snapshot=snapshot)
+                    )
                     if not session.br_belt_timer.exists():
                         # Try to create a Belt Timer after the snapshot is complete.
                         session.create_belt_timer()

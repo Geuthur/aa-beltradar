@@ -57,7 +57,7 @@ class BeltSessionFactory(
     is_public = False
 
 
-class BeltSurveySnapshotFactory(
+class BeltSnapshotFactory(
     factory.django.DjangoModelFactory, metaclass=BaseMetaFactory[BeltSurveySnapshot]
 ):
     """Generate a BeltSurveySnapshot object with default values."""
@@ -81,7 +81,7 @@ class BeltSurveyEntryFactory(
         model = BeltSurveyEntry
         django_get_or_create = ("snapshot", "eve_type", "units", "volume_left")
 
-    snapshot = factory.SubFactory(BeltSurveySnapshotFactory)
+    snapshot = factory.SubFactory(BeltSnapshotFactory)
     eve_type = factory.SubFactory(ItemTypeFactory)
     units = factory.Faker("random_int", min=1, max=1000)
     volume_left = factory.Faker("random_int", min=1, max=10000)

@@ -4,8 +4,8 @@
 from beltradar.tests import BeltRadarTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
+    BeltSnapshotFactory,
     BeltSurveyEntryFactory,
-    BeltSurveySnapshotFactory,
     UserMainFactory,
 )
 from beltradar.tests.testdata.factory import (
@@ -41,13 +41,13 @@ class TestFactory(BeltRadarTestCase):
 
     def test_can_create_belt_snapshot(self):
         """Test that a belt survey snapshot can be created."""
-        snapshot = BeltSurveySnapshotFactory()
+        snapshot = BeltSnapshotFactory()
         self.assertTrue(snapshot)
 
     def test_can_create_belt_snapshot_for_given_session(self):
         """Test that a belt survey snapshot can be created for a given session."""
         session = BeltSessionFactory()
-        snapshot = BeltSurveySnapshotFactory(session=session)
+        snapshot = BeltSnapshotFactory(session=session)
         self.assertEqual(snapshot.session, session)
 
     def test_can_create_belt_survey_entry(self):
@@ -57,7 +57,7 @@ class TestFactory(BeltRadarTestCase):
 
     def test_can_create_belt_survey_entry_for_given_snapshot(self):
         """Test that a belt survey entry can be created for a given snapshot."""
-        snapshot = BeltSurveySnapshotFactory()
+        snapshot = BeltSnapshotFactory()
         entry = BeltSurveyEntryFactory(snapshot=snapshot)
         self.assertEqual(entry.snapshot.session, snapshot.session)
 

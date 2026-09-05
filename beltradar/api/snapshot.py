@@ -122,56 +122,6 @@ class BeltRadarApiEndpoints:
             )
 
         @api.post(
-            "manage/delete-session/{public_id}/",
-            response={
-                HTTPStatus.OK: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
-            },
-            tags=self.tags,
-        )
-        def delete_session(request, public_id: str):
-            """
-            Delete an entire survey session and all its entries.
-
-            This Endpoint allows users to delete an entire survey session along with all its associated entries.
-            The user must have permission to delete the survey session, and the survey session must exist.
-
-            Args:
-                public_id (str): The public UUID of the survey session.
-            Returns:
-                200: A success message indicating the survey session was deleted.
-                403: An error message if the user does not have permission or the session is not found.
-                404: An error message if no entries are found for the given survey session.
-            """
-            # Check if the survey session exists
-            try:
-                session = BeltSurveySession.objects.get(public_id=public_id)
-            except ObjectDoesNotExist:
-                msg = _("Belt Session not found.")
-                return HTTPStatus.NOT_FOUND, {"error": msg}
-
-            # Check if the user has permission to delete this survey session
-            perms = get_session_or_none(
-                request=request,
-                public_id=public_id,
-            )[0]
-            # pylint: disable=duplicate-code
-            if perms is False:
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-            # pylint: disable=duplicate-code
-            if perms is None:
-                return HTTPStatus.NOT_FOUND, {
-                    "error": _("Requested resource not found.")
-                }
-
-            # Delete the survey session and all associated entries
-            session.delete()
-            # If the session was deleted successfully, return a success message
-            msg = _("Survey session and all associated entries deleted successfully.")
-            return HTTPStatus.OK, {"success": True, "message": msg}
-
-        @api.post(
             "manage/delete-snapshot/{public_id}/snapshot/{identifier}/",
             response={
                 HTTPStatus.OK: dict,

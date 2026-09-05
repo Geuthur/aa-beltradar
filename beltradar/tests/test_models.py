@@ -14,8 +14,8 @@ from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.tests import BeltRadarTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
+    BeltSnapshotFactory,
     BeltSurveyEntryFactory,
-    BeltSurveySnapshotFactory,
     BeltTimerFactory,
 )
 from beltradar.tests.testdata.factory import ItemTypeFactory
@@ -41,7 +41,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return entries for given snapshot.
         """
         # Test Data
-        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        snapshot = BeltSnapshotFactory(session=self.session)
         BeltSurveyEntryFactory(snapshot=snapshot)
         # Test Action
         snapshots = self.session.br_snapshots.filter(identifier=snapshot.identifier)
@@ -54,10 +54,10 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return snapshot of previous entry for session.
         """
         # Test Data
-        snapshot = BeltSurveySnapshotFactory(
+        snapshot = BeltSnapshotFactory(
             session=self.session, timestamp=self.timestamp, identifier=self.unique_hash
         )
-        snapshot2 = BeltSurveySnapshotFactory(
+        snapshot2 = BeltSnapshotFactory(
             session=self.session,
             timestamp=self.timestamp_2,
             identifier=self.unique_hash2,
@@ -75,7 +75,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return total volume of ore in belt.
         """
         # Test Data
-        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        snapshot = BeltSnapshotFactory(session=self.session)
         BeltSurveyEntryFactory(
             snapshot=snapshot,
             volume_left=5000,
@@ -99,7 +99,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             test_cases
         ):
             with self.subTest(ore_name=ore_name):
-                snapshot = BeltSurveySnapshotFactory(session=self.session)
+                snapshot = BeltSnapshotFactory(session=self.session)
                 item_type = ItemTypeFactory(id=10_000 + index, name=ore_name)
                 BeltSurveyEntryFactory(
                     snapshot=snapshot,
@@ -119,7 +119,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         for index, ore_name in enumerate(
             ("Mercoxit", "Mercoxit II-Grade", "Mercoxit III-Grade")
         ):
-            snapshot = BeltSurveySnapshotFactory(session=session)
+            snapshot = BeltSnapshotFactory(session=session)
             BeltSurveyEntryFactory(
                 snapshot=snapshot,
                 eve_type=ItemTypeFactory(id=20_000 + index, name=ore_name),
@@ -143,7 +143,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         blue_ice = ItemTypeFactory(id=30_000, name="Blue Ice")
 
         for _ in range(3):
-            snapshot = BeltSurveySnapshotFactory(session=session)
+            snapshot = BeltSnapshotFactory(session=session)
             BeltSurveyEntryFactory(
                 snapshot=snapshot,
                 eve_type=blue_ice,
@@ -158,7 +158,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         blue_ice = ItemTypeFactory(id=30_000, name="Blue Ice")
 
         for _ in range(4):
-            snapshot = BeltSurveySnapshotFactory(session=session)
+            snapshot = BeltSnapshotFactory(session=session)
             BeltSurveyEntryFactory(
                 snapshot=snapshot,
                 eve_type=blue_ice,
@@ -172,7 +172,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return total units in belt.
         """
         # Test Data
-        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        snapshot = BeltSnapshotFactory(session=self.session)
         BeltSurveyEntryFactory(
             snapshot=snapshot,
         )
@@ -187,10 +187,10 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return progress percent of belt survey.
         """
         # Test Data
-        snapshot = BeltSurveySnapshotFactory(
+        snapshot = BeltSnapshotFactory(
             session=self.session, identifier=self.unique_hash, timestamp=self.timestamp
         )
-        snapshot2 = BeltSurveySnapshotFactory(
+        snapshot2 = BeltSnapshotFactory(
             session=self.session,
             identifier=self.unique_hash2,
             timestamp=self.timestamp_2,
@@ -216,10 +216,10 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return mining rate in m3/s.
         """
         # Test Data
-        snapshot = BeltSurveySnapshotFactory(
+        snapshot = BeltSnapshotFactory(
             session=self.session, identifier=self.unique_hash, timestamp=self.timestamp
         )
-        snapshot2 = BeltSurveySnapshotFactory(
+        snapshot2 = BeltSnapshotFactory(
             session=self.session,
             identifier=self.unique_hash2,
             timestamp=self.timestamp_2,
@@ -243,10 +243,8 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return finish eta for belt survey.
         """
         # Test Data
-        snapshot = BeltSurveySnapshotFactory(
-            session=self.session, timestamp=self.timestamp
-        )
-        snapshot2 = BeltSurveySnapshotFactory(
+        snapshot = BeltSnapshotFactory(session=self.session, timestamp=self.timestamp)
+        snapshot2 = BeltSnapshotFactory(
             session=self.session, timestamp=self.timestamp_2
         )
 
@@ -330,7 +328,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Test Ore",
             volume=10.0,
         )
-        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        snapshot = BeltSnapshotFactory(session=self.session)
         belt_survey = BeltSurveyEntryFactory(
             snapshot=snapshot,
             eve_type=item_type,
@@ -351,7 +349,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Test CMP Ore",
             volume=5.0,
         )
-        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        snapshot = BeltSnapshotFactory(session=self.session)
         belt_survey = BeltSurveyEntryFactory(
             snapshot=snapshot,
             eve_type=item_type,
@@ -372,7 +370,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Test Ore 3",
             volume=20.0,
         )
-        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        snapshot = BeltSnapshotFactory(session=self.session)
         belt_survey = BeltSurveyEntryFactory(
             snapshot=snapshot,
             eve_type=item_type,
@@ -396,7 +394,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Test CMP Ore 4",
             volume=10.0,
         )
-        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        snapshot = BeltSnapshotFactory(session=self.session)
         belt_survey = BeltSurveyEntryFactory(
             snapshot=snapshot,
             eve_type=item_type,
@@ -419,10 +417,10 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Arkonor",
         )
 
-        snapshot = BeltSurveySnapshotFactory(session=self.session)
-        snapshot2 = BeltSurveySnapshotFactory(session=self.session)
-        snapshot3 = BeltSurveySnapshotFactory(session=self.session)
-        snapshot4 = BeltSurveySnapshotFactory(session=self.session)
+        snapshot = BeltSnapshotFactory(session=self.session)
+        snapshot2 = BeltSnapshotFactory(session=self.session)
+        snapshot3 = BeltSnapshotFactory(session=self.session)
+        snapshot4 = BeltSnapshotFactory(session=self.session)
 
         BeltSurveyEntryFactory(
             snapshot=snapshot,

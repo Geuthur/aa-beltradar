@@ -1,23 +1,23 @@
 {% load django_bootstrap5 %}
 {% load i18n %}
 
-<!-- add survey modal -->
-<div class="modal modal-xl fade" id="beltradar-add-survey" tabindex="-1" role="dialog" aria-hidden="true">
+<!-- add snapshot modal -->
+<div class="modal modal-xl fade" id="beltradar-add-snapshot" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title fs-5">
-                    {% translate "Add Survey" %}
+                    {% translate "Add Snapshot" %}
                 </div>
 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
             </div>
 
             <div class="modal-body">
-                <form method="post" id="modal-form-add-survey">
+                <form method="post" id="modal-form-add-snapshot">
                     {% csrf_token %}
 
-                    {% bootstrap_form forms.add_survey %}
+                    {% bootstrap_form forms.add_snapshot %}
                 </form>
                 {% include 'beltradar/partials/common/spinner.html' %}
                 {% include 'beltradar/partials/common/error.html' %}
@@ -31,7 +31,7 @@
 
                 <button id="modal-button-confirm-add-request" type="button" class="btn btn-success btn-sm">
                     <i class="fa-solid fa-check"></i>
-                    {% translate "Add Survey" %}
+                    {% translate "Add Snapshot" %}
                 </button>
             </div>
         </div>

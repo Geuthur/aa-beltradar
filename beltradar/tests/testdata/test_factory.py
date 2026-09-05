@@ -5,6 +5,7 @@ from beltradar.tests import BeltRadarTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
     BeltSurveyEntryFactory,
+    BeltSurveySnapshotFactory,
     UserMainFactory,
 )
 from beltradar.tests.testdata.factory import (
@@ -38,17 +39,27 @@ class TestFactory(BeltRadarTestCase):
         session = BeltSessionFactory(owner=self.user)
         self.assertEqual(session.owner, self.user)
 
+    def test_can_create_belt_snapshot(self):
+        """Test that a belt survey snapshot can be created."""
+        snapshot = BeltSurveySnapshotFactory()
+        self.assertTrue(snapshot)
+
+    def test_can_create_belt_snapshot_for_given_session(self):
+        """Test that a belt survey snapshot can be created for a given session."""
+        session = BeltSessionFactory()
+        snapshot = BeltSurveySnapshotFactory(session=session)
+        self.assertEqual(snapshot.session, session)
+
     def test_can_create_belt_survey_entry(self):
         """Test that a belt survey entry can be created."""
         entry = BeltSurveyEntryFactory()
         self.assertTrue(entry)
 
-    def test_can_create_belt_survey_entry_for_given_session(self):
-        """Test that a belt survey entry can be created."""
-        session = BeltSessionFactory()
-        entry = BeltSurveyEntryFactory(session=session, recorded_by=session.owner)
-        self.assertEqual(entry.session, session)
-        self.assertEqual(entry.recorded_by, session.owner)
+    def test_can_create_belt_survey_entry_for_given_snapshot(self):
+        """Test that a belt survey entry can be created for a given snapshot."""
+        snapshot = BeltSurveySnapshotFactory()
+        entry = BeltSurveyEntryFactory(snapshot=snapshot)
+        self.assertEqual(entry.snapshot.session, snapshot.session)
 
     def test_can_create_eve_character(self):
         """Test that an EVE character can be created."""

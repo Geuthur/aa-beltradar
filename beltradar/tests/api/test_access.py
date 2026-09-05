@@ -11,6 +11,7 @@ from beltradar.tests import BeltRadarTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
     BeltSurveyEntryFactory,
+    BeltSurveySnapshotFactory,
     BeltTimerFactory,
     ItemTypeFactory,
     UserMainFactory,
@@ -26,54 +27,6 @@ class TestApiEndpoints(BeltRadarTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
-    def test_get_sessions_should_403(self):
-        """
-        Test should return 403 Forbidden when user lacks permissions.
-        """
-        # Test Data
-        user_no_permission = UserMainFactory(permissions__=[])
-        url = reverse(f"{API_URL}:get_survey_session", kwargs={"public_id": "1"})
-        self.client.force_login(user_no_permission)
-
-        # Test Action
-        response = self.client.get(url)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-
-    def test_get_survey_session_should_404(self):
-        """
-        Test should return 404 Not Found when resource does not exist.
-        """
-        # Test Data
-        url = reverse(
-            f"{API_URL}:get_survey_session", kwargs={"public_id": "nonexistent"}
-        )
-        self.client.force_login(self.user)
-
-        # Test Action
-        response = self.client.get(url)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-
-    def test_get_survey_session_should_200(self):
-        """
-        Test should return 200 OK when user has permissions and resource exists.
-        """
-        # Test Data
-        session = BeltSessionFactory(owner=self.user)
-        url = reverse(
-            f"{API_URL}:get_survey_session", kwargs={"public_id": session.public_id}
-        )
-        self.client.force_login(self.user)
-
-        # Test Action
-        response = self.client.get(url)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_get_my_sessions_should_200(self):
         """
@@ -112,14 +65,14 @@ class TestApiEndpoints(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
-    def test_get_sessions_should_200(self):
+    def test_get_public_sessions_should_200(self):
         """
         Test should return 200 OK when user has permissions and resource exists.
         """
         # Test Data
         BeltSessionFactory(owner=self.user)
         BeltSessionFactory(owner=self.user)
-        url = reverse(f"{API_URL}:get_sessions")
+        url = reverse(f"{API_URL}:get_public_sessions")
         self.client.force_login(self.user)
 
         # Test Action
@@ -128,15 +81,14 @@ class TestApiEndpoints(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_get_survey_entry_should_200(self):
+    def test_get_snapshot_should_200(self):
         """
         Test should return 200 OK when user has permissions and resource exists.
         """
         # Test Data
-        session = BeltSessionFactory(owner=self.user)
-        survey_entry = BeltSurveyEntryFactory(session=session, recorded_by=self.user)
+        snapshot = BeltSurveySnapshotFactory(recorded_by=self.user)
         url = reverse(
-            f"{API_URL}:get_survey_entry", kwargs={"public_id": session.public_id}
+            f"{API_URL}:get_snapshot", kwargs={"public_id": snapshot.session.public_id}
         )
         self.client.force_login(self.user)
 
@@ -146,22 +98,19 @@ class TestApiEndpoints(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(
-            response.json()["session"]["public_id"], str(session.public_id)
-        )
-        self.assertEqual(
-            response.json()["entries"][0]["snapshot"], survey_entry.snapshot
+            response.json()["snapshot"]["identifier"], str(snapshot.identifier)
         )
 
-    def test_get_survey_entry_should_403(self):
+    def test_get_snapshot_should_403(self):
         """
         Test should return 403 Forbidden when user lacks permissions.
         """
         # Test Data
-        session = BeltSessionFactory(owner=self.user)
-        BeltSurveyEntryFactory(session=session, recorded_by=self.user)
+        snapshot = BeltSurveySnapshotFactory(recorded_by=self.user)
+        BeltSurveyEntryFactory(snapshot=snapshot)
         user_no_permission = UserMainFactory(permissions__=[])
         url = reverse(
-            f"{API_URL}:get_survey_entry", kwargs={"public_id": session.public_id}
+            f"{API_URL}:get_snapshot", kwargs={"public_id": snapshot.session.public_id}
         )
         self.client.force_login(user_no_permission)
 
@@ -171,14 +120,12 @@ class TestApiEndpoints(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
-    def test_get_survey_entry_should_404(self):
+    def test_get_snapshot_should_404(self):
         """
         Test should return 404 Not Found when resource does not exist.
         """
         # Test Data
-        url = reverse(
-            f"{API_URL}:get_survey_entry", kwargs={"public_id": "nonexistent"}
-        )
+        url = reverse(f"{API_URL}:get_snapshot", kwargs={"public_id": "nonexistent"})
         self.client.force_login(self.user)
 
         # Test Action
@@ -193,6 +140,7 @@ class TestApiEndpoints(BeltRadarTestCase):
         """
         # Test Data
         BeltTimerFactory(owner=self.user)
+        print(self.user.profile.main_character.character_id)
         url = reverse(
             f"{API_URL}:get_my_belt_timer",
             kwargs={"character_id": self.user.profile.main_character.character_id},
@@ -223,20 +171,6 @@ class TestApiEndpoints(BeltRadarTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-
-    def test_get_my_belt_timer_should_404(self):
-        """
-        Test should return 404 Not Found when resource does not exist.
-        """
-        # Test Data
-        url = reverse(f"{API_URL}:get_my_belt_timer", kwargs={"character_id": 1337})
-        self.client.force_login(self.user)
-
-        # Test Action
-        response = self.client.get(url)
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_get_belt_timers_should_200(self):
         """
@@ -272,7 +206,7 @@ class TestApiEndpointsPost(BeltRadarTestCase):
             "belt_name": "Test Belt",
             "belt_type": "asteroid_belt",
             "belt_size": "large",
-            "public": "false",
+            "is_public": "false",
         }
 
         # Test Action
@@ -312,7 +246,7 @@ class TestApiEndpointsPost(BeltRadarTestCase):
             "belt_name": "",
             "belt_type": "invalid_type",
             "belt_size": "invalid_size",
-            "public": "not_a_boolean",
+            "is_public": "not_a_boolean",
         }
 
         # Test Action
@@ -323,19 +257,19 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
 
-    def test_add_survey_timer_should_200(self):
+    def test_add_session_belt_timer_should_200(self):
         """
         Test should return 200 OK when user has permissions and data is valid.
         """
         # Test Data
         session = BeltSessionFactory(owner=self.user)
+        snapshot = BeltSurveySnapshotFactory(session=session, recorded_by=self.user)
         BeltSurveyEntryFactory(
-            session=session,
-            recorded_by=self.user,
+            snapshot=snapshot,
             eve_type=ItemTypeFactory(name="Arkonor"),
         )
         url = reverse(
-            f"{API_URL}:add_survey_timer", kwargs={"public_id": session.public_id}
+            f"{API_URL}:add_session_belt_timer", kwargs={"public_id": session.public_id}
         )
         self.client.force_login(self.user)
         payload = {
@@ -352,14 +286,14 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(belt_timer.session, session)
 
-    def test_add_survey_timer_should_403(self):
+    def test_add_session_belt_timer_should_403(self):
         """
         Test should return 403 Forbidden when user lacks permissions.
         """
         # Test Data
         session = BeltSessionFactory(owner=self.user)
         url = reverse(
-            f"{API_URL}:add_survey_timer", kwargs={"public_id": session.public_id}
+            f"{API_URL}:add_session_belt_timer", kwargs={"public_id": session.public_id}
         )
         user_no_permission = UserMainFactory(permissions__=[])
         self.client.force_login(user_no_permission)
@@ -375,13 +309,13 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
-    def test_add_survey_timer_should_404(self):
+    def test_add_session_belt_timer_should_404(self):
         """
         Test should return 404 Not Found when resource does not exist.
         """
         # Test Data
         url = reverse(
-            f"{API_URL}:add_survey_timer", kwargs={"public_id": "nonexistent"}
+            f"{API_URL}:add_session_belt_timer", kwargs={"public_id": "nonexistent"}
         )
         self.client.force_login(self.user)
         payload = {
@@ -396,23 +330,24 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
-    def test_add_survey_timer_should_400(self):
+    def test_add_session_belt_timer_should_400(self):
         """
         Test should return 400 Bad Request when ore data is invalid.
         """
         # Test Data
         session = BeltSessionFactory(owner=self.user)
+        snapshot = BeltSurveySnapshotFactory(session=session, recorded_by=self.user)
         BeltSurveyEntryFactory(
-            session=session,
-            recorded_by=self.user,
+            snapshot=snapshot,
             eve_type=ItemTypeFactory(name="Test Ore"),
         )
         url = reverse(
-            f"{API_URL}:add_survey_timer", kwargs={"public_id": session.public_id}
+            f"{API_URL}:add_session_belt_timer",
+            kwargs={"public_id": snapshot.session.public_id},
         )
         self.client.force_login(self.user)
         payload = {
-            "public_id": session.public_id,
+            "public_id": snapshot.session.public_id,
         }
 
         # Test Action

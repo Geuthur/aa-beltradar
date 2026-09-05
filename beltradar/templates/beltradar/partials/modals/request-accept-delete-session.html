@@ -1,13 +1,13 @@
 {% load django_bootstrap5 %}
 {% load i18n %}
 
-<!-- accept delete survey session modal -->
-<div class="modal fade" id="beltradar-accept-delete-survey-session" tabindex="-1" role="dialog" aria-hidden="true">
+<!-- accept delete session modal -->
+<div class="modal fade" id="beltradar-accept-delete-session" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title fs-5">
-                    {% translate "Accept Delete Survey Session" %}
+                    {% translate "Accept Delete Session" %}
                 </div>
 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
@@ -15,13 +15,13 @@
 
             <div class="modal-body">
                 <p>
-                    {% translate "Are you sure you want to delete this survey session?" %}
+                    {% translate "Are you sure you want to delete this session?" %}
                 </p>
 
                 <form method="post">
                     {% csrf_token %}
 
-                    {% bootstrap_form forms.delete_survey %}
+                    {% bootstrap_form forms.delete_session %}
                 </form>
                 {% include 'beltradar/partials/common/spinner.html' %}
                 {% include 'beltradar/partials/common/error.html' %}
@@ -35,7 +35,7 @@
 
                 <button id="modal-button-confirm-accept-request" type="button" class="btn btn-success btn-sm">
                     <i class="fa-solid fa-check"></i>
-                    {% translate "Accept Delete Survey Session" %}
+                    {% translate "Accept Delete Session" %}
                 </button>
             </div>
         </div>

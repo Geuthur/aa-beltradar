@@ -12,10 +12,10 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api.helpers.icons import (
-    get_add_belt_timer_button,
-    get_add_survey_button,
-    get_survey_delete_button,
-    survey_timer_button_icons,
+    get_belt_timer_add_button,
+    get_session_add_button,
+    get_session_delete_button,
+    get_snapshot_add_button,
 )
 from beltradar.models import BeltSurveySession, UserSettings
 from beltradar.providers import AppLogger
@@ -27,13 +27,13 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 @permission_required("beltradar.basic_access")
 def create_session(request):
     context = {
-        "title": "Create Belt Survey Session",
+        "title": "Create Belt Session",
         "forms": {
-            "create_session": forms.BeltSurveySessionForm(),
+            "create_session": forms.BeltSessionForm(),
         },
     }
     if request.method == "POST":
-        form = forms.BeltSurveySessionForm(request.POST)
+        form = forms.BeltSessionForm(request.POST)
         if form.is_valid():
             sess = form.save(commit=False)
             sess.owner = request.user
@@ -51,17 +51,18 @@ def view_session(request, public_id):
         "title": f"View Session - {session.name or session.public_id}",
         "session": session,
         "forms": {
-            "delete_snapshot": forms.DeleteSnapshotForm(),
-            "delete_survey": forms.DeleteSurveyForm(),
-            "add_survey": forms.AddSurveyForm(),
-            "create_survey_timer": forms.CreateSurveyTimerForm(),
+            "add_snapshot": forms.AddSnapshotForm(),
+            "create_belt_timer": forms.CreateTimerForm(),
             "delete_belt_timer": forms.DeleteBeltTimerForm(),
+            "delete_snapshot": forms.DeleteSnapshotForm(),
+            "delete_session": forms.DeleteSessionForm(),
         },
-        "delete_button": get_survey_delete_button(request=request, public_id=public_id),
-        "add_survey_button": get_add_survey_button(
+        "delete_session_button": get_session_delete_button(
             request=request, public_id=public_id
         ),
-        "create_timer": survey_timer_button_icons(request=request, public_id=public_id),
+        "add_snapshot_button": get_snapshot_add_button(
+            request=request, public_id=public_id
+        ),
     }
     return render(request, "beltradar/view-session.html", context=context)
 
@@ -71,14 +72,16 @@ def view_session(request, public_id):
 def view_belt_radar(request):
     """View all survey sessions visible to the user."""
     context = {
-        "title": "Survey Sessions Overview",
+        "title": _("Session Overview"),
         "forms": {
+            "add_session": forms.BeltSessionForm(),
             "add_belt_timer": forms.BeltTimerForm(),
             "switch_belt_timer": forms.SwitchBeltTimerForm(),
-            "delete_survey": forms.DeleteSurveyForm(),
+            "delete_session": forms.DeleteSessionForm(),
             "delete_belt_timer": forms.DeleteBeltTimerForm(),
         },
-        "add_belt_timer_button": get_add_belt_timer_button(request=request),
+        "session_add_button": get_session_add_button(request=request),
+        "belt_timer_add_button": get_belt_timer_add_button(request=request),
     }
     return render(request, "beltradar/view-belt-radar.html", context=context)
 
@@ -90,15 +93,17 @@ def view_my_beltradar(request, character_id=None):
         character_id = request.user.profile.main_character.character_id
 
     context = {
-        "title": "My Sessions",
+        "title": _("My Sessions"),
         "character_id": character_id,
         "forms": {
+            "add_session": forms.BeltSessionForm(),
             "add_belt_timer": forms.BeltTimerForm(),
             "switch_belt_timer": forms.SwitchBeltTimerForm(),
-            "delete_survey": forms.DeleteSurveyForm(),
+            "delete_session": forms.DeleteSessionForm(),
             "delete_belt_timer": forms.DeleteBeltTimerForm(),
         },
-        "add_belt_timer_button": get_add_belt_timer_button(request=request),
+        "session_add_button": get_session_add_button(request=request),
+        "belt_timer_add_button": get_belt_timer_add_button(request=request),
     }
     return render(request, "beltradar/view-my-belt-radar.html", context=context)
 
@@ -138,24 +143,3 @@ def view_my_settings(request):
     }
 
     return render(request, "beltradar/view-my-settings.html", context=context)
-
-
-@login_required
-@permission_required("beltradar.basic_access")
-def create_belt_timer(request):
-    """Create a new belt timer."""
-    context = {
-        "title": "Create Belt Timer",
-        "forms": {
-            "create_belt_timer": forms.BeltTimerForm(),
-        },
-    }
-    if request.method == "POST":
-        form = forms.BeltTimerForm(request.POST)
-        if form.is_valid():
-            timer = form.save(commit=False)
-            timer.owner = request.user
-            timer.save()
-            return redirect("beltradar:view_my_beltradar")
-        context["forms"]["create_belt_timer"] = form  # return bound form with errors
-    return render(request, "beltradar/view-create-timer.html", context=context)

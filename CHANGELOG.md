@@ -3,6 +3,21 @@
 ## [In Development] - Unreleased
 
 <!--
+> [!NOTE]
+>
+
+> [!TIP]
+>
+
+> [!IMPORTANT]
+>
+
+> [!WARNING]
+>
+
+> [!CAUTION]
+>
+
 Section Order:
 
 ### Added
@@ -11,20 +26,35 @@ Section Order:
 ### Removed
 -->
 
-## [0.6.0]- 2026-09-02
+> [!CAUTION]
+> All Survey Entries and Sessions will be removed with Belt Radar v1
+
+### Fixed
+
+- TrafficContainer Error Response
+- AttributeError if User has no Main Character
 
 ### Added
 
-- Belt Type & Belt Size Expection
+- "is_public" field for Session
+- Dynamic Belt & Snapshot Management
+- Belt Timer Creation Triggered by 4 Submitted Surveys (Auto Timer)
+- `BeltSurveySnapshot` Model
 - BeltTimer Filter for expired timers
+- Belt Type & Belt Size Expection
 - Bootstrap5 Tooltip to Progress Bar
-- DataTables buttons extension and export functionality
+- "Export to CSV" function
 
 ### Changed
 
+- Public Session will only display if `is_public` is `true`
+- Create Timer & Session now are interactive
+- Optimized DataTables CSS
+- Refactor Belt Radar Models & Managers
 - Convert Raw Numbers to Int for better readability
 - ETA will display 'Done' if it is in the past
 - permission checks to return None for not found cases and update related error handling in API endpoints
+- Belt Respawn Timers Can Now Be Created Without a Session Assignment
 
 ## [0.5.1]- 2026-08-08
 
@@ -224,5 +254,4 @@ Section Order:
 [0.2.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.1.0...v0.2.0 "v0.2.0"
 [0.5.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.2.0...v0.5.0 "v0.5.0"
 [0.5.1]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.0...v0.5.1 "v0.5.1"
-[0.6.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.1...v0.6.0 "v0.6.0"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v0.6.0...HEAD "In Development"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.0...HEAD "In Development"

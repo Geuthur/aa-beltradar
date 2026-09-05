@@ -21,10 +21,8 @@ def generate_apex_chart_mining_data(session: BeltSurveySession):
     Args:
         session (BeltSurveySession): The survey session containing entries.
     """
-    snapshots = session.br_entries.snapshots()
-
-    first_snapshot = snapshots.first()
-    last_snapshot = snapshots.last()
+    first_snapshot = session.br_snapshots.order_by("timestamp").first()
+    last_snapshot = session.br_snapshots.order_by("-timestamp").first()
 
     # If there are no snapshots, return an empty chart schema
     if not first_snapshot or not last_snapshot:
@@ -35,7 +33,7 @@ def generate_apex_chart_mining_data(session: BeltSurveySession):
     progress_bar_data: list[float] = []
 
     # Get the first snapshot data to determine the starting volume for each ore type
-    first_data = session.br_entries.for_snapshot(first_snapshot)
+    first_data = first_snapshot.asteroids.all()
     # Get the distinct ore categories from the first snapshot
     ore_categories: list[str] = (
         first_data.values_list("eve_type__name", flat=True)
@@ -53,7 +51,7 @@ def generate_apex_chart_mining_data(session: BeltSurveySession):
         ore_dict[ore] = volume_left
 
     # Get the last snapshot data to calculate progress
-    last_data = session.br_entries.for_snapshot(last_snapshot)
+    last_data = last_snapshot.asteroids.all()
     # Loop through each ore category and calculate the progress percentage based on the starting volume and the volume left in the last snapshot
     for ore in ore_categories:
         # Calculate the volume left for each ore type in the last snapshot
@@ -94,22 +92,21 @@ def generate_apex_chart_traffic_data(session: BeltSurveySession):
     Args:
         session (BeltSurveySession): The survey session containing entries.
     """
-    snapshots = session.br_entries.snapshots()
-
     categories = []
     volume_left = []
     rate_per_s = []
     series: list[schema.ApexChartSeriesDataSchema] = []
 
     # Loop through each snapshot and collect data for the chart
-    for snapshot in snapshots:
-        data = session.br_entries.snapshot_stats(snapshot)
+    for snapshot in session.br_snapshots.order_by("timestamp"):
         # Append the timestamp of the snapshot to the categories list
-        categories.append(data["timestamp"].strftime("%Y-%m-%d %H:%M:%S"))
+        categories.append(snapshot.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
         # Append the volume left
-        volume_left.append(round(data["volume_left"], 0))
+        volume_left.append(round(snapshot.belt_size_m3, 0))
         # Append the rate per second
-        rate_per_s.append(round(data["rate_per_s"], 0))
+        rate = round(session.br_snapshots.rate_per_s_for_snapshot(snapshot), 0)
+        logger.debug(f"Rate for snapshot {snapshot.timestamp}: {rate}")
+        rate_per_s.append(rate)
 
     # Create series data for the chart
     series.append(

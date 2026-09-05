@@ -1,7 +1,8 @@
 {% load i18n %}
 <div class="card mt-2 rounded">
-    <div class="card-header bg-primary rounded-top">
-        <h3 class="me-3">{% translate "Sessions" %}</h3>
+    <div class="card-header bg-primary rounded-top d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+        <h3 class="me-3">{% translate "My Sessions" %}</h3>
+        <span class="text-muted">{{ session_add_button|safe }}</span>
     </div>
     <!-- Belt Radar Sessions Table -->
     <div class="table-responsive mb-3">
@@ -12,6 +13,7 @@
                     <th class="w-auto">{% translate "Name" %}</th>
                     <th class="w-auto">{% translate "Created At" %}</th>
                     <th class="w-auto">{% translate "Owner" %}</th>
+                    <th class="w-auto">{% translate "Public" %}</th>
                     <th class="w-auto">{% translate "Actions" %}</th>
                 </tr>
             </thead>

@@ -13,7 +13,10 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__
-from beltradar.api.helpers.core import get_belt_timer_or_none, get_public_id_or_none
+from beltradar.api.helpers.core import (
+    get_manage_belt_timer_or_none,
+    get_manage_session_or_none,
+)
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
@@ -21,7 +24,7 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 if TYPE_CHECKING:
     # AA Belt Radar
-    from beltradar.models.beltradar import BeltTimer
+    from beltradar.models.beltradar import BeltSurveySession, BeltTimer
 
 
 def _create_button(
@@ -70,15 +73,15 @@ def _create_button(
         "beltradar.basic_access",
     ]
 )
-def survey_manage_action_icons(
+def session_manage_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
     public_id: str,
 ) -> str | HttpResponse:
     """
-    Generate HTML Action Icons for the My Sessions view.
+    Generate HTML Action Icons for the Session Overview view.
 
-    This function creates a set of action icons for managing survey sessions.
-    The Buttons include Edit, Delete, and View, each represented by an icon depending on User's permissions.
+    This function creates a set of action icons for managing sessions.
+    The buttons include Edit, Delete, and View, each represented by an icon depending on User's permissions.
 
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
@@ -86,10 +89,10 @@ def survey_manage_action_icons(
         SafeString: HTML string containing the action icons.
     """
     beltradar_request_icons = "<div class='d-flex justify-content-end'>"
-    beltradar_request_icons += get_survey_view_button(
+    beltradar_request_icons += get_session_view_button(
         request=request, public_id=public_id
     )
-    beltradar_request_icons += get_survey_delete_button(
+    beltradar_request_icons += get_session_delete_button(
         request=request, public_id=public_id
     )
     beltradar_request_icons += "</div>"
@@ -101,34 +104,34 @@ def survey_manage_action_icons(
         "beltradar.basic_access",
     ]
 )
-def survey_timer_button_icons(
+def session_belt_timer_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
     public_id: str,
 ) -> str | HttpResponse:
     """
-    Generate HTML Action Icons for the My Sessions view.
+    Generate HTML Action Icons for the Session view.
 
-    This function creates a set of action icons for managing survey sessions.
-    The Buttons include Edit, Delete, and View, each represented by an icon depending on User's permissions.
+    This function creates a set of action icons for managing belt timers.
+    The buttons include Edit, Delete, and View, each represented by an icon depending on User's permissions.
 
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
     Returns:
         SafeString: HTML string containing the action icons.
     """
-    perms, session = get_public_id_or_none(request=request, public_id=public_id)
+    perms, session = get_manage_session_or_none(request=request, public_id=public_id)
     if not perms:
-        return "N/A"  # Return an N/A string if the user does not have permission
+        return ""  # Return empty string if the user does not have permission
 
     if session.is_timer_ready:
         text = _("Create Belt Timer")
         return _create_button(
-            url_name="beltradar:api:add_survey_timer",
+            url_name="beltradar:api:add_session_belt_timer",
             url_kwargs={"public_id": public_id},
             text=text,
             title=text,
             color="success",
-            modal_id="beltradar-accept-create-survey-timer",
+            modal_id="beltradar-accept-create-belt-timer",
         )
     if session.br_belt_timer.exists():
         timer_id = session.br_belt_timer.get(public_id=public_id).pk
@@ -141,7 +144,7 @@ def survey_timer_button_icons(
             color="danger",
             modal_id="beltradar-accept-delete-belt-timer",
         )
-    return "N/A"
+    return ""
 
 
 @permissions_required(
@@ -151,55 +154,114 @@ def survey_timer_button_icons(
 )
 def belt_timer_manage_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
-    timer_id: int,
-    character_id: int,
+    timer: "BeltTimer",  # pylint: disable=unused-argument
 ) -> str | HttpResponse:
     """
-    Generate HTML Action Icons for the My Sessions view.
+    Generate HTML Action Icons for the Belt Timer view.
 
-    This function creates a set of action icons for managing survey sessions.
-    The Buttons include Edit, Delete, and View, each represented by an icon depending on User's permissions.
+    This function creates a set of action icons for managing belt timers.
+    The buttons include Edit, Delete, and View, each represented by an icon depending on User's permissions.
 
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
     Returns:
         SafeString: HTML string containing the action icons.
     """
-    beltradar_request_icons = "<div class='d-flex justify-content-end'>"
-    beltradar_request_icons += get_timer_delete_button(
-        request=request, timer_id=timer_id, character_id=character_id
-    )
-    beltradar_request_icons += "</div>"
-    return beltradar_request_icons
-
-
-def get_snapshot_delete_button(
-    request: WSGIRequest,  # pylint: disable=unused-argument
-    public_id: str,
-    snapshot: str,
-) -> str:
-    """
-    Generate a delete button for a specific snapshot in a survey session.
-
-    This function creates an HTML button for deleting a snapshot within a survey session.
-    When clicked, it triggers a modal to confirm the deletion of the snapshot.
-
-    Args:
-        public_id (str): The public UUID of the survey session.
-        snapshot (str): The hash of the snapshot to delete.
-    Returns:
-        String: HTML string containing the delete button.
-    """
-    perms = get_public_id_or_none(request=request, public_id=public_id)[0]
+    perms = get_manage_belt_timer_or_none(request=request, timer_pk=timer.pk)[0]
     if not perms:
         return (
             ""  # Return an empty string if the user does not have permission to delete
         )
 
+    beltradar_request_icons = "<div class='d-flex justify-content-end'>"
+    # Modify button for the belt timer
+    beltradar_request_icons += _create_button(
+        url_name="beltradar:api:modify_belt_timer",
+        url_kwargs={
+            "timer_id": timer.pk,
+            "field": "is_public",
+            "value": str(not timer.is_public).capitalize(),
+        },
+        text='<i class="fa-solid fa-wrench"></i>',
+        title=_("Edit Belt Timer"),
+        color="primary",
+        modal_id="beltradar-accept-switch-belt-timer",
+    )
+    # Delete button for the belt timer
+    beltradar_request_icons += _create_button(
+        url_name="beltradar:api:delete_belt_timer",
+        url_kwargs={"timer_id": timer.pk},
+        text='<i class="fa-solid fa-trash"></i>',
+        title=_("Delete Belt Timer"),
+        color="danger",
+        modal_id="beltradar-accept-delete-belt-timer",
+    )
+    beltradar_request_icons += "</div>"
+    return beltradar_request_icons
+
+
+def get_snapshot_add_button(
+    request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
+) -> str:
+    """
+    Generate an add button for a specific snapshot.
+
+    This function creates an HTML button for adding a new snapshot.
+    When clicked, it triggers a modal to display the add snapshot form.
+
+    Args:
+        public_id (str): The public UUID of the snapshot's session.
+    Returns:
+        String: HTML string containing the add button.
+    """
+    # Create the HTML for the add icon button
+    add_button = _create_button(
+        url_name="beltradar:api:add_snapshot",
+        url_kwargs={"public_id": public_id},
+        text='<i class="fa-solid fa-plus"></i>',
+        title=_("Add Snapshot"),
+        color="success",
+        modal_id="beltradar-add-snapshot",
+    )
+    return add_button
+
+
+def get_snapshot_delete_button(
+    request: WSGIRequest,  # pylint: disable=unused-argument
+    public_id: str,
+    identifier: str = None,  # pylint: disable=unused-argument
+) -> str:
+    """
+    Generate a delete button for a specific snapshot in a session.
+
+    This function creates an HTML button for deleting a snapshot within a session.
+    When clicked, it triggers a modal to confirm the deletion of the snapshot.
+
+    Args:
+        public_id (str): The public UUID of the session.
+        identifier (str): The snapshot identifier to be deleted. If not provided, the last snapshot will be used.
+    Returns:
+        String: HTML string containing the delete button.
+    """
+    perms, session = get_manage_session_or_none(request=request, public_id=public_id)
+    if not perms:
+        return (
+            ""  # Return an empty string if the user does not have permission to delete
+        )
+
+    # If snapshot is not provided, get the last snapshot from the session
+    if identifier is None:
+        try:
+            identifier = (
+                session.br_snapshots.last().identifier
+            )  # Get the last snapshot if not provided
+        except AttributeError:
+            return ""  # Return an empty string if there are no snapshots available
+
     # Create the HTML for the delete icon button
     delete_button = _create_button(
         url_name="beltradar:api:delete_snapshot",
-        url_kwargs={"public_id": public_id, "snapshot": snapshot},
+        url_kwargs={"public_id": public_id, "identifier": identifier},
         text='<i class="fa-solid fa-trash"></i>',
         title=_("Delete Snapshot"),
         color="danger",
@@ -208,22 +270,48 @@ def get_snapshot_delete_button(
     return delete_button
 
 
-def get_survey_delete_button(
+def get_session_add_button(
+    request: WSGIRequest,  # pylint: disable=unused-argument
+) -> str:
+    """
+    Generate an add button for a specific session.
+
+    This function creates an HTML button for adding a new session.
+    When clicked, it triggers a modal to display the add session form.
+
+    Args:
+        request (WSGIRequest): The HTTP request object.
+    Returns:
+        String: HTML string containing the add button.
+    """
+    # Create the HTML for the add icon button
+    add_button = _create_button(
+        url_name="beltradar:api:add_session",
+        url_kwargs={},
+        text='<i class="fa-solid fa-plus"></i>',
+        title=_("Add Session"),
+        color="success",
+        modal_id="beltradar-add-session",
+    )
+    return add_button
+
+
+def get_session_delete_button(
     request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
 ) -> str:
     """
-    Generate a delete button for a specific survey session.
+    Generate a delete button for a specific session.
 
-    This function creates an HTML button for deleting a survey session.
-    When clicked, it triggers a modal to confirm the deletion of the survey session.
+    This function creates an HTML button for deleting a session.
+    When clicked, it triggers a modal to confirm the deletion of the session.
 
     Args:
-        public_id (str): The public UUID of the survey session.
+        public_id (str): The public UUID of the session.
     Returns:
         String: HTML string containing the delete button.
     """
 
-    perms = get_public_id_or_none(request=request, public_id=public_id)[0]
+    perms = get_manage_session_or_none(request=request, public_id=public_id)[0]
     if not perms:
         return (
             ""  # Return an empty string if the user does not have permission to delete
@@ -231,43 +319,17 @@ def get_survey_delete_button(
 
     # Create the HTML for the delete icon button
     delete_button = _create_button(
-        url_name="beltradar:api:delete_survey_session",
+        url_name="beltradar:api:delete_session",
         url_kwargs={"public_id": public_id},
         text='<i class="fa-solid fa-trash"></i>',
-        title=_("Delete Survey Session"),
+        title=_("Delete Session"),
         color="danger",
-        modal_id="beltradar-accept-delete-survey-session",
+        modal_id="beltradar-accept-delete-session",
     )
     return delete_button
 
 
-def get_add_survey_button(
-    request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
-) -> str:
-    """
-    Generate an add button for a specific survey session.
-
-    This function creates an HTML button for adding a new survey session.
-    When clicked, it triggers a modal to display the add survey form.
-
-    Args:
-        public_id (str): The public UUID of the survey session.
-    Returns:
-        String: HTML string containing the add button.
-    """
-    # Create the HTML for the add icon button
-    add_button = _create_button(
-        url_name="beltradar:api:add_survey_entry",
-        url_kwargs={"public_id": public_id},
-        text='<i class="fa-solid fa-plus"></i>',
-        title=_("Add Survey"),
-        color="success",
-        modal_id="beltradar-add-survey",
-    )
-    return add_button
-
-
-def get_survey_view_button(
+def get_session_view_button(
     request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
 ) -> str:
     """
@@ -292,7 +354,35 @@ def get_survey_view_button(
     return view_button
 
 
-def get_add_belt_timer_button(
+def get_session_status_icon(
+    session: "BeltSurveySession",
+) -> str:
+    """
+    Generate a status icon for a specific belt session.
+
+    This function creates an HTML icon indicating whether a belt session is public or private.
+
+    Args:
+        session (BeltSurveySession): The belt session object.
+    Returns:
+        String: HTML string containing the status icon.
+    """
+    # Define the icon and tooltip based on the public status of the belt timer
+    if session.is_public:
+        icon = '<i class="fa-solid fa-globe"></i>'
+        title = _("Public Belt Session")
+        color = "success"
+    else:
+        icon = '<i class="fa-solid fa-lock"></i>'
+        title = _("Private Belt Session")
+        color = "secondary"
+
+    # Create the HTML for the public/private icon
+    public_icon = f"<button type='button' data-bs-tooltip='aa-beltradar' class='btn btn-{color}' title='{title}'>{icon}</button>"
+    return public_icon
+
+
+def get_belt_timer_add_button(
     request: WSGIRequest,  # pylint: disable=unused-argument
 ) -> str:
     """
@@ -318,56 +408,21 @@ def get_add_belt_timer_button(
     return add_button
 
 
-def get_timer_delete_button(
-    request: WSGIRequest,
-    timer_id: int,  # pylint: disable=unused-argument
-    character_id: int,  # pylint: disable=unused-argument
-) -> str:
-    """
-    Generate a delete button for a specific belt timer.
-
-    This function creates an HTML button for deleting a belt timer.
-    When clicked, it triggers a modal to confirm the deletion of the belt timer.
-
-    Args:
-        timer_id (int): The ID of the belt timer.
-    Returns:
-        String: HTML string containing the delete button.
-    """
-
-    perms = get_belt_timer_or_none(request=request, character_id=character_id)[0]
-    if not perms:
-        return (
-            ""  # Return an empty string if the user does not have permission to delete
-        )
-
-    # Create the HTML for the delete icon button
-    delete_button = _create_button(
-        url_name="beltradar:api:delete_belt_timer",
-        url_kwargs={"timer_id": timer_id},
-        text='<i class="fa-solid fa-trash"></i>',
-        title=_("Delete Belt Timer"),
-        color="danger",
-        modal_id="beltradar-accept-delete-belt-timer",
-    )
-    return delete_button
-
-
-def switch_belt_timer_state(
+def get_belt_timer_status_icon(
     timer: "BeltTimer",
 ) -> str:
     """
-    Generate a switch state icon for a specific belt timer.
+    Generate a status icon for a specific belt timer.
 
     This function creates an HTML icon indicating whether a belt timer is public or private.
 
     Args:
         timer (BeltTimer): The belt timer object.
     Returns:
-        String: HTML string containing the switch state icon.
+        String: HTML string containing the status icon.
     """
     # Define the icon and tooltip based on the public status of the belt timer
-    if timer.public:
+    if timer.is_public:
         icon = '<i class="fa-solid fa-globe"></i>'
         title = _("Public Belt Timer")
         color = "success"
@@ -377,16 +432,5 @@ def switch_belt_timer_state(
         color = "secondary"
 
     # Create the HTML for the public/private icon
-    public_icon = _create_button(
-        url_name="beltradar:api:modify_belt_timer",
-        url_kwargs={
-            "timer_id": timer.pk,
-            "field": "public",
-            "value": str(not timer.public).capitalize(),
-        },
-        text=icon,
-        title=title,
-        color=color,
-        modal_id="beltradar-accept-switch-belt-timer",
-    )
+    public_icon = f"<button type='button' data-bs-tooltip='aa-beltradar' class='btn btn-{color}' title='{title}'>{icon}</button>"
     return public_icon

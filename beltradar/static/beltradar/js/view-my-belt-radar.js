@@ -7,10 +7,11 @@ $(document).ready(() => {
     const BeltRadarSessionTable = $('#beltradar-session-table');
     const BeltRadarBeltTimerTable = $('#beltradar-belt-timer-table');
     /* Modals */
-    const modalRequestDeleteSurvey = $('#beltradar-accept-delete-survey-session');
+    const modalRequestDeleteSession = $('#beltradar-accept-delete-session');
     const modalRequestSwitchBeltTimer = $('#beltradar-accept-switch-belt-timer');
     const modalRequestDeleteBeltTimer = $('#beltradar-accept-delete-belt-timer');
     const modalRequestAddBeltTimer = $('#beltradar-add-belt-timer');
+    const modalRequestAddSession = $('#beltradar-add-session');
 
     /**
     * DataTable for Belt Radar Session Entries
@@ -26,7 +27,7 @@ $(document).ready(() => {
         columnDefs: [
             {
                 orderable: false,
-                targets:  [3,4],
+                targets:  [3,4,5],
                 columnControl: [
                     {target: 0, content: []},
                     {target: 1, content: []}
@@ -64,6 +65,13 @@ $(document).ready(() => {
             },
             {
                 data: {
+                    display: (data) => data.public.display,
+                    sort: (data) => data.public.sort,
+                    filter: (data) => data.public.raw,
+                }
+            },
+            {
+                data: {
                     display: (data) => data.html,
                     sort: (data) => data.created_at,
                     filter: (data) => data.created_at,
@@ -96,11 +104,11 @@ $(document).ready(() => {
 
     /**
     * Table :: Reload My Sessions DataTable
-    * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
+    * On Confirmation send a request to the API Endpoint, reload the Session DataTable, close the modal
     * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
     * @returns {Promise} - A Promise that resolves when the API request is complete
     */
-    const _reloadSurveySessionsDataTable = (tableData) => {
+    const _reloadSessionsDataTable = (tableData) => {
         const dt = BeltRadarSessionTable.DataTable();
         dt.clear().rows.add(tableData).draw();
         BeltRadarSessionTable.addClass('highlight');
@@ -111,18 +119,18 @@ $(document).ready(() => {
     };
 
     /**
-    * Table :: Survey Sessions :: Delete Button Click Handler
-    * Open Delete Survey Session Modal
-    * On Confirmation send a request to the API Endpoint, reload the Survey Sessions DataTable, close the modal
-    * and reopen the previous Survey Sessions Modal
+    * Table :: Session :: Delete Button Click Handler
+    * Open Delete Session Modal
+    * On Confirmation send a request to the API Endpoint, reload the Session DataTable, close the modal
+    * and reopen the previous Session Modal
     */
-    modalRequestDeleteSurvey.on('show.bs.modal', (event) => {
+    modalRequestDeleteSession.on('show.bs.modal', (event) => {
         const button = $(event.relatedTarget);
         const url = button.data('action');
-        const form = modalRequestDeleteSurvey.find('form');
+        const form = modalRequestDeleteSession.find('form');
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
-        modalRequestDeleteSurvey.find('#modal-button-confirm-accept-request').on('click', () => {
+        modalRequestDeleteSession.find('#modal-button-confirm-accept-request').on('click', () => {
             fetchPostBeltRadar({
                 url: url,
                 csrfToken: csrfMiddlewareToken,
@@ -134,11 +142,11 @@ $(document).ready(() => {
                             url: aaBeltRadarSettings.url.mySessions,
                         })
                             .then((newData) => {
-                                _reloadSurveySessionsDataTable(newData);
-                                modalRequestDeleteSurvey.modal('hide');
+                                _reloadSessionsDataTable(newData);
+                                modalRequestDeleteSession.modal('hide');
                             })
                             .catch((error) => {
-                                console.error('Error fetching Survey Sessions DataTable:', error);
+                                console.error('Error fetching Session DataTable:', error);
                             });
                     }
                 })
@@ -148,7 +156,7 @@ $(document).ready(() => {
         });
     })
         .on('hide.bs.modal', () => {
-            modalRequestDeleteSurvey.find('#modal-button-confirm-accept-request').unbind('click');
+            modalRequestDeleteSession.find('#modal-button-confirm-accept-request').unbind('click');
         });
 
     /**
@@ -163,7 +171,16 @@ $(document).ready(() => {
         columnControl: aaBeltRadarSettings.dataTables.columnControl,
         // Sort by ETA (column index 5) so the next expiring timer is always first.
         order: [[5, 'asc'], [0, 'asc']],
-        columnDefs: [],
+        columnDefs: [
+            {
+                orderable: false,
+                targets:  [6,7],
+                columnControl: [
+                    {target: 0, content: []},
+                    {target: 1, content: []}
+                ]
+            },
+        ],
         columns: [
             {
                 data: {
@@ -289,7 +306,7 @@ $(document).ready(() => {
     * @param {string} url - The API Endpoint URL to send the delete request to returns {Promise}
     * @returns {Promise} - A Promise that resolves when the API request is complete
     */
-    const _reloadSurveyBeltTimerData = (tableData) => {
+    const _reloadBeltTimerData = (tableData) => {
         const dt = BeltRadarBeltTimerTable.DataTable();
         dt.clear().rows.add(tableData).draw();
         BeltRadarBeltTimerTable.addClass('highlight');
@@ -304,7 +321,6 @@ $(document).ready(() => {
     * View :: Belt Timer :: Add Belt Timer Button Click Handler
     * Open Add Belt Timer Modal
     * On Confirmation send a request to the API Endpoint, reload the Belt Timer DataTable, close the modal
-    * and reopen the previous Belt Timer Modal
     */
     modalRequestAddBeltTimer.on('show.bs.modal', (event) => {
         const button = $(event.relatedTarget);
@@ -316,7 +332,7 @@ $(document).ready(() => {
         const beltNameInput = form.find('input[name="belt_name"]');
         const beltTypeSelect = form.find('select[name="belt_type"]');
         const beltSizeSelect = form.find('select[name="belt_size"]');
-        const beltPublicBool = form.find('input[name="public"]');
+        const beltPublicBool = form.find('input[name="is_public"]');
 
         beltTypeSelect.off('change.brBeltTimer').on('change.brBeltTimer', () => updateBeltSizeChoices({beltTypeSelect: beltTypeSelect.get(0), beltSizeSelect: beltSizeSelect.get(0)}));
         updateBeltSizeChoices({beltTypeSelect: beltTypeSelect.get(0), beltSizeSelect: beltSizeSelect.get(0)});
@@ -337,7 +353,7 @@ $(document).ready(() => {
                     belt_name: beltNameInput.val(),
                     belt_type: beltTypeSelect.val(),
                     belt_size: beltSizeSelect.val(),
-                    public: beltPublicBool.is(':checked'),
+                    is_public: beltPublicBool.is(':checked'),
                 }
             })
                 .then((data) => {
@@ -346,17 +362,17 @@ $(document).ready(() => {
                             url: aaBeltRadarSettings.url.myTimers,
                         })
                             .then((freshData) => {
-                                _reloadSurveyBeltTimerData(freshData);
+                                _reloadBeltTimerData(freshData);
                                 modalRequestAddBeltTimer.modal('hide');
                             })
                             .catch((error) => {
-                                console.error('Error fetching Survey Snapshot DataTable after add:', error);
+                                console.error('Error fetching Belt Timer DataTable after add:', error);
                                 modalRequestAddBeltTimer.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
                             });
                     }
                 })
                 .catch((error) => {
-                    console.error(`Error posting add survey belt timer request: ${error.message}`);
+                    console.error(`Error posting add belt timer request: ${error.message}`);
                     modalRequestAddBeltTimer.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
                 })
                 .finally(() => {
@@ -371,6 +387,7 @@ $(document).ready(() => {
             modalRequestAddBeltTimer.find('select[name="belt_type"]').off('change.brBeltTimer');
             modalRequestAddBeltTimer.find('select[name="belt_type"]').val('');
             modalRequestAddBeltTimer.find('select[name="belt_size"]').val('');
+            modalRequestAddBeltTimer.find('input[name="is_public"]').prop('checked', false);
             modalRequestAddBeltTimer.find('#beltradar-spinner').addClass('d-none');
             modalRequestAddBeltTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
         });
@@ -379,7 +396,6 @@ $(document).ready(() => {
     * Table :: Belt-Timer :: Delete Button Click Handler
     * Open Delete Belt-Timer Modal
     * On Confirmation send a request to the API Endpoint, reload the Belt-Timer DataTable, close the modal
-    * and reopen the previous Belt-Timer Modal
     */
     modalRequestDeleteBeltTimer.on('show.bs.modal', (event) => {
         const button = $(event.relatedTarget);
@@ -399,11 +415,11 @@ $(document).ready(() => {
                             url: aaBeltRadarSettings.url.myTimers,
                         })
                             .then((newData) => {
-                                _reloadSurveyBeltTimerData(newData);
+                                _reloadBeltTimerData(newData);
                                 modalRequestDeleteBeltTimer.modal('hide');
                             })
                             .catch((error) => {
-                                console.error('Error fetching Survey Snapshot DataTable:', error);
+                                console.error('Error fetching Belt Timer DataTable:', error);
                             });
                     }
                 })
@@ -420,7 +436,6 @@ $(document).ready(() => {
     * Table :: Belt-Timer :: Switch Button Click Handler
     * Open Switch Belt-Timer Modal
     * On Confirmation send a request to the API Endpoint, reload the Belt-Timer DataTable, close the modal
-    * and reopen the previous Belt-Timer Modal
     */
     modalRequestSwitchBeltTimer.on('show.bs.modal', (event) => {
         const button = $(event.relatedTarget);
@@ -440,11 +455,11 @@ $(document).ready(() => {
                             url: aaBeltRadarSettings.url.myTimers,
                         })
                             .then((newData) => {
-                                _reloadSurveyBeltTimerData(newData);
+                                _reloadBeltTimerData(newData);
                                 modalRequestSwitchBeltTimer.modal('hide');
                             })
                             .catch((error) => {
-                                console.error('Error fetching Survey Snapshot DataTable:', error);
+                                console.error('Error fetching Belt Timer DataTable:', error);
                             });
                     }
                 })
@@ -455,5 +470,67 @@ $(document).ready(() => {
     })
         .on('hide.bs.modal', () => {
             modalRequestSwitchBeltTimer.find('#modal-button-confirm-accept-request').unbind('click');
+        });
+
+    /**
+    * View :: Session :: Add Session Button Click Handler
+    * Open Add Session Modal
+    * On Confirmation send a request to the API Endpoint, reload the Session DataTable, close the modal
+    */
+    modalRequestAddSession.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestAddSession.find('form');
+        const nativeForm = form.get(0);
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+        const sessionNameInput = form.find('input[name="name"]');
+        const sessionIsPublicCheckbox = form.find('input[name="is_public"]');
+
+        modalRequestAddSession.find('#modal-button-confirm-add-request').on('click', () => {
+            if (nativeForm && !nativeForm.checkValidity()) {
+                nativeForm.reportValidity();
+                return;
+            }
+
+            modalRequestAddSession.find('#beltradar-spinner').removeClass('d-none');
+            modalRequestAddSession.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+            fetchPostBeltRadar({
+                url: url,
+                csrfToken: csrfMiddlewareToken,
+                payload: {
+                    name: sessionNameInput.val(),
+                    is_public: sessionIsPublicCheckbox.is(':checked'),
+                }
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        fetchGetBeltRadar({
+                            url: aaBeltRadarSettings.url.mySessions,
+                        })
+                            .then((freshData) => {
+                                _reloadSessionsDataTable(freshData);
+                                modalRequestAddSession.modal('hide');
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching Session DataTable after add:', error);
+                                modalRequestAddSession.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting add session request: ${error.message}`);
+                    modalRequestAddSession.find('#beltradar-error').text(error.message).removeClass('d-none').addClass('br-shake');
+                })
+                .finally(() => {
+                    modalRequestAddSession.find('#beltradar-spinner').addClass('d-none');
+                });
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestAddSession.find('#modal-button-confirm-add-request').unbind('click');
+            modalRequestAddSession.find('input[name="name"]').val('');
+            modalRequestAddSession.find('input[name="is_public"]').prop('checked', true);
+            modalRequestAddSession.find('#beltradar-spinner').addClass('d-none');
+            modalRequestAddSession.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
         });
 });

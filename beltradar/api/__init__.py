@@ -7,7 +7,7 @@ from django.conf import settings
 
 # AA Belt Radar
 from beltradar import __title__
-from beltradar.api import survey, timer
+from beltradar.api import session, snapshot, timer
 
 api = NinjaAPI(
     title="Belt Radar API",
@@ -19,8 +19,9 @@ api = NinjaAPI(
 
 
 def setup(ninja_api):
-    survey.BeltRadarSurveyApiEndpoints(ninja_api)
-    timer.BeltRadarBeltTimerApiEndpoints(ninja_api)
+    session.BeltRadarApiEndpoints(ninja_api)
+    snapshot.BeltRadarApiEndpoints(ninja_api)
+    timer.BeltRadarApiEndpoints(ninja_api)
 
 
 # Initialize API endpoints

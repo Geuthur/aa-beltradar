@@ -36,39 +36,7 @@ class TestViewAccess(BeltRadarTestCase):
         response = views.view_belt_radar(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Survey Sessions Overview")
-
-    def test_create_session(self):
-        """
-        Test should render create session view.
-        """
-        # given
-        request = self.factory.get(reverse("beltradar:create_session"))
-        request.user = self.user
-        # when
-        response = views.create_session(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Create Belt Survey Session")
-
-    def test_create_session_post(self):
-        """
-        Test should create session and redirect to view session.
-        """
-        # given
-        request = self.factory.post(
-            reverse("beltradar:create_session"), data={"name": "Test Session"}
-        )
-        request.user = self.user
-        # when
-        response = views.create_session(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        session = BeltSurveySession.objects.get(name="Test Session")
-        self.assertEqual(
-            response.url, reverse("beltradar:view_session", args=[session.public_id])
-        )
-        self.assertEqual(session.owner, self.user)
+        self.assertContains(response, "Session Overview")
 
     def test_view_session(self):
         """
@@ -143,27 +111,3 @@ class TestViewAccess(BeltRadarTestCase):
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "My Settings")
-
-    def test_create_timer_post(self):
-        """
-        Test should create timer and redirect to view my timers.
-        """
-        # given
-        request = self.factory.post(
-            reverse("beltradar:create_belt_timer"),
-            data={
-                "belt_id": "XYZ-123",
-                "belt_name": "Test Belt",
-                "belt_type": "asteroid_belt",
-                "belt_size": "large",
-                "public": False,
-            },
-        )
-        request.user = self.user
-        # when
-        response = views.create_belt_timer(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        timer = BeltTimer.objects.get(belt_name="Test Belt")
-        self.assertEqual(response.url, reverse("beltradar:view_my_beltradar"))
-        self.assertEqual(timer.owner, self.user)

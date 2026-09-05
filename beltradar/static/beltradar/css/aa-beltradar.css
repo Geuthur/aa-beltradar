@@ -35,13 +35,13 @@
     }
 
     /* Error styling for invalid input feedback */
-    .aa-beltradar-add-survey-form .is-invalid {
+    .aa-beltradar-add-snapshot-form .is-invalid {
         animation: br-shake 320ms ease-in-out 1;
         border-color: rgb(220 53 69);
         box-shadow: 0 0 0 0.2rem rgb(220 53 69 / 20%);
     }
 
-    .aa-beltradar-add-survey-form .alert-danger {
+    .aa-beltradar-add-snapshot-form .alert-danger {
         animation: br-shake 320ms ease-in-out 1;
     }
 

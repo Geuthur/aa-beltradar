@@ -8,16 +8,14 @@ from unittest.mock import patch
 # Django
 from django.utils import timezone
 
-# Alliance Auth (External Libs)
-from eve_sde.models.types import ItemType
-
 # AA Belt Radar
-from beltradar.models import BeltSurveyEntry, BeltSurveySession
+from beltradar.models import BeltSurveySession, generate_unique_public_id
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.tests import BeltRadarTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
     BeltSurveyEntryFactory,
+    BeltSurveySnapshotFactory,
     BeltTimerFactory,
 )
 from beltradar.tests.testdata.factory import ItemTypeFactory
@@ -35,61 +33,56 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         )
         cls.timestamp = timezone.make_aware(datetime(2024, 1, 1, 12, 0, 0))
         cls.timestamp_2 = timezone.make_aware(datetime(2024, 1, 1, 15, 0, 0))
-        cls.unique_hash = hashlib.sha256(b"Test Data").hexdigest()
-        cls.unique_hash2 = hashlib.sha256(b"Test Data 2").hexdigest()
+        cls.unique_hash = generate_unique_public_id()
+        cls.unique_hash2 = generate_unique_public_id()
 
     def test_get_entries_for_snapshot(self):
         """
         Test should return entries for given snapshot.
         """
         # Test Data
-        entry = BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash,
-        )
+        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        BeltSurveyEntryFactory(snapshot=snapshot)
         # Test Action
-        entries = self.session.br_entries.for_snapshot(snapshot=self.unique_hash)
+        snapshots = self.session.br_snapshots.filter(identifier=snapshot.identifier)
         # Expected Result
-        self.assertEqual(len(entries), 1)
-        self.assertIn(entry, entries)
+        self.assertEqual(len(snapshots), 1)
+        self.assertIn(snapshot, snapshots)
 
     def test_previous_entry_snapshot(self):
         """
         Test should return snapshot of previous entry for session.
         """
         # Test Data
-        BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash,
-            timestamp=self.timestamp,
+        snapshot = BeltSurveySnapshotFactory(
+            session=self.session, timestamp=self.timestamp, identifier=self.unique_hash
         )
-        last_entry = BeltSurveyEntryFactory(
+        snapshot2 = BeltSurveySnapshotFactory(
             session=self.session,
-            snapshot=self.unique_hash2,
             timestamp=self.timestamp_2,
+            identifier=self.unique_hash2,
         )
+        BeltSurveyEntryFactory(snapshot=snapshot)
+        BeltSurveyEntryFactory(snapshot=snapshot2)
 
         # Test Action
-        previous_entry_snapshot = self.session.br_entries.previous_snapshot(
-            last_entry.snapshot
-        )
+        previous_snapshot = self.session.br_snapshots.previous_snapshot(snapshot2)
         # Expected Result
-        self.assertEqual(previous_entry_snapshot, self.unique_hash)
+        self.assertEqual(previous_snapshot.identifier, self.unique_hash)
 
     def test_belt_size_m3(self):
         """
         Test should return total volume of ore in belt.
         """
         # Test Data
+        snapshot = BeltSurveySnapshotFactory(session=self.session)
         BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash,
-            timestamp=self.timestamp,
+            snapshot=snapshot,
             volume_left=5000,
         )
 
         # Test Action
-        belt_size_m3 = self.session.br_entries.belt_size_m3()
+        belt_size_m3 = self.session.br_snapshots.first().belt_size_m3
         # Expected Result
         self.assertEqual(belt_size_m3, 5000)
 
@@ -106,19 +99,19 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             test_cases
         ):
             with self.subTest(ore_name=ore_name):
-                session = BeltSessionFactory()
+                snapshot = BeltSurveySnapshotFactory(session=self.session)
                 item_type = ItemTypeFactory(id=10_000 + index, name=ore_name)
                 BeltSurveyEntryFactory(
-                    session=session,
-                    snapshot=f"snapshot-{index}",
+                    snapshot=snapshot,
                     eve_type=item_type,
                     volume_left=volume_left,
                 )
 
                 self.assertEqual(
-                    session.br_entries.session_resolve_belt(),
+                    snapshot.session.br_snapshots.session_resolve_belt(),
                     (belt_type, belt_size),
                 )
+                snapshot.delete()
 
     def test_session_resolve_belt_with_mercoxit_grades(self):
         """Test that all Mercoxit grades resolve as a Mercoxit belt."""
@@ -126,15 +119,15 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         for index, ore_name in enumerate(
             ("Mercoxit", "Mercoxit II-Grade", "Mercoxit III-Grade")
         ):
+            snapshot = BeltSurveySnapshotFactory(session=session)
             BeltSurveyEntryFactory(
-                session=session,
-                snapshot="mercoxit-grades",
+                snapshot=snapshot,
                 eve_type=ItemTypeFactory(id=20_000 + index, name=ore_name),
-                volume_left=40_000 / 3,
+                volume_left=10000,
             )
 
         self.assertEqual(
-            session.br_entries.session_resolve_belt(),
+            session.br_snapshots.session_resolve_belt(),
             (BeltTypeChoice.MERCOXIT_BELT, BeltSizeChoice.MEDIUM),
         )
 
@@ -142,29 +135,35 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         """Test resolving a session without survey entries."""
         session = BeltSessionFactory()
 
-        self.assertEqual(session.br_entries.session_resolve_belt(), (None, None))
+        self.assertEqual(session.br_snapshots.session_resolve_belt(), (None, None))
 
-    def test_is_timer_ready_requires_four_resolved_snapshots(self):
-        """Test timer readiness requires four snapshots and a resolvable belt."""
+    def test_is_timer_ready_should_return_false(self):
+        """Test that a session with fewer than four snapshots is not ready for a timer."""
         session = BeltSessionFactory()
         blue_ice = ItemTypeFactory(id=30_000, name="Blue Ice")
 
-        for index in range(3):
+        for _ in range(3):
+            snapshot = BeltSurveySnapshotFactory(session=session)
             BeltSurveyEntryFactory(
-                session=session,
-                snapshot=f"snapshot-{index}",
+                snapshot=snapshot,
                 eve_type=blue_ice,
                 volume_left=100_000,
             )
 
         self.assertFalse(session.is_timer_ready)
 
-        BeltSurveyEntryFactory(
-            session=session,
-            snapshot="snapshot-3",
-            eve_type=blue_ice,
-            volume_left=100_000,
-        )
+    def test_is_timer_ready_should_return_true(self):
+        """Test that a session with four snapshots and a resolvable belt is ready for a timer."""
+        session = BeltSessionFactory()
+        blue_ice = ItemTypeFactory(id=30_000, name="Blue Ice")
+
+        for _ in range(4):
+            snapshot = BeltSurveySnapshotFactory(session=session)
+            BeltSurveyEntryFactory(
+                snapshot=snapshot,
+                eve_type=blue_ice,
+                volume_left=100_000,
+            )
 
         self.assertTrue(session.is_timer_ready)
 
@@ -173,14 +172,13 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return total units in belt.
         """
         # Test Data
+        snapshot = BeltSurveySnapshotFactory(session=self.session)
         BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash,
-            timestamp=self.timestamp,
+            snapshot=snapshot,
         )
 
         # Test Action
-        total_asteroids = self.session.br_entries.asteroid_count()
+        total_asteroids = self.session.br_snapshots.first().asteroid_count
         # Expected Result
         self.assertEqual(total_asteroids, 1)
 
@@ -189,64 +187,53 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return progress percent of belt survey.
         """
         # Test Data
-        BeltSurveyEntryFactory(
+        snapshot = BeltSurveySnapshotFactory(
+            session=self.session, identifier=self.unique_hash, timestamp=self.timestamp
+        )
+        snapshot2 = BeltSurveySnapshotFactory(
             session=self.session,
-            snapshot=self.unique_hash,
-            timestamp=self.timestamp,
+            identifier=self.unique_hash2,
+            timestamp=self.timestamp_2,
+        )
+        BeltSurveyEntryFactory(
+            snapshot=snapshot,
             volume_left=5000,
         )
         BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash2,
-            timestamp=self.timestamp_2,
+            snapshot=snapshot2,
             volume_left=2500,
         )
         # Test Action
-        progress_percent = self.session.br_entries.session_progress_percentage()
+        progress_percent = self.session.br_snapshots.session_progress_percentage(
+            asteroids=snapshot.asteroids.all(),
+            remaining_asteroids=snapshot2.asteroids.all(),
+        )
         # Expected Result
         self.assertEqual(progress_percent, 50.0)
-
-    def test_previos_entry_duration(self):
-        """
-        Test should return duration between last and previous entry.
-        """
-        # Test Data
-        first = BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash,
-            timestamp=self.timestamp,
-        )
-        last = BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash2,
-            timestamp=self.timestamp_2,
-        )
-        # Test Action
-        previous_entry_duration = self.session.br_entries.duration(
-            first_entry=first, last_entry=last
-        )
-        # Expected Result
-        self.assertEqual(previous_entry_duration, 3 * 3600)
 
     def test_mining_rate_m3_per_s(self):
         """
         Test should return mining rate in m3/s.
         """
         # Test Data
-        BeltSurveyEntryFactory(
+        snapshot = BeltSurveySnapshotFactory(
+            session=self.session, identifier=self.unique_hash, timestamp=self.timestamp
+        )
+        snapshot2 = BeltSurveySnapshotFactory(
             session=self.session,
-            snapshot=self.unique_hash,
-            timestamp=self.timestamp,
+            identifier=self.unique_hash2,
+            timestamp=self.timestamp_2,
+        )
+        BeltSurveyEntryFactory(
+            snapshot=snapshot,
             volume_left=5000,
         )
         BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash2,
-            timestamp=self.timestamp_2,
+            snapshot=snapshot2,
             volume_left=2500,
         )
         # Test Action
-        mining_rate = self.session.br_entries.rate_per_s()
+        mining_rate = self.session.br_snapshots.rate_per_s()
         # Expected Result
         expected_rate = round(2500 / (3 * 3600), 2)
         self.assertEqual(mining_rate, expected_rate)
@@ -256,22 +243,28 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         Test should return finish eta for belt survey.
         """
         # Test Data
+        snapshot = BeltSurveySnapshotFactory(
+            session=self.session, timestamp=self.timestamp
+        )
+        snapshot2 = BeltSurveySnapshotFactory(
+            session=self.session, timestamp=self.timestamp_2
+        )
+
         BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash,
-            timestamp=self.timestamp,
+            snapshot=snapshot,
             volume_left=5000,
         )
-        entry2 = BeltSurveyEntryFactory(
-            session=self.session,
-            snapshot=self.unique_hash2,
-            timestamp=self.timestamp_2,
+        BeltSurveyEntryFactory(
+            snapshot=snapshot2,
             volume_left=2500,
         )
         # Test Action
-        finish_eta = self.session.br_entries.session_finish_eta()
+        finish_eta = self.session.br_snapshots.session_finish_eta(
+            asteroids=snapshot.asteroids.all(),
+            remaining_asteroids=snapshot2.asteroids.all(),
+        )
         # Expected Result
-        expected_eta = entry2.timestamp + timezone.timedelta(
+        expected_eta = snapshot2.timestamp + timezone.timedelta(
             seconds=2500 / (2500 / (3 * 3600))
         )
         self.assertEqual(finish_eta, expected_eta)
@@ -337,8 +330,9 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Test Ore",
             volume=10.0,
         )
+        snapshot = BeltSurveySnapshotFactory(session=self.session)
         belt_survey = BeltSurveyEntryFactory(
-            session=self.session,
+            snapshot=snapshot,
             eve_type=item_type,
             price_compressed=1000.0,
             price=5000.0,
@@ -357,8 +351,9 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Test CMP Ore",
             volume=5.0,
         )
+        snapshot = BeltSurveySnapshotFactory(session=self.session)
         belt_survey = BeltSurveyEntryFactory(
-            session=self.session,
+            snapshot=snapshot,
             eve_type=item_type,
             price_compressed=1000.0,
             price=5000.0,
@@ -377,8 +372,9 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Test Ore 3",
             volume=20.0,
         )
+        snapshot = BeltSurveySnapshotFactory(session=self.session)
         belt_survey = BeltSurveyEntryFactory(
-            session=self.session,
+            snapshot=snapshot,
             eve_type=item_type,
             price_compressed=2000.0,
             price=10000.0,
@@ -387,7 +383,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         # when/then
         expected_income_per_h = (
             belt_survey.price / item_type.volume
-        ) * self.session.br_entries.rate_per_s()
+        ) * self.session.br_snapshots.rate_per_s()
         self.assertEqual(belt_survey.income_per_h, expected_income_per_h)
 
     def test_income_cmp_per_h(self):
@@ -400,8 +396,9 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             name="Test CMP Ore 4",
             volume=10.0,
         )
+        snapshot = BeltSurveySnapshotFactory(session=self.session)
         belt_survey = BeltSurveyEntryFactory(
-            session=self.session,
+            snapshot=snapshot,
             eve_type=item_type,
             price_compressed=2000.0,
             price=10000.0,
@@ -410,7 +407,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         # when/then
         expected_income_cmp_per_h = (
             belt_survey.price_compressed / (item_type.volume / 100)
-        ) * self.session.br_entries.rate_per_s()
+        ) * self.session.br_snapshots.rate_per_s()
         self.assertEqual(belt_survey.income_cmp_per_h, expected_income_cmp_per_h)
 
     def test_create_belt_timer(self):
@@ -421,20 +418,26 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         item_type = ItemTypeFactory(
             name="Arkonor",
         )
+
+        snapshot = BeltSurveySnapshotFactory(session=self.session)
+        snapshot2 = BeltSurveySnapshotFactory(session=self.session)
+        snapshot3 = BeltSurveySnapshotFactory(session=self.session)
+        snapshot4 = BeltSurveySnapshotFactory(session=self.session)
+
         BeltSurveyEntryFactory(
-            session=self.session,
+            snapshot=snapshot,
             eve_type=item_type,
         )
         BeltSurveyEntryFactory(
-            session=self.session,
+            snapshot=snapshot2,
             eve_type=item_type,
         )
         BeltSurveyEntryFactory(
-            session=self.session,
+            snapshot=snapshot3,
             eve_type=item_type,
         )
         BeltSurveyEntryFactory(
-            session=self.session,
+            snapshot=snapshot4,
             eve_type=item_type,
         )
         # when

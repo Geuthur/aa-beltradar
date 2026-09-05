@@ -376,5 +376,5 @@ class BeltRadarApiEndpoints:
             # Delete the survey session and all associated entries
             session.delete()
             # If the session was deleted successfully, return a success message
-            msg = _("Survey session and all associated entries deleted successfully.")
+            msg = _("Session and all associated entries deleted successfully.")
             return HTTPStatus.OK, {"success": True, "message": msg}

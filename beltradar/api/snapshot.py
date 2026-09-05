@@ -323,7 +323,7 @@ class BeltRadarApiEndpoints:
                         session.create_belt_timer()
                 return HTTPStatus.OK, {
                     "success": True,
-                    "message": _("Survey entry added successfully."),
+                    "message": _("Snapshot added successfully."),
                 }
             return HTTPStatus.BAD_REQUEST, {
                 "success": False,

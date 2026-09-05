@@ -310,7 +310,7 @@ class BeltTimer(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text=_("Optional link to a survey session for this belt timer."),
+        help_text=_("Optional link to a session for this belt timer."),
         related_name="br_belt_timer",
     )
 

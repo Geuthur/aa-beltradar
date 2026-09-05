@@ -156,7 +156,7 @@ class BeltSessionForm(forms.ModelForm):
         help_texts = {
             "name": _("A name to identify this survey session."),
             "is_public": _(
-                "Indicates whether this session is publicly accessible without public id."
+                "If checked, this session will be visible to other users without a public ID."
             ),
         }
 

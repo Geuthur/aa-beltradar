@@ -40,6 +40,7 @@ Section Order:
 
 ### Added
 
+- Session and BeltTimer modification functionality, including forms and modals
 - Public Icon in Session Views
 - "is_public" field for Session Model
 - Dynamic Belt & Snapshot Management

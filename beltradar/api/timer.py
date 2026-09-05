@@ -326,7 +326,7 @@ class BeltRadarApiEndpoints:
             return HTTPStatus.OK, {"success": True, "message": msg}
 
         @api.post(
-            "manage/belt-timer/{timer_id}/switch/{field}/value/{value}/",
+            "manage/belt-timer/{timer_id}/modify/{field}/value/{value}/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.BAD_REQUEST: dict,
@@ -345,6 +345,7 @@ class BeltRadarApiEndpoints:
             Args:
                 timer_id (int): The ID of the belt timer to modify.
                 field (str): The field of the belt timer to modify.
+                value (str): The new value to set for the specified field.
             Returns:
                 200: A success message indicating the belt timer was modified.
                 400: An error message if the input data is invalid or cannot be parsed.

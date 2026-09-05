@@ -348,7 +348,7 @@ def get_session_view_button(
         url_name="beltradar:view_session",
         url_kwargs={"public_id": public_id},
         text='<i class="fa-solid fa-eye"></i>',
-        title=_("View Survey Session"),
+        title=_("View Session"),
         color="primary",
     )
     return view_button

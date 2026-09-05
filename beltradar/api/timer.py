@@ -204,7 +204,7 @@ class BeltRadarApiEndpoints:
                     timer.save()
                     return HTTPStatus.OK, {
                         "success": True,
-                        "message": _("Survey entry added successfully."),
+                        "message": _("Belt timer added successfully."),
                     }
             msg = _("Invalid input data. Please check the format and try again.")
             return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
@@ -248,7 +248,7 @@ class BeltRadarApiEndpoints:
             belt_type, belt_size = session.br_snapshots.session_resolve_belt()
 
             if belt_type is None or belt_size is None:
-                msg = _("Survey session does not have a valid belt type or size.")
+                msg = _("Session does not have a valid belt type or size.")
                 return HTTPStatus.BAD_REQUEST, {"error": msg}
 
             with transaction.atomic():
@@ -265,7 +265,7 @@ class BeltRadarApiEndpoints:
                 timer.save()
                 return HTTPStatus.OK, {
                     "success": True,
-                    "message": _("Survey timer added successfully."),
+                    "message": _("Session Belt timer added successfully."),
                 }
             msg = _("Invalid input data. Please check the format and try again.")
             return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}

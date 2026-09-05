@@ -222,9 +222,7 @@ class BeltRadarApiEndpoints:
                         sort=str(session.is_public),
                     ),
                     html=str(
-                        session_manage_action_icons(
-                            request=request, public_id=session.public_id
-                        )
+                        session_manage_action_icons(request=request, session=session)
                     ),
                 )
                 survey_list.append(survey_session_data)
@@ -280,16 +278,14 @@ class BeltRadarApiEndpoints:
                         sort=str(session.is_public),
                     ),
                     html=str(
-                        session_manage_action_icons(
-                            request=request, public_id=session.public_id
-                        )
+                        session_manage_action_icons(request=request, session=session)
                     ),
                 )
                 survey_list.append(survey_session_data)
             return HTTPStatus.OK, survey_list
 
         @api.post(
-            "manage/session/create/",
+            "manage/session/add/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.BAD_REQUEST: dict,
@@ -330,7 +326,7 @@ class BeltRadarApiEndpoints:
             return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
         @api.post(
-            "manage/delete-session/{public_id}/",
+            "manage/session/{public_id}/delete/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.FORBIDDEN: dict,
@@ -378,3 +374,64 @@ class BeltRadarApiEndpoints:
             # If the session was deleted successfully, return a success message
             msg = _("Session and all associated entries deleted successfully.")
             return HTTPStatus.OK, {"success": True, "message": msg}
+
+        @api.post(
+            "manage/session/{public_id}/modify/{field}/value/{value}/",
+            response={
+                HTTPStatus.OK: dict,
+                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.BAD_REQUEST: dict,
+            },
+            tags=self.tags,
+        )
+        def modify_session(request, public_id: str, field: str, value: str):
+            """
+            Modify a specific session.
+
+            This Endpoint allows users to modify a specific session.
+            The user must have permission to modify the session, and the session must exist.
+
+            Args:
+                public_id (str): The public UUID of the session.
+                field (str): The field of the session to modify.
+                value (str): The new value to set for the specified field.
+            Returns:
+                200: A success message indicating the session was modified.
+                403: An error message if the user does not have permission or the session is not found.
+                404: An error message if the session does not exist.
+                400: An error message if the request is malformed or invalid.
+            """
+            # Check if the session exists
+            try:
+                session = BeltSurveySession.objects.get(public_id=public_id)
+            except ObjectDoesNotExist:
+                msg = _("Belt Session not found.")
+                return HTTPStatus.NOT_FOUND, {"error": msg}
+
+            # Check if the user has permission to modify this session
+            perms = get_session_or_none(
+                request=request,
+                public_id=public_id,
+            )[0]
+            # pylint: disable=duplicate-code
+            if perms is False:
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+            # pylint: disable=duplicate-code
+            if perms is None:
+                return HTTPStatus.NOT_FOUND, {
+                    "error": _("Requested resource not found.")
+                }
+
+            # Modify the specified field of the belt session
+            if hasattr(session, field):
+                setattr(session, field, value)
+                try:
+                    session.save()
+                except Exception as e:  # pylint: disable=broad-except
+                    msg = _(f"Failed to update session {field}: {str(e)}")
+                    return HTTPStatus.BAD_REQUEST, {"error": msg}
+                msg = _(f"Session {field} updated successfully.")
+                return HTTPStatus.OK, {"success": True, "message": msg}
+            msg = _("Invalid Method.")
+            return HTTPStatus.BAD_REQUEST, {"error": msg}

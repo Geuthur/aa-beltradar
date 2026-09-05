@@ -75,7 +75,7 @@ def _create_button(
 )
 def session_manage_action_icons(
     request: WSGIRequest,  # pylint: disable=unused-argument
-    public_id: str,
+    session: "BeltSurveySession",
 ) -> str | HttpResponse:
     """
     Generate HTML Action Icons for the Session Overview view.
@@ -89,13 +89,30 @@ def session_manage_action_icons(
         SafeString: HTML string containing the action icons.
     """
     beltradar_request_icons = "<div class='d-flex justify-content-end'>"
+    # Add the view session button
     beltradar_request_icons += get_session_view_button(
-        request=request, public_id=public_id
+        request=request, public_id=session.public_id
     )
+    # Add the modify session button (toggle public/private)
+    beltradar_request_icons += _create_button(
+        url_name="beltradar:api:modify_session",
+        url_kwargs={
+            "public_id": session.public_id,
+            "field": "is_public",
+            "value": str(not session.is_public).capitalize(),
+        },
+        text='<i class="fa-solid fa-wrench"></i>',
+        title=_("Modify Session"),
+        color="warning",
+        modal_id="beltradar-accept-modify-session",
+    )
+
+    # Add the delete session button
     beltradar_request_icons += get_session_delete_button(
-        request=request, public_id=public_id
+        request=request, public_id=session.public_id
     )
     beltradar_request_icons += "</div>"
+
     return beltradar_request_icons
 
 
@@ -184,8 +201,8 @@ def belt_timer_manage_action_icons(
         },
         text='<i class="fa-solid fa-wrench"></i>',
         title=_("Edit Belt Timer"),
-        color="primary",
-        modal_id="beltradar-accept-switch-belt-timer",
+        color="warning",
+        modal_id="beltradar-accept-modify-belt-timer",
     )
     # Delete button for the belt timer
     beltradar_request_icons += _create_button(

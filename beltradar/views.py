@@ -76,7 +76,8 @@ def view_belt_radar(request):
         "forms": {
             "add_session": forms.BeltSessionForm(),
             "add_belt_timer": forms.BeltTimerForm(),
-            "switch_belt_timer": forms.SwitchBeltTimerForm(),
+            "modify_belt_timer": forms.ModifyBeltTimerForm(),
+            "modify_session": forms.ModifySessionForm(),
             "delete_session": forms.DeleteSessionForm(),
             "delete_belt_timer": forms.DeleteBeltTimerForm(),
         },
@@ -98,7 +99,8 @@ def view_my_beltradar(request, character_id=None):
         "forms": {
             "add_session": forms.BeltSessionForm(),
             "add_belt_timer": forms.BeltTimerForm(),
-            "switch_belt_timer": forms.SwitchBeltTimerForm(),
+            "modify_belt_timer": forms.ModifyBeltTimerForm(),
+            "modify_session": forms.ModifySessionForm(),
             "delete_session": forms.DeleteSessionForm(),
             "delete_belt_timer": forms.DeleteBeltTimerForm(),
         },

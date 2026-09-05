@@ -37,6 +37,15 @@ class DeleteSessionForm(forms.Form):
         fields = ["public_id"]
 
 
+class ModifySessionForm(forms.Form):
+    """
+    Form to confirm session modification.
+    """
+
+    class Meta:
+        fields = ["public_id"]
+
+
 class DeleteBeltTimerForm(forms.Form):
     """
     Form to confirm belt timer deletion.
@@ -55,9 +64,9 @@ class CreateTimerForm(forms.Form):
         fields = ["public_id"]
 
 
-class SwitchBeltTimerForm(forms.Form):
+class ModifyBeltTimerForm(forms.Form):
     """
-    Form to confirm belt timer switch.
+    Form to confirm belt timer modification.
     """
 
     class Meta:

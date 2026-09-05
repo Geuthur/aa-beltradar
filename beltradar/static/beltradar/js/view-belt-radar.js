@@ -7,11 +7,12 @@ $(document).ready(() => {
     const BeltRadarSessionTable = $('#beltradar-session-table');
     const BeltRadarBeltTimerTable = $('#beltradar-belt-timer-table');
     /* Modals */
-    const modalRequestDeleteSession = $('#beltradar-accept-delete-session');
-    const modalRequestSwitchBeltTimer = $('#beltradar-accept-switch-belt-timer');
+    const modalRequestAddBeltTimer = $('#beltradar-add-belt-timer');
+    const modalRequestModifyBeltTimer = $('#beltradar-accept-modify-belt-timer');
     const modalRequestDeleteBeltTimer = $('#beltradar-accept-delete-belt-timer');
     const modalRequestAddSession = $('#beltradar-add-session');
-    const modalRequestAddBeltTimer = $('#beltradar-add-belt-timer');
+    const modalRequestDeleteSession = $('#beltradar-accept-delete-session');
+    const modalRequestModifySession = $('#beltradar-accept-modify-session');
 
     /**
     * DataTable for Belt Radar Session Entries
@@ -434,17 +435,17 @@ $(document).ready(() => {
 
 
     /**
-    * Table :: Belt-Timer :: Switch Button Click Handler
-    * Open Switch Belt-Timer Modal
+    * Table :: Belt-Timer :: Modify Button Click Handler
+    * Open Modify Belt-Timer Modal
     * On Confirmation send a request to the API Endpoint, reload the Belt-Timer DataTable, close the modal
     */
-    modalRequestSwitchBeltTimer.on('show.bs.modal', (event) => {
+    modalRequestModifyBeltTimer.on('show.bs.modal', (event) => {
         const button = $(event.relatedTarget);
         const url = button.data('action');
-        const form = modalRequestSwitchBeltTimer.find('form');
+        const form = modalRequestModifyBeltTimer.find('form');
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
-        modalRequestSwitchBeltTimer.find('#modal-button-confirm-accept-request').on('click', () => {
+        modalRequestModifyBeltTimer.find('#modal-button-confirm-accept-request').on('click', () => {
             fetchPostBeltRadar({
                 url: url,
                 csrfToken: csrfMiddlewareToken,
@@ -457,7 +458,7 @@ $(document).ready(() => {
                         })
                             .then((newData) => {
                                 _reloadBeltTimerData(newData);
-                                modalRequestSwitchBeltTimer.modal('hide');
+                                modalRequestModifyBeltTimer.modal('hide');
                             })
                             .catch((error) => {
                                 console.error('Error fetching Belt Timer DataTable:', error);
@@ -465,12 +466,12 @@ $(document).ready(() => {
                     }
                 })
                 .catch((error) => {
-                    console.error(`Error posting switch request: ${error.message}`);
+                    console.error(`Error posting Modify request: ${error.message}`);
                 });
         });
     })
         .on('hide.bs.modal', () => {
-            modalRequestSwitchBeltTimer.find('#modal-button-confirm-accept-request').unbind('click');
+            modalRequestModifyBeltTimer.find('#modal-button-confirm-accept-request').unbind('click');
         });
 
     /**
@@ -533,5 +534,45 @@ $(document).ready(() => {
             modalRequestAddSession.find('input[name="is_public"]').prop('checked', true);
             modalRequestAddSession.find('#beltradar-spinner').addClass('d-none');
             modalRequestAddSession.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
+        });
+
+    /**
+    * Table :: Session :: Modify Button Click Handler
+    * Open Modify Session Modal
+    * On Confirmation send a request to the API Endpoint, reload the Session DataTable, close the modal
+    */
+    modalRequestModifySession.on('show.bs.modal', (event) => {
+        const button = $(event.relatedTarget);
+        const url = button.data('action');
+        const form = modalRequestModifySession.find('form');
+        const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
+
+        modalRequestModifySession.find('#modal-button-confirm-accept-request').on('click', () => {
+            fetchPostBeltRadar({
+                url: url,
+                csrfToken: csrfMiddlewareToken,
+                payload: {}
+            })
+                .then((data) => {
+                    if (data.success === true) {
+                        fetchGetBeltRadar({
+                            url: aaBeltRadarSettings.url.Sessions,
+                        })
+                            .then((freshData) => {
+                                _reloadSessionsDataTable(freshData);
+                                modalRequestModifySession.modal('hide');
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching Session DataTable:', error);
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error posting modify request: ${error.message}`);
+                });
+        });
+    })
+        .on('hide.bs.modal', () => {
+            modalRequestModifySession.find('#modal-button-confirm-accept-request').unbind('click');
         });
 });

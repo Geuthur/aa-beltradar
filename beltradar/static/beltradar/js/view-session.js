@@ -201,6 +201,7 @@ $(document).ready(() => {
             .catch((error) => {
                 console.error('Error fetching snapshot data:', error);
                 BeltRadarSessionsDataTable.clear().draw();
+                $('#ore-snapshot-heading').html(`${aaBeltRadarSettings.translations.lastSnapshot} - N/A`);
                 // Show error message in chart area if chart data is not available
                 chartContainer.html(`<div class="text-muted text-center p-4">${aaBeltRadarSettings.translations.noData}</div>`);
                 trafficChartContainer.html(`<div class="text-muted text-center p-4">${aaBeltRadarSettings.translations.noData}</div>`);

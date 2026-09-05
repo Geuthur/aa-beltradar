@@ -30,30 +30,13 @@ Gneiss IV-Grade*	4 769	23 845 m3	8 550 000,00 ISK	23 km
 Gneiss IV-Grade*	5 107	25 535 m3	9 150 000,00 ISK	24 km
 Gneiss IV-Grade*	5 800	29 000 m3	10 400 000,00 ISK	19 km
 Gneiss IV-Grade*	990	4 950 m3	1 770 000,00 ISK	508 km
-Mercoxit III-Grade*	1 433	57 320 m3	24 200 000,00 ISK	488 km
-Mercoxit III-Grade*	1 505	60 200 m3	25 400 000,00 ISK	489 km
-Mercoxit III-Grade*	1 580	63 200 m3	26 700 000,00 ISK	515 km
-Mercoxit III-Grade*	1 659	66 360 m3	28 000 000,00 ISK	495 km
-Mercoxit III-Grade*	1 742	69 680 m3	29 400 000,00 ISK	499 km
-Mercoxit III-Grade*	1 770	70 800 m3	29 900 000,00 ISK	417 km
-Mercoxit III-Grade*	1 859	74 360 m3	31 400 000,00 ISK	433 km
-Mercoxit III-Grade*	1 952	78 080 m3	33 000 000,00 ISK	398 km
-Mercoxit III-Grade*	1 981	79 240 m3	33 500 000,00 ISK	212 km
-Mercoxit III-Grade*	2 080	83 200 m3	35 200 000,00 ISK	230 km
-Mercoxit III-Grade*	6 191	247 640 m3	105 000 000,00 ISK	511 km
-Mercoxit III-Grade*	6 500	260 000 m3	110 000 000,00 ISK	505 km
-Mercoxit III-Grade*	6 825	273 000 m3	115 000 000,00 ISK	499 km
-Mercoxit III-Grade*	7 647	305 880 m3	129 000 000,00 ISK	462 km
-Mercoxit III-Grade*	8 029	321 160 m3	136 000 000,00 ISK	456 km
-Mercoxit III-Grade*	8 431	337 240 m3	143 000 000,00 ISK	437 km
-Mercoxit III-Grade*	8 558	342 320 m3	145 000 000,00 ISK	239 km
-Mercoxit III-Grade*	8 986	359 440 m3	152 000 000,00 ISK	246 km
-Mercoxit III-Grade*	9 436	377 440 m3	160 000 000,00 ISK	207 km
-Spodumain IV-Grade*	2 572	41 152 m3	21 600 000,00 ISK	428 km
+Spodumain IV-Grade*	1 919	30 704 m3	16 100 000,00 ISK	399 km
 Ytirium IV-Grade*	16 364	9 818 m3	4 910 000,00 ISK	18 km
-Ytirium IV-Grade*	768	460 m3	230 000,00 ISK	490 km
-Ytirium IV-Grade*	806	483 m3	242 000,00 ISK	493 km
-Ytirium IV-Grade*	847	508 m3	254 000,00 ISK	508 km
-Ytirium IV-Grade*	889	533 m3	266 000,00 ISK	521 km
-Ytirium IV-Grade*	933	559 m3	280 000,00 ISK	501 km
-Ytirium IV-Grade*	980	588 m3	294 000,00 ISK	518 km
+Ytirium IV-Grade*	1 029	617 m3	308 000,00 ISK	502 km
+Ytirium IV-Grade*	1 078	646 m3	323 000,00 ISK	498 km
+Ytirium IV-Grade*	22 518	13 510 m3	6 750 000,00 ISK	20 km
+Ytirium IV-Grade*	23 459	14 075 m3	7 030 000,00 ISK	19 km
+Ytirium IV-Grade*	24 113	14 467 m3	7 230 000,00 ISK	20 km
+Ytirium IV-Grade*	24 826	14 895 m3	7 440 000,00 ISK	23 km
+Ytirium IV-Grade*	28 739	17 243 m3	8 610 000,00 ISK	21 km
+Ytirium IV-Grade*	30 176	18 105 m3	9 050 000,00 ISK	21 km

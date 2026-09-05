@@ -140,7 +140,6 @@ class TestApiEndpoints(BeltRadarTestCase):
         """
         # Test Data
         BeltTimerFactory(owner=self.user)
-        print(self.user.profile.main_character.character_id)
         url = reverse(
             f"{API_URL}:get_my_belt_timer",
             kwargs={"character_id": self.user.profile.main_character.character_id},

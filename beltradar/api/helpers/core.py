@@ -57,7 +57,6 @@ def get_belt_timer_or_none(
             owner__profile__main_character__character_id=character_id
         ).first()
         if not timer:
-            print("No timer found for character_id:", character_id)
             return None, None
     except ValueError:
         return None, None

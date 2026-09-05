@@ -322,7 +322,6 @@ class BeltSurveySnapshotQuerySet(models.QuerySet["BeltSurveySnapshotContext"]):
 
         ore_names = {ore_name.casefold() for ore_name in ore_names}
         volume_left = asteroids.belt_size_m3()
-        print(volume_left)
 
         # Check for Ice ores
         if self._contains_ore_variant(ore_names, ICE_ORE):

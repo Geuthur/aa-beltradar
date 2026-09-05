@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 # Django
 from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -92,6 +93,10 @@ def session_manage_action_icons(
         request=request, public_id=session.public_id
     )
 
+    # Return an empty string if the session does not exist
+    if session is None:
+        return ""
+
     beltradar_request_icons = "<div class='d-flex justify-content-end'>"
     # Add the view session button
     beltradar_request_icons += get_session_view_button(
@@ -163,7 +168,11 @@ def session_belt_timer_action_icons(
             modal_id="beltradar-accept-create-belt-timer",
         )
     if session.br_belt_timer.exists():
-        timer_id = session.br_belt_timer.get(public_id=public_id).pk
+        try:
+            timer_id = session.br_belt_timer.get(public_id=public_id).pk
+        except ObjectDoesNotExist:
+            return ""  # Return empty string if the belt timer does not exist
+
         text = _("Delete Belt Timer")
         return _create_button(
             url_name="beltradar:api:delete_belt_timer",
@@ -212,7 +221,7 @@ def belt_timer_manage_action_icons(
             "value": str(not timer.is_public).capitalize(),
         },
         text='<i class="fa-solid fa-wrench"></i>',
-        title=_("Edit Belt Timer"),
+        title=_("Modify Belt Timer"),
         color="warning",
         modal_id="beltradar-accept-modify-belt-timer",
     )

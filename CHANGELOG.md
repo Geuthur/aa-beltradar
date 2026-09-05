@@ -26,7 +26,7 @@ Section Order:
 ### Removed
 -->
 
-## [1.0.0]- 2026-09-05
+## [1.0.0] ... [1.0.1] - 2026-09-05
 
 > [!CAUTION]
 > Please note that this release involves structural changes.
@@ -34,6 +34,7 @@ Section Order:
 
 ### Fixed
 
+- Session management icons with permission checks for modify and delete actions
 - TrafficContainer Error Response
 - AttributeError if User has no Main Character
 - Permission Issues
@@ -62,7 +63,7 @@ Section Order:
 - permission checks to return None for not found cases and update related error handling in API endpoints
 - Belt Respawn Timers Can Now Be Created Without a Session Assignment
 
-## [0.5.1]- 2026-08-08
+## [0.5.1] - 2026-08-08
 
 ### Added
 
@@ -72,7 +73,7 @@ Section Order:
 
 - Moved Chart Generation from API Endpoint to Helper Function
 
-## [0.5.0]- 2026-08-05
+## [0.5.0] - 2026-08-05
 
 ### Added
 
@@ -96,7 +97,7 @@ Section Order:
 
 - `session` field from Belt Timer Model
 
-## [0.2.0]- 2026-08-02
+## [0.2.0] - 2026-08-02
 
 ### Added
 
@@ -260,4 +261,6 @@ Section Order:
 [0.2.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.1.0...v0.2.0 "v0.2.0"
 [0.5.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.2.0...v0.5.0 "v0.5.0"
 [0.5.1]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.0...v0.5.1 "v0.5.1"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.0...HEAD "In Development"
+[1.0.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.1...v1.0.0 "v1.0.0"
+[1.0.1]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.0...v1.0.1 "v1.0.1"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.1...HEAD "In Development"

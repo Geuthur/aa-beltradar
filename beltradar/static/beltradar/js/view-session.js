@@ -196,7 +196,6 @@ $(document).ready(() => {
 
                 // Render Mining Chart with the same data if available, otherwise try to find it in the root of the response
                 _reloadCharts(snapshotData);
-                _fetchSessionData();
             })
             .catch((error) => {
                 console.error('Error fetching snapshot data:', error);

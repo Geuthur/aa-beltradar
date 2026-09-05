@@ -88,29 +88,41 @@ def session_manage_action_icons(
     Returns:
         SafeString: HTML string containing the action icons.
     """
+    perms, session = get_manage_session_or_none(
+        request=request, public_id=session.public_id
+    )
+
     beltradar_request_icons = "<div class='d-flex justify-content-end'>"
     # Add the view session button
     beltradar_request_icons += get_session_view_button(
         request=request, public_id=session.public_id
     )
-    # Add the modify session button (toggle public/private)
-    beltradar_request_icons += _create_button(
-        url_name="beltradar:api:modify_session",
-        url_kwargs={
-            "public_id": session.public_id,
-            "field": "is_public",
-            "value": str(not session.is_public).capitalize(),
-        },
-        text='<i class="fa-solid fa-wrench"></i>',
-        title=_("Modify Session"),
-        color="warning",
-        modal_id="beltradar-accept-modify-session",
-    )
 
-    # Add the delete session button
-    beltradar_request_icons += get_session_delete_button(
-        request=request, public_id=session.public_id
-    )
+    # Check if the user has permissions to modify or delete the session
+    if perms:
+        # Add the modify session button (toggle public/private)
+        beltradar_request_icons += _create_button(
+            url_name="beltradar:api:modify_session",
+            url_kwargs={
+                "public_id": session.public_id,
+                "field": "is_public",
+                "value": str(not session.is_public).capitalize(),
+            },
+            text='<i class="fa-solid fa-wrench"></i>',
+            title=_("Modify Session"),
+            color="warning",
+            modal_id="beltradar-accept-modify-session",
+        )
+        # Add the delete session button
+        beltradar_request_icons += _create_button(
+            url_name="beltradar:api:delete_session",
+            url_kwargs={"public_id": session.public_id},
+            text='<i class="fa-solid fa-trash"></i>',
+            title=_("Delete Session"),
+            color="danger",
+            modal_id="beltradar-accept-delete-session",
+        )
+
     beltradar_request_icons += "</div>"
 
     return beltradar_request_icons

@@ -33,10 +33,12 @@ Section Order:
 
 - TrafficContainer Error Response
 - AttributeError if User has no Main Character
+- Permission Issues
 
 ### Added
 
-- "is_public" field for Session
+- Public Icon in Session Views
+- "is_public" field for Session Model
 - Dynamic Belt & Snapshot Management
 - Belt Timer Creation Triggered by 4 Submitted Surveys (Auto Timer)
 - `BeltSurveySnapshot` Model

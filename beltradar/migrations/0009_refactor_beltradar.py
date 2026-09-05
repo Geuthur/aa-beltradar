@@ -117,4 +117,17 @@ class Migration(migrations.Migration):
                 to="beltradar.beltsurveysnapshot",
             ),
         ),
+        migrations.RenameField(
+            model_name="belttimer",
+            old_name="public",
+            new_name="is_public",
+        ),
+        migrations.AddField(
+            model_name="beltsurveysession",
+            name="is_public",
+            field=models.BooleanField(
+                default=True,
+                help_text="Indicates whether this session is publicly accessible without public id.",
+            ),
+        ),
     ]

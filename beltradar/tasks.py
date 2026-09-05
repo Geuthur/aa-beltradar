@@ -85,7 +85,7 @@ def update_all_belt_radar(runs: int = 0):
                 user_notifications[user_settings.user.pk].append(msg)
 
             # Send a webhook notification if a webhook URL is configured in the app settings.
-            if belt_timer.public is True:
+            if belt_timer.is_public is True:
                 webhook_notifications.append(msg)
 
             # Mark the timer as having sent a notification to avoid sending duplicate notifications

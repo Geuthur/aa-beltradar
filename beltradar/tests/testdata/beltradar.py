@@ -1,8 +1,12 @@
+# Standard Library
+import secrets
+
 # Third Party
 import factory
 
 # AA Belt Radar
 from beltradar.models import BeltSurveyEntry, BeltSurveySession, BeltTimer
+from beltradar.models.beltradar import BeltSurveySnapshot
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.tests.testdata.factory import (
     BaseMetaFactory,
@@ -50,6 +54,22 @@ class BeltSessionFactory(
     public_id = factory.Faker("uuid4")
     name = factory.Faker("sentence", nb_words=3)
     created_at = factory.Faker("date_time_this_year", tzinfo=None)
+    is_public = False
+
+
+class BeltSnapshotFactory(
+    factory.django.DjangoModelFactory, metaclass=BaseMetaFactory[BeltSurveySnapshot]
+):
+    """Generate a BeltSurveySnapshot object with default values."""
+
+    class Meta:
+        model = BeltSurveySnapshot
+        django_get_or_create = ("session", "identifier", "timestamp")
+
+    session = factory.SubFactory(BeltSessionFactory)
+    identifier = factory.LazyFunction(lambda: secrets.token_hex(6))
+    recorded_by = factory.SubFactory(UserMainFactory)
+    timestamp = factory.Faker("date_time_this_year", tzinfo=None)
 
 
 class BeltSurveyEntryFactory(
@@ -59,18 +79,20 @@ class BeltSurveyEntryFactory(
 
     class Meta:
         model = BeltSurveyEntry
-        django_get_or_create = ("session", "snapshot", "timestamp", "eve_type")
+        django_get_or_create = ("snapshot", "eve_type", "units", "volume_left")
 
-    session = factory.SubFactory(BeltSessionFactory)
-    snapshot = factory.Faker("sha256")
-    recorded_by = factory.SubFactory(UserMainFactory)
-    timestamp = factory.Faker("date_time_this_year", tzinfo=None)
+    snapshot = factory.SubFactory(BeltSnapshotFactory)
     eve_type = factory.SubFactory(ItemTypeFactory)
     units = factory.Faker("random_int", min=1, max=1000)
     volume_left = factory.Faker("random_int", min=1, max=10000)
     note = None
     price_compressed = None
     price = None
+
+    @factory.post_generation
+    def add_to_snapshot(obj, create, _, **kwargs):
+        if create:
+            obj.snapshot.asteroids.add(obj)
 
 
 class BeltTimerFactory(
@@ -93,5 +115,5 @@ class BeltTimerFactory(
         "random_element", elements=[choice[0] for choice in BeltTypeChoice.choices]
     )
     eta = None
-    public = False
+    is_public = False
     sent_notification = False

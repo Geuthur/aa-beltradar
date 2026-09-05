@@ -67,7 +67,7 @@ class TestUpdateAllBeltRadar(BeltRadarTestCase):
         # Create a BeltTimer that is expired and public, and has not sent a notification yet
         belt_timer = BeltTimerFactory(
             owner=self.user,
-            public=True,
+            is_public=True,
             sent_notification=False,
         )
         expired_eta = timezone.now() - timezone.timedelta(days=2)

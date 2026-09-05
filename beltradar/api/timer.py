@@ -17,10 +17,10 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
-from beltradar.api.helpers.core import get_belt_timer_or_none, get_public_id_or_none
+from beltradar.api.helpers.core import get_belt_timer_or_none, get_session_or_none
 from beltradar.api.helpers.icons import (
     belt_timer_manage_action_icons,
-    switch_belt_timer_state,
+    get_belt_timer_status_icon,
 )
 from beltradar.models.beltradar import (
     BeltTimer,
@@ -31,7 +31,7 @@ from beltradar.providers import AppLogger
 logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
-class BeltRadarBeltTimerApiEndpoints:
+class BeltRadarApiEndpoints:
     tags = ["Belt-Timer"]
 
     # pylint: disable=too-many-statements
@@ -60,19 +60,18 @@ class BeltRadarBeltTimerApiEndpoints:
                 403: An error message if the user does not have permission or the belt timer is not found.
                 404: An error message if the belt timer is not found.
             """
-            # Check if the user has permission to add entries to this survey session
-            perms = get_belt_timer_or_none(
-                request=request,
-                character_id=character_id,
-            )[0]
+            perms = False
+
+            # Check if the character ID is in the list of visible characters for the current user
+            visible_characters = BeltTimer.objects.visible_eve_characters(
+                request.user
+            ).values_list("character_id", flat=True)
+            if character_id in visible_characters:
+                perms = True
+
             # pylint: disable=duplicate-code
             if perms is False:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-            # pylint: disable=duplicate-code
-            if perms is None:
-                return HTTPStatus.NOT_FOUND, {
-                    "error": _("Requested resource not found.")
-                }
 
             # Retrieve all belt timers associated with the user's character ID
             belt_timers = BeltTimer.objects.filter(
@@ -95,16 +94,15 @@ class BeltRadarBeltTimerApiEndpoints:
                             sort=str(timer.eta),
                         ),
                         public=schema.DataTableSchema(
-                            raw=timer.public,
-                            display=switch_belt_timer_state(timer=timer),
-                            sort=str(timer.public),
+                            raw=timer.is_public,
+                            display=get_belt_timer_status_icon(timer=timer),
+                            sort=str(timer.is_public),
                         ),
                         is_expired=timer.is_expired,
                         html=str(
                             belt_timer_manage_action_icons(
                                 request=request,
-                                timer_id=timer.pk,
-                                character_id=character_id,
+                                timer=timer,
                             )
                         ),
                     )
@@ -129,15 +127,15 @@ class BeltRadarBeltTimerApiEndpoints:
                 200: A list of belt timers in the API response format.
             """
             # Retrieve all public belt timers
-            belt_timers = BeltTimer.objects.filter(public=True)
-
-            # If the user is a superuser, retrieve all belt timers regardless of ownership
-            if request.user.is_superuser:
-                belt_timers = BeltTimer.objects.all()
+            belt_timers = BeltTimer.objects.visible_to(request.user)
 
             # Serialize the belt timers into the API response format
             belt_timer_list: list[schema.BeltTimerSchema] = []
             for timer in belt_timers:
+                # Skip sessions where the owner or main character is not set
+                if timer.owner is None or timer.owner.profile.main_character is None:
+                    continue
+
                 belt_timer_list.append(
                     schema.BeltTimerSchema(
                         public_id=str(timer.public_id),
@@ -151,16 +149,15 @@ class BeltRadarBeltTimerApiEndpoints:
                             sort=str(timer.eta),
                         ),
                         public=schema.DataTableSchema(
-                            raw=timer.public,
-                            display=switch_belt_timer_state(timer=timer),
-                            sort=str(timer.public),
+                            raw=timer.is_public,
+                            display=get_belt_timer_status_icon(timer=timer),
+                            sort=str(timer.is_public),
                         ),
                         is_expired=timer.is_expired,
                         html=str(
                             belt_timer_manage_action_icons(
                                 request=request,
-                                timer_id=timer.pk,
-                                character_id=timer.owner.profile.main_character.character_id,
+                                timer=timer,
                             )
                         ),
                     )
@@ -222,7 +219,7 @@ class BeltRadarBeltTimerApiEndpoints:
             },
             tags=self.tags,
         )
-        def add_survey_timer(request, public_id: str):
+        def add_session_belt_timer(request, public_id: str):
             """
             Add a new survey timer to a survey session.
 
@@ -238,7 +235,7 @@ class BeltRadarBeltTimerApiEndpoints:
                 404: An error message if the survey session is not found.
             """
             # Check if the user has permission to add entries to this survey session
-            perms, session = get_public_id_or_none(request=request, public_id=public_id)
+            perms, session = get_session_or_none(request=request, public_id=public_id)
             # pylint: disable=duplicate-code
             if perms is False:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
@@ -248,7 +245,7 @@ class BeltRadarBeltTimerApiEndpoints:
                     "error": _("Requested resource not found.")
                 }
 
-            belt_type, belt_size = session.br_entries.session_resolve_belt()
+            belt_type, belt_size = session.br_snapshots.session_resolve_belt()
 
             if belt_type is None or belt_size is None:
                 msg = _("Survey session does not have a valid belt type or size.")

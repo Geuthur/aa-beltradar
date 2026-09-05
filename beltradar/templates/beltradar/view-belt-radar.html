@@ -12,15 +12,10 @@
 {% endblock page_topic %}
 
 {% block aabeltradar_header %}
-    <div class="card">
-        <div class="card-header bg-primary rounded d-flex align-items-center">
-            <h3>{% translate "Public Belt Radar" %}</h3>
-        </div>
-    </div>
 {% endblock aabeltradar_header %}
 
 {% block aabeltradar_block %}
-    {% include 'beltradar/partials/view-belt-radar/survey-session-table.html' %}
+    {% include 'beltradar/partials/view-belt-radar/session-table.html' %}
     {% include 'beltradar/partials/view-belt-radar/belt-timer-table.html' %}
 {% endblock aabeltradar_block %}
 
@@ -39,7 +34,7 @@
          */
         const aaBeltRadarSettingsOverride = {
             url: {
-                Sessions: "{% url 'beltradar:api:get_sessions' %}",
+                Sessions: "{% url 'beltradar:api:get_public_sessions' %}",
                 Timers: "{% url 'beltradar:api:get_belt_timers' %}",
             },
             translations: {
@@ -69,6 +64,7 @@
     <!-- load modals -->
     {% include 'beltradar/partials/modals/request-accept-delete-belt-timer.html' %}
     {% include 'beltradar/partials/modals/request-accept-switch-belt-timer.html' %}
-    {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
+    {% include 'beltradar/partials/modals/request-accept-delete-session.html' %}
     {% include 'beltradar/partials/modals/request-add-belt-timer.html' %}
+    {% include 'beltradar/partials/modals/request-add-session.html' %}
 {% endblock extra_javascript %}

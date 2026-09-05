@@ -1,3 +1,1 @@
-Mercoxit III-Grade*	9 436	377 440 m3	160 000 000,00 ISK	207 km
-Spodumain IV-Grade*	2 572	41 152 m3	21 600 000,00 ISK	428 km
-Ytirium IV-Grade*	16 364	9 818 m3	4 910 000,00 ISK	18 km
+Dark Ochre IV-Grade*	1 192	9 536 m3	3 990 000,00 ISK	450 km

@@ -15,9 +15,9 @@
     <div class="card">
         <div class="card-header bg-primary rounded d-flex align-items-center">
             <div class="me-2">
-                {{ delete_button|safe }}
+                {{ delete_session_button|safe }}
             </div>
-            <h3 class="mb-0">{% translate "View Session" %}</h3>
+            <h3>{% translate "Session" %} - {{ session.name }}</h3>
             <div class="ms-auto" id="session-belt-timer"></div>
         </div>
     </div>
@@ -25,7 +25,7 @@
 
 {% block aabeltradar_block %}
     {% include 'beltradar/partials/view-session/session.html' %}
-    {% include 'beltradar/partials/view-session/survey-table.html' %}
+    {% include 'beltradar/partials/view-session/snapshot-table.html' %}
     {% include 'beltradar/partials/view-session/charts.html' %}
 {% endblock aabeltradar_block %}
 
@@ -66,26 +66,29 @@
                 },
             },
             url: {
-                surveySessionEntry: "{% url 'beltradar:api:get_survey_entry' public_id=session.public_id %}",
+                surveySessionEntry: "{% url 'beltradar:api:get_snapshot' public_id=session.public_id %}",
+                sessionData: "{% url 'beltradar:api:get_session_stats' public_id=session.public_id %}",
                 index: "{% url 'beltradar:index' %}",
             },
             translations: {
                 loading: "{% translate 'Loading…' %}",
                 noData: "{% translate 'No mining chart data available.' %}",
-                oreSurveyHeading: "{% translate 'Last Snapshot' %}",
+                lastSnapshot: "{% translate 'Last Snapshot' %}",
                 firstScan: "{% translate 'First Scan' %}",
                 lastScan: "{% translate 'Last Scan' %}",
                 etaScan: "{% translate 'Estimated Time' %}",
                 etaPassed: "{% translate 'Done' %}",
+                miningSpeed: "{% translate 'Mining Speed' %}",
+                oreProgression: "{% translate 'Ore Progression' %}",
             }
         };
     </script>
     {% include 'beltradar/bundles/aa-beltradar-js.html' %}
     {% include 'beltradar/bundles/view-session-js.html' %}
     <!-- load modals -->
-    {% include 'beltradar/partials/modals/request-accept-delete-survey-session.html' %}
+    {% include 'beltradar/partials/modals/request-accept-delete-session.html' %}
     {% include 'beltradar/partials/modals/request-accept-delete-snapshot.html' %}
-    {% include 'beltradar/partials/modals/request-add-survey.html' %}
+    {% include 'beltradar/partials/modals/request-add-snapshot.html' %}
     {% include 'beltradar/partials/modals/request-accept-add-belt-timer.html' %}
     {% include 'beltradar/partials/modals/request-accept-delete-belt-timer.html' %}
 {% endblock extra_javascript %}

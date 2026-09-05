@@ -21,16 +21,16 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 
 class DeleteSnapshotForm(forms.Form):
     """
-    Form to confirm snapshot deletion.
+    Form to confirm identifier deletion.
     """
 
     class Meta:
-        fields = ["snapshot_id"]
+        fields = ["identifier_id"]
 
 
-class DeleteSurveyForm(forms.Form):
+class DeleteSessionForm(forms.Form):
     """
-    Form to confirm survey deletion.
+    Form to confirm session deletion.
     """
 
     class Meta:
@@ -46,9 +46,9 @@ class DeleteBeltTimerForm(forms.Form):
         fields = ["timer_id"]
 
 
-class CreateSurveyTimerForm(forms.Form):
+class CreateTimerForm(forms.Form):
     """
-    Form to confirm survey create timer.
+    Form to confirm creation of a belt timer.
     """
 
     class Meta:
@@ -64,11 +64,11 @@ class SwitchBeltTimerForm(forms.Form):
         fields = ["timer_id"]
 
 
-class AddSurveyForm(forms.Form):
+class AddSnapshotForm(forms.Form):
     raw_data = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 20, "cols": 80}),
-        label="Mining Survey Result Data",
-        help_text="Paste the 'Mining Survey Result' data here.",
+        label="Mining Result Data",
+        help_text=_("Paste the 'Mining Survey' data here."),
         required=True,
     )
 
@@ -136,7 +136,7 @@ class AddSurveyForm(forms.Form):
             }
 
             processed_lines.append(OreSchema(**item))
-        return OreSchemaResponse(errors=form_errors, entries=processed_lines)
+        return OreSchemaResponse(errors=form_errors, ore_list=processed_lines)
 
     def clean_raw_data(self):
         """
@@ -145,28 +145,32 @@ class AddSurveyForm(forms.Form):
         return self.sanatize_raw_data(raw_data=self.cleaned_data["raw_data"])
 
 
-class BeltSurveySessionForm(forms.ModelForm):
+class BeltSessionForm(forms.ModelForm):
     class Meta:
         model = BeltSurveySession
-        fields = ["name"]
+        fields = ["name", "is_public"]
         labels = {
             "name": "Session Name",
+            "is_public": "Public",
         }
         help_texts = {
             "name": _("A name to identify this survey session."),
+            "is_public": _(
+                "Indicates whether this session is publicly accessible without public id."
+            ),
         }
 
 
 class BeltTimerForm(forms.ModelForm):
     class Meta:
         model = BeltTimer
-        fields = ["belt_id", "belt_name", "belt_type", "belt_size", "public"]
+        fields = ["belt_id", "belt_name", "belt_type", "belt_size", "is_public"]
         labels = {
             "belt_id": "Belt ID",
             "belt_name": "Belt Name",
             "belt_type": "Belt Type",
             "belt_size": "Belt Size",
-            "public": "Public",
+            "is_public": "Public",
         }
         help_texts = {
             "belt_id": _(
@@ -175,7 +179,7 @@ class BeltTimerForm(forms.ModelForm):
             "belt_name": _("The name of the belt."),
             "belt_type": _("The type of belt."),
             "belt_size": _("The size of the belt."),
-            "public": _(
+            "is_public": _(
                 "If checked, this belt timer will be visible to other users. Otherwise, it will be private."
             ),
         }

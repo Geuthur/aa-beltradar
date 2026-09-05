@@ -20,8 +20,9 @@ from eve_sde.models import ItemType
 # AA Belt Radar
 from beltradar import __title__
 from beltradar.managers import (
-    AccessManager,
     BeltSurveyEntryManager,
+    BeltSurveySnapshotManager,
+    BeltTimerManager,
     EveMarketPriceManager,
     SessionManager,
 )
@@ -57,7 +58,7 @@ class BeltSurveySession(models.Model):
     """Represents a single survey session for a belt, which can have multiple entries (BeltSurveyEntry)."""
 
     if TYPE_CHECKING:
-        br_entries: BeltSurveyEntryManager
+        br_snapshots: BeltSurveySnapshotManager
         br_belt_timer: models.QuerySet["BeltTimer"]
 
     class Meta:
@@ -71,6 +72,13 @@ class BeltSurveySession(models.Model):
     public_id = models.CharField(max_length=36, default="")
     name = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    is_public = models.BooleanField(
+        default=True,
+        help_text=_(
+            "Indicates whether this session is publicly accessible without public id."
+        ),
+    )
 
     def save(self, *args, **kwargs):
         """
@@ -87,16 +95,11 @@ class BeltSurveySession(models.Model):
         return f"{self.name} ({self.public_id})"
 
     @cached_property
-    def snapshots(self):
-        """Get all timestamps for this session's survey entries."""
-        return self.br_entries.snapshots()
-
-    @cached_property
     def first_timestamp(self):
         """Get the first timestamp for this session's survey entries."""
         return (
-            self.br_entries.filter().order_by("timestamp").first().timestamp
-            if self.br_entries.exists()
+            self.br_snapshots.order_by("timestamp").first().timestamp
+            if self.br_snapshots.exists()
             else None
         )
 
@@ -104,15 +107,15 @@ class BeltSurveySession(models.Model):
     def last_timestamp(self):
         """Get the last timestamp for this session's survey entries."""
         return (
-            self.br_entries.filter().order_by("-timestamp").first().timestamp
-            if self.br_entries.exists()
+            self.br_snapshots.order_by("-timestamp").first().timestamp
+            if self.br_snapshots.exists()
             else None
         )
 
-    @property
+    @cached_property
     def is_timer_ready(self):
         """Check if a timer can be created for this session based on the number of survey entries."""
-        snapshot_count = self.br_entries.snapshots().count()
+        snapshot_count = self.br_snapshots.count()
         # Check if it is a valid session with more than 3 snapshots
         if snapshot_count <= 3:
             return False
@@ -121,7 +124,7 @@ class BeltSurveySession(models.Model):
             return False
         return True
 
-    @property
+    @cached_property
     def has_timer(self):
         """Check if a timer already exists for this session."""
         return self.br_belt_timer.exists()
@@ -135,7 +138,7 @@ class BeltSurveySession(models.Model):
             return None
 
         # Determine the belt type and size from the survey entries
-        belt_type, belt_size = self.br_entries.session_resolve_belt()
+        belt_type, belt_size = self.br_snapshots.session_resolve_belt()
 
         if belt_type is None or belt_size is None:
             logger.debug(
@@ -159,6 +162,44 @@ class BeltSurveySession(models.Model):
         return belt_timer
 
 
+class BeltSurveySnapshot(models.Model):
+    """Represents a snapshot of survey entries for a belt at a specific timestamp."""
+
+    if TYPE_CHECKING:
+        br_asteroids: BeltSurveyEntryManager
+
+    objects: BeltSurveySnapshotManager = BeltSurveySnapshotManager()
+
+    class Meta:
+        default_permissions = ()  # Remove standard permissions
+
+    session = models.ForeignKey(
+        BeltSurveySession, on_delete=models.CASCADE, related_name="br_snapshots"
+    )
+    identifier = models.CharField(max_length=12)
+    recorded_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    asteroids = models.ManyToManyField("BeltSurveyEntry")
+
+    def __str__(self):
+        return f"{self.session.name} - {self.timestamp}"
+
+    @cached_property
+    def belt_size_m3(self):
+        """Calculate the total volume of the belt in m3 based on the asteroids in this snapshot."""
+        return (
+            self.asteroids.aggregate(models.Sum("volume_left"))["volume_left__sum"] or 0
+        )
+
+    @cached_property
+    def asteroid_count(self):
+        """Get the total number of asteroids in this snapshot."""
+        return self.asteroids.count()
+
+
 class BeltSurveyEntry(models.Model):
     """Represents a single survey entry for a belt, linked to a BeltSurveySession."""
 
@@ -166,19 +207,11 @@ class BeltSurveyEntry(models.Model):
 
     class Meta:
         default_permissions = ()  # Remove standard permissions
-        ordering = ["timestamp"]
 
-    session = models.ForeignKey(
-        BeltSurveySession, on_delete=models.CASCADE, related_name="br_entries"
+    snapshot = models.ForeignKey(
+        BeltSurveySnapshot, on_delete=models.CASCADE, related_name="br_asteroids"
     )
-    snapshot = models.CharField(max_length=64, null=True, blank=True)
-    recorded_by = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True
-    )
-    timestamp = models.DateTimeField(default=timezone.now)
-    eve_type = models.ForeignKey(
-        ItemType, on_delete=models.CASCADE, related_name="br_survey_entries"
-    )
+    eve_type = models.ForeignKey(ItemType, on_delete=models.CASCADE)
     units = models.IntegerField(null=True, blank=True)
     volume_left = models.FloatField(null=True, blank=True)
     note = models.TextField(null=True, blank=True)
@@ -186,7 +219,7 @@ class BeltSurveyEntry(models.Model):
     price = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.session.name} - {self.eve_type.name} - {self.timestamp} - {self.volume_left} m3 left"
+        return f"{self.snapshot} - {self.eve_type.name} - {self.volume_left} m3 left"
 
     # pylint: disable=useless-parent-delegation
     def save(self, *args, **kwargs):
@@ -208,7 +241,7 @@ class BeltSurveyEntry(models.Model):
         Returns:
             float: The estimated income in ISK per hour based on the price.
         """
-        return int(self.price_per_m3 * self.session.br_entries.rate_per_s())
+        return int(self.price_per_m3 * self.snapshot.session.br_snapshots.rate_per_s())
 
     @property
     def income_cmp_per_h(self):
@@ -221,7 +254,9 @@ class BeltSurveyEntry(models.Model):
         Returns:
             float: The estimated income in ISK per hour based on the compressed price.
         """
-        return int(self.price_cmp_per_m3 * self.session.br_entries.rate_per_s())
+        return int(
+            self.price_cmp_per_m3 * self.snapshot.session.br_snapshots.rate_per_s()
+        )
 
     @property
     def price_per_m3(self):
@@ -259,7 +294,7 @@ class BeltTimer(models.Model):
     class Meta:
         default_permissions = ()  # Remove standard permissions
 
-    objects: AccessManager = AccessManager()
+    objects: BeltTimerManager = BeltTimerManager()
 
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="br_user_timers"
@@ -280,7 +315,7 @@ class BeltTimer(models.Model):
     )
 
     # Belt Timer visibility
-    public = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False)
 
     # Notification System
     sent_notification = models.BooleanField(

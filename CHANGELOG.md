@@ -26,8 +26,11 @@ Section Order:
 ### Removed
 -->
 
+## [1.0.0]- 2026-09-05
+
 > [!CAUTION]
-> All Survey Entries and Sessions will be removed with Belt Radar v1
+> Please note that this release involves structural changes.
+> All Survey Entries and Sessions will be removed.
 
 ### Fixed
 

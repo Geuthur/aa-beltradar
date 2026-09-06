@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Belt Radar \n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-09-05 19:49+0200\n"
+"POT-Creation-Date: 2026-09-06 08:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,99 +32,118 @@ msgstr ""
 msgid "Speed (m³/s)"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:127
+#: beltradar/api/helpers/icons.py:117
+msgid "Modify Session"
+msgstr ""
+
+#: beltradar/api/helpers/icons.py:126 beltradar/api/helpers/icons.py:363
+msgid "Delete Session"
+msgstr ""
+
+#: beltradar/api/helpers/icons.py:161
 #: beltradar/templates/beltradar/view-create-timer.html:17
 msgid "Create Belt Timer"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:138 beltradar/api/helpers/icons.py:195
+#: beltradar/api/helpers/icons.py:176 beltradar/api/helpers/icons.py:233
 msgid "Delete Belt Timer"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:186
-msgid "Edit Belt Timer"
+#: beltradar/api/helpers/icons.py:224
+msgid "Modify Belt Timer"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:222
+#: beltradar/api/helpers/icons.py:260
 #: beltradar/templates/beltradar/partials/modals/request-add-snapshot.html:10
 #: beltradar/templates/beltradar/partials/modals/request-add-snapshot.html:34
 msgid "Add Snapshot"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:266
+#: beltradar/api/helpers/icons.py:304
 msgid "Delete Snapshot"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:292
+#: beltradar/api/helpers/icons.py:330
 #: beltradar/templates/beltradar/partials/modals/request-add-session.html:10
 #: beltradar/templates/beltradar/partials/modals/request-add-session.html:34
 msgid "Add Session"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:325
-msgid "Delete Session"
-msgstr ""
-
-#: beltradar/api/helpers/icons.py:351
+#: beltradar/api/helpers/icons.py:389
 msgid "View Session"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:373
+#: beltradar/api/helpers/icons.py:411
 msgid "Public Belt Session"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:377
+#: beltradar/api/helpers/icons.py:415
 msgid "Private Belt Session"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:404
+#: beltradar/api/helpers/icons.py:442
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:10
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:37
 msgid "Add Belt Timer"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:427
+#: beltradar/api/helpers/icons.py:465
 msgid "Public Belt Timer"
 msgstr ""
 
-#: beltradar/api/helpers/icons.py:431
+#: beltradar/api/helpers/icons.py:469
 msgid "Private Belt Timer"
 msgstr ""
 
-#: beltradar/api/session.py:127 beltradar/api/session.py:195
-#: beltradar/api/session.py:315 beltradar/api/session.py:369
-#: beltradar/api/snapshot.py:72 beltradar/api/snapshot.py:156
-#: beltradar/api/snapshot.py:208 beltradar/api/timer.py:74
-#: beltradar/api/timer.py:195 beltradar/api/timer.py:241
-#: beltradar/api/timer.py:310 beltradar/api/timer.py:368
+#: beltradar/api/session.py:130 beltradar/api/session.py:198
+#: beltradar/api/session.py:314 beltradar/api/session.py:368
+#: beltradar/api/session.py:422 beltradar/api/snapshot.py:72
+#: beltradar/api/snapshot.py:156 beltradar/api/snapshot.py:208
+#: beltradar/api/timer.py:75 beltradar/api/timer.py:196
+#: beltradar/api/timer.py:242 beltradar/api/timer.py:313
+#: beltradar/api/timer.py:372
 msgid "Permission Denied."
 msgstr ""
 
-#: beltradar/api/session.py:133 beltradar/api/snapshot.py:79
+#: beltradar/api/session.py:136 beltradar/api/snapshot.py:79
 msgid "Belt Session not found or not public."
 msgstr ""
 
-#: beltradar/api/session.py:327
+#: beltradar/api/session.py:326
 msgid "Session added successfully."
 msgstr ""
 
-#: beltradar/api/session.py:329 beltradar/api/snapshot.py:222
-#: beltradar/api/timer.py:209 beltradar/api/timer.py:270
+#: beltradar/api/session.py:328 beltradar/api/snapshot.py:222
+#: beltradar/api/timer.py:210 beltradar/api/timer.py:273
 msgid "Invalid input data. Please check the format and try again."
 msgstr ""
 
-#: beltradar/api/session.py:359
+#: beltradar/api/session.py:358 beltradar/api/session.py:412
 msgid "Belt Session not found."
 msgstr ""
 
-#: beltradar/api/session.py:373 beltradar/api/snapshot.py:160
-#: beltradar/api/snapshot.py:212 beltradar/api/timer.py:245
-#: beltradar/api/timer.py:314 beltradar/api/timer.py:372
+#: beltradar/api/session.py:372 beltradar/api/session.py:426
+#: beltradar/api/snapshot.py:160 beltradar/api/snapshot.py:212
+#: beltradar/api/timer.py:246 beltradar/api/timer.py:317
+#: beltradar/api/timer.py:376
 msgid "Requested resource not found."
 msgstr ""
 
-#: beltradar/api/session.py:379
+#: beltradar/api/session.py:378
 msgid "Session and all associated entries deleted successfully."
+msgstr ""
+
+#: beltradar/api/session.py:435
+msgid "Failed to update session {field}: {str(e)}"
+msgstr ""
+
+#: beltradar/api/session.py:437
+#, python-brace-format
+msgid "Session {field} updated successfully."
+msgstr ""
+
+#: beltradar/api/session.py:439 beltradar/api/timer.py:390
+msgid "Invalid Method"
 msgstr ""
 
 #: beltradar/api/snapshot.py:167
@@ -147,82 +166,78 @@ msgstr ""
 msgid "No valid entries to add. Missing types:"
 msgstr ""
 
-#: beltradar/api/timer.py:207
+#: beltradar/api/timer.py:208
 msgid "Belt timer added successfully."
 msgstr ""
 
-#: beltradar/api/timer.py:251
+#: beltradar/api/timer.py:254
 msgid "Session does not have a valid belt type or size."
 msgstr ""
 
-#: beltradar/api/timer.py:268
+#: beltradar/api/timer.py:271
 msgid "Session Belt timer added successfully."
 msgstr ""
 
-#: beltradar/api/timer.py:300 beltradar/api/timer.py:321
-#: beltradar/api/timer.py:358
+#: beltradar/api/timer.py:303 beltradar/api/timer.py:324
+#: beltradar/api/timer.py:362
 msgid "Belt timer not found."
 msgstr ""
 
-#: beltradar/api/timer.py:325
+#: beltradar/api/timer.py:328
 msgid "Belt timer deleted successfully."
 msgstr ""
 
-#: beltradar/api/timer.py:378
+#: beltradar/api/timer.py:382
 #, python-brace-format
 msgid "Belt timer {field} updated successfully."
 msgstr ""
 
-#: beltradar/api/timer.py:383
+#: beltradar/api/timer.py:387
 msgid "Failed to update belt timer {field}: {str(e)}"
 msgstr ""
 
-#: beltradar/api/timer.py:386
-msgid "Invalid Method"
-msgstr ""
-
-#: beltradar/forms.py:71
+#: beltradar/forms.py:80
 msgid "Paste the 'Mining Survey' data here."
 msgstr ""
 
-#: beltradar/forms.py:157
+#: beltradar/forms.py:166
 msgid "A name to identify this survey session."
 msgstr ""
 
-#: beltradar/forms.py:159
+#: beltradar/forms.py:168
 msgid ""
 "If checked, this session will be visible to other users without a public ID."
 msgstr ""
 
-#: beltradar/forms.py:177
+#: beltradar/forms.py:186
 msgid ""
 "The unique identifier for this belt timer. (This is usually the belt's ID in "
 "the game.)"
 msgstr ""
 
-#: beltradar/forms.py:179
+#: beltradar/forms.py:188
 msgid "The name of the belt."
 msgstr ""
 
-#: beltradar/forms.py:180
+#: beltradar/forms.py:189
 msgid "The type of belt."
 msgstr ""
 
-#: beltradar/forms.py:181
+#: beltradar/forms.py:190
 msgid "The size of the belt."
 msgstr ""
 
-#: beltradar/forms.py:183
+#: beltradar/forms.py:192
 msgid ""
 "If checked, this belt timer will be visible to other users. Otherwise, it "
 "will be private."
 msgstr ""
 
-#: beltradar/forms.py:193
+#: beltradar/forms.py:202
 msgid "Disable Notifications"
 msgstr ""
 
-#: beltradar/forms.py:197
+#: beltradar/forms.py:206
 msgid "Check this box to disable notifications for expired belt timers."
 msgstr ""
 
@@ -231,11 +246,11 @@ msgid ""
 "Indicates whether this session is publicly accessible without public id."
 msgstr ""
 
-#: beltradar/models/beltradar.py:313
+#: beltradar/models/beltradar.py:315
 msgid "Optional link to a session for this belt timer."
 msgstr ""
 
-#: beltradar/models/beltradar.py:323
+#: beltradar/models/beltradar.py:325
 msgid "Indicates whether a notification has been sent for this timer."
 msgstr ""
 
@@ -306,7 +321,8 @@ msgstr ""
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-belt-timer.html:13
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-session.html:13
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:13
-#: beltradar/templates/beltradar/partials/modals/request-accept-switch-belt-timer.html:13
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-belt-timer.html:13
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-session.html:13
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:13
 #: beltradar/templates/beltradar/partials/modals/request-add-session.html:13
 #: beltradar/templates/beltradar/partials/modals/request-add-snapshot.html:13
@@ -321,7 +337,8 @@ msgstr ""
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-belt-timer.html:33
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-session.html:33
 #: beltradar/templates/beltradar/partials/modals/request-accept-delete-snapshot.html:31
-#: beltradar/templates/beltradar/partials/modals/request-accept-switch-belt-timer.html:33
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-belt-timer.html:33
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-session.html:33
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:32
 #: beltradar/templates/beltradar/partials/modals/request-add-session.html:29
 #: beltradar/templates/beltradar/partials/modals/request-add-snapshot.html:29
@@ -355,13 +372,23 @@ msgstr ""
 msgid "Are you sure you want to delete this snapshot?"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/modals/request-accept-switch-belt-timer.html:10
-#: beltradar/templates/beltradar/partials/modals/request-accept-switch-belt-timer.html:38
-msgid "Accept Switch Belt Timer"
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-belt-timer.html:10
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-belt-timer.html:38
+msgid "Accept Modify Belt Timer"
 msgstr ""
 
-#: beltradar/templates/beltradar/partials/modals/request-accept-switch-belt-timer.html:18
-msgid "Are you sure you want to switch this belt timer?"
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-belt-timer.html:18
+msgid ""
+"Are you sure you want to switch public/private status for this belt timer?"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-session.html:10
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-session.html:38
+msgid "Accept Modify Session"
+msgstr ""
+
+#: beltradar/templates/beltradar/partials/modals/request-accept-modify-session.html:18
+msgid "Are you sure you want to switch public/private status for this session?"
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:18
@@ -456,7 +483,7 @@ msgid "My Respawn Timers"
 msgstr ""
 
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/session-table.html:4
-#: beltradar/views.py:96
+#: beltradar/views.py:97
 msgid "My Sessions"
 msgstr ""
 
@@ -619,6 +646,6 @@ msgstr ""
 msgid "Session Overview"
 msgstr ""
 
-#: beltradar/views.py:132
+#: beltradar/views.py:134
 msgid "Settings saved."
 msgstr ""

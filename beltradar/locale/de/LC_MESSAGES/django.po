@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AA Belt Radar\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
 "POT-Creation-Date: 2026-09-06 08:32+0200\n"
-"PO-Revision-Date: 2026-09-06 06:24+0000\n"
+"PO-Revision-Date: 2026-09-06 06:44+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "beltradar/de/>\n"
@@ -33,7 +33,7 @@ msgstr "Geschwindigkeit (m³/s)"
 
 #: beltradar/api/helpers/icons.py:117
 msgid "Modify Session"
-msgstr "Sitzung bearbeiten"
+msgstr "Sitzung anpassen"
 
 #: beltradar/api/helpers/icons.py:126 beltradar/api/helpers/icons.py:363
 msgid "Delete Session"
@@ -404,12 +404,13 @@ msgstr ""
 #: beltradar/templates/beltradar/partials/modals/request-accept-modify-session.html:10
 #: beltradar/templates/beltradar/partials/modals/request-accept-modify-session.html:38
 msgid "Accept Modify Session"
-msgstr "Akzeptieren – Sitzung bearbeiten"
+msgstr "Akzeptieren – Sitzung anpassen"
 
 #: beltradar/templates/beltradar/partials/modals/request-accept-modify-session.html:18
 msgid "Are you sure you want to switch public/private status for this session?"
 msgstr ""
-"Möchten Sie den Status öffentlich/privat dieser Sitzung wirklich ändern?"
+"Möchten Sie den Status öffentlich/privat dieser Sitzung wirklich "
+"aktualisieren?"
 
 #: beltradar/templates/beltradar/partials/modals/request-add-belt-timer.html:18
 msgid ""

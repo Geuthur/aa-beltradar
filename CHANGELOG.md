@@ -26,6 +26,11 @@ Section Order:
 ### Removed
 -->
 
+### Fixed
+
+- prevent double loading of session data by reload function
+- update belt type and size resolution to use BeltSurveySnapshot for accurate session data
+
 ## [1.0.0] ... [1.0.1] - 2026-09-05
 
 > [!CAUTION]

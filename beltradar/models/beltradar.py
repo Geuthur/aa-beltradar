@@ -138,7 +138,9 @@ class BeltSurveySession(models.Model):
             return None
 
         # Determine the belt type and size from the survey entries
-        belt_type, belt_size = self.br_snapshots.session_resolve_belt()
+        belt_type, belt_size = BeltSurveySnapshot.objects.filter(
+            timestamp=self.first_timestamp
+        ).session_resolve_belt()
 
         if belt_type is None or belt_size is None:
             logger.debug(

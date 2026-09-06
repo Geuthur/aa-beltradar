@@ -27,6 +27,7 @@ from beltradar.api.helpers.icons import (
 from beltradar.helpers.eveonline import get_character_portrait_url
 from beltradar.models.beltradar import (
     BeltSurveySession,
+    BeltSurveySnapshot,
 )
 from beltradar.providers import AppLogger
 
@@ -80,7 +81,9 @@ class BeltRadarApiEndpoints:
             2,
         )
 
-        belt_type, belt_size = session.br_snapshots.session_resolve_belt()
+        belt_type, belt_size = BeltSurveySnapshot.objects.filter(
+            identifier=first_snapshot.identifier
+        ).session_resolve_belt()
 
         return schema.SessionStatsSchema(
             belt_volume=belt_size_m3,

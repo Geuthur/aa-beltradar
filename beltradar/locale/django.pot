@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: AA Belt Radar 1.0.1\n"
+"Project-Id-Version: AA Belt Radar 0.5.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-09-05 22:01+0200\n"
+"POT-Creation-Date: 2026-09-06 08:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -92,55 +92,55 @@ msgstr ""
 msgid "Private Belt Timer"
 msgstr ""
 
-#: beltradar/api/session.py:127 beltradar/api/session.py:195
-#: beltradar/api/session.py:311 beltradar/api/session.py:365
-#: beltradar/api/session.py:419 beltradar/api/snapshot.py:72
+#: beltradar/api/session.py:130 beltradar/api/session.py:198
+#: beltradar/api/session.py:314 beltradar/api/session.py:368
+#: beltradar/api/session.py:422 beltradar/api/snapshot.py:72
 #: beltradar/api/snapshot.py:156 beltradar/api/snapshot.py:208
-#: beltradar/api/timer.py:74 beltradar/api/timer.py:195
-#: beltradar/api/timer.py:241 beltradar/api/timer.py:310
-#: beltradar/api/timer.py:369
+#: beltradar/api/timer.py:75 beltradar/api/timer.py:196
+#: beltradar/api/timer.py:242 beltradar/api/timer.py:313
+#: beltradar/api/timer.py:372
 msgid "Permission Denied."
 msgstr ""
 
-#: beltradar/api/session.py:133 beltradar/api/snapshot.py:79
+#: beltradar/api/session.py:136 beltradar/api/snapshot.py:79
 msgid "Belt Session not found or not public."
 msgstr ""
 
-#: beltradar/api/session.py:323
+#: beltradar/api/session.py:326
 msgid "Session added successfully."
 msgstr ""
 
-#: beltradar/api/session.py:325 beltradar/api/snapshot.py:222
-#: beltradar/api/timer.py:209 beltradar/api/timer.py:270
+#: beltradar/api/session.py:328 beltradar/api/snapshot.py:222
+#: beltradar/api/timer.py:210 beltradar/api/timer.py:273
 msgid "Invalid input data. Please check the format and try again."
 msgstr ""
 
-#: beltradar/api/session.py:355 beltradar/api/session.py:409
+#: beltradar/api/session.py:358 beltradar/api/session.py:412
 msgid "Belt Session not found."
 msgstr ""
 
-#: beltradar/api/session.py:369 beltradar/api/session.py:423
+#: beltradar/api/session.py:372 beltradar/api/session.py:426
 #: beltradar/api/snapshot.py:160 beltradar/api/snapshot.py:212
-#: beltradar/api/timer.py:245 beltradar/api/timer.py:314
-#: beltradar/api/timer.py:373
+#: beltradar/api/timer.py:246 beltradar/api/timer.py:317
+#: beltradar/api/timer.py:376
 msgid "Requested resource not found."
 msgstr ""
 
-#: beltradar/api/session.py:375
+#: beltradar/api/session.py:378
 msgid "Session and all associated entries deleted successfully."
 msgstr ""
 
-#: beltradar/api/session.py:432
+#: beltradar/api/session.py:435
 msgid "Failed to update session {field}: {str(e)}"
 msgstr ""
 
-#: beltradar/api/session.py:434
+#: beltradar/api/session.py:437
 #, python-brace-format
 msgid "Session {field} updated successfully."
 msgstr ""
 
-#: beltradar/api/session.py:436
-msgid "Invalid Method."
+#: beltradar/api/session.py:439 beltradar/api/timer.py:390
+msgid "Invalid Method"
 msgstr ""
 
 #: beltradar/api/snapshot.py:167
@@ -163,38 +163,34 @@ msgstr ""
 msgid "No valid entries to add. Missing types:"
 msgstr ""
 
-#: beltradar/api/timer.py:207
+#: beltradar/api/timer.py:208
 msgid "Belt timer added successfully."
 msgstr ""
 
-#: beltradar/api/timer.py:251
+#: beltradar/api/timer.py:254
 msgid "Session does not have a valid belt type or size."
 msgstr ""
 
-#: beltradar/api/timer.py:268
+#: beltradar/api/timer.py:271
 msgid "Session Belt timer added successfully."
 msgstr ""
 
-#: beltradar/api/timer.py:300 beltradar/api/timer.py:321
-#: beltradar/api/timer.py:359
+#: beltradar/api/timer.py:303 beltradar/api/timer.py:324
+#: beltradar/api/timer.py:362
 msgid "Belt timer not found."
 msgstr ""
 
-#: beltradar/api/timer.py:325
+#: beltradar/api/timer.py:328
 msgid "Belt timer deleted successfully."
 msgstr ""
 
-#: beltradar/api/timer.py:379
+#: beltradar/api/timer.py:382
 #, python-brace-format
 msgid "Belt timer {field} updated successfully."
 msgstr ""
 
-#: beltradar/api/timer.py:384
-msgid "Failed to update belt timer {field}: {str(e)}"
-msgstr ""
-
 #: beltradar/api/timer.py:387
-msgid "Invalid Method"
+msgid "Failed to update belt timer {field}: {str(e)}"
 msgstr ""
 
 #: beltradar/forms.py:80
@@ -247,11 +243,11 @@ msgid ""
 "Indicates whether this session is publicly accessible without public id."
 msgstr ""
 
-#: beltradar/models/beltradar.py:313
+#: beltradar/models/beltradar.py:315
 msgid "Optional link to a session for this belt timer."
 msgstr ""
 
-#: beltradar/models/beltradar.py:323
+#: beltradar/models/beltradar.py:325
 msgid "Indicates whether a notification has been sent for this timer."
 msgstr ""
 

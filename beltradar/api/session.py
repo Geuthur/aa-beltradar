@@ -436,5 +436,5 @@ class BeltRadarApiEndpoints:
                     return HTTPStatus.BAD_REQUEST, {"error": msg}
                 msg = _(f"Session {field} updated successfully.")
                 return HTTPStatus.OK, {"success": True, "message": msg}
-            msg = _("Invalid Method.")
+            msg = _("Invalid Method")
             return HTTPStatus.BAD_REQUEST, {"error": msg}

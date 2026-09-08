@@ -318,7 +318,7 @@ class BeltRadarApiEndpoints:
                     snapshot.asteroids.set(
                         BeltSurveyEntry.objects.filter(snapshot=snapshot)
                     )
-                    if not session.br_belt_timer.exists():
+                    if session.is_timer_ready:
                         # Try to create a Belt Timer after the snapshot is complete.
                         session.create_belt_timer()
                 return HTTPStatus.OK, {

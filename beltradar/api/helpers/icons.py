@@ -158,31 +158,31 @@ def session_belt_timer_action_icons(
         return ""  # Return empty string if the user does not have permission
 
     if session.is_timer_ready:
-        text = _("Create Belt Timer")
-        return _create_button(
-            url_name="beltradar:api:add_session_belt_timer",
-            url_kwargs={"public_id": public_id},
-            text=text,
-            title=text,
-            color="success",
-            modal_id="beltradar-accept-create-belt-timer",
-        )
-    if session.br_belt_timer.exists():
-        try:
-            timer_id = session.br_belt_timer.get(public_id=public_id).pk
-        except ObjectDoesNotExist:
-            return ""  # Return empty string if the belt timer does not exist
+        if not session.has_timer:
+            text = _("Create Belt Timer")
+            return _create_button(
+                url_name="beltradar:api:add_session_belt_timer",
+                url_kwargs={"public_id": public_id},
+                text=text,
+                title=text,
+                color="success",
+                modal_id="beltradar-accept-create-belt-timer",
+            )
 
         text = _("Delete Belt Timer")
-        return _create_button(
-            url_name="beltradar:api:delete_belt_timer",
-            url_kwargs={"timer_id": timer_id},
-            text=text,
-            title=text,
-            color="danger",
-            modal_id="beltradar-accept-delete-belt-timer",
-        )
-    return ""
+        try:
+            timer = session.br_belt_timer
+            return _create_button(
+                url_name="beltradar:api:delete_belt_timer",
+                url_kwargs={"timer_id": timer.pk},
+                text=text,
+                title=text,
+                color="danger",
+                modal_id="beltradar-accept-delete-belt-timer",
+            )
+        except ObjectDoesNotExist:
+            pass
+    return ""  # Return empty string if the session is not ready for a belt timer
 
 
 @permissions_required(

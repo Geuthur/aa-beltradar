@@ -1,11 +1,11 @@
 """Test models for Belt Radar."""
 
 # Standard Library
-import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 # Django
+from django.db import IntegrityError
 from django.utils import timezone
 
 # AA Belt Radar
@@ -166,6 +166,14 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             )
 
         self.assertTrue(session.is_timer_ready)
+
+    def test_belt_timer_session_is_unique_when_not_null(self):
+        """A session can only have one linked timer, while null remains allowed."""
+        session = BeltSessionFactory()
+        BeltTimerFactory(session=session)
+
+        with self.assertRaises(IntegrityError):
+            BeltTimerFactory(session=session)
 
     def test_asteroids_count(self):
         """
@@ -418,24 +426,9 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         )
 
         snapshot = BeltSnapshotFactory(session=self.session)
-        snapshot2 = BeltSnapshotFactory(session=self.session)
-        snapshot3 = BeltSnapshotFactory(session=self.session)
-        snapshot4 = BeltSnapshotFactory(session=self.session)
 
         BeltSurveyEntryFactory(
             snapshot=snapshot,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot2,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot3,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot4,
             eve_type=item_type,
         )
         # when
@@ -443,3 +436,36 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         # then
         self.assertIsNotNone(belt_timer)
         self.assertEqual(belt_timer.belt_name, self.session.name)
+
+    def test_create_belt_timer_should_update_timer(self):
+        """
+        Test should update the existing belt timer for the session.
+        """
+        # given
+        item_type = ItemTypeFactory(
+            name="Arkonor",
+        )
+
+        snapshot = BeltSnapshotFactory(session=self.session)
+
+        BeltSurveyEntryFactory(
+            snapshot=snapshot,
+            eve_type=item_type,
+        )
+        belt_timer = BeltTimerFactory(
+            session=self.session,
+            belt_size=BeltSizeChoice.LARGE,
+            belt_type=BeltTypeChoice.ASTEROID_BELT,
+            eta=timezone.now() - timedelta(hours=3),
+        )
+        previous_eta = belt_timer.eta
+
+        # when
+        updated_belt_timer = self.session.create_belt_timer()
+
+        # then
+        self.assertIsNotNone(updated_belt_timer)
+        self.assertEqual(
+            updated_belt_timer.pk, belt_timer.pk
+        )  # Should update the same timer
+        self.assertTrue(updated_belt_timer.eta > previous_eta)

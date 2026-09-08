@@ -6,6 +6,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 # Django
+from django.db import IntegrityError
 from django.utils import timezone
 
 # AA Belt Radar
@@ -166,6 +167,14 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             )
 
         self.assertTrue(session.is_timer_ready)
+
+    def test_belt_timer_session_is_unique_when_not_null(self):
+        """A session can only have one linked timer, while null remains allowed."""
+        session = BeltSessionFactory()
+        BeltTimerFactory(session=session)
+
+        with self.assertRaises(IntegrityError):
+            BeltTimerFactory(session=session)
 
     def test_asteroids_count(self):
         """

@@ -5,6 +5,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 # Django
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -59,7 +60,7 @@ class BeltSurveySession(models.Model):
 
     if TYPE_CHECKING:
         br_snapshots: BeltSurveySnapshotManager
-        br_belt_timer: models.QuerySet["BeltTimer"]
+        br_belt_timer: "BeltTimer | None"
 
     class Meta:
         default_permissions = ()  # Remove standard permissions
@@ -119,49 +120,51 @@ class BeltSurveySession(models.Model):
         # Check if it is a valid session with more than 3 snapshots
         if snapshot_count <= 3:
             return False
-        # Check if a timer already exists for this session
-        if self.br_belt_timer.exists():
-            return False
         return True
 
     @cached_property
     def has_timer(self):
         """Check if a timer already exists for this session."""
-        return self.br_belt_timer.exists()
+        try:
+            self.br_belt_timer
+        except ObjectDoesNotExist:
+            return False
+        return True
 
     def create_belt_timer(self):
         """Create a new BeltTimer for this session if it is ready."""
-        if not self.is_timer_ready:
-            logger.debug(
-                f"Attempted to create a BeltTimer for session {self.public_id} which is not ready."
+        try:
+            belt_timer = self.br_belt_timer
+            eta = belt_timer.generate_eta()
+            belt_timer.eta = eta
+            belt_timer.save()
+            return belt_timer
+        except ObjectDoesNotExist:
+            # Determine the belt type and size from the survey entries
+            belt_type, belt_size = BeltSurveySnapshot.objects.filter(
+                timestamp=self.first_timestamp
+            ).session_resolve_belt()
+
+            if belt_type is None or belt_size is None:
+                logger.debug(
+                    f"Could not determine belt type or size for session {self.public_id}. BeltTimer not created."
+                )
+                return None
+
+            # Create a new BeltTimer for this session
+            belt_timer = BeltTimer.objects.create(
+                owner=self.owner,
+                public_id=self.public_id,
+                belt_id=generate_unique_public_id(length=7),
+                belt_name=self.name,
+                belt_size=belt_size,
+                belt_type=belt_type,
+                session=self,
             )
-            return None
-
-        # Determine the belt type and size from the survey entries
-        belt_type, belt_size = BeltSurveySnapshot.objects.filter(
-            timestamp=self.first_timestamp
-        ).session_resolve_belt()
-
-        if belt_type is None or belt_size is None:
             logger.debug(
-                f"Could not determine belt type or size for session {self.public_id}. BeltTimer not created."
+                f"Created new BeltTimer {belt_timer.public_id} for session {self.public_id}."
             )
-            return None
-
-        # Create a new BeltTimer for this session
-        belt_timer = BeltTimer.objects.create(
-            owner=self.owner,
-            public_id=self.public_id,
-            belt_id=generate_unique_public_id(length=7),
-            belt_name=self.name,
-            belt_size=belt_size,
-            belt_type=belt_type,
-            session=self,
-        )
-        logger.debug(
-            f"Created new BeltTimer {belt_timer.public_id} for session {self.public_id}."
-        )
-        return belt_timer
+            return belt_timer
 
 
 class BeltSurveySnapshot(models.Model):
@@ -307,7 +310,7 @@ class BeltTimer(models.Model):
     belt_size = models.CharField(choices=BeltSizeChoice.choices, max_length=10)
     belt_type = models.CharField(choices=BeltTypeChoice.choices, max_length=15)
     eta = models.DateTimeField(null=True, blank=True)
-    session = models.ForeignKey(
+    session = models.OneToOneField(
         BeltSurveySession,
         on_delete=models.SET_NULL,
         null=True,

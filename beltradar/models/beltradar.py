@@ -4,6 +4,9 @@
 import uuid
 from typing import TYPE_CHECKING
 
+# Third Party
+from eve_sde.models import ItemType
+
 # Django
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -14,9 +17,6 @@ from django.utils.translation import gettext_lazy as _
 # Alliance Auth
 from allianceauth.authentication.models import User
 from allianceauth.services.hooks import get_extension_logger
-
-# Alliance Auth (External Libs)
-from eve_sde.models import ItemType
 
 # AA Belt Radar
 from beltradar import __title__

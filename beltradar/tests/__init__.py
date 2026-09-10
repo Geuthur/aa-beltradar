@@ -2,9 +2,6 @@
 import socket
 from unittest.mock import Mock
 
-# Third Party
-from app_utils.allianceauth import get_redis_client
-
 # Django
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware

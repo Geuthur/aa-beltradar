@@ -17,7 +17,7 @@ from esi.exceptions import (
 
 # AA Belt Radar
 from beltradar.errors import DownTimeError
-from beltradar.providers import esi, retry_task_on_esi_error
+from beltradar.providers import retry_task_on_esi_error
 from beltradar.tests import NoSocketsTestCase
 
 MODULE_PATH = "beltradar.providers"

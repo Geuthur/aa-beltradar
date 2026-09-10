@@ -10,7 +10,7 @@ from django.urls import reverse
 
 # AA Belt Radar
 from beltradar import views
-from beltradar.models import BeltSurveySession, BeltTimer
+from beltradar.models import BeltSurveySession
 
 # AA Beltradar
 from beltradar.tests import BeltRadarTestCase

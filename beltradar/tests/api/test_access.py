@@ -2,6 +2,9 @@
 import json
 from http import HTTPStatus
 
+# Third Party
+from evesde_factory.eve_sde import ItemTypeFactory
+
 # Django
 from django.urls import reverse
 
@@ -13,7 +16,6 @@ from beltradar.tests.testdata.beltradar import (
     BeltSnapshotFactory,
     BeltSurveyEntryFactory,
     BeltTimerFactory,
-    ItemTypeFactory,
     UserMainFactory,
 )
 

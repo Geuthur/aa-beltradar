@@ -3,6 +3,7 @@ import json
 from http import HTTPStatus
 
 # Third Party
+from eve_sde.models import ItemType
 from ninja import NinjaAPI
 
 # Django
@@ -13,9 +14,6 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.services.hooks import get_extension_logger
-
-# Alliance Auth (External Libs)
-from eve_sde.models import ItemType
 
 # AA Belt Radar
 from beltradar import __title__, forms

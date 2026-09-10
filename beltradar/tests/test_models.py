@@ -4,6 +4,9 @@
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
+# Third Party
+from evesde_factory.eve_sde import ItemTypeFactory
+
 # Django
 from django.db import IntegrityError
 from django.utils import timezone
@@ -18,7 +21,6 @@ from beltradar.tests.testdata.beltradar import (
     BeltSurveyEntryFactory,
     BeltTimerFactory,
 )
-from beltradar.tests.testdata.factory import ItemTypeFactory
 
 
 class TestBeltSurveySessionModel(BeltRadarTestCase):

@@ -1,3 +1,6 @@
+# Third Party
+from evesde_factory.eve_sde import ItemTypeFactory
+
 # Django
 from django.urls import reverse
 
@@ -17,7 +20,6 @@ from beltradar.tests.testdata.beltradar import (
     BeltTimerFactory,
     UserMainFactory,
 )
-from beltradar.tests.testdata.factory import ItemTypeFactory
 
 MODULE_PATH = "beltradar.api.helpers."
 API_URL = "beltradar:api"

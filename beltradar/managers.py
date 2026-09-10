@@ -1,6 +1,9 @@
 # Standard Library
 from typing import TYPE_CHECKING, Generic, TypeVar
 
+# Third Party
+from eve_sde.models import ItemType
+
 # Django
 from django.db import models
 from django.utils import timezone
@@ -8,9 +11,6 @@ from django.utils import timezone
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.services.hooks import get_extension_logger
-
-# Alliance Auth (External Libs)
-from eve_sde.models import ItemType
 
 # AA Belt Radar
 from beltradar import __title__

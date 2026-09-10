@@ -3,18 +3,20 @@ import secrets
 
 # Third Party
 import factory
+from evesde_factory.allianceauth import (
+    BaseMetaFactory,
+    EveCharacterFactory,
+    UserFactory,
+)
+
+# AA Factories
+from evesde_factory.eve_sde import ItemTypeFactory
+from evesde_factory.utils import add_character_to_user
 
 # AA Belt Radar
 from beltradar.models import BeltSurveyEntry, BeltSurveySession, BeltTimer
 from beltradar.models.beltradar import BeltSurveySnapshot
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
-from beltradar.tests.testdata.factory import (
-    BaseMetaFactory,
-    EveCharacterFactory,
-    ItemTypeFactory,
-    UserFactory,
-)
-from beltradar.tests.testdata.utils import add_character_to_user
 
 
 class UserMainFactory(UserFactory):

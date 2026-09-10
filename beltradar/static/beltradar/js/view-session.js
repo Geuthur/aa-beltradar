@@ -1,4 +1,4 @@
-/* global aaBeltRadarSettings, aaBeltRadarSettingsOverride, _bootstrapTooltip, DataTable, numberFormatter, moment, ApexCharts, fetchGetBeltRadar, fetchPostBeltRadar, renderMiningChart, renderTrafficChart, chartContainer, trafficChartContainer */
+/* global aaBeltRadarSettings, aaBeltRadarSettingsOverride, _bootstrapTooltip, DataTable, numberFormatter, moment, ApexCharts, fetchData */
 
 $(document).ready(() => {
     // DataTable for Belt Radar Session Entries
@@ -177,8 +177,9 @@ $(document).ready(() => {
     * @returns {void} - Updates the DataTable and charts directly
     */
     const _fetchSnapshotData = (snapshotUrl = aaBeltRadarSettings.url.surveySessionEntry) => {
-        fetchGetBeltRadar({
+        fetchData({
             url: snapshotUrl,
+            method: 'GET',
         })
             .then((snapshotData) => {
                 const dt = BeltRadarSessionSnapshotTable.DataTable();
@@ -216,8 +217,9 @@ $(document).ready(() => {
      *
      */
     const _fetchSessionData = (sessionDataOrUrl = aaBeltRadarSettings.url.sessionData) => {
-        fetchGetBeltRadar({
+        fetchData({
             url: sessionDataOrUrl,
+            method: 'GET',
         })
             .then((sessionData) => {
                 const stats = sessionData?.stats ?? {};
@@ -321,8 +323,9 @@ $(document).ready(() => {
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
         modalRequestDeleteSnapshot.find('#modal-button-confirm-accept-request').on('click', () => {
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {}
             })
@@ -363,8 +366,9 @@ $(document).ready(() => {
         modalRequestDeleteSession.find('#modal-button-confirm-accept-request').on('click', () => {
             modalRequestDeleteSession.find('#beltradar-spinner').removeClass('d-none');
             modalRequestDeleteSession.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {}
             })
@@ -411,8 +415,9 @@ $(document).ready(() => {
             modalRequestAddSnapshot.find('#beltradar-spinner').removeClass('d-none');
             modalRequestAddSnapshot.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
             const rawData = formTextArea.val();
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {
                     raw_data: rawData,
@@ -459,8 +464,9 @@ $(document).ready(() => {
         modalRequestCreateTimer.find('#modal-button-confirm-accept-request').on('click', () => {
             modalRequestCreateTimer.find('#beltradar-spinner').removeClass('d-none');
             modalRequestCreateTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {}
             })
@@ -499,8 +505,9 @@ $(document).ready(() => {
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
         modalRequestDeleteBeltTimer.find('#modal-button-confirm-accept-request').on('click', () => {
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {}
             })

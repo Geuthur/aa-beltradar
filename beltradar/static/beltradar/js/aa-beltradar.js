@@ -9,6 +9,86 @@ const aaBeltRadarSettings = (typeof aaBeltRadarSettingsOverride !== 'undefined')
     : aaBeltRadarDefaultSettings;
 
 /**
+* Local fetch adapter: keeps global fetch helpers untouched while improving error details.
+* Reads JSON error payload (message/error/detail) when statusText is empty.
+* @param {string} url The URL to fetch data from.
+* @param {string} [method=GET] The HTTP method to use for the request.
+* @param {Object|null} [payload=null] The request payload for POST requests.
+* @param {string|null} [csrfToken=null] The CSRF token for POST requests.
+* @param {boolean} [responseIsJson=true] Whether the response is expected to be JSON.
+* @returns {Promise<Object|string>} The response data, either as JSON or text.
+* @throws {Error} If the request fails or the response is not OK.
+*/
+const fetchData = async ({
+    url,
+    method = 'GET',
+    payload = null,
+    csrfToken = null,
+    responseIsJson = true
+}) => {
+    let requestUrl = url;
+
+    if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
+        throw new Error(`Payload must be an object when using ${method} method`);
+    }
+
+    const headers = {};
+    const request = {
+        method,
+        headers,
+    };
+
+    if (method === 'GET' && payload) {
+        const queryParams = new URLSearchParams(payload).toString(); // jshint ignore:line
+        requestUrl += (url.includes('?') ? '&' : '?') + queryParams;
+    }
+
+    if (method === 'POST') {
+        if (!csrfToken) {
+            throw new Error('CSRF token is required for POST requests');
+        }
+
+        headers['X-CSRFToken'] = csrfToken;
+        request.body = payload ? JSON.stringify(payload) : null;
+    }
+
+    if (responseIsJson) {
+        headers.Accept = 'application/json'; // jshint ignore:line
+    }
+
+    if (method === 'POST' && responseIsJson) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    const response = await fetch(requestUrl, request);
+
+    if (!response.ok) {
+        let details;
+        const contentType = (response.headers.get('content-type') || '').toLowerCase();
+
+        try {
+            if (contentType.includes('application/json')) {
+                const data = await response.clone().json();
+                details = data?.message || data?.error || data?.detail || '';
+            } else {
+                details = (await response.clone().text()).trim();
+            }
+        } catch (parseError) {
+            details = '';
+        }
+
+        const statusText = (response.statusText || '').trim() || 'HTTP Error';
+        const msg = details
+            ? `Error: ${response.status} - ${statusText} | ${details}`
+            : `Error: ${response.status} - ${statusText}`;
+
+        throw new Error(msg);
+    }
+
+    return responseIsJson ? await response.json() : await response.text();
+};
+
+/**
  * Bootstrap tooltip by (@ppfeufer)
  *
  * @param {string} [selector=body] Selector for the tooltip elements, defaults to 'body'
@@ -38,6 +118,20 @@ const _bootstrapTooltip = ({selector = 'body', namespace = 'aa-beltradar', trigg
         });
 };
 
+/**
+ * Bootstrap popover
+ *
+ * @param {string} [selector=body] Selector for the popover elements, defaults to 'body'
+ *                                 to apply to all elements with the data-bs-popover attribute.
+ *                                 Example: 'body', '.my-popover-class', '#my-popover-id'
+ *                                 If you want to apply it to a specific element, use that element's selector.
+ *                                 If you want to apply it to all elements with the data-bs-popover attribute,
+ *                                 use 'body' or leave it empty.
+ * @param {string} [namespace=aa-beltradar] Namespace for the popover
+ * @param {string} [trigger=hover] Trigger for the popover ('hover', 'click', etc.)
+ * @returns {void}
+ */
+
 const _bootstrapPopOver = ({selector = 'body', namespace = 'aa-beltradar', trigger = 'hover'} = {}) => {
     document.querySelectorAll(`${selector} [data-bs-popover="${namespace}"]`)
         .forEach((popoverTriggerEl) => {
@@ -54,9 +148,6 @@ const _bootstrapPopOver = ({selector = 'body', namespace = 'aa-beltradar', trigg
             return new bootstrap.Popover(popoverTriggerEl, { trigger });
         });
 };
-
-
-
 
 /**
  * Export a DataTables instance to CSV.
@@ -107,121 +198,7 @@ const _exportToCSV = (DataTable, exportFileName = 'beltradar.csv') => {
     URL.revokeObjectURL(link.href);
 };
 
-/**
-* Local POST adapter: keeps global fetchPost untouched while improving error details.
-* Reads JSON error payload (message/error/detail) when statusText is empty.
-*/
-const fetchPostBeltRadar = async ({
-    url,
-    csrfToken = null,
-    payload = null,
-    responseIsJson = true
-}) => {
-    if (!csrfToken) {
-        throw new Error('CSRF token is required for POST requests');
-    }
-
-    if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
-        throw new Error('Payload must be an object when using POST method');
-    }
-
-    const headers = {
-        'X-CSRFToken': csrfToken,
-    };
-
-    if (responseIsJson) {
-        headers.Accept = 'application/json'; // jshint ignore:line
-        headers['Content-Type'] = 'application/json';
-    }
-
-    const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: payload ? JSON.stringify(payload) : null,
-    });
-
-    if (!response.ok) {
-        let details;
-        const contentType = (response.headers.get('content-type') || '').toLowerCase();
-
-        try {
-            if (contentType.includes('application/json')) {
-                const data = await response.clone().json();
-                details = data?.message || data?.error || data?.detail || '';
-            } else {
-                details = (await response.clone().text()).trim();
-            }
-        } catch (parseError) {
-            details = '';
-        }
-
-        const statusText = (response.statusText || '').trim() || 'HTTP Error';
-        const msg = details
-            ? `Error: ${response.status} - ${statusText} | ${details}`
-            : `Error: ${response.status} - ${statusText}`;
-
-        throw new Error(msg);
-    }
-
-    return responseIsJson ? await response.json() : await response.text();
-};
-
-/**
-* Local GET adapter: keeps global fetchGet untouched while improving error details.
-* Reads JSON error payload (message/error/detail) when statusText is empty.
-*/
-const fetchGetBeltRadar = async ({
-    url,
-    payload = null,
-    responseIsJson = true
-}) => {
-    let requestUrl = url;
-
-    if (payload !== null && (typeof payload !== 'object' || Array.isArray(payload))) {
-        throw new Error('Payload must be an object when using GET method');
-    }
-
-    if (payload) {
-        const queryParams = new URLSearchParams(payload).toString(); // jshint ignore:line
-        requestUrl += (url.includes('?') ? '&' : '?') + queryParams;
-    }
-
-    const headers = {};
-    if (responseIsJson) {
-        headers.Accept = 'application/json'; // jshint ignore:line
-    }
-
-    const response = await fetch(requestUrl, {
-        method: 'GET',
-        headers,
-    });
-
-    if (!response.ok) {
-        let details;
-        const contentType = (response.headers.get('content-type') || '').toLowerCase();
-
-        try {
-            if (contentType.includes('application/json')) {
-                const data = await response.clone().json();
-                details = data?.message || data?.error || data?.detail || '';
-            } else {
-                details = (await response.clone().text()).trim();
-            }
-        } catch (parseError) {
-            details = '';
-        }
-
-        const statusText = (response.statusText || '').trim() || 'HTTP Error';
-        const msg = details
-            ? `Error: ${response.status} - ${statusText} | ${details}`
-            : `Error: ${response.status} - ${statusText}`;
-
-        throw new Error(msg);
-    }
-
-    return responseIsJson ? await response.json() : await response.text();
-};
-
+// Belt size choices based on belt type.
 const sizeChoices = {
     asteroid_belt: [
         ['small', 'Small'],
@@ -244,6 +221,12 @@ const sizeChoices = {
     ice_belt: [['ice', 'Ice']],
 };
 
+/**
+ * Update the belt size choices based on the selected belt type.
+ * @param {Object} params - The parameters for updating belt size choices.
+ * @param {HTMLSelectElement} params.beltTypeSelect - The select element for belt type.
+ * @param {HTMLSelectElement} params.beltSizeSelect - The select element for belt size.
+ */
 const updateBeltSizeChoices = ({beltTypeSelect, beltSizeSelect}) => {
     const selectedType = beltTypeSelect.value;
     const allowedChoices = sizeChoices[selectedType] || [

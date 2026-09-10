@@ -14,7 +14,7 @@ ParsedConfigFiles := $(ConfigFile) $(wildcard $(ConfigFileOverride))
 # Extract all config values from $(ConfigFile) and export them as Makefile variables
 ifneq ($(wildcard $(ConfigFile)),)
 TMPFILE := $(shell mkdir -p $(dir $(ConfigFile)) && mktemp $(dir $(ConfigFile))/make_vars.XXXXXX)
-$(shell awk -F= '/^\[/{gsub(/^^\[|\]$$/, "", $$0); section=$$0; next} /^[^#;].*=/ { key=$$1; val=$$0; sub(/^[^=]*=/, "", val); gsub(/^[ \t]+|[ \t]+$$/, "", val); gsub(/^[ \t]+|[ \t]+$$/, "", key); if(section=="") name=toupper(key); else name=toupper(section"__"key); gsub(/[^A-Z0-9_]/, "_", name); gsub(/[$$]/, "$$$$", val); printf "%s := %s\n", name, val }' $(ParsedConfigFiles) > $(TMPFILE))
+$(shell awk -F= '/^\[/{gsub(/^^\[|\]$$/, "", $$0); section=$$0; next} /^[^#;].*=/ { key=$$1; val=$$0; sub(/^[^=]*=/, "", val); gsub(/^[ \t]+|[ \t]+$$/, "", val); gsub(/^[ \t]+|[ \t]+$$/, "", key); if(section=="") name=toupper(key); else name=toupper(section"__"key); gsub(/[^A-Z0-9_]/, "_", name); printf "%s = %s\n", name, val }' $(ParsedConfigFiles) > $(TMPFILE))
 include $(TMPFILE)
 $(shell rm -f $(TMPFILE))
 

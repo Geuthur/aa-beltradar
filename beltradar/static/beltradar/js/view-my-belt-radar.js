@@ -1,4 +1,4 @@
-/* global aaBeltRadarSettings, aaBeltRadarSettingsOverride, aaBeltRadarBeltTimerLayout, _bootstrapTooltip, DataTable, numberFormatter, moment, ApexCharts, updateBeltSizeChoices, fetchGetBeltRadar, fetchPostBeltRadar */
+/* global aaBeltRadarSettings, aaBeltRadarSettingsOverride, aaBeltRadarBeltTimerLayout, _bootstrapTooltip, DataTable, updateBeltSizeChoices, fetchData */
 
 $(document).ready(() => {
     /* Initialize Bootstrap Tooltips */
@@ -92,8 +92,9 @@ $(document).ready(() => {
      * Fetch the User Belt Sessions DataTable from the API Endpoint and populate the DataTable
      * If the fetch fails, log the error and clear the DataTable
      */
-    fetchGetBeltRadar({
+    fetchData({
         url: aaBeltRadarSettings.url.mySessions,
+        method: 'GET',
     })
         .then((data) => {
             BeltRadarSessionsDataTable.clear().rows.add(data).draw();
@@ -132,15 +133,17 @@ $(document).ready(() => {
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
         modalRequestDeleteSession.find('#modal-button-confirm-accept-request').on('click', () => {
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {}
             })
                 .then((data) => {
                     if (data.success === true) {
-                        fetchGetBeltRadar({
+                        fetchData({
                             url: aaBeltRadarSettings.url.mySessions,
+                            method: 'GET',
                         })
                             .then((newData) => {
                                 _reloadSessionsDataTable(newData);
@@ -290,8 +293,9 @@ $(document).ready(() => {
      * Fetch the User Belt Timer DataTable from the API Endpoint and populate the DataTable
      * If the fetch fails, log the error and clear the DataTable
      */
-    fetchGetBeltRadar({
+    fetchData({
         url: aaBeltRadarSettings.url.myTimers,
+        method: 'GET',
     })
         .then((data) => {
             BeltRadarBeltTimerDataTable.clear().rows.add(data).draw();
@@ -346,8 +350,9 @@ $(document).ready(() => {
 
             modalRequestAddBeltTimer.find('#beltradar-spinner').removeClass('d-none');
             modalRequestAddBeltTimer.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {
                     belt_id: beltIdInput.val(),
@@ -359,8 +364,9 @@ $(document).ready(() => {
             })
                 .then((data) => {
                     if (data.success === true) {
-                        fetchGetBeltRadar({
+                        fetchData({
                             url: aaBeltRadarSettings.url.myTimers,
+                            method: 'GET',
                         })
                             .then((freshData) => {
                                 _reloadBeltTimerData(freshData);
@@ -405,15 +411,17 @@ $(document).ready(() => {
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
         modalRequestDeleteBeltTimer.find('#modal-button-confirm-accept-request').on('click', () => {
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {}
             })
                 .then((data) => {
                     if (data.success === true) {
-                        fetchGetBeltRadar({
+                        fetchData({
                             url: aaBeltRadarSettings.url.myTimers,
+                            method: 'GET',
                         })
                             .then((newData) => {
                                 _reloadBeltTimerData(newData);
@@ -445,15 +453,17 @@ $(document).ready(() => {
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
         modalRequestModifyBeltTimer.find('#modal-button-confirm-accept-request').on('click', () => {
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {}
             })
                 .then((data) => {
                     if (data.success === true) {
-                        fetchGetBeltRadar({
+                        fetchData({
                             url: aaBeltRadarSettings.url.myTimers,
+                            method: 'GET',
                         })
                             .then((newData) => {
                                 _reloadBeltTimerData(newData);
@@ -495,8 +505,9 @@ $(document).ready(() => {
 
             modalRequestAddSession.find('#beltradar-spinner').removeClass('d-none');
             modalRequestAddSession.find('#beltradar-error').addClass('d-none').removeClass('br-shake').text('');
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {
                     name: sessionNameInput.val(),
@@ -505,8 +516,9 @@ $(document).ready(() => {
             })
                 .then((data) => {
                     if (data.success === true) {
-                        fetchGetBeltRadar({
+                        fetchData({
                             url: aaBeltRadarSettings.url.mySessions,
+                            method: 'GET',
                         })
                             .then((freshData) => {
                                 _reloadSessionsDataTable(freshData);
@@ -547,15 +559,17 @@ $(document).ready(() => {
         const csrfMiddlewareToken = form.find('input[name="csrfmiddlewaretoken"]').val();
 
         modalRequestModifySession.find('#modal-button-confirm-accept-request').on('click', () => {
-            fetchPostBeltRadar({
+            fetchData({
                 url: url,
+                method: 'POST',
                 csrfToken: csrfMiddlewareToken,
                 payload: {}
             })
                 .then((data) => {
                     if (data.success === true) {
-                        fetchGetBeltRadar({
+                        fetchData({
                             url: aaBeltRadarSettings.url.mySessions,
+                            method: 'GET',
                         })
                             .then((freshData) => {
                                 _reloadSessionsDataTable(freshData);

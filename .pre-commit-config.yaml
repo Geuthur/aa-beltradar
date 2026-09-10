@@ -27,7 +27,7 @@ exclude: |
   (?x)(
     .github/|
     LICENSE|
-    openapi_2026-07-21.json|
+    openapi_.*\.json|
     .min(.css|.css.map|.js|.js.map)|
     locale/|
     static/(.*)/libs/

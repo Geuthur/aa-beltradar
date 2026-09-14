@@ -69,6 +69,22 @@ def _create_button(
     return button_html
 
 
+def _create_react_data(
+    url: str,
+    text: str,
+    title: str,
+    color: str,
+    modal_id: str = None,
+) -> dict:
+    return {
+        "url": url,
+        "text": text,
+        "title": title,
+        "color": color,
+        "modal_id": modal_id,
+    }
+
+
 @permissions_required(
     [
         "beltradar.basic_access",
@@ -95,13 +111,13 @@ def session_manage_action_icons(
 
     # Return an empty string if the session does not exist
     if session is None:
-        return ""
+        return None
 
     beltradar_request_icons = "<div class='d-flex justify-content-end'>"
     # Add the view session button
-    beltradar_request_icons += get_session_view_button(
-        request=request, public_id=session.public_id
-    )
+    # beltradar_request_icons += get_session_view_button(
+    #    request=request, public_id=session.public_id
+    # )
 
     # Check if the user has permissions to modify or delete the session
     if perms:

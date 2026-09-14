@@ -8,6 +8,15 @@ from ninja import Schema
 from django.utils import timezone
 
 
+class UserData(Schema):
+    """
+    Schema for user data, including character ID and character name.
+    """
+
+    character_id: int = 0
+    character_name: str | None = None
+
+
 class DataTableSchema(Schema):
     raw: Any
     display: str
@@ -118,3 +127,12 @@ class SnapShotSchema(Schema):
     charts: ApexChartSchema | None = None
     traffic: ApexChartSchema | None = None
     actions: ActionSchema | None = None
+
+
+class MenuLink(Schema):
+    name: str
+    link: str = None
+
+
+class MenuCategory(MenuLink):
+    links: list[MenuLink] = None

@@ -3,6 +3,7 @@
 # Django
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
@@ -10,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
-from beltradar import __title__, forms
+from beltradar import __app_name__, __title__, __version__, forms
 from beltradar.api.helpers.icons import (
     get_belt_timer_add_button,
     get_session_add_button,
@@ -21,6 +22,19 @@ from beltradar.models import BeltSurveySession, UserSettings
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
+
+
+@login_required
+def react_base(request: WSGIRequest, character_id=None):  #
+    if character_id is None:
+        character_id = request.user.profile.main_character.character_id
+
+    context = {
+        "version": __version__,
+        "app_name": __app_name__,
+        "character_id": character_id,
+    }
+    return render(request, "beltradar/react_base.html", context=context)
 
 
 @login_required
@@ -143,5 +157,4 @@ def view_my_settings(request):
             "settings": user_settings_form,
         },
     }
-
     return render(request, "beltradar/view-my-settings.html", context=context)

@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from "react-dom/client";
 
 // AA Belt Radar
-import App from './App.tsx'
+import App from '@/App.tsx'
 
 const container = document.getElementById('aa-beltradar-root')
 

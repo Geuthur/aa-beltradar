@@ -273,7 +273,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/beltradar/api/view/my-belt-timer/{character_id}/": {
+    "/beltradar/api/view/my-belt-timers/{character_id}/": {
         parameters: {
             query?: never;
             header?: never;
@@ -489,6 +489,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/beltradar/api/view/action/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Action */
+        get: operations["beltradar_api_general_get_action"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -503,12 +520,9 @@ export interface components {
          *         update (str | None): The action for updating a session.
          */
         ActionSchema: {
-            /** Create */
-            create?: string | null;
-            /** Delete */
-            delete?: string | null;
-            /** Update */
-            update?: string | null;
+            create?: components["schemas"]["ModalSchema"] | null;
+            delete?: components["schemas"]["ModalSchema"] | null;
+            update?: components["schemas"]["ModalSchema"] | null;
         };
         /** DataTableSchema */
         DataTableSchema: {
@@ -523,14 +537,45 @@ export interface components {
             /** Dropdown Text */
             dropdown_text?: string | null;
         };
+        /**
+         * ModalSchema
+         * @description Schema for modal dialog data.
+         */
+        ModalSchema: {
+            /** Title */
+            title: string;
+            /** Text */
+            text: string;
+            /** Icon */
+            icon: string;
+            /** Modal Id */
+            modal_id: string;
+            /** Url */
+            url: string;
+            /** Color */
+            color?: string | null;
+            /** Buttontext */
+            buttonText?: string | null;
+        };
+        /** OwnerSchema */
+        OwnerSchema: {
+            /**
+             * Character Id
+             * @default 0
+             */
+            character_id: number;
+            /** Character Name */
+            character_name?: string | null;
+            /** Portrait */
+            portrait?: string | null;
+        };
         /** SessionSchema */
         SessionSchema: {
             /** Public Id */
             public_id: string;
             /** Name */
             name: string;
-            /** Owner */
-            owner: string;
+            owner: components["schemas"]["OwnerSchema"];
             /**
              * Created At
              * Format: date-time
@@ -601,9 +646,9 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
-            /** Owner */
-            owner: string;
+            owner: components["schemas"]["OwnerSchema"];
             public: components["schemas"]["DataTableSchema"];
+            actions?: components["schemas"]["ActionSchema"] | null;
             /** Html */
             html?: string | null;
         };
@@ -684,28 +729,61 @@ export interface components {
             public: components["schemas"]["DataTableSchema"];
             /** Is Expired */
             is_expired?: boolean | null;
+            actions?: components["schemas"]["ActionSchema"] | null;
             /** Html */
             html?: string | null;
         };
-        /** MenuLink */
+        /**
+         * MenuLink
+         * @description Represents a link in the menu.
+         *
+         *     Parameters:
+         *         name (str): The name of the menu link.
+         *         link (str | None): The URL or path the menu link points to.
+         */
         MenuLink: {
             /** Name */
             name: string;
             /** Link */
             link?: string;
         };
+        /** MenuModalSchema */
+        MenuModalSchema: {
+            create_session?: components["schemas"]["ModalSchema"] | null;
+            create_belt_timer?: components["schemas"]["ModalSchema"] | null;
+            create_snapshot?: components["schemas"]["ModalSchema"] | null;
+        };
+        /** MenuSchema */
+        MenuSchema: {
+            /**
+             * Links
+             * @default []
+             */
+            links: components["schemas"]["MenuLink"][];
+            modals?: components["schemas"]["MenuModalSchema"] | null;
+        };
         /**
          * UserData
          * @description Schema for user data, including character ID and character name.
+         *
+         *     Parameters:
+         *         user_id (int): The ID of the user.
+         *         character_id (int): The ID of the character associated with the user.
+         *         character_name (str): The name of the character.
+         *         portrait (str | None): The URL or path to the character's portrait image.
+         *         notification (boolean): The notification status for the user.
          */
         UserData: {
-            /**
-             * Character Id
-             * @default 0
-             */
+            /** User Id */
+            user_id: number;
+            /** Character Id */
             character_id: number;
             /** Character Name */
-            character_name?: string | null;
+            character_name: string;
+            /** Portrait */
+            portrait?: string | null;
+            /** Notification */
+            notification: boolean;
         };
     };
     responses: never;
@@ -1426,7 +1504,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MenuLink"][];
+                    "application/json": components["schemas"]["MenuSchema"];
                 };
             };
         };
@@ -1447,6 +1525,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserData"];
+                };
+            };
+        };
+    };
+    beltradar_api_general_get_action: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionSchema"];
                 };
             };
         };

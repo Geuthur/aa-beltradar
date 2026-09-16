@@ -11,7 +11,7 @@ from beltradar.api import general, menu, session, snapshot, timer
 
 api = NinjaAPI(
     title="Belt Radar API",
-    version="0.1.0",
+    version="0.5.0",
     urls_namespace="beltradar:api",
     auth=django_auth,
     openapi_url=settings.DEBUG and "/openapi.json" or "",

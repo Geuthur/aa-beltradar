@@ -17,7 +17,10 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
-from beltradar.api.helpers.core import get_belt_timer_or_none, get_session_or_none
+from beltradar.api.helpers.core import (
+    get_manage_belt_timer_or_none,
+    get_session_or_none,
+)
 from beltradar.api.helpers.icons import (
     belt_timer_manage_action_icons,
     get_belt_timer_status_icon,
@@ -39,7 +42,7 @@ class BeltRadarApiEndpoints:
     def __init__(self, api: NinjaAPI):
 
         @api.get(
-            "view/my-belt-timer/{character_id}/",
+            "view/my-belt-timers/{character_id}/",
             response={
                 HTTPStatus.OK: list[schema.BeltTimerSchema],
                 HTTPStatus.FORBIDDEN: dict,
@@ -100,11 +103,9 @@ class BeltRadarApiEndpoints:
                             sort=str(timer.is_public),
                         ),
                         is_expired=timer.is_expired,
-                        html=str(
-                            belt_timer_manage_action_icons(
-                                request=request,
-                                timer=timer,
-                            )
+                        actions=belt_timer_manage_action_icons(
+                            request=request,
+                            timer=timer,
                         ),
                     )
                 )
@@ -155,11 +156,9 @@ class BeltRadarApiEndpoints:
                             sort=str(timer.is_public),
                         ),
                         is_expired=timer.is_expired,
-                        html=str(
-                            belt_timer_manage_action_icons(
-                                request=request,
-                                timer=timer,
-                            )
+                        actions=belt_timer_manage_action_icons(
+                            request=request,
+                            timer=timer,
                         ),
                     )
                 )
@@ -304,9 +303,9 @@ class BeltRadarApiEndpoints:
                 return HTTPStatus.NOT_FOUND, {"error": msg}
 
             # Check if the user has permission to delete this snapshot (by checking if they can delete the survey session)
-            perms = get_belt_timer_or_none(
+            perms = get_manage_belt_timer_or_none(
                 request=request,
-                character_id=timer.owner.profile.main_character.character_id,
+                timer_pk=timer_id,
             )[0]
             # pylint: disable=duplicate-code
             if perms is False:
@@ -363,9 +362,9 @@ class BeltRadarApiEndpoints:
                 return HTTPStatus.NOT_FOUND, {"error": msg}
 
             # Check if the user has permission to modify this snapshot (by checking if they can modify the survey session)
-            perms = get_belt_timer_or_none(
+            perms = get_manage_belt_timer_or_none(
                 request=request,
-                character_id=timer.owner.profile.main_character.character_id,
+                timer_pk=timer_id,
             )[0]
             # pylint: disable=duplicate-code
             if perms is False:

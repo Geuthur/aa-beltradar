@@ -1,5 +1,4 @@
 # Standard Library
-import json
 from http import HTTPStatus
 
 # Third Party
@@ -136,17 +135,24 @@ class BeltRadarApiEndpoints:
                     "error": _("Belt Session not found or not public.")
                 }
 
-            create_timer_html = str(
-                session_belt_timer_action_icons(
-                    request=request, public_id=session.public_id
-                )
+            create_timer_html = session_belt_timer_action_icons(
+                request=request, public_id=session.public_id
             )
 
             return HTTPStatus.OK, schema.SessionSchema(
                 public_id=str(session.public_id),
                 name=session.name,
                 created_at=session.created_at,
-                owner=str(session.owner),
+                owner=schema.OwnerSchema(
+                    character_id=session.owner.profile.main_character.character_id,
+                    character_name=session.owner.profile.main_character.character_name,
+                    portrait=get_character_portrait_url(
+                        character_id=session.owner.profile.main_character.character_id,
+                        character_name=session.owner.profile.main_character.character_name,
+                        as_html=True,
+                        display_name=True,
+                    ),
+                ),
                 first_timestamp=session.first_timestamp,
                 last_timestamp=session.last_timestamp,
                 total_timestamps=session.br_snapshots.count(),
@@ -156,9 +162,7 @@ class BeltRadarApiEndpoints:
                     sort=str(session.is_public),
                 ),
                 stats=self.session_stats(session=session),
-                actions=schema.ActionSchema(
-                    create=create_timer_html,
-                ),
+                actions=create_timer_html,
             )
 
         @api.get(
@@ -213,19 +217,23 @@ class BeltRadarApiEndpoints:
                     public_id=str(session.public_id),
                     name=session.name,
                     created_at=session.created_at,
-                    owner=get_character_portrait_url(
+                    owner=schema.OwnerSchema(
                         character_id=session.owner.profile.main_character.character_id,
                         character_name=session.owner.profile.main_character.character_name,
-                        as_html=True,
-                        display_name=True,
+                        portrait=get_character_portrait_url(
+                            character_id=session.owner.profile.main_character.character_id,
+                            character_name=session.owner.profile.main_character.character_name,
+                            as_html=True,
+                            display_name=True,
+                        ),
                     ),
                     public=schema.DataTableSchema(
                         raw=session.is_public,
                         display=get_session_status_icon(session=session),
                         sort=str(session.is_public),
                     ),
-                    html=str(
-                        session_manage_action_icons(request=request, session=session)
+                    actions=session_manage_action_icons(
+                        request=request, session=session
                     ),
                 )
                 survey_list.append(survey_session_data)
@@ -269,19 +277,23 @@ class BeltRadarApiEndpoints:
                     public_id=str(session.public_id),
                     name=session.name,
                     created_at=session.created_at,
-                    owner=get_character_portrait_url(
+                    owner=schema.OwnerSchema(
                         character_id=session.owner.profile.main_character.character_id,
                         character_name=session.owner.profile.main_character.character_name,
-                        as_html=True,
-                        display_name=True,
+                        portrait=get_character_portrait_url(
+                            character_id=session.owner.profile.main_character.character_id,
+                            character_name=session.owner.profile.main_character.character_name,
+                            as_html=True,
+                            display_name=True,
+                        ),
                     ),
                     public=schema.DataTableSchema(
                         raw=session.is_public,
                         display=get_session_status_icon(session=session),
                         sort=str(session.is_public),
                     ),
-                    html=str(
-                        session_manage_action_icons(request=request, session=session)
+                    actions=session_manage_action_icons(
+                        request=request, session=session
                     ),
                 )
                 survey_list.append(survey_session_data)
@@ -315,7 +327,9 @@ class BeltRadarApiEndpoints:
                 return HTTPStatus.FORBIDDEN, {"error": msg}
 
             # Validate the form data
-            form = forms.BeltSessionForm(data=json.loads(request.body))
+            form = forms.BeltSessionForm(data=request.POST)
+            logger.debug(form.errors)
+            logger.debug(request.POST)
             if form.is_valid():
                 with transaction.atomic():
                     session = form.save(commit=False)

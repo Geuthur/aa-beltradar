@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 
 # AA Belt Radar
 from beltradar.api import schema
+from beltradar.models.beltradar import UserSettings
 
 
 class BeltRadarApiEndpoints:
@@ -27,9 +28,15 @@ class BeltRadarApiEndpoints:
             try:
                 character_id = request.user.profile.main_character.character_id
                 character_name = request.user.profile.main_character.character_name
+                settings = UserSettings.objects.get(user=request.user)
             except AttributeError:
-                character_id = 0
-                character_name = None
+                return HTTPStatus.BAD_REQUEST, {
+                    "error": _("Failed to retrieve user data.")
+                }
+
             return schema.UserData(
-                character_id=character_id, character_name=character_name
+                user_id=request.user.id,
+                character_id=character_id,
+                character_name=character_name,
+                notification=settings.disable_notifications,
             )

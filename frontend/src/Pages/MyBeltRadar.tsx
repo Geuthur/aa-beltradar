@@ -2,6 +2,8 @@
 import { useTranslation } from 'react-i18next'
 
 // AA Belt Radar
+import BaseSectionHeader from '@/Components/Section/BaseSectionHeader';
+import BeltRadarHeader from '@/Components/Section/BeltRadarHeader';
 import BeltTimerTable from '@/Components/Tables/BeltTimerTable';
 import MyBeltRadarTable from '@/Components/Tables/MyBeltRadarTable'
 
@@ -11,20 +13,16 @@ function MyBeltRadar() {
 	return (
 		<main>
             {/* Sessions Section */}
-            <section className="card" aria-labelledby="sessions-heading">
-				<div className="card-header bg-primary">
-					<h2 id="sessions-heading">{t("Sessions")}</h2>
-				</div>
+			<BeltRadarHeader name={t("My Sessions")} />
+			<section className="card" aria-labelledby="my-belt-radar-heading">
 				<div className="card-body">
 					<MyBeltRadarTable />
 				</div>
 			</section>
 
             {/* Belt Timers Section */}
-			<section className="card mt-5" aria-labelledby="timers-heading">
-				<div className="card-header bg-primary">
-					<h2 id="timers-heading">{t("My Belt Timers")}</h2>
-				</div>
+			<BaseSectionHeader name={t("My Belt Timers")} />
+			<section className="card" aria-labelledby="timers-heading">
 				<div className="card-body">
 					<BeltTimerTable />
 				</div>

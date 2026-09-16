@@ -4,10 +4,10 @@ import { Link, useLocation } from "react-router";
 // Third Party
 import { Nav } from "react-bootstrap"
 
-export interface MenuLinkItem {
-    name: string
-    link: string
-}
+// AA Belt Radar
+import type { components } from "@/Api/OpenApi";
+
+export type MenuLinkItem = components["schemas"]["MenuLink"];
 
 export interface MenuCategory {
   name: string;

@@ -5,7 +5,7 @@ import createClient from "openapi-fetch";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
 
 // AA Belt Radar
-import type { paths } from "./OpenApi";
+import type { paths } from "@/Api/OpenApi";
 
 // Django's CSRF cookie is named "csrftoken", not axios's own default
 // ("XSRF-TOKEN") - both must be set for axios to actually attach the header

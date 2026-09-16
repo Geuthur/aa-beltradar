@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // AA Belt Radar
-import type { components } from "./OpenApi";
+import type { components } from "@/Api/OpenApi";
 
 export async function loadUserData(): Promise<{ user: components["schemas"]["UserData"] }> {
   const api = await axios.get(`/beltradar/api/view/user/`);
@@ -24,5 +24,25 @@ export async function loadMySessions(characterID: number): Promise<components["s
 
 export async function loadBeltTimers(): Promise<components["schemas"]["BeltTimerSchema"][]> {
   const api = await axios.get(`/beltradar/api/view/belt-timers/`);
+  return api.data;
+}
+
+export async function loadMyBeltTimers(characterID: number): Promise<components["schemas"]["BeltTimerSchema"][]> {
+  const api = await axios.get(`/beltradar/api/view/my-belt-timers/${characterID}/`);
+  return api.data;
+}
+
+export async function loadSession(publicID: string): Promise<components["schemas"]["SessionSchema"]> {
+  const api = await axios.get(`/beltradar/api/view/session/${publicID}/stats/`);
+  return api.data;
+}
+
+export async function loadSnapshot(publicID: string): Promise<components["schemas"]["SnapShotSchema"]> {
+  const api = await axios.get(`/beltradar/api/view/session/${publicID}/snapshot/last_snapshot/`);
+  return api.data;
+}
+
+export async function loadMenu(): Promise<components["schemas"]["MenuSchema"]> {
+  const api = await axios.get(`/beltradar/api/view/menu/`);
   return api.data;
 }

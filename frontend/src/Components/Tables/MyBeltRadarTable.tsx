@@ -1,31 +1,30 @@
 // React
+import { useState } from 'react';
 import { useParams } from 'react-router-dom'
 
 // Third Party
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from 'react-i18next'
-import { useState } from 'react';
-import { IconButton } from "@/Components/Tables/Icons/Icons";
 
 // AA Belt Radar
 import { loadMySessions } from '@/Api/BeltRadar'
-import type { components } from '@/Api/OpenApi'
 import { formatDate, renderHtml } from '@/Components/Helpers/functions';
+import { BeltRadarTableButtons } from "@/Components/Icons/Icons";
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
+import type { Session } from '@/Components/Props/BeltRadarProps';
+import { queryKeys } from '@/Components/Props/BeltRadarQuery'
 import TableWrapper from '@/Components/Tables/TableWrapper'
-
-type Session = components['schemas']['BeltSurveySessionSchema']
 
 function MyBeltRadarTable() {
 	const { t } = useTranslation();
 	const { characterID } = useParams();
 	const [session, setSession] = useState<Session | Record<string, never>>({});
-	const [modalAction, setModalAction] = useState<'approve' | 'delete' | null>(null);
+	const [modalAction, setModalAction] = useState<string | null>(null);
 
 	// Load My Belt Radar sessions data
 	const { data: sessionData, isError: isErrorSessions, isFetching: isFetchingSessions } = useQuery({
-		queryKey: ["sessions"],
+		queryKey: queryKeys.mySessions(Number(characterID)),
 		queryFn: () => loadMySessions(Number(characterID)),
 		refetchOnWindowFocus: false,
 		enabled: !!characterID,
@@ -44,56 +43,48 @@ function MyBeltRadarTable() {
 			header: t("Created At"),
 			cell: ({ getValue }) => formatDate(getValue())
 		}),
-		columnHelper.accessor('owner', {
+		columnHelper.accessor('owner.portrait', {
 			header: t("Owner"),
 			cell: ({ getValue }) => renderHtml(getValue<string>() || '-'),
 		}),
 		columnHelper.accessor('public.display', {
 			header: t("Public"),
+			enableSorting: false,
+			enableColumnFilter: false,
+			enableGlobalFilter: false,
 			cell: ({ getValue }) => renderHtml(getValue<string>()),
 		}),
-		columnHelper.accessor('html', {
+		columnHelper.accessor('actions', {
 			header: t("Actions"),
+			enableSorting: false,
+			enableColumnFilter: false,
+			enableGlobalFilter: false,
 			cell: (cell) => {
 				return (
-					<>
-						<IconButton
-							icon="fa-solid fa-check"
-							onClick={() => {
-								setSession(cell.row.original);
-								setModalAction('approve');
-							}}
-							title={t("Approve Session")}
-							color="success"
-						/>
-						<IconButton
-							icon="fa-solid fa-trash"
-							onClick={() => {
-								setSession(cell.row.original);
-								setModalAction('delete');
-							}}
-							title={t("Delete Session")}
-							color="danger"
-						/>
-					</>
+					<BeltRadarTableButtons
+						cell={cell}
+						setSession={setSession}
+						setModalAction={setModalAction}
+					/>
 				);
 			},
-		}),
+		})
 	]
 
 	return (
 		<>
 			<TableWrapper
-				columns={columns}
 				data={sessionData ?? []}
 				isError={isErrorSessions}
 				isFetching={isFetchingSessions}
+				columns={columns}
 			/>
 			<BeltRadarModals
-				session={session}
+				session={session as Session}
 				modalAction={modalAction}
 				setModalAction={setModalAction}
 				t={t}
+				queryKey={queryKeys.mySessions(Number(characterID))}
 			/>
 		</>
 

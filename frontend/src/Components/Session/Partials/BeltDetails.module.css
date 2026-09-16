@@ -1,0 +1,50 @@
+.belt-details {
+    height: 36px;
+}
+
+.belt-progress-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.first-scan {
+    z-index: 1;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    color: white;
+    translate: 0 -50%;
+}
+
+.last-scan-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    white-space: nowrap;
+    color: white;
+}
+
+.last-scan {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    color: white;
+    translate: 0 -50%;
+}
+
+.belt-eta {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    color: white;
+}

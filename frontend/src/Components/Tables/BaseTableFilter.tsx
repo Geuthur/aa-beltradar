@@ -6,8 +6,8 @@ import type { Column, Table as ReactTable } from "@tanstack/react-table";
 import { Button, Dropdown, Form, OverlayTrigger, Popover } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-// Styles
-import Styles from "./BaseTableFilter.module.css";
+// AA Belt Radar
+import Styles from "@/Components/Tables/BaseTableFilter.module.css";
 
 // Lets a column supply a nicer label for its own SelectFilter options than
 // the raw underlying value (e.g. the wallet table's ref_type column, whose

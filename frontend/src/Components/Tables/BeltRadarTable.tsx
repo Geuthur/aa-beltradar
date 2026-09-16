@@ -8,22 +8,21 @@ import { useTranslation } from 'react-i18next'
 
 // AA Belt Radar
 import { loadPublicSessions } from '@/Api/BeltRadar'
-import type { components } from '@/Api/OpenApi'
 import { formatDate, renderHtml } from '@/Components/Helpers/functions';
+import { BeltRadarTableButtons } from "@/Components/Icons/Icons";
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
-import { IconButton } from "@/Components/Tables/Icons/Icons";
+import type { Session } from '@/Components/Props/BeltRadarProps';
+import { queryKeys } from '@/Components/Props/BeltRadarQuery';
 import TableWrapper from '@/Components/Tables/TableWrapper';
-
-type Session = components['schemas']['BeltSurveySessionSchema']
 
 function BeltRadarTable() {
 	const { t } = useTranslation();
 	const [session, setSession] = useState<Session | Record<string, never>>({});
-	const [modalAction, setModalAction] = useState<'approve' | 'delete' | null>(null);
+	const [modalAction, setModalAction] = useState<string | null>(null);
 
 	// Load Belt Radar public sessions data
 	const { data: sessionData, isError: isErrorSessions, isFetching: isFetchingSessions } = useQuery({
-		queryKey: ["sessions"],
+		queryKey: queryKeys.publicSessions,
 		queryFn: () => loadPublicSessions(),
 		refetchOnWindowFocus: false,
 	});
@@ -41,41 +40,29 @@ function BeltRadarTable() {
 			header: t("Created At"),
 			cell: ({ getValue }) => formatDate(getValue())
 		}),
-		columnHelper.accessor('owner', {
+		columnHelper.accessor('owner.portrait', {
 			header: t("Owner"),
 			cell: ({ getValue }) => renderHtml(getValue<string>() || '-'),
 		}),
 		columnHelper.accessor('public.display', {
 			header: t("Public"),
+			enableSorting: false,
+			enableColumnFilter: false,
+			enableGlobalFilter: false,
 			cell: ({ getValue }) => renderHtml(getValue<string>()),
 		}),
-		columnHelper.accessor('html', {
+		columnHelper.accessor('actions', {
 			header: t("Actions"),
 			enableSorting: false,
 			enableColumnFilter: false,
 			enableGlobalFilter: false,
 			cell: (cell) => {
 				return (
-					<>
-						<IconButton
-							icon="fa-solid fa-check"
-							onClick={() => {
-								setSession(cell.row.original);
-								setModalAction('approve');
-							}}
-							title={t("Approve Session")}
-							color="success"
-						/>
-						<IconButton
-							icon="fa-solid fa-trash"
-							onClick={() => {
-								setSession(cell.row.original);
-								setModalAction('delete');
-							}}
-							title={t("Delete Session")}
-							color="danger"
-						/>
-					</>
+					<BeltRadarTableButtons
+						cell={cell}
+						setSession={setSession}
+						setModalAction={setModalAction}
+					/>
 				);
 			},
 		})
@@ -90,10 +77,11 @@ function BeltRadarTable() {
 				columns={columns}
 			/>
 			<BeltRadarModals
-				session={session}
+				session={session as Session}
 				modalAction={modalAction}
 				setModalAction={setModalAction}
 				t={t}
+				queryKey={queryKeys.publicSessions}
 			/>
 		</>
 	)

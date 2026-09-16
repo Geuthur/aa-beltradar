@@ -2,7 +2,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 
 // AA Belt Radar
-import BaseTable from "./BaseTable";
+import BaseTable from "@/Components/Tables/BaseTable";
 
 const TableWrapper = <TData,>({
   data,

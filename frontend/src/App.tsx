@@ -11,14 +11,13 @@ import { NuqsAdapter } from "nuqs/adapters/react-router/v8";
 import { initReactI18next, useTranslation } from "react-i18next";
 
 // AA Belt Radar
+import "@/App.css"
 import ErrorLoader from "@/Components/Loader/ErrorLoader"
 import BeltRadarBase from "@/Pages/Base";
 import BeltRadar from "@/Pages/BeltRadar";
 import MyBeltRadar from "@/Pages/MyBeltRadar";
+import BeltRadarSession from "@/Pages/Session";
 import Settings from "@/Pages/Settings";
-
-// Styles
-import "./App.css"
 
 const queryClient = new QueryClient();
 
@@ -63,9 +62,10 @@ function App() {
               <Route path="/beltradar/" element={<BeltRadarBase />}>
                 <Route index element={<BeltRadar />} />
                 <Route path=":characterID/" element={<BeltRadar />} />
-                <Route path="menu/my-belt-radar/" element={<MyBeltRadar />} />
-                <Route path="menu/my-belt-radar/:characterID/" element={<MyBeltRadar />} />
-                <Route path="menu/settings/" element={<Settings />} />
+                <Route path="my-belt-radar/" element={<MyBeltRadar />} />
+                <Route path="my-belt-radar/:characterID/" element={<MyBeltRadar />} />
+                <Route path="settings/" element={<Settings />} />
+                <Route path="session/:publicID/" element={<BeltRadarSession />} />
                 <Route path="*" element={<ErrorLoader title={t("Error 404")} message={t("The page you are looking for does not exist.")} />} />
               </Route>
               <Route path="*" element={<Navigate to="beltradar/" replace />} />

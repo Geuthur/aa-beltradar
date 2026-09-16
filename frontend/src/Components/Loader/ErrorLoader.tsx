@@ -1,5 +1,5 @@
-// Styles
-import styles from "./ErrorLoader.module.css"
+// AA Belt Radar
+import styles from "@/Components/Loader/ErrorLoader.module.css"
 
 interface LoaderProps {
   message?: string;

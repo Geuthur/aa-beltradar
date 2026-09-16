@@ -22,8 +22,8 @@ import { Table } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import BaseHeader from "@/Components/Tables/BaseHeader";
-import BasePages from "@/Components/Tables/BasePages";
+import BaseHeader from "@/Components/Tables/BaseTableHeader";
+import BasePages from "@/Components/Tables/BaseTablePages";
 
 const isNumber = <TData,>(cell: Cell<TData, unknown>) => typeof cell.getValue() === "number";
 

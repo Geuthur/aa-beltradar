@@ -1,49 +1,91 @@
+// React
+import { useState } from "react";
+
 // Third Party
-import { Button, Modal } from "react-bootstrap";
+import { Alert, Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import { ModalSize } from "./ModalSize";
+import { ModalSize } from "@/Components/Modals/BaseModalProps";
+import type { ModalData } from "@/Components/Modals/BaseModalProps";
 
-export interface ApproveData {
-  title: string;
-  textBody: React.ReactNode;
-  buttonText?: string;
-  url: string;
-}
+type FormData = Record<string, string | boolean>;
 
-function ApproveModal({
-  ApproveData,
+function BaseModal({
+  data: ModalData,
   showModal,
   onApprove,
   setShowModal,
+  isPending = false, // <-- NEU: Ladezustand von der Mutation
+  children,
 }: {
-  ApproveData: ApproveData;
+  data: ModalData;
   showModal: boolean;
-  onApprove: (url: string) => void;
+  onApprove: (data: { url: string; formData?: FormData }) => Promise<unknown>;
   setShowModal: (show: boolean) => void;
+  isPending?: boolean;
+  children?: React.ReactNode | ((props: { formData: FormData; onChange: (data: FormData) => void }) => React.ReactNode);
 }) {
   const { t } = useTranslation();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({});
+  const [validated, setValidated] = useState(false);
+  const handleClose = () => {
+    setErrorMessage(null);
+    setFormData({});
+    setValidated(false);
+    setShowModal(false);
+  };
+  const handleApprove = async () => {
+    if (typeof children === 'function') {
+      if (typeof formData.name !== 'string' || formData.name.trim() === '') {
+        setValidated(true);
+        return;
+      }
+    }
+    try {
+      await onApprove({ url: ModalData.url, formData });
+      // Erfolgreich:
+      setErrorMessage(null);
+      setFormData({});
+      setValidated(false);
+      setShowModal(false);
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred.');
+    }
+  };
+
+  const renderedChildren =
+    typeof children === 'function'
+      ? children({ formData, onChange: setFormData })
+      : children;
+
   return (
     <Modal
       show={showModal}
       size={ModalSize.large}
-      onHide={() => {
-        setShowModal(false);
-      }}
+      onHide={handleClose}
       centered={true}
+      restoreFocus={false} // Prevent the modal from stealing focus when it is closed
     >
       <Modal.Header closeButton>
-        <Modal.Title>{ApproveData.title}</Modal.Title>
+        <Modal.Title>{ModalData.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {ApproveData.textBody}
+        {errorMessage && (
+          <Alert variant="danger" onClose={() => setErrorMessage(null)} dismissible>
+            {errorMessage}
+          </Alert>
+        )}
+        <div className={validated ? 'was-validated' : ''}>
+          {renderedChildren}
+        </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={() => { onApprove(ApproveData.url); setShowModal(false); }}>
-          {t("Approve")} {ApproveData.buttonText ?? ""}
+        <Button variant={ModalData.color ?? "success"} disabled={isPending} onClick={handleApprove}>
+          {isPending ? t("Saving...") : ModalData.buttonText || t("Confirm")}
         </Button>
-        <Button onClick={() => setShowModal(false)}>
+        <Button onClick={handleClose}>
           {t("Close")}
         </Button>
       </Modal.Footer>
@@ -51,4 +93,4 @@ function ApproveModal({
   );
 }
 
-export default ApproveModal;
+export default BaseModal;

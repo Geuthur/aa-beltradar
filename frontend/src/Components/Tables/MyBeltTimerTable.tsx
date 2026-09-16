@@ -8,9 +8,9 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { loadMyBeltTimers } from '@/Api/BeltRadar';
-import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
-import type { BeltTimer } from "@/Api/schema";
 import { queryKeys } from "@/Api/query";
+import type { BeltTimer } from "@/Api/schema";
+import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import BaseTable from '@/Components/Tables/BaseTable';
 import { getBeltTimerColumns } from '@/Components/Tables/TableColumns';
 import { useModalQueryState } from '@/Hooks/useModalState';

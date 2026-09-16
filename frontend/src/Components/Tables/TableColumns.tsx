@@ -4,9 +4,9 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
 
 // AA Belt Radar
+import type { BeltTimer, Session, OreSchema } from "@/Api/schema";
 import { formatDate, renderHtml } from "@/Components/Helpers/functions";
 import { EntityTableActions } from "@/Components/Icons/Icons";
-import type { BeltTimer, Session, OreSchema } from "@/Api/schema";
 
 export function getSessionColumns(
     t: TFunction,

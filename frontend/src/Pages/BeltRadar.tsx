@@ -2,11 +2,12 @@
 import { useTranslation } from 'react-i18next'
 
 // AA Belt Radar
-import BeltRadarTable from '@/Components/Tables/BeltRadarTable'
-import BeltTimerTable from '@/Components/Tables/BeltTimerTable'
+import CreateBeltTimerForm from '@/Components/Forms/CreateBeltTimerForm';
 import CreateSessionForm from '@/Components/Forms/CreateSessionForm';
-import { validateSessionForm } from '@/Components/Forms/validation';
+import { validateBeltTimerForm, validateSessionForm } from '@/Components/Forms/validation';
 import { ActionSectionHeader } from '@/Components/Section/ActionSectionHeader';
+import BeltRadarTable from '@/Components/Tables/BeltRadarTable';
+import BeltTimerTable from '@/Components/Tables/BeltTimerTable';
 
 function BeltRadar() {
 	const { t } = useTranslation();
@@ -31,8 +32,8 @@ function BeltRadar() {
 				name={t("Belt Timers")}
 				modalKey="create_belt_timer"
 				buttonTitle={t("Create Belt Timer")}
-				validate={validateSessionForm}
-				children={CreateSessionForm}
+				validate={validateBeltTimerForm}
+				children={CreateBeltTimerForm}
 			/>
 			<section className="card" aria-labelledby="timers-heading">
 				<div className="card-body">

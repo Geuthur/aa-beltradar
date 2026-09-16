@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { loadPublicSessions } from '@/Api/BeltRadar';
-import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
-import type { Session } from "@/Api/schema";
 import { queryKeys } from "@/Api/query";
+import type { Session } from "@/Api/schema";
+import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import BaseTable from '@/Components/Tables/BaseTable';
 import { getSessionColumns } from '@/Components/Tables/TableColumns';
 import { useModalQueryState } from '@/Hooks/useModalState';

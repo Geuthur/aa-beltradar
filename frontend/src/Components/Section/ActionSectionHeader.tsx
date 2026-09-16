@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { loadMenu } from '@/Api/BeltRadar';
+import { queryKeys } from "@/Api/query";
 import { IconButton } from '@/Components/Icons/Icons';
 import BaseModal from '@/Components/Modals/BaseModal';
 import { useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
-import { queryKeys } from "@/Api/query";
 import type { SectionHeaderProps } from '@/Components/Section/SectionHeaderProps';
 import { useModalQueryState } from '@/Hooks/useModalState';
 

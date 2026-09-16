@@ -7,8 +7,8 @@ import { Button } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import { renderTooltip } from "@/Components/Helpers/functions";
 import type { BeltTimer, Session } from "@/Api/schema";
+import { renderTooltip } from "@/Components/Helpers/functions";
 
 export interface ButtonProps {
 	icon: string;

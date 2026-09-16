@@ -1,5 +1,4 @@
 # Standard Library
-import json
 from http import HTTPStatus
 
 # Third Party
@@ -196,7 +195,7 @@ class BeltRadarApiEndpoints:
                 return HTTPStatus.FORBIDDEN, {"error": msg}
 
             # Validate the form data
-            form = forms.BeltTimerForm(data=json.loads(request.body))
+            form = forms.BeltTimerForm(data=request.POST)
             if form.is_valid():
                 with transaction.atomic():
                     timer: BeltTimer = form.save(commit=False)

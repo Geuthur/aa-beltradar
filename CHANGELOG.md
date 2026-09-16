@@ -35,9 +35,12 @@ Section Order:
 ### Added
 
 - CODEOWNERS file to define code ownership.
+- `CreateBeltTimerForm` React component with dynamic belt size selection based on belt type.
 
 ### Changed
 
+- Updated `add_belt_timer` and `add_session` API endpoints to support both JSON and standard POST data.
+- Unified frontend form mutations in `useFormApproveMutation` to send standard POST requests.
 - Enhance Makefile and configuration management
 - Added pre-commit hooks management in pre-commit.mk with commands for installation, uninstallation, updates, and checks.
 - Improved Redis command management in redis.mk with better echo messages.

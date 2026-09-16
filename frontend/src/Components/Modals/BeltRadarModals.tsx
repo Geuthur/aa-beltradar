@@ -2,9 +2,9 @@
 import type { QueryKey } from '@tanstack/react-query';
 
 // AA Belt Radar
+import type { Session, BeltTimer } from "@/Api/schema";
 import BaseModal from '@/Components/Modals/BaseModal';
 import { useApproveMutation } from '@/Components/Modals/BeltRadarQuery';
-import type { Session, BeltTimer } from "@/Api/schema";
 
 export interface BeltRadarModalsProps {
 	session?: Session | BeltTimer | null;

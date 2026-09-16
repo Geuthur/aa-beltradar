@@ -1,48 +1,83 @@
-// Third Party
-import axios from "axios";
-
 // AA Belt Radar
+import { apiClient } from "@/Api/Api";
 import type { components } from "@/Api/OpenApi";
 
 export async function loadUserData(): Promise<{ user: components["schemas"]["UserData"] }> {
-  const api = await axios.get(`/beltradar/api/view/user/`);
-  const data = {
-    user: api.data,
-  };
-  return data;
+  const { data, error } = await apiClient.GET("/beltradar/api/view/user/");
+  if (error || !data) {
+    throw new Error("Failed to load user data");
+  }
+  return { user: data };
 }
 
 export async function loadPublicSessions(): Promise<components["schemas"]["BeltSurveySessionSchema"][]> {
-  const api = await axios.get(`/beltradar/api/view/public-sessions/`);
-  return api.data;
+  const { data, error } = await apiClient.GET("/beltradar/api/view/public-sessions/");
+  if (error || !data) {
+    throw new Error("Failed to load public sessions");
+  }
+  return data;
 }
 
 export async function loadMySessions(characterID: number): Promise<components["schemas"]["BeltSurveySessionSchema"][]> {
-  const api = await axios.get(`/beltradar/api/view/my-sessions/${characterID}/`);
-  return api.data;
+  const { data, error } = await apiClient.GET("/beltradar/api/view/my-sessions/{character_id}/", {
+    params: {
+      path: { character_id: characterID },
+    },
+  });
+  if (error || !data) {
+    throw new Error("Failed to load my sessions");
+  }
+  return data;
 }
 
 export async function loadBeltTimers(): Promise<components["schemas"]["BeltTimerSchema"][]> {
-  const api = await axios.get(`/beltradar/api/view/belt-timers/`);
-  return api.data;
+  const { data, error } = await apiClient.GET("/beltradar/api/view/belt-timers/");
+  if (error || !data) {
+    throw new Error("Failed to load belt timers");
+  }
+  return data;
 }
 
 export async function loadMyBeltTimers(characterID: number): Promise<components["schemas"]["BeltTimerSchema"][]> {
-  const api = await axios.get(`/beltradar/api/view/my-belt-timers/${characterID}/`);
-  return api.data;
+  const { data, error } = await apiClient.GET("/beltradar/api/view/my-belt-timers/{character_id}/", {
+    params: {
+      path: { character_id: characterID },
+    },
+  });
+  if (error || !data) {
+    throw new Error("Failed to load my belt timers");
+  }
+  return data;
 }
 
 export async function loadSession(publicID: string): Promise<components["schemas"]["SessionSchema"]> {
-  const api = await axios.get(`/beltradar/api/view/session/${publicID}/stats/`);
-  return api.data;
+  const { data, error } = await apiClient.GET("/beltradar/api/view/session/{public_id}/stats/", {
+    params: {
+      path: { public_id: publicID },
+    },
+  });
+  if (error || !data) {
+    throw new Error("Failed to load session");
+  }
+  return data;
 }
 
 export async function loadSnapshot(publicID: string): Promise<components["schemas"]["SnapShotSchema"]> {
-  const api = await axios.get(`/beltradar/api/view/session/${publicID}/snapshot/last_snapshot/`);
-  return api.data;
+  const { data, error } = await apiClient.GET("/beltradar/api/view/session/{public_id}/snapshot/last_snapshot/", {
+    params: {
+      path: { public_id: publicID },
+    },
+  });
+  if (error || !data) {
+    throw new Error("Failed to load snapshot");
+  }
+  return data;
 }
 
 export async function loadMenu(): Promise<components["schemas"]["MenuSchema"]> {
-  const api = await axios.get(`/beltradar/api/view/menu/`);
-  return api.data;
+  const { data, error } = await apiClient.GET("/beltradar/api/view/menu/");
+  if (error || !data) {
+    throw new Error("Failed to load menu");
+  }
+  return data;
 }

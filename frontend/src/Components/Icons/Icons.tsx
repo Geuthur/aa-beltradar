@@ -36,19 +36,35 @@ export function IconButton({ icon, onClick, title, color, classProps }: ButtonPr
     );
 }
 
-export interface BeltRadarTableButtonsProps {
-    cell: CellContext<Session, unknown>;
-    setSession: (session: Session) => void;
+export interface EntityWithActions {
+    public_id: string;
+    actions?: {
+        update?: {
+            icon: string;
+            title: string;
+            color?: string | null;
+            modal_id: string;
+        } | null;
+        delete?: {
+            icon: string;
+            title: string;
+            color?: string | null;
+            modal_id: string;
+        } | null;
+    } | null;
+}
+
+export interface EntityTableActionsProps<T extends EntityWithActions> {
+    cell: CellContext<T, unknown>;
+    onSelectEntity?: (entity: T) => void;
     setModalAction: (action: string | null) => void;
 }
 
-export interface BeltTimerTableButtonsProps {
-    cell: CellContext<BeltTimer, unknown>;
-    setTimer: (timer: BeltTimer) => void;
-    setModalAction: (action: string | null) => void;
-}
-
-export function BeltRadarTableButtons({ cell, setSession, setModalAction }: BeltRadarTableButtonsProps) {
+export function EntityTableActions<T extends EntityWithActions>({
+    cell,
+    onSelectEntity,
+    setModalAction,
+}: EntityTableActionsProps<T>) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const row = cell.row.original;
@@ -69,7 +85,7 @@ export function BeltRadarTableButtons({ cell, setSession, setModalAction }: Belt
                 <IconButton
                     icon={updateAction.icon}
                     onClick={() => {
-                        setSession(row);
+                        onSelectEntity?.(row);
                         setModalAction(updateAction.modal_id);
                     }}
                     title={updateAction.title}
@@ -80,7 +96,7 @@ export function BeltRadarTableButtons({ cell, setSession, setModalAction }: Belt
                 <IconButton
                     icon={deleteAction.icon}
                     onClick={() => {
-                        setSession(row);
+                        onSelectEntity?.(row);
                         setModalAction(deleteAction.modal_id);
                     }}
                     title={deleteAction.title}
@@ -91,45 +107,34 @@ export function BeltRadarTableButtons({ cell, setSession, setModalAction }: Belt
     );
 }
 
-export function BeltTimerTableButtons({ cell, setTimer, setModalAction }: BeltTimerTableButtonsProps) {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
-    const row = cell.row.original;
-    const updateAction = row.actions?.update;
-    const deleteAction = row.actions?.delete;
+export interface BeltRadarTableButtonsProps {
+    cell: CellContext<Session, unknown>;
+    setSession: (session: Session) => void;
+    setModalAction: (action: string | null) => void;
+}
 
+export function BeltRadarTableButtons({ cell, setSession, setModalAction }: BeltRadarTableButtonsProps) {
     return (
-        <>
-            <IconButton
-                icon="fas fa-eye"
-                onClick={() => {
-                    navigate("/beltradar/session/" + row.public_id + "/");
-                }}
-                title={t("View Session")}
-                color="primary"
-            />
-            {updateAction && (
-                <IconButton
-                    icon={updateAction.icon}
-                    onClick={() => {
-                        setTimer(row);
-                        setModalAction(updateAction.modal_id);
-                    }}
-                    title={updateAction.title}
-                    color={updateAction.color ?? "success"}
-                />
-            )}
-            {deleteAction && (
-                <IconButton
-                    icon={deleteAction.icon}
-                    onClick={() => {
-                        setTimer(row);
-                        setModalAction(deleteAction.modal_id);
-                    }}
-                    title={deleteAction.title}
-                    color={deleteAction.color ?? "danger"}
-                />
-            )}
-        </>
+        <EntityTableActions
+            cell={cell}
+            onSelectEntity={setSession}
+            setModalAction={setModalAction}
+        />
+    );
+}
+
+export interface BeltTimerTableButtonsProps {
+    cell: CellContext<BeltTimer, unknown>;
+    setTimer: (timer: BeltTimer) => void;
+    setModalAction: (action: string | null) => void;
+}
+
+export function BeltTimerTableButtons({ cell, setTimer, setModalAction }: BeltTimerTableButtonsProps) {
+    return (
+        <EntityTableActions
+            cell={cell}
+            onSelectEntity={setTimer}
+            setModalAction={setModalAction}
+        />
     );
 }

@@ -15,12 +15,19 @@ axios.defaults.xsrfCookieName = "csrftoken";
 
 export type GetEndpoint = PathsWithMethod<paths, "get">;
 
-export const getCatApi = () => {
-  const csrf = Cookies.get("csrftoken");
+export const apiClient = createClient<paths>({
+  baseUrl: "/",
+  credentials: "same-origin",
+});
 
-  return createClient<paths>({
-    baseUrl: "/",
-    credentials: "same-origin",
-    headers: { "x-csrftoken": csrf ? csrf : "" },
-  });
-};
+apiClient.use({
+  async onRequest({ request }) {
+    const csrf = Cookies.get("csrftoken");
+    if (csrf) {
+      request.headers.set("X-CSRFToken", csrf);
+    }
+    return request;
+  },
+});
+
+export const getCatApi = () => apiClient;

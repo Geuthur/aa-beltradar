@@ -184,7 +184,7 @@ def belt_timer_manage_action_icons(
 
     actions_schema = schema.ActionSchema()
     # Modify button for the belt timer
-    text = _("Modify Belt Timer")
+    title = _("Modify Belt Timer")
     actions_schema.update = schema.ModalSchema(
         url=reverse(
             "beltradar:api:modify_belt_timer",
@@ -195,18 +195,18 @@ def belt_timer_manage_action_icons(
             },
         ),
         icon="fa-solid fa-wrench",
-        text=text,
-        title=text,
+        text=str(_("Are you sure you want to modify this belt timer?")),
+        title=str(title),
         color="warning",
         modal_id="beltradar-accept-modify-belt-timer",
     )
     # Delete button for the belt timer
-    text = _("Delete Belt Timer")
+    title = _("Delete Belt Timer")
     actions_schema.delete = schema.ModalSchema(
         url=reverse("beltradar:api:delete_belt_timer", kwargs={"timer_id": timer.pk}),
         icon="fa-solid fa-trash",
-        text=text,
-        title=text,
+        text=str(_("Are you sure you want to delete this belt timer?")),
+        title=str(title),
         color="danger",
         modal_id="beltradar-accept-delete-belt-timer",
     )
@@ -228,12 +228,12 @@ def get_snapshot_add_button(
         String: HTML string containing the add button.
     """
     # Create the HTML for the add icon button
-    text = _("Add Snapshot")
+    title = _("Add Snapshot")
     add_button = schema.ModalSchema(
         url=reverse("beltradar:api:add_snapshot", kwargs={"public_id": public_id}),
         icon="fa-solid fa-plus",
-        text=text,
-        title=text,
+        text=str(_("Add Snapshot")),
+        title=str(title),
         color="success",
         modal_id="beltradar-add-snapshot",
     )
@@ -271,15 +271,15 @@ def get_snapshot_delete_button(
             return None  # Return None if there are no snapshots available
 
     # Create the HTML for the delete icon button
-    text = _("Delete Snapshot")
+    title = _("Delete Snapshot")
     delete_button = schema.ModalSchema(
         url=reverse(
             "beltradar:api:delete_snapshot",
             kwargs={"public_id": public_id, "identifier": identifier},
         ),
         icon="fa-solid fa-trash",
-        text=text,
-        title=text,
+        text=str(_("Are you sure you want to delete this snapshot?")),
+        title=str(title),
         color="danger",
         modal_id="beltradar-accept-delete-snapshot",
     )
@@ -301,12 +301,12 @@ def get_session_add_button(
         String: HTML string containing the add button.
     """
     # Create the HTML for the add icon button
-    text = _("Add Session")
+    title = _("Add Session")
     add_button = schema.ModalSchema(
         url=reverse("beltradar:api:add_session"),
         icon="fa-solid fa-plus",
-        text=text,
-        title=text,
+        text=str(title),
+        title=str(title),
         color="success",
         modal_id="beltradar-add-session",
     )
@@ -334,12 +334,12 @@ def get_session_delete_button(
         )
 
     # Create the HTML for the delete icon button
-    text = _("Delete Session")
+    title = _("Delete Session")
     delete_button = schema.ModalSchema(
         url=reverse("beltradar:api:delete_session", kwargs={"public_id": public_id}),
         icon="fa-solid fa-trash",
-        text=text,
-        title=text,
+        text=str(title),
+        title=str(title),
         color="danger",
         modal_id="beltradar-accept-delete-session",
     )
@@ -360,13 +360,13 @@ def get_session_view_button(
     Returns:
         String: HTML string containing the view button.
     """
-    text = _("View Session")
+    title = _("View Session")
     # Create the HTML for the view icon button
     view_button = schema.ModalSchema(
         url=reverse("beltradar:view_session", kwargs={"public_id": public_id}),
         icon="fa-solid fa-eye",
-        text=text,
-        title=text,
+        text=str(title),
+        title=str(title),
         color="primary",
     )
     return view_button
@@ -414,12 +414,12 @@ def get_belt_timer_add_button(
     Returns:
         String: HTML string containing the add button.
     """
-    text = _("Add Belt Timer")
+    title = _("Add Belt Timer")
     add_button = schema.ModalSchema(
         url="beltradar:api:add_belt_timer",
         icon="fa-solid fa-plus",
-        text=text,
-        title=text,
+        text=title,
+        title=title,
         color="success",
         modal_id="beltradar-add-belt-timer",
     )

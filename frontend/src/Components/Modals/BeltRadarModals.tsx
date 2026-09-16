@@ -4,10 +4,10 @@ import type { QueryKey } from '@tanstack/react-query';
 // AA Belt Radar
 import BaseModal from '@/Components/Modals/BaseModal';
 import { useApproveMutation } from '@/Components/Modals/BeltRadarQuery';
-import type { Session, BeltTimer } from '@/Components/Props/BeltRadarProps';
+import type { Session, BeltTimer } from "@/Api/schema";
 
 export interface BeltRadarModalsProps {
-	session: Session | BeltTimer;
+	session?: Session | BeltTimer | null;
 	modalAction: string | null;
 	setModalAction: (action: string | null) => void;
 	t: (key: string) => string;
@@ -16,8 +16,13 @@ export interface BeltRadarModalsProps {
 
 function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey }: BeltRadarModalsProps) {
 	const approveMutation = useApproveMutation(queryKey);
+	if (!data) {
+		return null;
+	}
+
 	const updateAction = data.actions?.update;
 	const deleteAction = data.actions?.delete;
+
 	return (
 		<>
 			{updateAction && (
@@ -41,7 +46,7 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 				/>
 			)}
 		</>
-	)
+	);
 }
 
-export default BeltRadarModals
+export default BeltRadarModals;

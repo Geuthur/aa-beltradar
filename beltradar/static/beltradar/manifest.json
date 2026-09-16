@@ -21,8 +21,8 @@
       "_@bootstrap-libs-BOrnPRuq.js"
     ]
   },
-  "_@react-libs-DDQJvSd_.js": {
-    "file": "react/js/@react-libs-DDQJvSd_.js",
+  "_@react-libs-BMJD_lqt.js": {
+    "file": "react/js/@react-libs-BMJD_lqt.js",
     "name": "@react-libs",
     "imports": [
       "_rolldown-runtime-Dd_uD5pT.js",
@@ -34,14 +34,14 @@
     "name": "rolldown-runtime"
   },
   "index.html": {
-    "file": "react/js/index-CHhcDDU5.js",
+    "file": "react/js/index-CXdx9Dxn.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
     "imports": [
       "_rolldown-runtime-Dd_uD5pT.js",
       "_@bootstrap-libs-BOrnPRuq.js",
-      "_@react-libs-DDQJvSd_.js",
+      "_@react-libs-BMJD_lqt.js",
       "_@lang-libs-BQAuZqz4.js",
       "_@app-libs-BJueP7CY.js"
     ],

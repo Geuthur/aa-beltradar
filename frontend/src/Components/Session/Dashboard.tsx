@@ -1,5 +1,5 @@
 // AA Belt Radar
-import type { Session } from '@/Components/Props/BeltRadarProps';
+import type { Session } from "@/Api/schema";
 import { SessionBeltDetails } from '@/Components/Session/Partials/BeltDetails';
 import { SessionBeltExpectation } from '@/Components/Session/Partials/BeltExpectation';
 import { SessionBeltStats } from '@/Components/Session/Partials/BeltStats';

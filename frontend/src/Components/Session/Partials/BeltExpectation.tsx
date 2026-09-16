@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { renderTooltip } from '@/Components/Helpers/functions';
-import type { Session } from '@/Components/Props/BeltRadarProps';
+import type { Session } from "@/Api/schema";
 export function SessionBeltExpectation({ sessionData }: { sessionData: Session}) {
     const { t } = useTranslation();
     return (

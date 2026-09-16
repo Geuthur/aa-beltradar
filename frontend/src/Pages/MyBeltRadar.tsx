@@ -2,10 +2,11 @@
 import { useTranslation } from 'react-i18next'
 
 // AA Belt Radar
-import BaseSectionHeader from '@/Components/Section/BaseSectionHeader';
-import BeltRadarHeader from '@/Components/Section/BeltRadarHeader';
-import BeltTimerTable from '@/Components/Tables/BeltTimerTable';
-import MyBeltRadarTable from '@/Components/Tables/MyBeltRadarTable'
+import MyBeltRadarTable from '@/Components/Tables/MyBeltRadarTable';
+import MyBeltTimerTable from '@/Components/Tables/MyBeltTimerTable';
+import ActionSectionHeader from '@/Components/Section/ActionSectionHeader';
+import { validateSessionForm } from '@/Components/Forms/validation';
+import CreateSessionForm from '@/Components/Forms/CreateSessionForm';
 
 function MyBeltRadar() {
 	const { t } = useTranslation();
@@ -13,7 +14,13 @@ function MyBeltRadar() {
 	return (
 		<main>
             {/* Sessions Section */}
-			<BeltRadarHeader name={t("My Sessions")} />
+			<ActionSectionHeader
+				name={t("My Sessions")}
+				modalKey="create_session"
+				buttonTitle={t("Create Session")}
+				validate={validateSessionForm}
+				children={CreateSessionForm}
+			/>
 			<section className="card" aria-labelledby="my-belt-radar-heading">
 				<div className="card-body">
 					<MyBeltRadarTable />
@@ -21,12 +28,19 @@ function MyBeltRadar() {
 			</section>
 
             {/* Belt Timers Section */}
-			<BaseSectionHeader name={t("My Belt Timers")} />
+			<ActionSectionHeader
+				name={t("My Belt Timers")}
+				modalKey="create_belt_timer"
+				buttonTitle={t("Create Belt Timer")}
+				validate={validateSessionForm}
+				children={CreateSessionForm}
+			/>
 			<section className="card" aria-labelledby="timers-heading">
 				<div className="card-body">
-					<BeltTimerTable />
+					<MyBeltTimerTable />
 				</div>
 			</section>
+
 		</main>
 	)
 }

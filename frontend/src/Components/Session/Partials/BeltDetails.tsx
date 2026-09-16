@@ -3,7 +3,7 @@ import { ProgressBar } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import type { Session } from '@/Components/Props/BeltRadarProps';
+import type { Session } from '@/Api/schema';
 import Styles from '@/Components/Session/Partials/BeltDetails.module.css';
 import { BeltDetailsETA } from '@/Components/Session/Partials/BeltDetailsETA';
 import { BeltDetailsFirstScan } from '@/Components/Session/Partials/BeltDetailsFirstScan';

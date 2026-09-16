@@ -5,7 +5,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 // AA Belt Radar
-import { queryKeys } from '@/Components/Props/BeltRadarQuery';
+import { queryKeys } from "@/Api/query";
 
 type FormData = Record<string, string | boolean>;
 
@@ -38,7 +38,7 @@ export function useApproveMutation(queryKey: QueryKey) {
 }
 
 /** Mutation für Formulare (mit Formulardaten als URLSearchParams) */
-export function useFormApproveMutation(queryKey: QueryKey = queryKeys.publicSessions) {
+export function useFormApproveMutation(queryKey?: QueryKey | QueryKey[]) {
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -66,7 +66,19 @@ export function useFormApproveMutation(queryKey: QueryKey = queryKeys.publicSess
             return response.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey });
+            if (queryKey) {
+                if (Array.isArray(queryKey) && Array.isArray(queryKey[0])) {
+                    (queryKey as QueryKey[]).forEach((key) => queryClient.invalidateQueries({ queryKey: key }));
+                } else {
+                    queryClient.invalidateQueries({ queryKey: queryKey as QueryKey });
+                }
+            } else {
+                // Standardmäßig alle Sessions und Timer invalidieren
+                queryClient.invalidateQueries({ queryKey: queryKeys.publicSessions });
+                queryClient.invalidateQueries({ queryKey: ["My-Sessions"] });
+                queryClient.invalidateQueries({ queryKey: queryKeys.beltTimer });
+                queryClient.invalidateQueries({ queryKey: ["My-Belt-Timers"] });
+            }
         },
     });
 }

@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { loadSession } from '@/Api/BeltRadar';
 import ErrorLoader from '@/Components/Loader/ErrorLoader';
 import FetchingLoader from '@/Components/Loader/FetchingLoader';
-import { queryKeys } from '@/Components/Props/BeltRadarQuery';
+import { queryKeys } from "@/Api/query";
 import BaseSectionHeader from '@/Components/Section/BaseSectionHeader';
 import SessionDashboard from '@/Components/Session/Dashboard';
 import SessionSnapshotTable from '@/Components/Session/SnapshotTable';

@@ -10,6 +10,13 @@ interface CreateSessionFormProps {
     validated?: boolean;
 }
 
+/**
+ * Renders the form for creating a session.
+ * @param formData - The current form data.
+ * @param onChange - Callback function to handle form data changes.
+ * @param validated - Indicates whether the form has been validated.
+ * @returns The JSX element for the create session form.
+ */
 export default function CreateSessionForm({ formData, onChange, validated = false }: CreateSessionFormProps) {
     const { t } = useTranslation();
 

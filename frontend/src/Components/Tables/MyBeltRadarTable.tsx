@@ -1,5 +1,5 @@
 // React
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 // Third Party
@@ -9,16 +9,16 @@ import { useTranslation } from 'react-i18next';
 // AA Belt Radar
 import { loadMySessions } from '@/Api/BeltRadar';
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
-import type { Session } from '@/Components/Props/BeltRadarProps';
-import { queryKeys } from '@/Components/Props/BeltRadarQuery';
+import type { Session } from "@/Api/schema";
+import { queryKeys } from "@/Api/query";
 import BaseTable from '@/Components/Tables/BaseTable';
 import { getSessionColumns } from '@/Components/Tables/TableColumns';
+import { useModalQueryState } from '@/Hooks/useModalState';
 
 function MyBeltRadarTable() {
 	const { t } = useTranslation();
 	const { characterID } = useParams();
-	const [session, setSession] = useState<Session | Record<string, never>>({});
-	const [modalAction, setModalAction] = useState<string | null>(null);
+	const { activeModal, activeEntityId, openModal, closeModal } = useModalQueryState();
 
 	// Load My Belt Radar sessions data
 	const { data: sessionData, isError: isErrorSessions, isFetching: isFetchingSessions } = useQuery({
@@ -28,10 +28,26 @@ function MyBeltRadarTable() {
 		enabled: !!characterID,
 	});
 
+	const activeSession = useMemo(
+		() => sessionData?.find((s) => s.public_id === activeEntityId) ?? null,
+		[sessionData, activeEntityId],
+	);
+
 	// Define table columns for the my belt radar sessions
 	const columns = useMemo(
-		() => getSessionColumns(t, setSession, setModalAction),
-		[t],
+		() =>
+			getSessionColumns(
+				t,
+				(session: Session) => session,
+				(actionId: string | null, row?: Session) => {
+					if (actionId && row) {
+						openModal(actionId, row.public_id);
+					} else {
+						closeModal();
+					}
+				},
+			),
+		[t, openModal, closeModal],
 	);
 
 	return (
@@ -43,9 +59,9 @@ function MyBeltRadarTable() {
 				columns={columns}
 			/>
 			<BeltRadarModals
-				session={session as Session}
-				modalAction={modalAction}
-				setModalAction={setModalAction}
+				session={activeSession}
+				modalAction={activeModal}
+				setModalAction={(action) => (!action ? closeModal() : openModal(action))}
 				t={t}
 				queryKey={queryKeys.mySessions(Number(characterID))}
 			/>

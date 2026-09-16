@@ -3,13 +3,13 @@ import { useParams } from 'react-router-dom';
 
 // Third Party
 import { useQuery } from '@tanstack/react-query';
-import { getSnapshotColumns } from "@/Components/Tables/TableColumns";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { loadSnapshot } from '@/Api/BeltRadar';
-import { queryKeys } from '@/Components/Props/BeltRadarQuery';
+import { queryKeys } from "@/Api/query";
 import BaseTable from '@/Components/Tables/BaseTable';
+import { getSnapshotColumns } from "@/Components/Tables/TableColumns";
 
 function SessionSnapshotTable() {
 	const { t } = useTranslation();

@@ -51,9 +51,6 @@ export function renderHtml(value: string) {
 	return <span dangerouslySetInnerHTML={{ __html: value }} />
 }
 
-// Internationalization helper for translating messages
-export const gettext = (msg: string): string => msg;
-
 /**
  * Helper function for rendering tooltips in a fixed position
  * @param message The message to display inside the tooltip

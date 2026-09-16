@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 // AA Belt Radar
 import { loadMenu } from "@/Api/BeltRadar"
 import BeltRadarMenu from "@/Components/Menu/BeltRadarMenu";
-import { queryKeys } from "@/Components/Props/BeltRadarQuery";
+import { queryKeys } from "@/Api/query";
 
 const menuRoot = document.getElementById("nav-left");
 

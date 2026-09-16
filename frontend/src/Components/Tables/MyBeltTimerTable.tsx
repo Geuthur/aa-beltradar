@@ -1,5 +1,5 @@
 // React
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 // Third Party
@@ -9,16 +9,16 @@ import { useTranslation } from 'react-i18next';
 // AA Belt Radar
 import { loadMyBeltTimers } from '@/Api/BeltRadar';
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
-import type { BeltTimer } from '@/Components/Props/BeltRadarProps';
-import { queryKeys } from '@/Components/Props/BeltRadarQuery';
+import type { BeltTimer } from "@/Api/schema";
+import { queryKeys } from "@/Api/query";
 import BaseTable from '@/Components/Tables/BaseTable';
 import { getBeltTimerColumns } from '@/Components/Tables/TableColumns';
+import { useModalQueryState } from '@/Hooks/useModalState';
 
 function MyBeltTimerTable() {
 	const { t } = useTranslation();
 	const { characterID } = useParams();
-	const [belttimer, setBeltTimer] = useState<BeltTimer | Record<string, never>>({});
-	const [modalAction, setModalAction] = useState<string | null>(null);
+	const { activeModal, activeEntityId, openModal, closeModal } = useModalQueryState();
 
 	// Load Belt Timers data
 	const { data: timerData, isError: isErrorTimers, isFetching: isFetchingTimers } = useQuery({
@@ -28,10 +28,26 @@ function MyBeltTimerTable() {
 		enabled: !!characterID,
 	});
 
+	const activeTimer = useMemo(
+		() => timerData?.find((timer) => timer.public_id === activeEntityId) ?? null,
+		[timerData, activeEntityId],
+	);
+
 	// Define table columns for belt timers
 	const timerColumns = useMemo(
-		() => getBeltTimerColumns(t, setBeltTimer, setModalAction),
-		[t],
+		() =>
+			getBeltTimerColumns(
+				t,
+				(timer: BeltTimer) => timer,
+				(actionId: string | null, row?: BeltTimer) => {
+					if (actionId && row) {
+						openModal(actionId, row.public_id);
+					} else {
+						closeModal();
+					}
+				},
+			),
+		[t, openModal, closeModal],
 	);
 
 	return (
@@ -43,9 +59,9 @@ function MyBeltTimerTable() {
 				columns={timerColumns}
 			/>
 			<BeltRadarModals
-				session={belttimer as BeltTimer}
-				modalAction={modalAction}
-				setModalAction={setModalAction}
+				session={activeTimer}
+				modalAction={activeModal}
+				setModalAction={(action) => (!action ? closeModal() : openModal(action))}
 				t={t}
 				queryKey={queryKeys.myBeltTimers(Number(characterID))}
 			/>

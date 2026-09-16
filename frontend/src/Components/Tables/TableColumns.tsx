@@ -6,12 +6,12 @@ import type { TFunction } from "i18next";
 // AA Belt Radar
 import { formatDate, renderHtml } from "@/Components/Helpers/functions";
 import { EntityTableActions } from "@/Components/Icons/Icons";
-import type { BeltTimer, Session, OreSchema } from "@/Components/Props/BeltRadarProps";
+import type { BeltTimer, Session, OreSchema } from "@/Api/schema";
 
 export function getSessionColumns(
     t: TFunction,
     onSelectSession: (session: Session) => void,
-    setModalAction: (action: string | null) => void,
+    setModalAction: (action: string | null, session?: Session) => void,
 ): ColumnDef<Session, unknown>[] {
     const columnHelper = createColumnHelper<Session>();
 
@@ -56,7 +56,7 @@ export function getSessionColumns(
 export function getBeltTimerColumns(
     t: TFunction,
     onSelectTimer: (timer: BeltTimer) => void,
-    setModalAction: (action: string | null) => void,
+    setModalAction: (action: string | null, timer?: BeltTimer) => void,
 ): ColumnDef<BeltTimer, unknown>[] {
     const columnHelper = createColumnHelper<BeltTimer>();
 

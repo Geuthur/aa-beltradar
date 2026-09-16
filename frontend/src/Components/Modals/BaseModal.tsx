@@ -17,6 +17,7 @@ function BaseModal({
   onApprove,
   setShowModal,
   isPending = false, // <-- NEU: Ladezustand von der Mutation
+  validate,
   children,
 }: {
   data: ModalData;
@@ -24,6 +25,7 @@ function BaseModal({
   onApprove: (data: { url: string; formData?: FormData }) => Promise<unknown>;
   setShowModal: (show: boolean) => void;
   isPending?: boolean;
+  validate?: (formData: FormData) => boolean;
   children?: React.ReactNode | ((props: { formData: FormData; onChange: (data: FormData) => void }) => React.ReactNode);
 }) {
   const { t } = useTranslation();
@@ -37,11 +39,9 @@ function BaseModal({
     setShowModal(false);
   };
   const handleApprove = async () => {
-    if (typeof children === 'function') {
-      if (typeof formData.name !== 'string' || formData.name.trim() === '') {
-        setValidated(true);
-        return;
-      }
+    if (validate && !validate(formData)) {
+      setValidated(true);
+      return;
     }
     try {
       await onApprove({ url: ModalData.url, formData });
@@ -83,7 +83,7 @@ function BaseModal({
       </Modal.Body>
       <Modal.Footer>
         <Button variant={ModalData.color ?? "success"} disabled={isPending} onClick={handleApprove}>
-          {isPending ? t("Saving...") : ModalData.buttonText || t("Confirm")}
+          {isPending ? t("Loading...") : ModalData.buttonText || t("Confirm")}
         </Button>
         <Button onClick={handleClose}>
           {t("Close")}

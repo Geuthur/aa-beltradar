@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
 import { renderTooltip } from "@/Components/Helpers/functions";
-import type { BeltTimer, Session } from "@/Components/Props/BeltRadarProps";
+import type { BeltTimer, Session } from "@/Api/schema";
 
 export interface ButtonProps {
 	icon: string;
@@ -57,7 +57,7 @@ export interface EntityWithActions {
 export interface EntityTableActionsProps<T extends EntityWithActions> {
     cell: CellContext<T, unknown>;
     onSelectEntity?: (entity: T) => void;
-    setModalAction: (action: string | null) => void;
+    setModalAction: (action: string | null, entity?: T) => void;
 }
 
 export function EntityTableActions<T extends EntityWithActions>({
@@ -86,7 +86,7 @@ export function EntityTableActions<T extends EntityWithActions>({
                     icon={updateAction.icon}
                     onClick={() => {
                         onSelectEntity?.(row);
-                        setModalAction(updateAction.modal_id);
+                        setModalAction(updateAction.modal_id, row);
                     }}
                     title={updateAction.title}
                     color={updateAction.color ?? "success"}
@@ -97,7 +97,7 @@ export function EntityTableActions<T extends EntityWithActions>({
                     icon={deleteAction.icon}
                     onClick={() => {
                         onSelectEntity?.(row);
-                        setModalAction(deleteAction.modal_id);
+                        setModalAction(deleteAction.modal_id, row);
                     }}
                     title={deleteAction.title}
                     color={deleteAction.color ?? "danger"}
@@ -106,6 +106,7 @@ export function EntityTableActions<T extends EntityWithActions>({
         </>
     );
 }
+
 
 export interface BeltRadarTableButtonsProps {
     cell: CellContext<Session, unknown>;

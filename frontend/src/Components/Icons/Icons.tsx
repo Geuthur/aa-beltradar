@@ -38,6 +38,7 @@ export function IconButton({ icon, onClick, title, color, classProps }: ButtonPr
 
 export interface EntityWithActions {
     public_id: string;
+    has_session?: boolean;
     actions?: {
         update?: {
             icon: string;
@@ -58,12 +59,14 @@ export interface EntityTableActionsProps<T extends EntityWithActions> {
     cell: CellContext<T, unknown>;
     onSelectEntity?: (entity: T) => void;
     setModalAction: (action: string | null, entity?: T) => void;
+    showViewSession?: boolean;
 }
 
 export function EntityTableActions<T extends EntityWithActions>({
     cell,
     onSelectEntity,
     setModalAction,
+    showViewSession,
 }: EntityTableActionsProps<T>) {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -71,16 +74,25 @@ export function EntityTableActions<T extends EntityWithActions>({
     const updateAction = row.actions?.update;
     const deleteAction = row.actions?.delete;
 
+    const canViewSession =
+        showViewSession !== undefined
+            ? showViewSession
+            : row.has_session !== undefined
+              ? Boolean(row.has_session)
+              : true;
+
     return (
         <>
-            <IconButton
-                icon="fas fa-eye"
-                onClick={() => {
-                    navigate("/beltradar/session/" + row.public_id + "/");
-                }}
-                title={t("View Session")}
-                color="primary"
-            />
+            {canViewSession && (
+                <IconButton
+                    icon="fas fa-eye"
+                    onClick={() => {
+                        navigate("/beltradar/session/" + row.public_id + "/");
+                    }}
+                    title={t("View Session")}
+                    color="primary"
+                />
+            )}
             {updateAction && (
                 <IconButton
                     icon={updateAction.icon}
@@ -136,6 +148,8 @@ export function BeltTimerTableButtons({ cell, setTimer, setModalAction }: BeltTi
             cell={cell}
             onSelectEntity={setTimer}
             setModalAction={setModalAction}
+            showViewSession={Boolean(cell.row.original.has_session)}
         />
     );
 }
+

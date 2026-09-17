@@ -111,6 +111,7 @@ export function getBeltTimerColumns(
                     cell={cell}
                     onSelectEntity={onSelectTimer}
                     setModalAction={setModalAction}
+                    showViewSession={Boolean(cell.row.original.has_session)}
                 />
             ),
         }),

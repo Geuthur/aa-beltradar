@@ -6,7 +6,7 @@ import type { TFunction } from "i18next";
 // AA Belt Radar
 import type { BeltTimer, Session, OreSchema } from "@/Api/schema";
 import { EntityTableActions } from "@/Components/Icons/Icons";
-import { formatDate, renderHtml } from "@/Components/Tables/BaseTable/tableHelper";
+import { formatDate, formatNumber, renderHtml } from "@/Components/Tables/BaseTable/tableHelper";
 
 export function getSessionColumns(
     t: TFunction,
@@ -15,30 +15,38 @@ export function getSessionColumns(
 ): ColumnDef<Session, unknown>[] {
     const columnHelper = createColumnHelper<Session>();
 
+    // Translations for tooltips and titles
+    const tPublicID = t("Public ID");
+    const tName = t("Name");
+    const tCreatedAt = t("Created At");
+    const tOwner = t("Owner");
+    const tPublic = t("Public");
+    const tActions = t("Actions");
+
     return [
         columnHelper.accessor("public_id", {
-            header: t("Public ID"),
+            header: tPublicID,
         }),
         columnHelper.accessor("name", {
-            header: t("Name"),
+            header: tName,
         }),
         columnHelper.accessor("created_at", {
-            header: t("Created At"),
+            header: tCreatedAt,
             cell: ({ getValue }) => formatDate(getValue()),
         }),
         columnHelper.accessor("owner.portrait", {
-            header: t("Owner"),
+            header: tOwner,
             cell: ({ getValue }) => renderHtml((getValue() as string) || "-"),
         }),
         columnHelper.accessor("public.display", {
-            header: t("Public"),
+            header: tPublic,
             enableSorting: false,
             enableColumnFilter: false,
             enableGlobalFilter: false,
             cell: ({ getValue }) => renderHtml(getValue() as string),
         }),
         columnHelper.accessor("actions", {
-            header: t("Actions"),
+            header: tActions,
             enableSorting: false,
             enableColumnFilter: false,
             enableGlobalFilter: false,
@@ -60,32 +68,41 @@ export function getBeltTimerColumns(
 ): ColumnDef<BeltTimer, unknown>[] {
     const columnHelper = createColumnHelper<BeltTimer>();
 
+    // Translations for tooltips and titles
+    const tPublicID = t("Public ID");
+    const tBeltName = t("Belt Name");
+    const tBeltSize = t("Belt Size");
+    const tBeltType = t("Belt Type");
+    const tETA = t("ETA");
+    const tPublic = t("Public");
+    const tActions = t("Actions");
+
     return [
         columnHelper.accessor("public_id", {
-            header: t("Public ID"),
+            header: tPublicID,
         }),
         columnHelper.accessor("belt_name", {
-            header: t("Belt Name"),
+            header: tBeltName,
         }),
         columnHelper.accessor("belt_size", {
-            header: t("Belt Size"),
+            header: tBeltSize,
         }),
         columnHelper.accessor("belt_type", {
-            header: t("Belt Type"),
+            header: tBeltType,
         }),
         columnHelper.accessor("eta.display", {
-            header: t("ETA"),
+            header: tETA,
             cell: ({ getValue }) => renderHtml(getValue() as string),
         }),
         columnHelper.accessor("public.display", {
-            header: t("Public"),
+            header: tPublic,
             enableSorting: false,
             enableColumnFilter: false,
             enableGlobalFilter: false,
             cell: ({ getValue }) => renderHtml(getValue() as string),
         }),
         columnHelper.accessor("actions", {
-            header: t("Actions"),
+            header: tActions,
             enableSorting: false,
             enableColumnFilter: false,
             enableGlobalFilter: false,
@@ -105,24 +122,37 @@ export function getSnapshotColumns(
 ): ColumnDef<OreSchema, unknown>[] {
     const columnHelper = createColumnHelper<OreSchema>();
 
+    // Translations for tooltips and titles
+    const tOre = t("Ore");
+    const tUnitsLeft = t("Units Left");
+    const tVolumeLeft = t("Volume Left (m³)");
+    const tPriceISK = t("Price (ISK/m³)");
+    const tPriceCompressed = t("Price Compressed");
+    const tIncomeCompressed = t("Income Compressed (ISK/h)");
+
     return [
-		columnHelper.accessor('name', {
-			header: t("Ore"),
-		}),
-		columnHelper.accessor('units', {
-			header: t("Units Left"),
-		}),
-		columnHelper.accessor('volume_m3', {
-			header: t("Volume Left (m³)"),
-		}),
-		columnHelper.accessor('price_isk', {
-			header: t("Price (ISK/m³)"),
-		}),
-		columnHelper.accessor('price_compressed', {
-			header: t("Price Compressed"),
-		}),
-		columnHelper.accessor('income_cmp_per_h', {
-			header: t("Income Compressed (ISK/h)"),
-		}),
+        columnHelper.accessor('name', {
+            header: tOre,
+        }),
+        columnHelper.accessor('units', {
+            header: tUnitsLeft,
+            cell: ({ getValue }) => formatNumber(Number(getValue())),
+        }),
+        columnHelper.accessor('volume_m3', {
+            header: tVolumeLeft,
+            cell: ({ getValue }) => formatNumber(Number(getValue())),
+        }),
+        columnHelper.accessor('price_isk', {
+            header: tPriceISK,
+            cell: ({ getValue }) => formatNumber(Number(getValue())),
+        }),
+        columnHelper.accessor('price_compressed', {
+            header: tPriceCompressed,
+            cell: ({ getValue }) => formatNumber(Number(getValue())),
+        }),
+        columnHelper.accessor('income_cmp_per_h', {
+            header: tIncomeCompressed,
+            cell: ({ getValue }) => formatNumber(Number(getValue())),
+        }),
     ] as ColumnDef<OreSchema, unknown>[];
 }

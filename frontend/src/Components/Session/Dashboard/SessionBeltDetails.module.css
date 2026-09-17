@@ -18,7 +18,6 @@
     transform: translateY(-50%);
     white-space: nowrap;
     color: white;
-    translate: 0 -50%;
 }
 
 .last-scan-container {
@@ -37,7 +36,6 @@
     transform: translateY(-50%);
     white-space: nowrap;
     color: white;
-    translate: 0 -50%;
 }
 
 .belt-eta {

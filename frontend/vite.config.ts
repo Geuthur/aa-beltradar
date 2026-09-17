@@ -65,9 +65,14 @@ export default defineConfig({
             id.includes("i18next") ||
             id.includes("i18next-http-backend") ||
             id.includes("i18next-browser-languagedetector") ||
-            id.includes("react-i18next")
+            id.includes("react-i18next") ||
+            id.includes("moment")
           ) {
             return "@lang-libs";
+          }
+
+          if (id.includes("node_modules")) {
+            return "@vendor";
           }
         },
       },

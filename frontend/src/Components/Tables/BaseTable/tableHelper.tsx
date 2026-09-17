@@ -7,6 +7,7 @@ import type {
 import { stringify } from "csv-stringify/browser/esm/sync";
 import { OverlayTrigger } from "react-bootstrap";
 import Tooltip from "react-bootstrap/esm/Tooltip";
+import i18n from "i18next";
 
 /**
  * Helper functions for formatting dates and rendering HTML safely in React components
@@ -19,7 +20,8 @@ export function formatDate(value?: string | null, options?: Intl.DateTimeFormatO
   if (!value) {
     return "N/A";
   }
-	const locale = document.documentElement.lang || undefined;
+
+	const locale = i18n.language || "en";
 	const hasExplicitTimeFields =
 		options && (
 			"hour" in options ||
@@ -72,6 +74,17 @@ export function renderTooltip(
       {children}
     </OverlayTrigger>
   );
+}
+
+/**
+ * Helper function for locateString number formatting
+ * @param value The number to format
+ * @param locale Optional locale string (defaults to the current i18n language)
+ * @param options Optional Intl.NumberFormatOptions for custom formatting
+ */
+export function formatNumber(value: number, locale?: string, options?: Intl.NumberFormatOptions) {
+  const effectiveLocale = locale || i18n.language || "en";
+  return new Intl.NumberFormat(effectiveLocale, options).format(value);
 }
 
 /**

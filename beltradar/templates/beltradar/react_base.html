@@ -8,10 +8,10 @@
         </div>
         <!--- Belt Radar Body --->
         <div class="aa-beltradar-body">
-            {% get_datatables_language_static LANGUAGE_CODE as DT_LANG_PATH %}
             {% block aabeltradar_block %}
             {% endblock aabeltradar_block %}
-                <div id="aa-beltradar-root" lang="{{ LANGUAGE_CODE }}">
+                {% get_momentjs_language_code LANGUAGE_CODE as MOMENTJS_LANG_CODE %}
+                <div id="aa-beltradar-root" lang="{{ MOMENTJS_LANG_CODE }}">
                     <!-- React Data -->
                     <div
                         id="error-spinner"

@@ -74,6 +74,34 @@ describe('TableColumns definitions', () => {
             expect(accessors).toContain('public.display');
             expect(accessors).toContain('actions');
         });
+
+        it('passes showViewSession true when belt timer has a session', () => {
+            const columns = getBeltTimerColumns(mockT, mockOnSelect, mockSetModalAction);
+            const actionsCol = columns.find(
+                (col) => (col as { accessorKey?: string }).accessorKey === 'actions',
+            ) as unknown as { cell: (ctx: unknown) => { props: { showViewSession?: boolean } } };
+
+            expect(actionsCol).toBeDefined();
+
+            const cellResult = actionsCol.cell({
+                row: { original: { public_id: 'timer-1', has_session: true } },
+            });
+            expect(cellResult.props.showViewSession).toBe(true);
+        });
+
+        it('passes showViewSession false when belt timer has no session', () => {
+            const columns = getBeltTimerColumns(mockT, mockOnSelect, mockSetModalAction);
+            const actionsCol = columns.find(
+                (col) => (col as { accessorKey?: string }).accessorKey === 'actions',
+            ) as unknown as { cell: (ctx: unknown) => { props: { showViewSession?: boolean } } };
+
+            expect(actionsCol).toBeDefined();
+
+            const cellResult = actionsCol.cell({
+                row: { original: { public_id: 'timer-2', has_session: false } },
+            });
+            expect(cellResult.props.showViewSession).toBe(false);
+        });
     });
 
     describe('getSnapshotColumns', () => {

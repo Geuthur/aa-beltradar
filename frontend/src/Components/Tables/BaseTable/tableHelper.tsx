@@ -46,6 +46,69 @@ export function formatDate(value?: string | null, options?: Intl.DateTimeFormatO
 }
 
 /**
+ * Formats a date relative to now (e.g. "in 15 Minuten", "vor 2 Stunden", "gestern")
+ * using the native browser API Intl.RelativeTimeFormat.
+ *
+ * @param value The date string, timestamp or Date object to format
+ * @returns Formatted relative time or "N/A" if value is missing/invalid
+ */
+export function formatRelativeTime(value?: string | Date | null): string {
+  if (!value) {
+    return "N/A";
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+  if (isNaN(date.getTime())) {
+    return "N/A";
+  }
+
+  const diffInSeconds = Math.round((date.getTime() - Date.now()) / 1000);
+
+  // Define intervals in seconds
+  const intervals = [
+    { unit: 'year', seconds: 31536000 },
+    { unit: 'month', seconds: 2592000 },
+    { unit: 'day', seconds: 86400 },
+    { unit: 'hour', seconds: 3600 },
+    { unit: 'minute', seconds: 60 },
+    { unit: 'second', seconds: 1 },
+  ] as const;
+
+  const interval = intervals.find((i) => Math.abs(diffInSeconds) >= i.seconds) ?? intervals[intervals.length - 1];
+  const count = Math.round(diffInSeconds / interval.seconds);
+
+  const locale = i18n.language || "en";
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+  return rtf.format(count, interval.unit);
+}
+
+/**
+ * Formats an ETA date: returns doneLabel (e.g. "Done") if the date has passed,
+ * otherwise formats the relative time until that date (e.g. "in 15 Minuten").
+ *
+ * @param value The date string, timestamp or Date object
+ * @param doneLabel The label to return when the ETA has already passed (default: "Done")
+ * @returns Formatted ETA string or "N/A" if value is missing/invalid
+ */
+export function formatEta(value?: string | Date | null, doneLabel = "Done"): string {
+  if (!value) {
+    return "N/A";
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+  if (isNaN(date.getTime())) {
+    return "N/A";
+  }
+
+  if (date.getTime() <= Date.now()) {
+    return doneLabel;
+  }
+
+  return formatRelativeTime(date);
+}
+
+/**
  * Helper function for rendering pre-rendered HTML safely in React components
  * @param value The HTML string to render
  */

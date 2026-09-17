@@ -52,11 +52,6 @@ export default defineConfig({
             return "@react-libs";
           }
           if (
-            id.includes("axios")
-          ) {
-            return "@app-libs";
-          }
-          if (
             id.includes("react-bootstrap") ||
             id.includes("bootstrap")) {
             return "@bootstrap-libs";
@@ -71,8 +66,7 @@ export default defineConfig({
             id.includes("i18next") ||
             id.includes("i18next-http-backend") ||
             id.includes("i18next-browser-languagedetector") ||
-            id.includes("react-i18next") ||
-            id.includes("moment")
+            id.includes("react-i18next")
           ) {
             return "@lang-libs";
           }

@@ -1,7 +1,6 @@
 // Third Party
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { QueryKey } from '@tanstack/react-query';
-import axios from 'axios';
 import Cookies from 'js-cookie';
 
 // AA Belt Radar
@@ -9,10 +8,9 @@ import { queryKeys } from "@/Api/query";
 
 type FormData = Record<string, string | boolean>;
 
-function buildHeaders() {
-    return {
-        'X-CSRFToken': Cookies.get('csrftoken') ?? '',
-    };
+function buildHeaders(): Record<string, string> {
+    const csrf = Cookies.get('csrftoken');
+    return csrf ? { 'X-CSRFToken': csrf } : {};
 }
 
 /** Mutation für Delete / Update / Bestätigungen (ohne Body) */
@@ -21,15 +19,18 @@ export function useApproveMutation(queryKey?: QueryKey | QueryKey[]) {
 
     return useMutation({
         mutationFn: async (url: string) => {
-            const response = await axios.post(url, {}, {
-                withCredentials: true,
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
                 headers: buildHeaders(),
             });
 
-            if (response.data.success !== true) {
-                throw new Error(response.data.message ?? 'Unknown error');
+            const data = await response.json();
+
+            if (!response.ok || data.success !== true) {
+                throw new Error(data.message ?? 'Unknown error');
             }
-            return response.data;
+            return data;
         },
         onSuccess: async () => {
             if (queryKey) {
@@ -69,18 +70,22 @@ export function useFormApproveMutation(queryKey?: QueryKey | QueryKey[]) {
                 }
             }
 
-            const response = await axios.post(url, body, {
-                withCredentials: true,
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     ...buildHeaders(),
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
+                body: body.toString(),
             });
 
-            if (response.data.success !== true) {
-                throw new Error(response.data.message ?? 'Unknown error');
+            const data = await response.json();
+
+            if (!response.ok || data.success !== true) {
+                throw new Error(data.message ?? 'Unknown error');
             }
-            return response.data;
+            return data;
         },
         onSuccess: async () => {
             if (queryKey) {

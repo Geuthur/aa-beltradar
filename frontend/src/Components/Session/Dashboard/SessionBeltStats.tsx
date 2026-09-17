@@ -1,9 +1,9 @@
 // Third Party
-import moment from "moment";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionStats } from "@/Api/schema";
+import { formatEta } from '@/Components/Tables/BaseTable/tableHelper';
 
 export function SessionBeltStats({ sessionData }: { sessionData?: SessionStats}) {
     const { t } = useTranslation();
@@ -14,17 +14,7 @@ export function SessionBeltStats({ sessionData }: { sessionData?: SessionStats})
     const tETA = t("ETA");
     const tDone = t("Done");
 
-    let finishEta;
-
-    if (!sessionData?.stats?.finish_eta) {
-        finishEta = "N/A"
-    } else {
-        if (moment(sessionData?.stats?.finish_eta).isAfter(moment())) {
-            finishEta = moment(sessionData?.stats?.finish_eta).fromNow();
-        } else {
-            finishEta = tDone;
-        }
-    }
+    const finishEta = formatEta(sessionData?.stats?.finish_eta, tDone);
 
     return (
         <div className="row text-muted text-center mt-2">

@@ -12,7 +12,7 @@ import type { Session } from "@/Api/schema";
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import BaseTable from '@/Components/Tables/BaseTable';
 import { getSessionColumns } from '@/Components/Tables/TableColumns';
-import { useModalQueryState } from '@/Hooks/useModalState';
+import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 
 function BeltRadarTable() {
 	const { t } = useTranslation();

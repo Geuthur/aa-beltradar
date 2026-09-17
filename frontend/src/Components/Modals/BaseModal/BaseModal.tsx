@@ -6,8 +6,8 @@ import { Alert, Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import { ModalSize } from "@/Components/Modals/BaseModalProps";
-import type { ModalData } from "@/Components/Modals/BaseModalProps";
+import { ModalSize } from "@/Components/Modals/BaseModal/BaseModalProps";
+import type { ModalData } from "@/Components/Modals/BaseModal/BaseModalProps";
 
 type FormData = Record<string, string | boolean>;
 

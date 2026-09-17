@@ -7,7 +7,7 @@ import { flexRender } from "@tanstack/react-table";
 import type { Header, HeaderGroup, Table as TanStackTable } from "@tanstack/react-table";
 
 // AA Belt Radar
-import { Filter } from "@/Components/Tables/BaseTableFilter";
+import { Filter } from "@/Components/Tables/BaseTable/BaseTableFilter";
 
 export interface TableHeaderProps<TData> {
   table: TanStackTable<TData>;

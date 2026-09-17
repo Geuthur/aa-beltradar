@@ -13,7 +13,7 @@ import type { BeltTimer } from "@/Api/schema";
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import BaseTable from '@/Components/Tables/BaseTable';
 import { getBeltTimerColumns } from '@/Components/Tables/TableColumns';
-import { useModalQueryState } from '@/Hooks/useModalState';
+import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 
 function MyBeltTimerTable() {
 	const { t } = useTranslation();

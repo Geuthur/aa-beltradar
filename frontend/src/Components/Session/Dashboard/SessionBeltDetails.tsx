@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { Session } from '@/Api/schema';
-import Styles from '@/Components/Session/Partials/BeltDetails.module.css';
-import { BeltDetailsETA } from '@/Components/Session/Partials/BeltDetailsETA';
-import { BeltDetailsFirstScan } from '@/Components/Session/Partials/BeltDetailsFirstScan';
-import { BeltDetailsLastScan } from '@/Components/Session/Partials/BeltDetailsLastScan';
+import Styles from '@/Components/Session/Dashboard/BeltDetails.module.css';
+import { BeltDetailsFirstScan } from '@/Components/Session/Dashboard/BeltDetailsFirstScan';
+import { BeltDetailsLastScan } from '@/Components/Session/Dashboard/BeltDetailsLastScan';
+import { BeltDetailsETA } from '@/Components/Session/Dashboard/SessionBeltDetailsETA';
 
 export function SessionBeltDetails({ sessionData }: { sessionData?: Session }) {
     const { t } = useTranslation();

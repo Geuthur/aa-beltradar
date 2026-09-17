@@ -9,7 +9,7 @@ import { IconButton } from '@/Components/Icons/Icons';
 import BaseModal from '@/Components/Modals/BaseModal';
 import { useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
 import type { SectionHeaderProps } from '@/Components/Section/SectionHeaderProps';
-import { useModalQueryState } from '@/Hooks/useModalState';
+import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 
 export function ActionSectionHeader({
     name,

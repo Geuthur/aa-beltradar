@@ -14,9 +14,11 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__
+from beltradar.api import schema
 from beltradar.api.helpers.core import (
     get_manage_belt_timer_or_none,
     get_manage_session_or_none,
+    get_session_or_none,
 )
 from beltradar.providers import AppLogger
 
@@ -26,47 +28,6 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 if TYPE_CHECKING:
     # AA Belt Radar
     from beltradar.models.beltradar import BeltSurveySession, BeltTimer
-
-
-def _create_button(
-    url_name: str,
-    url_kwargs: dict,
-    text: str,
-    title: str,
-    color: str,
-    modal_id: str = None,
-) -> str:
-    """
-    Helper function to create an HTML button with the specified parameters.
-
-    Args:
-        request (WSGIRequest): The HTTP request object.
-        url_name (str): The name of the URL pattern to reverse.
-        url_kwargs (dict): The keyword arguments for the URL reversal.
-        text (str): The HTML for the text or icon to display on the button.
-        title (str): The tooltip text for the button.
-        color (str): The Bootstrap color class for the button.
-        modal_id (str): The ID of the modal to trigger on click.
-
-    Returns:
-        str: HTML string containing the button.
-    """
-    # Generate the URL for the action
-    button_url = reverse(url_name, kwargs=url_kwargs)
-
-    # Create the HTML for the button
-    button_html = "<"
-    if modal_id:
-        button_html += f'button data-action="{button_url}" data-bs-toggle="modal" data-bs-target="#{modal_id}" '
-    else:
-        button_html += f'a href="{button_url}" '
-    button_html += f'class="btn btn-{color} btn-sm btn-square me-2" '
-    button_html += f'data-bs-tooltip="aa-beltradar" title="{title}">{text}'
-    if modal_id:
-        button_html += "</button>"
-    else:
-        button_html += "</a>"
-    return button_html
 
 
 @permissions_required(
@@ -86,8 +47,9 @@ def session_manage_action_icons(
 
     Args:
         request (WSGIRequest): The HTTP request object containing user information.
+        session (BeltSurveySession): The session object for which to generate action icons.
     Returns:
-        SafeString: HTML string containing the action icons.
+        ActionSchema | None: The action icons schema for the session, or None if the session does not exist.
     """
     perms, session = get_manage_session_or_none(
         request=request, public_id=session.public_id
@@ -95,41 +57,43 @@ def session_manage_action_icons(
 
     # Return an empty string if the session does not exist
     if session is None:
-        return ""
+        return None
 
-    beltradar_request_icons = "<div class='d-flex justify-content-end'>"
-    # Add the view session button
-    beltradar_request_icons += get_session_view_button(
-        request=request, public_id=session.public_id
-    )
+    beltradar_request_icons = None
 
-    # Check if the user has permissions to modify or delete the session
     if perms:
-        # Add the modify session button (toggle public/private)
-        beltradar_request_icons += _create_button(
-            url_name="beltradar:api:modify_session",
-            url_kwargs={
-                "public_id": session.public_id,
-                "field": "is_public",
-                "value": str(not session.is_public).capitalize(),
-            },
-            text='<i class="fa-solid fa-wrench"></i>',
-            title=_("Modify Session"),
-            color="warning",
-            modal_id="beltradar-accept-modify-session",
+        beltradar_request_icons = schema.ActionSchema(
+            delete=schema.ModalSchema(
+                url=reverse(
+                    "beltradar:api:delete_session",
+                    kwargs={"public_id": session.public_id},
+                ),
+                icon="fa-solid fa-trash",
+                title=str(_("Delete Session")),
+                text=str(_("Are you sure you want to delete this session?")),
+                color="danger",
+                modal_id="beltradar-accept-delete-session",
+            ),
+            update=schema.ModalSchema(
+                url=reverse(
+                    "beltradar:api:modify_session",
+                    kwargs={
+                        "public_id": session.public_id,
+                        "field": "is_public",
+                        "value": str(not session.is_public).capitalize(),
+                    },
+                ),
+                icon="fa-solid fa-wrench",
+                title=str(_("Modify Session")),
+                text=str(
+                    _(
+                        "Are you sure you want to switch public/private status for this session?"
+                    )
+                ),
+                color="warning",
+                modal_id="beltradar-accept-modify-session",
+            ),
         )
-        # Add the delete session button
-        beltradar_request_icons += _create_button(
-            url_name="beltradar:api:delete_session",
-            url_kwargs={"public_id": session.public_id},
-            text='<i class="fa-solid fa-trash"></i>',
-            title=_("Delete Session"),
-            color="danger",
-            modal_id="beltradar-accept-delete-session",
-        )
-
-    beltradar_request_icons += "</div>"
-
     return beltradar_request_icons
 
 
@@ -155,34 +119,55 @@ def session_belt_timer_action_icons(
     """
     perms, session = get_manage_session_or_none(request=request, public_id=public_id)
     if not perms:
-        return ""  # Return empty string if the user does not have permission
+        return None  # Return None if the user does not have permission
 
     if session.is_timer_ready:
         if not session.has_timer:
-            text = _("Create Belt Timer")
-            return _create_button(
-                url_name="beltradar:api:add_session_belt_timer",
-                url_kwargs={"public_id": public_id},
-                text=text,
-                title=text,
-                color="success",
-                modal_id="beltradar-accept-create-belt-timer",
+            return schema.ActionSchema(
+                create=schema.ModalSchema(
+                    url=reverse(
+                        "beltradar:api:add_session_belt_timer",
+                        kwargs={"public_id": public_id},
+                    ),
+                    icon="fa-solid fa-plus",
+                    title=str(_("Create Belt Timer")),
+                    text=str(
+                        _(
+                            "Are you sure you want to create a belt timer for this session?"
+                        )
+                    ),
+                    color="success",
+                    modal_id="beltradar-accept-create-belt-timer",
+                )
             )
-
-        text = _("Delete Belt Timer")
         try:
             timer = session.br_belt_timer
-            return _create_button(
-                url_name="beltradar:api:delete_belt_timer",
-                url_kwargs={"timer_id": timer.pk},
-                text=text,
-                title=text,
-                color="danger",
-                modal_id="beltradar-accept-delete-belt-timer",
+            return schema.ActionSchema(
+                update=schema.ModalSchema(
+                    url=reverse(
+                        "beltradar:api:modify_belt_timer",
+                        kwargs={"timer_id": timer.pk},
+                    ),
+                    icon="fa-solid fa-wrench",
+                    text=str(_("Modify Belt Timer")),
+                    title=str(_("Modify Belt Timer")),
+                    color="warning",
+                    modal_id="beltradar-accept-modify-belt-timer",
+                ),
+                delete=schema.ModalSchema(
+                    url=reverse(
+                        "beltradar:api:delete_belt_timer", kwargs={"timer_id": timer.pk}
+                    ),
+                    icon="fa-solid fa-trash",
+                    title=str(_("Delete Belt Timer")),
+                    text=str(_("Are you sure you want to delete this belt timer?")),
+                    color="danger",
+                    modal_id="beltradar-accept-delete-belt-timer",
+                ),
             )
         except ObjectDoesNotExist:
             pass
-    return ""  # Return empty string if the session is not ready for a belt timer
+    return None  # Return None if no action icons are applicable
 
 
 @permissions_required(
@@ -207,57 +192,63 @@ def belt_timer_manage_action_icons(
     """
     perms = get_manage_belt_timer_or_none(request=request, timer_pk=timer.pk)[0]
     if not perms:
-        return (
-            ""  # Return an empty string if the user does not have permission to delete
-        )
+        return None  # Return None if the user does not have permission to manage the belt timer
 
-    beltradar_request_icons = "<div class='d-flex justify-content-end'>"
+    actions_schema = schema.ActionSchema()
     # Modify button for the belt timer
-    beltradar_request_icons += _create_button(
-        url_name="beltradar:api:modify_belt_timer",
-        url_kwargs={
-            "timer_id": timer.pk,
-            "field": "is_public",
-            "value": str(not timer.is_public).capitalize(),
-        },
-        text='<i class="fa-solid fa-wrench"></i>',
-        title=_("Modify Belt Timer"),
+    title = _("Modify Belt Timer")
+    actions_schema.update = schema.ModalSchema(
+        url=reverse(
+            "beltradar:api:modify_belt_timer",
+            kwargs={
+                "timer_id": timer.pk,
+            },
+        ),
+        icon="fa-solid fa-wrench",
+        text=str(_("Modify Belt Timer")),
+        title=str(title),
         color="warning",
         modal_id="beltradar-accept-modify-belt-timer",
     )
     # Delete button for the belt timer
-    beltradar_request_icons += _create_button(
-        url_name="beltradar:api:delete_belt_timer",
-        url_kwargs={"timer_id": timer.pk},
-        text='<i class="fa-solid fa-trash"></i>',
-        title=_("Delete Belt Timer"),
+    title = _("Delete Belt Timer")
+    actions_schema.delete = schema.ModalSchema(
+        url=reverse("beltradar:api:delete_belt_timer", kwargs={"timer_id": timer.pk}),
+        icon="fa-solid fa-trash",
+        text=str(_("Are you sure you want to delete this belt timer?")),
+        title=str(title),
         color="danger",
         modal_id="beltradar-accept-delete-belt-timer",
     )
-    beltradar_request_icons += "</div>"
-    return beltradar_request_icons
+    return actions_schema
 
 
 def get_snapshot_add_button(
     request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
-) -> str:
+) -> schema.ModalSchema | None:
     """
     Generate an add button for a specific snapshot.
 
-    This function creates an HTML button for adding a new snapshot.
+    This function creates a ModalSchema for adding a new snapshot.
     When clicked, it triggers a modal to display the add snapshot form.
 
     Args:
+        request (WSGIRequest): The HTTP request object.
         public_id (str): The public UUID of the snapshot's session.
     Returns:
-        String: HTML string containing the add button.
+        schema.ModalSchema | None: The modal schema containing the add button details.
     """
-    # Create the HTML for the add icon button
-    add_button = _create_button(
-        url_name="beltradar:api:add_snapshot",
-        url_kwargs={"public_id": public_id},
-        text='<i class="fa-solid fa-plus"></i>',
-        title=_("Add Snapshot"),
+    perms = get_session_or_none(request=request, public_id=public_id)[0]
+    if not perms:
+        return None
+
+    # Create the schema for the add icon button
+    title = _("Add Snapshot")
+    add_button = schema.ModalSchema(
+        url=reverse("beltradar:api:add_snapshot", kwargs={"public_id": public_id}),
+        icon="fa-solid fa-plus",
+        text=str(_("Add Snapshot")),
+        title=str(title),
         color="success",
         modal_id="beltradar-add-snapshot",
     )
@@ -283,9 +274,7 @@ def get_snapshot_delete_button(
     """
     perms, session = get_manage_session_or_none(request=request, public_id=public_id)
     if not perms:
-        return (
-            ""  # Return an empty string if the user does not have permission to delete
-        )
+        return None  # Return None if the user does not have permission to delete
 
     # If snapshot is not provided, get the last snapshot from the session
     if identifier is None:
@@ -294,14 +283,18 @@ def get_snapshot_delete_button(
                 session.br_snapshots.last().identifier
             )  # Get the last snapshot if not provided
         except AttributeError:
-            return ""  # Return an empty string if there are no snapshots available
+            return None  # Return None if there are no snapshots available
 
     # Create the HTML for the delete icon button
-    delete_button = _create_button(
-        url_name="beltradar:api:delete_snapshot",
-        url_kwargs={"public_id": public_id, "identifier": identifier},
-        text='<i class="fa-solid fa-trash"></i>',
-        title=_("Delete Snapshot"),
+    title = _("Delete Snapshot")
+    delete_button = schema.ModalSchema(
+        url=reverse(
+            "beltradar:api:delete_snapshot",
+            kwargs={"public_id": public_id, "identifier": identifier},
+        ),
+        icon="fa-solid fa-trash",
+        text=str(_("Are you sure you want to delete this snapshot?")),
+        title=str(title),
         color="danger",
         modal_id="beltradar-accept-delete-snapshot",
     )
@@ -323,11 +316,12 @@ def get_session_add_button(
         String: HTML string containing the add button.
     """
     # Create the HTML for the add icon button
-    add_button = _create_button(
-        url_name="beltradar:api:add_session",
-        url_kwargs={},
-        text='<i class="fa-solid fa-plus"></i>',
-        title=_("Add Session"),
+    title = _("Add Session")
+    add_button = schema.ModalSchema(
+        url=reverse("beltradar:api:add_session"),
+        icon="fa-solid fa-plus",
+        text=str(title),
+        title=str(title),
         color="success",
         modal_id="beltradar-add-session",
     )
@@ -348,7 +342,6 @@ def get_session_delete_button(
     Returns:
         String: HTML string containing the delete button.
     """
-
     perms = get_manage_session_or_none(request=request, public_id=public_id)[0]
     if not perms:
         return (
@@ -356,11 +349,12 @@ def get_session_delete_button(
         )
 
     # Create the HTML for the delete icon button
-    delete_button = _create_button(
-        url_name="beltradar:api:delete_session",
-        url_kwargs={"public_id": public_id},
-        text='<i class="fa-solid fa-trash"></i>',
-        title=_("Delete Session"),
+    title = _("Delete Session")
+    delete_button = schema.ModalSchema(
+        url=reverse("beltradar:api:delete_session", kwargs={"public_id": public_id}),
+        icon="fa-solid fa-trash",
+        text=str(title),
+        title=str(title),
         color="danger",
         modal_id="beltradar-accept-delete-session",
     )
@@ -381,12 +375,13 @@ def get_session_view_button(
     Returns:
         String: HTML string containing the view button.
     """
+    title = _("View Session")
     # Create the HTML for the view icon button
-    view_button = _create_button(
-        url_name="beltradar:view_session",
-        url_kwargs={"public_id": public_id},
-        text='<i class="fa-solid fa-eye"></i>',
-        title=_("View Session"),
+    view_button = schema.ModalSchema(
+        url=reverse("beltradar:view_session", kwargs={"public_id": public_id}),
+        icon="fa-solid fa-eye",
+        text=str(title),
+        title=str(title),
         color="primary",
     )
     return view_button
@@ -434,12 +429,12 @@ def get_belt_timer_add_button(
     Returns:
         String: HTML string containing the add button.
     """
-    # Create the HTML for the add icon button
-    add_button = _create_button(
-        url_name="beltradar:api:add_belt_timer",
-        url_kwargs={},
-        text='<i class="fa-solid fa-plus"></i>',
-        title=_("Add Belt Timer"),
+    title = _("Add Belt Timer")
+    add_button = schema.ModalSchema(
+        url="beltradar:api:add_belt_timer",
+        icon="fa-solid fa-plus",
+        text=title,
+        title=title,
         color="success",
         modal_id="beltradar-add-belt-timer",
     )

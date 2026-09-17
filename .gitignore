@@ -16,8 +16,8 @@ __pycache__
 # GitHub Stuff
 .coverage
 .pypirc
-/build/
-/dist/
+*/build/
+*/dist/
 /coverage.xml
 
 # Alliance Auth

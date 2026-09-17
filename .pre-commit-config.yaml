@@ -25,12 +25,16 @@ ci:
 # https://pre-commit.com/#pre-commit-configyaml---top-level
 exclude: |
   (?x)(
-    .github/|
-    LICENSE|
-    openapi_.*\.json|
-    .min(.css|.css.map|.js|.js.map)|
-    locale/|
-    static/(.*)/libs/
+    .github/ |
+    frontend/ |
+    LICENSE |
+    openapi_.*\.json |
+    .min(.css|.css.map|.js|.js.map) |
+    .app(.json) |
+    .node(.json) |
+    locale/ |
+    static/(.*)/libs/ |
+    static/(.*)/react/
   )
 
 # pre-commit setup
@@ -121,7 +125,7 @@ repos:
     hooks:
       - id: eslint
         name: ESLint
-        args: [--fix, --color, --max-warnings, "0"]
+        args: [--fix, --color, --max-warnings, "0", --no-warn-ignored]
         description: Check for problems in JavaScript files.
         additional_dependencies:
           - eslint@10.9.1

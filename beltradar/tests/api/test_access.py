@@ -186,6 +186,36 @@ class TestApiEndpoints(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
+    def test_get_user_should_200(self):
+        """
+        Test should return 200 OK when user has permissions.
+        """
+        # Test Data
+        url = reverse(f"{API_URL}:get_user")
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.get(url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.json()["user_id"], self.user.id)
+
+    def test_get_user_should_403(self):
+        """
+        Test should return 403 Forbidden when user lacks permissions.
+        """
+        # Test Data
+        user_no_permission = UserMainFactory(permissions__=[])
+        url = reverse(f"{API_URL}:get_user")
+        self.client.force_login(user_no_permission)
+
+        # Test Action
+        response = self.client.get(url)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
 
 class TestSnapshotApiEndpoints(BeltRadarTestCase):
     """Test Snapshot API Endpoints."""
@@ -263,17 +293,15 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         url = reverse(f"{API_URL}:add_belt_timer")
         self.client.force_login(self.user)
         payload = {
-            "belt_id": 12345,
+            "belt_id": "12345",
             "belt_name": "Test Belt",
             "belt_type": "asteroid_belt",
             "belt_size": "large",
-            "is_public": "false",
+            "is_public": False,
         }
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -288,9 +316,7 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         self.client.force_login(user_no_permission)
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps({}), content_type="application/json"
-        )
+        response = self.client.post(url, data={})
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
@@ -303,20 +329,46 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         url = reverse(f"{API_URL}:add_belt_timer")
         self.client.force_login(self.user)
         payload = {
-            "belt_id": None,  # Invalid data
+            "belt_id": "TOOLONG123",  # Exceeds max_length=7
             "belt_name": "",
             "belt_type": "invalid_type",
             "belt_size": "invalid_size",
-            "is_public": "not_a_boolean",
         }
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+
+    def test_modify_user_settings_should_200(self):
+        """
+        Test should return 200 OK when updating user settings.
+        """
+        # Test Data
+        url = reverse(f"{API_URL}:modify_user_settings")
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.post(url, data={"disable_notifications": "on"})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_modify_user_settings_should_403(self):
+        """
+        Test should return 403 Forbidden when user lacks permissions.
+        """
+        # Test Data
+        user_no_permission = UserMainFactory(permissions__=[])
+        url = reverse(f"{API_URL}:modify_user_settings")
+        self.client.force_login(user_no_permission)
+
+        # Test Action
+        response = self.client.post(url, data={"disable_notifications": "on"})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
     def test_add_session_belt_timer_should_200(self):
         """
@@ -470,6 +522,136 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
+    def test_modify_belt_timer_should_200(self):
+        """
+        Test should return 200 OK and update timer fields and ETA.
+        """
+        # Test Data
+        timer = BeltTimerFactory(
+            owner=self.user,
+            belt_id="B-1",
+            belt_name="Old Belt",
+            belt_type="asteroid_belt",
+            belt_size="small",
+            is_public=False,
+            session=None,
+        )
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": timer.id})
+        self.client.force_login(self.user)
+
+        data = {
+            "belt_id": "B-99",
+            "belt_name": "Updated Belt",
+            "belt_type": "ice_belt",
+            "belt_size": "ice",
+            "is_public": "on",
+        }
+
+        # Test Action
+        response = self.client.post(url, data=data)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        timer.refresh_from_db()
+        self.assertEqual(timer.belt_id, "B-99")
+        self.assertEqual(timer.belt_name, "Updated Belt")
+        self.assertEqual(timer.belt_type, "ice_belt")
+        self.assertEqual(timer.belt_size, "ice")
+        self.assertTrue(timer.is_public)
+
+    def test_modify_belt_timer_linked_to_session_should_update_only_visibility_and_return_200(
+        self,
+    ):
+        """
+        Test should return 200 OK and only update is_public when modifying a timer linked to a session.
+        """
+        # Test Data
+        session = BeltSessionFactory(owner=self.user)
+        timer = BeltTimerFactory(
+            owner=self.user,
+            session=session,
+            belt_id="B-01",
+            belt_name="Original Belt",
+            belt_type="ice_belt",
+            belt_size="ice",
+            is_public=False,
+        )
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": timer.id})
+        self.client.force_login(self.user)
+
+        data = {
+            "belt_id": "B-99",
+            "belt_name": "Updated Belt",
+            "belt_type": "asteroid_belt",
+            "belt_size": "small",
+            "is_public": "true",
+        }
+
+        # Test Action
+        response = self.client.post(url, data=data)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        timer.refresh_from_db()
+        self.assertTrue(timer.is_public)
+        # Other specifications should remain unchanged
+        self.assertEqual(timer.belt_id, "B-01")
+        self.assertEqual(timer.belt_name, "Original Belt")
+        self.assertEqual(timer.belt_type, "ice_belt")
+        self.assertEqual(timer.belt_size, "ice")
+
+    def test_modify_belt_timer_invalid_data_should_400(self):
+        """
+        Test should return 400 Bad Request when invalid data is provided.
+        """
+        # Test Data
+        timer = BeltTimerFactory(owner=self.user, session=None)
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": timer.id})
+        self.client.force_login(self.user)
+
+        data = {
+            "belt_id": "TOOLONGID123",
+            "belt_name": "Updated Belt",
+            "belt_type": "asteroid_belt",
+            "belt_size": "small",
+        }
+
+        # Test Action
+        response = self.client.post(url, data=data)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+
+    def test_modify_belt_timer_should_403(self):
+        """
+        Test should return 403 Forbidden when user lacks permissions.
+        """
+        # Test Data
+        timer = BeltTimerFactory(owner=self.user, session=None)
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": timer.id})
+        user_no_permission = UserMainFactory(permissions__=[])
+        self.client.force_login(user_no_permission)
+
+        # Test Action
+        response = self.client.post(url, data={})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_modify_belt_timer_should_404(self):
+        """
+        Test should return 404 Not Found when timer does not exist.
+        """
+        # Test Data
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": 9999})
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.post(url, data={})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
 
 class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
     """Test Snapshot API Endpoints for POST requests."""
@@ -561,9 +743,7 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         }
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -583,9 +763,7 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         payload = {"raw_data": ""}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
@@ -601,9 +779,7 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         payload = {"raw_data": ""}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
@@ -619,12 +795,10 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         )
         self.client.force_login(self.user)
 
-        payload = {"raw_data": None}
+        payload = {"raw_data": ""}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
@@ -648,9 +822,7 @@ class TestApiSessionEndpointsPost(BeltRadarTestCase):
         payload = {"name": "Test Session", "is_public": True}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -662,14 +834,12 @@ class TestApiSessionEndpointsPost(BeltRadarTestCase):
         # Test Data
         url = reverse(f"{API_URL}:add_session")
         user_no_permission = UserMainFactory(permissions__=[])
-        self.client.force_login(user_no_permission)  # Ensure the user is not logged in
+        self.client.force_login(user_no_permission)
 
         payload = {"name": "Test Session", "is_public": True}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
@@ -685,9 +855,7 @@ class TestApiSessionEndpointsPost(BeltRadarTestCase):
         payload = {"name": ""}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)

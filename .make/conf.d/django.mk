@@ -16,6 +16,12 @@ django_locales = \
 	--locale uk \
 	--locale zh_Hans
 
+IGNORE_PATTERNS = \
+    --ignore=build/* \
+    --ignore=node_modules/* \
+    --ignore=testauth/* \
+    --ignore=runtests.py \
+
 # Create or update translation template (.pot file)
 .PHONY: pot
 pot: check-python-venv
@@ -24,10 +30,7 @@ pot: check-python-venv
 		--locale en \
 		--keep-pot \
 		--no-wrap \
-		--ignore 'build/*' \
-		--ignore 'node_modules/*' \
-		--ignore 'testauth/*' \
-		--ignore 'runtests.py'
+		$(IGNORE_PATTERNS)
 	@# Update the .pot file with the correct Project-Id-Version and Report-Msgid-Bugs-To headers
 	@sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(GENERAL__APPNAME_VERBOSE)\\\n\"" $(DJANGO__TRANSLATION_TEMPLATE)
 	@sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(WEBLATE__BASE_URL)/projects/$(WEBLATE__PROJECT_SLUG)/$(WEBLATE__COMPONENT_SLUG)/\\\n\"" $(DJANGO__TRANSLATION_TEMPLATE)
@@ -41,10 +44,7 @@ add-translation: check-python-venv
 		--locale $$language_code \
 		--keep-pot \
 		--no-wrap \
-		--ignore 'build/*' \
-		--ignore 'node_modules/*' \
-		--ignore 'testauth/*' \
-		--ignore 'runtests.py'; \
+		$(IGNORE_PATTERNS); \
 	# Update the .pot file and the new translation file with the correct Project-Id-Version and Report-Msgid-Bugs-To headers \
 	sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(GENERAL__APPNAME_VERBOSE)\\\n\"" $(DJANGO__TRANSLATION_TEMPLATE); \
 	sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(WEBLATE__BASE_URL)/projects/$(WEBLATE__PROJECT_SLUG)/$(WEBLATE__COMPONENT_SLUG)/\\\n\"" $(DJANGO__TRANSLATION_TEMPLATE); \
@@ -60,10 +60,7 @@ translations: check-python-venv
 	@django-admin makemessages $(django_locales) \
 		--keep-pot \
 		--no-wrap \
-		--ignore 'build/*' \
-		--ignore 'node_modules/*' \
-		--ignore 'testauth/*' \
-		--ignore 'runtests.py'
+		$(IGNORE_PATTERNS)
 	@# Update the .pot file and all translation files with the correct Project-Id-Version and Report-Msgid-Bugs-To headers
 	@sed -i "/\"Project-Id-Version: /c\\\"Project-Id-Version: $(GENERAL__APPNAME_VERBOSE)\\\n\"" $(DJANGO__TRANSLATION_TEMPLATE)
 	@sed -i "/\"Report-Msgid-Bugs-To: /c\\\"Report-Msgid-Bugs-To: $(WEBLATE__BASE_URL)/projects/$(WEBLATE__PROJECT_SLUG)/$(WEBLATE__COMPONENT_SLUG)/\\\n\"" $(DJANGO__TRANSLATION_TEMPLATE)

@@ -25,3 +25,5 @@ BELT_RADAR_BULK_BATCH_SIZE = getattr(settings, "BELT_RADAR_BULK_BATCH_SIZE", 500
 # Webhook Settings
 # Webhook URL for sending notifications (e.g., Discord, Slack).
 BELT_RADAR_WEBHOOK_URL = getattr(settings, "BELT_RADAR_WEBHOOK_URL", None)
+
+BELT_RADAR_REACT = getattr(settings, "BELT_RADAR_REACT", True)

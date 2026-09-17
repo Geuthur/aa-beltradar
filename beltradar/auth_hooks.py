@@ -18,7 +18,7 @@ class BeltRadarMenuItem(MenuItemHook):
         super().__init__(
             f"{app_settings.BELT_RADAR_APP_NAME}",
             "fas fa-book fa-fw",
-            "beltradar:index",
+            "beltradar:react_base",
             navactive=["beltradar:"],
         )
 

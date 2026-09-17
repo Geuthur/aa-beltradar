@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { components } from '@/Api/OpenApi';
-import { formatDate } from '@/Components/Helpers/functions';
+import { formatDate } from '@/Components/Tables/BaseTable/tableHelper';
 
 export interface SnapshotSelectProps {
   snapshots?: components['schemas']['SnapshotSummarySchema'][];

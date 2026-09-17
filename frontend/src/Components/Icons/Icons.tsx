@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
 import type { BeltTimer, Session } from "@/Api/schema";
-import { renderTooltip } from "@/Components/Helpers/functions";
+import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
 
 export interface ButtonProps {
 	icon: string;

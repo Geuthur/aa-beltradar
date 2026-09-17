@@ -5,7 +5,7 @@ import type { TFunction } from "i18next";
 
 // AA Belt Radar
 import type { BeltTimer, Session, OreSchema } from "@/Api/schema";
-import { formatDate, renderHtml } from "@/Components/Helpers/functions";
+import { formatDate, renderHtml } from "@/Components/Tables/BaseTable/tableHelper";
 import { EntityTableActions } from "@/Components/Icons/Icons";
 
 export function getSessionColumns(

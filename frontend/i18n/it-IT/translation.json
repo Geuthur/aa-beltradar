@@ -96,5 +96,11 @@
   "Add Snapshot": "Add Snapshot",
   "Delete Snapshot": "Delete Snapshot",
   "Latest": "Latest",
-  "Select Snapshot": "Select Snapshot"
+  "Select Snapshot": "Select Snapshot",
+  "Ore Progression": "Ore Progression",
+  "No mining chart data available.": "No mining chart data available.",
+  "Mining Speed": "Mining Speed",
+  "Speed (m³/s)": "Speed (m³/s)",
+  "Belt Timer active": "Belt Timer active",
+  "Delete Belt Timer": "Delete Belt Timer"
 }

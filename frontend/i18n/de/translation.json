@@ -95,5 +95,11 @@
   "Add Snapshot": "Snapshot hinzufügen",
   "Delete Snapshot": "Snapshot löschen",
   "Latest": "Aktuell",
-  "Select Snapshot": "Snapshot auswählen"
+  "Select Snapshot": "Snapshot auswählen",
+  "Ore Progression": "Erz-Abbaufortschritt",
+  "No mining chart data available.": "Keine Diagrammdaten verfügbar.",
+  "Mining Speed": "Abbaugeschwindigkeit",
+  "Speed (m³/s)": "Geschwindigkeit (m³/s)",
+  "Belt Timer active": "Belt-Timer aktiv",
+  "Delete Belt Timer": "Belt-Timer löschen"
 }

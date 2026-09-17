@@ -14,6 +14,7 @@ import ErrorLoader from '@/Components/Loader/ErrorLoader';
 import BaseModal from '@/Components/Modals/BaseModal';
 import { useApproveMutation } from '@/Components/Modals/BeltRadarQuery';
 import BaseSectionHeader from '@/Components/Section/BaseSectionHeader';
+import SessionCharts from '@/Components/Session/Charts';
 import SessionDashboard from '@/Components/Session/Dashboard';
 import SessionSnapshotTable from '@/Components/Session/SnapshotTable';
 import { renderTooltip } from '@/Components/Tables/BaseTable/tableHelper';
@@ -93,6 +94,8 @@ function BeltRadarSession() {
             <SessionDashboard sessionData={sessionData} />
             {/* Session Snapshot Table */}
             <SessionSnapshotTable />
+            {/* Session Charts */}
+            <SessionCharts />
 
             {/* Belt Timer Modals */}
             {deleteTimerAction && (

@@ -5,9 +5,9 @@ import type {
   Table as ReactTable,
 } from "@tanstack/react-table";
 import { stringify } from "csv-stringify/browser/esm/sync";
+import i18n from "i18next";
 import { OverlayTrigger } from "react-bootstrap";
 import Tooltip from "react-bootstrap/esm/Tooltip";
-import i18n from "i18next";
 
 /**
  * Helper functions for formatting dates and rendering HTML safely in React components

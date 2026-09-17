@@ -42,17 +42,6 @@ react-openapi: check-python-venv check-myauth-path react-export-openapi
 	@cd $(REACT__EXECUTABLE) && $(REACT__OPENAPI_SCRIPT)
 	@echo "React OpenAPI migration completed"
 
-# Fetch OpenAPI Schema from URL (configured via REACT__OPENAPI_URL)
-.PHONY: react-fetch-openapi
-react-fetch-openapi:
-	@if [ -z "$(REACT__OPENAPI_URL)" ]; then \
-		echo "$(TEXT_COLOR_RED)$(TEXT_BOLD)Error: REACT__OPENAPI_URL is not configured in .make/config.ini or config-overrides.ini$(TEXT_RESET)"; \
-		exit 1; \
-	fi
-	@echo "Fetching OpenAPI schema from $(REACT__OPENAPI_URL)..."
-	@curl -s -k "$(REACT__OPENAPI_URL)" -o $(REACT__EXECUTABLE)/src/openapi.json
-	@echo "OpenAPI schema saved to $(REACT__EXECUTABLE)/src/openapi.json"
-
 # React Translations Scanner
 .PHONY: react-translations
 react-translations:
@@ -98,7 +87,6 @@ help::
 	@echo "    react-release       Run full React release build (build, i18n, collectstatic)"
 	@echo "    react-export-openapi Export OpenAPI schema directly from Django Ninja"
 	@echo "    react-openapi       Export schema and generate OpenAPI TypeScript types"
-	@echo "    react-fetch-openapi Download openapi.json from configured REACT__OPENAPI_URL"
 	@echo "    react-translations  Scan and extract i18n translations"
 	@echo "    react-eslint        Run React ESLint check with auto-fix"
 	@echo "    react-lint          Run React ESLint lint verification (read-only)"

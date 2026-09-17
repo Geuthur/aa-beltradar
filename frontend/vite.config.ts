@@ -62,6 +62,12 @@ export default defineConfig({
             return "@bootstrap-libs";
           }
           if (
+            id.includes("apexcharts") ||
+            id.includes("react-apexcharts")
+          ) {
+            return "@chart-libs";
+          }
+          if (
             id.includes("i18next") ||
             id.includes("i18next-http-backend") ||
             id.includes("i18next-browser-languagedetector") ||

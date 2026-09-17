@@ -40,6 +40,8 @@ i18n
       htmlTag: document.getElementById("aa-beltradar-root"),
     },
     fallbackLng: "en",
+    keySeparator: false,
+    nsSeparator: false,
     interpolation: {
       escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
     },

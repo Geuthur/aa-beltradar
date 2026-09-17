@@ -41,6 +41,7 @@ Section Order:
 
 ### Changed
 
+- Updated German translations for user settings and belt timer forms in React frontend.
 - Updated `get_user` and `modify_user_settings` API endpoints to safely initialize UserSettings and handle form submissions via `request.POST`.
 - Migrated `updateUserSettings` to use `openapi-fetch` (`apiClient.POST`).
 - Updated `add_belt_timer` and `add_session` API endpoints to support both JSON and standard POST data.

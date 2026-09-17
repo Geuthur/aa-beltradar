@@ -9,10 +9,10 @@ import { useTranslation } from 'react-i18next';
 import { loadPublicSessions } from '@/Api/BeltRadar';
 import { queryKeys } from "@/Api/query";
 import type { Session } from "@/Api/schema";
+import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import BaseTable from '@/Components/Tables/BaseTable';
 import { getSessionColumns } from '@/Components/Tables/TableColumns';
-import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 
 function BeltRadarTable() {
 	const { t } = useTranslation();

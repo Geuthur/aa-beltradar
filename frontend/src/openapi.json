@@ -27,7 +27,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SessionSchema"
+                  "$ref": "#/components/schemas/SessionStatsSchema"
                 }
               }
             }
@@ -90,7 +90,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/BeltSurveySessionSchema"
+                    "$ref": "#/components/schemas/SessionSchema"
                   },
                   "title": "Response",
                   "type": "array"
@@ -146,7 +146,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/BeltSurveySessionSchema"
+                    "$ref": "#/components/schemas/SessionSchema"
                   },
                   "title": "Response",
                   "type": "array"
@@ -1293,7 +1293,7 @@
         "title": "OwnerSchema",
         "type": "object"
       },
-      "SessionSchema": {
+      "SessionStatsSchema": {
         "properties": {
           "public_id": {
             "title": "Public Id",
@@ -1352,7 +1352,7 @@
           "stats": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/SessionStatsSchema"
+                "$ref": "#/components/schemas/StatsSchema"
               },
               {
                 "type": "null"
@@ -1368,6 +1368,11 @@
                 "type": "null"
               }
             ]
+          },
+          "has_timer": {
+            "default": false,
+            "title": "Has Timer",
+            "type": "boolean"
           }
         },
         "required": [
@@ -1377,10 +1382,10 @@
           "created_at",
           "public"
         ],
-        "title": "SessionSchema",
+        "title": "SessionStatsSchema",
         "type": "object"
       },
-      "SessionStatsSchema": {
+      "StatsSchema": {
         "properties": {
           "belt_volume": {
             "default": 0.0,
@@ -1452,10 +1457,10 @@
             "title": "Expected Belt Size"
           }
         },
-        "title": "SessionStatsSchema",
+        "title": "StatsSchema",
         "type": "object"
       },
-      "BeltSurveySessionSchema": {
+      "SessionSchema": {
         "properties": {
           "public_id": {
             "title": "Public Id",
@@ -1505,7 +1510,7 @@
           "owner",
           "public"
         ],
-        "title": "BeltSurveySessionSchema",
+        "title": "SessionSchema",
         "type": "object"
       },
       "ApexChartSchema": {

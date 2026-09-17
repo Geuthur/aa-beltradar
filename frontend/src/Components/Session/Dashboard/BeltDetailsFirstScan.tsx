@@ -2,11 +2,11 @@
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import type { Session } from "@/Api/schema";
+import type { SessionStats } from "@/Api/schema";
+import Styles from '@/Components/Session/Dashboard/SessionBeltDetails.module.css';
 import { formatDate, renderTooltip } from '@/Components/Tables/BaseTable/tableHelper';
-import Styles from '@/Components/Session/Dashboard/BeltDetails.module.css';
 
-export function BeltDetailsFirstScan({ sessionData }: { sessionData?: Session }) {
+export function BeltDetailsFirstScan({ sessionData }: { sessionData?: SessionStats }) {
     const { t } = useTranslation();
     const options: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit" };
     return (

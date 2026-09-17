@@ -2,7 +2,9 @@
 import type { components } from "@/Api/OpenApi";
 
 // Belt Radar
+export type SessionStats = components['schemas']['SessionStatsSchema']
 export type Session = components['schemas']['SessionSchema']
+export type SessionItem = SessionStats | Session
 export type SessionSnapshot = components['schemas']['SnapShotSchema']
 export type OreSchema = components['schemas']['OreSchema']
 export type MenuSchema = components['schemas']['MenuSchema']

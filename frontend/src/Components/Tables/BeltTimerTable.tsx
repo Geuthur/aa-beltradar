@@ -9,10 +9,10 @@ import { useTranslation } from 'react-i18next';
 import { loadBeltTimers } from '@/Api/BeltRadar';
 import { queryKeys } from "@/Api/query";
 import type { BeltTimer } from "@/Api/schema";
+import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import BaseTable from '@/Components/Tables/BaseTable';
 import { getBeltTimerColumns } from '@/Components/Tables/TableColumns';
-import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 
 function BeltTimerTable() {
 	const { t } = useTranslation();

@@ -7,9 +7,9 @@ import { loadMenu } from '@/Api/BeltRadar';
 import { queryKeys } from "@/Api/query";
 import { IconButton } from '@/Components/Icons/Icons';
 import BaseModal from '@/Components/Modals/BaseModal';
+import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 import { useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
 import type { SectionHeaderProps } from '@/Components/Section/SectionHeaderProps';
-import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
 
 export function ActionSectionHeader({
     name,

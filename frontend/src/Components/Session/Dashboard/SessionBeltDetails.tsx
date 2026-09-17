@@ -3,13 +3,13 @@ import { ProgressBar } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import type { Session } from '@/Api/schema';
-import Styles from '@/Components/Session/Dashboard/BeltDetails.module.css';
+import type { SessionStats } from '@/Api/schema';
 import { BeltDetailsFirstScan } from '@/Components/Session/Dashboard/BeltDetailsFirstScan';
 import { BeltDetailsLastScan } from '@/Components/Session/Dashboard/BeltDetailsLastScan';
+import Styles from '@/Components/Session/Dashboard/SessionBeltDetails.module.css';
 import { BeltDetailsETA } from '@/Components/Session/Dashboard/SessionBeltDetailsETA';
 
-export function SessionBeltDetails({ sessionData }: { sessionData?: Session }) {
+export function SessionBeltDetails({ sessionData }: { sessionData?: SessionStats }) {
     const { t } = useTranslation();
     const progressPercent = Math.min(Math.max(sessionData?.stats?.progress_percent || 0, 0), 100);
     return (

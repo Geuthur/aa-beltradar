@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 
 // AA Belt Radar
-import type { Session, BeltTimer } from "@/Api/schema";
+import type { SessionItem, BeltTimer } from "@/Api/schema";
 import CreateBeltTimerForm from '@/Components/Forms/CreateBeltTimerForm';
 import {
 	getBeltSizeValue,
@@ -16,7 +16,7 @@ import BaseModal from '@/Components/Modals/BaseModal';
 import { useApproveMutation, useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
 
 export interface BeltRadarModalsProps {
-	session?: Session | BeltTimer | null;
+	session?: SessionItem | BeltTimer | null;
 	modalAction: string | null;
 	setModalAction: (action: string | null) => void;
 	t: (key: string) => string;

@@ -10,7 +10,7 @@ export async function loadUserData(): Promise<{ user: components["schemas"]["Use
   return { user: data };
 }
 
-export async function loadPublicSessions(): Promise<components["schemas"]["BeltSurveySessionSchema"][]> {
+export async function loadPublicSessions(): Promise<components["schemas"]["SessionSchema"][]> {
   const { data, error } = await apiClient.GET("/beltradar/api/view/public-sessions/");
   if (error || !data) {
     throw new Error("Failed to load public sessions");
@@ -18,7 +18,7 @@ export async function loadPublicSessions(): Promise<components["schemas"]["BeltS
   return data;
 }
 
-export async function loadMySessions(characterID: number): Promise<components["schemas"]["BeltSurveySessionSchema"][]> {
+export async function loadMySessions(characterID: number): Promise<components["schemas"]["SessionSchema"][]> {
   const { data, error } = await apiClient.GET("/beltradar/api/view/my-sessions/{character_id}/", {
     params: {
       path: { character_id: characterID },
@@ -50,7 +50,7 @@ export async function loadMyBeltTimers(characterID: number): Promise<components[
   return data;
 }
 
-export async function loadSession(publicID: string): Promise<components["schemas"]["SessionSchema"]> {
+export async function loadSession(publicID: string): Promise<components["schemas"]["SessionStatsSchema"]> {
   const { data, error } = await apiClient.GET("/beltradar/api/view/session/{public_id}/stats/", {
     params: {
       path: { public_id: publicID },

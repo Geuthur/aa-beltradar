@@ -2,9 +2,9 @@
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import type { Session } from "@/Api/schema";
+import type { SessionStats } from "@/Api/schema";
 
-export function SessionDetails({ sessionData }: { sessionData?: Session }) {
+export function SessionDetails({ sessionData }: { sessionData?: SessionStats }) {
     const { t } = useTranslation();
     return (
     <div className="row text-muted small mt-2">

@@ -192,12 +192,13 @@ export interface paths {
         };
         /**
          * Get Snapshot
-         * @description Get the last snapshot for the given session.
+         * @description Get the last snapshot or a specific snapshot by identifier for the given session.
          *
          *     Args:
          *         public_id (str): The public ID of the survey session.
+         *         identifier (str, optional): The identifier of a specific snapshot.
          *     Returns:
-         *         200: The last snapshot for the given session in the API response format.
+         *         200: The snapshot for the given session in the API response format.
          *         403: An error message if the user does not have permission to access the survey session.
          *         404: An error message if the survey session is not found.
          */
@@ -568,8 +569,8 @@ export interface components {
             /** Portrait */
             portrait?: string | null;
         };
-        /** SessionSchema */
-        SessionSchema: {
+        /** SessionStatsSchema */
+        SessionStatsSchema: {
             /** Public Id */
             public_id: string;
             /** Name */
@@ -587,11 +588,16 @@ export interface components {
             last_timestamp?: string | null;
             /** Total Timestamps */
             total_timestamps?: number | null;
-            stats?: components["schemas"]["SessionStatsSchema"] | null;
+            stats?: components["schemas"]["StatsSchema"] | null;
             actions?: components["schemas"]["ActionSchema"] | null;
+            /**
+             * Has Timer
+             * @default false
+             */
+            has_timer: boolean;
         };
-        /** SessionStatsSchema */
-        SessionStatsSchema: {
+        /** StatsSchema */
+        StatsSchema: {
             /**
              * Belt Volume
              * @default 0
@@ -634,8 +640,8 @@ export interface components {
             /** Expected Belt Size */
             expected_belt_size?: string | null;
         };
-        /** BeltSurveySessionSchema */
-        BeltSurveySessionSchema: {
+        /** SessionSchema */
+        SessionSchema: {
             /** Public Id */
             public_id: string;
             /** Name */
@@ -703,25 +709,31 @@ export interface components {
             /** First Timestamp */
             first_timestamp?: string | null;
         };
-        /** SnapshotSummarySchema */
-        SnapshotSummarySchema: {
-            /** Identifier */
-            identifier: string;
-            /** Timestamp */
-            timestamp: string;
-            /** Asteroid Count */
-            asteroid_count?: number | null;
-        };
         /** SnapShotSchema */
         SnapShotSchema: {
             snapshot?: components["schemas"]["SnapShotDataSchema"] | null;
-            /** Snapshots */
-            snapshots?: components["schemas"]["SnapshotSummarySchema"][];
+            /**
+             * Snapshots
+             * @default []
+             */
+            snapshots: components["schemas"]["SnapshotSummarySchema"][];
             /** Ore List */
             ore_list?: components["schemas"]["OreSchema"][] | null;
             charts?: components["schemas"]["ApexChartSchema"] | null;
             traffic?: components["schemas"]["ApexChartSchema"] | null;
             actions?: components["schemas"]["ActionSchema"] | null;
+        };
+        /** SnapshotSummarySchema */
+        SnapshotSummarySchema: {
+            /** Identifier */
+            identifier: string;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+            /** Asteroid Count */
+            asteroid_count?: number | null;
         };
         /** BeltTimerSchema */
         BeltTimerSchema: {
@@ -826,7 +838,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SessionSchema"];
+                    "application/json": components["schemas"]["SessionStatsSchema"];
                 };
             };
             /** @description Forbidden */
@@ -870,7 +882,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BeltSurveySessionSchema"][];
+                    "application/json": components["schemas"]["SessionSchema"][];
                 };
             };
             /** @description Forbidden */
@@ -912,7 +924,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BeltSurveySessionSchema"][];
+                    "application/json": components["schemas"]["SessionSchema"][];
                 };
             };
         };

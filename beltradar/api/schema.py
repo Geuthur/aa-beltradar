@@ -69,7 +69,7 @@ class OwnerSchema(Schema):
     portrait: str | None = None
 
 
-class SessionStatsSchema(Schema):
+class StatsSchema(Schema):
     belt_volume: float = 0.0
     belt_volume_left_m3: float = 0.0
     remaining_asteroids: int = 0
@@ -82,7 +82,7 @@ class SessionStatsSchema(Schema):
     expected_belt_size: str | None = None
 
 
-class SessionSchema(Schema):
+class SessionStatsSchema(Schema):
     public_id: str
     name: str
     owner: OwnerSchema
@@ -91,11 +91,12 @@ class SessionSchema(Schema):
     first_timestamp: timezone.datetime | None = None
     last_timestamp: timezone.datetime | None = None
     total_timestamps: int | None = None
-    stats: SessionStatsSchema | None = None
+    stats: StatsSchema | None = None
     actions: ActionSchema | None = None
+    has_timer: bool = False
 
 
-class BeltSurveySessionSchema(Schema):
+class SessionSchema(Schema):
     public_id: str
     name: str
     created_at: timezone.datetime

@@ -36,7 +36,7 @@ logger = AppLogger(get_extension_logger(__name__), __title__)
 class BeltRadarApiEndpoints:
     tags = ["Session"]
 
-    def session_stats(self, session: BeltSurveySession) -> schema.SessionStatsSchema:
+    def session_stats(self, session: BeltSurveySession) -> schema.StatsSchema:
         """
         Calculate belt stats for the latest snapshot of the given survey session.
 
@@ -53,7 +53,7 @@ class BeltRadarApiEndpoints:
 
         if not first_snapshot or not last_snapshot:
             return (
-                schema.SessionStatsSchema()
+                schema.StatsSchema()
             )  # Return an empty schema if no snapshots are found
 
         # Calculate belt size, remaining volume, and mined volume
@@ -84,7 +84,7 @@ class BeltRadarApiEndpoints:
             identifier=first_snapshot.identifier
         ).session_resolve_belt()
 
-        return schema.SessionStatsSchema(
+        return schema.StatsSchema(
             belt_volume=belt_size_m3,
             belt_volume_left_m3=belt_left_m3,
             remaining_asteroids=last_snapshot.asteroid_count,
@@ -104,7 +104,7 @@ class BeltRadarApiEndpoints:
         @api.get(
             "view/session/{public_id}/stats/",
             response={
-                HTTPStatus.OK: schema.SessionSchema,
+                HTTPStatus.OK: schema.SessionStatsSchema,
                 HTTPStatus.FORBIDDEN: dict,
                 HTTPStatus.NOT_FOUND: dict,
             },
@@ -139,7 +139,7 @@ class BeltRadarApiEndpoints:
                 request=request, public_id=session.public_id
             )
 
-            return HTTPStatus.OK, schema.SessionSchema(
+            return HTTPStatus.OK, schema.SessionStatsSchema(
                 public_id=str(session.public_id),
                 name=session.name,
                 created_at=session.created_at,
@@ -163,12 +163,13 @@ class BeltRadarApiEndpoints:
                 ),
                 stats=self.session_stats(session=session),
                 actions=create_timer_html,
+                has_timer=session.has_timer,
             )
 
         @api.get(
             "view/my-sessions/{character_id}/",
             response={
-                HTTPStatus.OK: list[schema.BeltSurveySessionSchema],
+                HTTPStatus.OK: list[schema.SessionSchema],
                 HTTPStatus.FORBIDDEN: dict,
                 HTTPStatus.NOT_FOUND: dict,
             },
@@ -204,7 +205,7 @@ class BeltRadarApiEndpoints:
             sessions = BeltSurveySession.objects.filter(
                 owner__profile__main_character__character_id=character_id
             ).order_by("-created_at")
-            survey_list: list[schema.BeltSurveySessionSchema] = []
+            survey_list: list[schema.SessionSchema] = []
             for session in sessions:
                 # Skip sessions where the owner or main character is not set
                 if (
@@ -213,7 +214,7 @@ class BeltRadarApiEndpoints:
                 ):
                     continue
 
-                survey_session_data = schema.BeltSurveySessionSchema(
+                survey_session_data = schema.SessionSchema(
                     public_id=str(session.public_id),
                     name=session.name,
                     created_at=session.created_at,
@@ -242,7 +243,7 @@ class BeltRadarApiEndpoints:
         @api.get(
             "view/public-sessions/",
             response={
-                HTTPStatus.OK: list[schema.BeltSurveySessionSchema],
+                HTTPStatus.OK: list[schema.SessionSchema],
             },
             tags=self.tags,
         )
@@ -264,7 +265,7 @@ class BeltRadarApiEndpoints:
             )
 
             # Serialize sessions into the API response format
-            survey_list: list[schema.BeltSurveySessionSchema] = []
+            survey_list: list[schema.SessionSchema] = []
             for session in sessions:
                 # Skip sessions where the owner or main character is not set
                 if (
@@ -273,7 +274,7 @@ class BeltRadarApiEndpoints:
                 ):
                     continue
 
-                survey_session_data = schema.BeltSurveySessionSchema(
+                survey_session_data = schema.SessionSchema(
                     public_id=str(session.public_id),
                     name=session.name,
                     created_at=session.created_at,

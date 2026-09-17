@@ -3,8 +3,8 @@ import moment from "moment";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import type { Session } from "@/Api/schema";
-export function SessionBeltStats({ sessionData }: { sessionData?: Session}) {
+import type { SessionStats } from "@/Api/schema";
+export function SessionBeltStats({ sessionData }: { sessionData?: SessionStats}) {
     const { t } = useTranslation();
     let finishEta;
 

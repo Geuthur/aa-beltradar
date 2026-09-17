@@ -26,6 +26,7 @@ ci:
 exclude: |
   (?x)(
     .github/ |
+    frontend/ |
     LICENSE |
     openapi_.*\.json |
     .min(.css|.css.map|.js|.js.map) |

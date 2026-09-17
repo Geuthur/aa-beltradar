@@ -81,3 +81,19 @@ export async function loadMenu(): Promise<components["schemas"]["MenuSchema"]> {
   }
   return data;
 }
+
+export async function updateUserSettings(settings: { disable_notifications: boolean }): Promise<{ success: boolean; message?: string }> {
+  const body = new FormData();
+  if (settings.disable_notifications) {
+    body.append("disable_notifications", "on");
+  }
+
+  const { data, error } = await apiClient.POST("/beltradar/api/modify/user/settings/", {
+    body: body as never,
+  });
+
+  if (error || !data || (data as { success?: boolean }).success !== true) {
+    throw new Error((data as { message?: string } | undefined)?.message ?? "Failed to update user settings");
+  }
+  return data as { success: boolean; message?: string };
+}

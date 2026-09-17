@@ -489,17 +489,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/beltradar/api/view/action/": {
+    "/beltradar/api/modify/user/settings/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Action */
-        get: operations["beltradar_api_general_get_action"];
+        get?: never;
         put?: never;
-        post?: never;
+        /** Modify User Settings */
+        post: operations["beltradar_api_general_modify_user_settings"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1527,9 +1527,20 @@ export interface operations {
                     "application/json": components["schemas"]["UserData"];
                 };
             };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
         };
     };
-    beltradar_api_general_get_action: {
+    beltradar_api_general_modify_user_settings: {
         parameters: {
             query?: never;
             header?: never;
@@ -1544,7 +1555,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ActionSchema"];
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

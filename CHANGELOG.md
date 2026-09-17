@@ -36,9 +36,13 @@ Section Order:
 
 - CODEOWNERS file to define code ownership.
 - `CreateBeltTimerForm` React component with dynamic belt size selection based on belt type.
+- User Settings form and page in React with real-time notification preferences.
+- React Makefile targets in `react.mk` (`react-build`, `react-dev`, `react-export-openapi`, `react-fetch-openapi`, `react-translations`, `react-lint`, `react-test`, `react-clean`).
 
 ### Changed
 
+- Updated `get_user` and `modify_user_settings` API endpoints to safely initialize UserSettings and handle form submissions via `request.POST`.
+- Migrated `updateUserSettings` to use `openapi-fetch` (`apiClient.POST`).
 - Updated `add_belt_timer` and `add_session` API endpoints to support both JSON and standard POST data.
 - Unified frontend form mutations in `useFormApproveMutation` to send standard POST requests.
 - Enhance Makefile and configuration management
@@ -55,6 +59,7 @@ Section Order:
 
 ### Fixed
 
+- Fixed variable shadowing in `modify_user_settings` where `get_or_create` overwrote `gettext` (`_`).
 - prevent double loading of session data by reload function
 - update belt type and size resolution to use BeltSurveySnapshot for accurate session data
 

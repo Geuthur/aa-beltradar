@@ -8,5 +8,6 @@ export const queryKeys = {
 
 
     Snapshot: (publicID: string) => ["Snapshot", publicID] as const,
-    Menu: ["Menu"] as const
+    Menu: ["Menu"] as const,
+    User: ["User"] as const,
 };

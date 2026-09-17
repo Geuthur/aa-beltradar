@@ -6,9 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Belt Radar\n"
-"Report-Msgid-Bugs-To: https://github.com/Geuthur/aa-beltradar/issues\n"
-"POT-Creation-Date: 2026-09-06 08:32+0200\n"
-"PO-Revision-Date: 2026-09-06 06:44+0000\n"
+"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
+"beltradar/\n"
+"POT-Creation-Date: 2026-09-11 22:56+0200\n"
+"PO-Revision-Date: 2026-09-17 20:01+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
 "beltradar/de/>\n"
@@ -39,12 +40,12 @@ msgstr "Sitzung anpassen"
 msgid "Delete Session"
 msgstr "Sitzung löschen"
 
-#: beltradar/api/helpers/icons.py:161
+#: beltradar/api/helpers/icons.py:162
 #: beltradar/templates/beltradar/view-create-timer.html:17
 msgid "Create Belt Timer"
 msgstr "Erstelle Belt-Timer"
 
-#: beltradar/api/helpers/icons.py:176 beltradar/api/helpers/icons.py:233
+#: beltradar/api/helpers/icons.py:172 beltradar/api/helpers/icons.py:233
 msgid "Delete Belt Timer"
 msgstr "Belt-Timer löschen"
 
@@ -60,7 +61,7 @@ msgstr "Snapshot hinzufügen"
 
 #: beltradar/api/helpers/icons.py:304
 msgid "Delete Snapshot"
-msgstr "Snapshot Löschen"
+msgstr "Snapshot löschen"
 
 #: beltradar/api/helpers/icons.py:330
 #: beltradar/templates/beltradar/partials/modals/request-add-session.html:10
@@ -94,17 +95,34 @@ msgstr "Öffentliche Belt-Timer"
 msgid "Private Belt Timer"
 msgstr "Private Belt-Timer"
 
+#: beltradar/api/menu.py:25 beltradar/templates/beltradar/base.html:5
+#: beltradar/templates/beltradar/base.html:9
+#: beltradar/templates/beltradar/partials/navigation/navigation.html:7
+#: beltradar/templates/beltradar/view-index.html:17
+msgid "Belt Radar"
+msgstr "Belt Radar"
+
+#: beltradar/api/menu.py:26
+#: beltradar/templates/beltradar/partials/view-my-belt-radar/session-table.html:4
+#: beltradar/views.py:111
+msgid "My Sessions"
+msgstr "Meine Sitzungen"
+
+#: beltradar/api/menu.py:27
+msgid "Settings"
+msgstr ""
+
 #: beltradar/api/session.py:130 beltradar/api/session.py:198
 #: beltradar/api/session.py:314 beltradar/api/session.py:368
-#: beltradar/api/session.py:422 beltradar/api/snapshot.py:72
-#: beltradar/api/snapshot.py:156 beltradar/api/snapshot.py:208
+#: beltradar/api/session.py:422 beltradar/api/snapshot.py:70
+#: beltradar/api/snapshot.py:154 beltradar/api/snapshot.py:206
 #: beltradar/api/timer.py:75 beltradar/api/timer.py:196
 #: beltradar/api/timer.py:242 beltradar/api/timer.py:313
 #: beltradar/api/timer.py:372
 msgid "Permission Denied."
 msgstr "Zugriff verweigert."
 
-#: beltradar/api/session.py:136 beltradar/api/snapshot.py:79
+#: beltradar/api/session.py:136 beltradar/api/snapshot.py:77
 msgid "Belt Session not found or not public."
 msgstr "Die „Belt Sitzung“ wurde nicht gefunden oder ist nicht öffentlich."
 
@@ -112,7 +130,7 @@ msgstr "Die „Belt Sitzung“ wurde nicht gefunden oder ist nicht öffentlich."
 msgid "Session added successfully."
 msgstr "Die Sitzung wurde erfolgreich hinzugefügt."
 
-#: beltradar/api/session.py:328 beltradar/api/snapshot.py:222
+#: beltradar/api/session.py:328 beltradar/api/snapshot.py:220
 #: beltradar/api/timer.py:210 beltradar/api/timer.py:273
 msgid "Invalid input data. Please check the format and try again."
 msgstr ""
@@ -124,7 +142,7 @@ msgid "Belt Session not found."
 msgstr "Die „Belt-Sitzung“ wurde nicht gefunden."
 
 #: beltradar/api/session.py:372 beltradar/api/session.py:426
-#: beltradar/api/snapshot.py:160 beltradar/api/snapshot.py:212
+#: beltradar/api/snapshot.py:158 beltradar/api/snapshot.py:210
 #: beltradar/api/timer.py:246 beltradar/api/timer.py:317
 #: beltradar/api/timer.py:376
 msgid "Requested resource not found."
@@ -147,23 +165,23 @@ msgstr "Die Sitzung {field} wurde erfolgreich aktualisiert."
 msgid "Invalid Method"
 msgstr "Ungültige methode"
 
-#: beltradar/api/snapshot.py:167
+#: beltradar/api/snapshot.py:165
 msgid "No entries found for the given snapshot."
 msgstr "Für den angegebenen Snapshot wurden keine Einträge gefunden."
 
-#: beltradar/api/snapshot.py:171
+#: beltradar/api/snapshot.py:169
 msgid "Snapshot deleted successfully."
 msgstr "Der Snapshot wurde erfolgreich gelöscht."
 
-#: beltradar/api/snapshot.py:233
+#: beltradar/api/snapshot.py:231
 msgid "No valid entries to add. Errors:"
 msgstr "Es sind keine gültigen Einträge zum Hinzufügen vorhanden. Fehler:"
 
-#: beltradar/api/snapshot.py:326
+#: beltradar/api/snapshot.py:324
 msgid "Snapshot added successfully."
 msgstr "Der Snapshot wurde erfolgreich hinzugefügt."
 
-#: beltradar/api/snapshot.py:330
+#: beltradar/api/snapshot.py:328
 msgid "No valid entries to add. Missing types:"
 msgstr ""
 "Es sind keine gültigen Einträge zum Hinzufügen vorhanden. Fehlende Typen:"
@@ -230,7 +248,7 @@ msgstr "Der Name des Belt."
 
 #: beltradar/forms.py:189
 msgid "The type of belt."
-msgstr "Die Art des Belt."
+msgstr "Art des Belt."
 
 #: beltradar/forms.py:190
 msgid "The size of the belt."
@@ -254,17 +272,17 @@ msgstr ""
 "Aktivieren Sie dieses Kontrollkästchen, um Benachrichtigungen für "
 "abgelaufene Belt-Timer zu deaktivieren."
 
-#: beltradar/models/beltradar.py:79
+#: beltradar/models/beltradar.py:80
 msgid ""
 "Indicates whether this session is publicly accessible without public id."
 msgstr ""
 "Gibt an, ob diese Sitzung ohne öffentliche ID öffentlich zugänglich ist."
 
-#: beltradar/models/beltradar.py:315
+#: beltradar/models/beltradar.py:318
 msgid "Optional link to a session for this belt timer."
 msgstr "Optionaler Link zu einer Sitzung für diesen Belt-Timer."
 
-#: beltradar/models/beltradar.py:325
+#: beltradar/models/beltradar.py:328
 msgid "Indicates whether a notification has been sent for this timer."
 msgstr "Gibt an, ob für diesen Timer eine Benachrichtigung gesendet wurde."
 
@@ -298,13 +316,6 @@ msgstr ""
 "\n"
 "\n"
 "ist wieder erschienen."
-
-#: beltradar/templates/beltradar/base.html:5
-#: beltradar/templates/beltradar/base.html:9
-#: beltradar/templates/beltradar/partials/navigation/navigation.html:7
-#: beltradar/templates/beltradar/view-index.html:17
-msgid "Belt Radar"
-msgstr "Belt Radar"
 
 #: beltradar/templates/beltradar/base.html:64
 msgid "Internal Server Error"
@@ -422,7 +433,7 @@ msgstr ""
 
 #: beltradar/templates/beltradar/partials/navigation/navigation.html:11
 msgid "My Belt Radar"
-msgstr "Mein Belt Radar"
+msgstr "Mein Belt-Radar"
 
 #: beltradar/templates/beltradar/partials/navigation/navigation.html:14
 msgid "My Settings"
@@ -437,7 +448,7 @@ msgstr "Respawn-Timer"
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:12
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/session-table.html:12
 msgid "Public ID"
-msgstr "Public-ID"
+msgstr "Öffentliche ID"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:13
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:13
@@ -447,26 +458,26 @@ msgstr "Belt-ID"
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:14
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:14
 msgid "Belt Name"
-msgstr "Belt-Name"
+msgstr "Gürtelname"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:15
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:15
 #: beltradar/templates/beltradar/partials/view-session/session.html:36
 #: beltradar/templates/beltradar/partials/view-session/session.html:58
 msgid "Belt Size"
-msgstr "Belt-Größe"
+msgstr "Gürtelgröße"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:16
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:16
 #: beltradar/templates/beltradar/partials/view-session/session.html:51
 msgid "Belt Type"
-msgstr "Belt-Typ"
+msgstr "Gürteltyp"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:17
 #: beltradar/templates/beltradar/partials/view-my-belt-radar/belt-timer-table.html:17
 #: beltradar/templates/beltradar/partials/view-session/session.html:44
 msgid "ETA"
-msgstr "ETA"
+msgstr "Voraussichtliche Fertigstellung"
 
 #: beltradar/templates/beltradar/partials/view-belt-radar/belt-timer-table.html:18
 #: beltradar/templates/beltradar/partials/view-belt-radar/session-table.html:16
@@ -505,11 +516,6 @@ msgstr "Inhaber"
 msgid "My Respawn Timers"
 msgstr "Meine Respawn-Timer"
 
-#: beltradar/templates/beltradar/partials/view-my-belt-radar/session-table.html:4
-#: beltradar/views.py:97
-msgid "My Sessions"
-msgstr "Meine Sitzungen"
-
 #: beltradar/templates/beltradar/partials/view-session/session.html:6
 msgid "Session Name:"
 msgstr "Sitzung-Name:"
@@ -532,15 +538,15 @@ msgstr "Geschwindigkeit"
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:53
 msgid "The expected type of the asteroid belt."
-msgstr "Der erwartete Type des Asteroidengürtels."
+msgstr "Der erwartete Typ des Asteroidengürtels."
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:60
 msgid "The expected size of the asteroid belt."
-msgstr "Die voraussichtliche Größe des Asteroidengürtels."
+msgstr "Die erwartete Größe des Asteroidengürtels."
 
 #: beltradar/templates/beltradar/partials/view-session/session.html:65
 msgid "Total Snapshots"
-msgstr "Gesamtzahl der Snapshots"
+msgstr "Gesamtzahl der Schnappschüsse"
 
 #: beltradar/templates/beltradar/partials/view-session/snapshot-table.html:13
 msgid "Ore"
@@ -560,7 +566,7 @@ msgstr "Preis"
 
 #: beltradar/templates/beltradar/partials/view-session/snapshot-table.html:17
 msgid "Price Compressed"
-msgstr "Preis komprimiert"
+msgstr "Komprimierter Preis"
 
 #: beltradar/templates/beltradar/partials/view-session/snapshot-table.html:18
 msgid "Income Compressed"
@@ -579,7 +585,7 @@ msgstr "Filter zurücksetzen"
 
 #: beltradar/templates/beltradar/view-create-session.html:17
 msgid "Create Session"
-msgstr "Erstelle Sitzung"
+msgstr "Sitzung erstellen"
 
 #: beltradar/templates/beltradar/view-create-session.html:25
 msgid "Use the form below to create a new belt session."
@@ -647,7 +653,7 @@ msgstr "Laden…"
 
 #: beltradar/templates/beltradar/view-session.html:75
 msgid "No mining chart data available."
-msgstr "Es liegen keine Daten zu Bergbaudiagrammen vor."
+msgstr "Keine Bergbau Diagrammdaten verfügbar."
 
 #: beltradar/templates/beltradar/view-session.html:76
 msgid "Last Snapshot"
@@ -667,21 +673,21 @@ msgstr "Geschätzte Dauer"
 
 #: beltradar/templates/beltradar/view-session.html:80
 msgid "Done"
-msgstr "Fertig"
+msgstr "Abgeschlossen"
 
 #: beltradar/templates/beltradar/view-session.html:81
 msgid "Mining Speed"
-msgstr "Mining-Geschwindigkeit"
+msgstr "Abbaugeschwindigkeit"
 
 #: beltradar/templates/beltradar/view-session.html:82
 msgid "Ore Progression"
-msgstr "Erz-Progression"
+msgstr "Erz-Abbaufortschritt"
 
-#: beltradar/views.py:75
+#: beltradar/views.py:89
 msgid "Session Overview"
 msgstr "Sitzungsübersicht"
 
-#: beltradar/views.py:134
+#: beltradar/views.py:148
 msgid "Settings saved."
 msgstr "Einstellungen gespeichert."
 

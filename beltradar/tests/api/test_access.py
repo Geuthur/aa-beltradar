@@ -470,6 +470,136 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
+    def test_modify_belt_timer_should_200(self):
+        """
+        Test should return 200 OK and update timer fields and ETA.
+        """
+        # Test Data
+        timer = BeltTimerFactory(
+            owner=self.user,
+            belt_id="B-1",
+            belt_name="Old Belt",
+            belt_type="asteroid_belt",
+            belt_size="small",
+            is_public=False,
+            session=None,
+        )
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": timer.id})
+        self.client.force_login(self.user)
+
+        data = {
+            "belt_id": "B-99",
+            "belt_name": "Updated Belt",
+            "belt_type": "ice_belt",
+            "belt_size": "ice",
+            "is_public": "on",
+        }
+
+        # Test Action
+        response = self.client.post(url, data=data)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        timer.refresh_from_db()
+        self.assertEqual(timer.belt_id, "B-99")
+        self.assertEqual(timer.belt_name, "Updated Belt")
+        self.assertEqual(timer.belt_type, "ice_belt")
+        self.assertEqual(timer.belt_size, "ice")
+        self.assertTrue(timer.is_public)
+
+    def test_modify_belt_timer_linked_to_session_should_update_only_visibility_and_return_200(
+        self,
+    ):
+        """
+        Test should return 200 OK and only update is_public when modifying a timer linked to a session.
+        """
+        # Test Data
+        session = BeltSessionFactory(owner=self.user)
+        timer = BeltTimerFactory(
+            owner=self.user,
+            session=session,
+            belt_id="B-01",
+            belt_name="Original Belt",
+            belt_type="ice_belt",
+            belt_size="ice",
+            is_public=False,
+        )
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": timer.id})
+        self.client.force_login(self.user)
+
+        data = {
+            "belt_id": "B-99",
+            "belt_name": "Updated Belt",
+            "belt_type": "asteroid_belt",
+            "belt_size": "small",
+            "is_public": "true",
+        }
+
+        # Test Action
+        response = self.client.post(url, data=data)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        timer.refresh_from_db()
+        self.assertTrue(timer.is_public)
+        # Other specifications should remain unchanged
+        self.assertEqual(timer.belt_id, "B-01")
+        self.assertEqual(timer.belt_name, "Original Belt")
+        self.assertEqual(timer.belt_type, "ice_belt")
+        self.assertEqual(timer.belt_size, "ice")
+
+    def test_modify_belt_timer_invalid_data_should_400(self):
+        """
+        Test should return 400 Bad Request when invalid data is provided.
+        """
+        # Test Data
+        timer = BeltTimerFactory(owner=self.user, session=None)
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": timer.id})
+        self.client.force_login(self.user)
+
+        data = {
+            "belt_id": "TOOLONGID123",
+            "belt_name": "Updated Belt",
+            "belt_type": "asteroid_belt",
+            "belt_size": "small",
+        }
+
+        # Test Action
+        response = self.client.post(url, data=data)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+
+    def test_modify_belt_timer_should_403(self):
+        """
+        Test should return 403 Forbidden when user lacks permissions.
+        """
+        # Test Data
+        timer = BeltTimerFactory(owner=self.user, session=None)
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": timer.id})
+        user_no_permission = UserMainFactory(permissions__=[])
+        self.client.force_login(user_no_permission)
+
+        # Test Action
+        response = self.client.post(url, data={})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_modify_belt_timer_should_404(self):
+        """
+        Test should return 404 Not Found when timer does not exist.
+        """
+        # Test Data
+        url = reverse(f"{API_URL}:modify_belt_timer", kwargs={"timer_id": 9999})
+        self.client.force_login(self.user)
+
+        # Test Action
+        response = self.client.post(url, data={})
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
 
 class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
     """Test Snapshot API Endpoints for POST requests."""

@@ -41,6 +41,8 @@ Section Order:
 
 ### Changed
 
+- Enhanced `modify_belt_timer` endpoint and React edit modal to allow full editing of standalone belt timers with dynamic ETA recalculation, and visibility-only (`is_public`) editing for belt timers linked to a survey session.
+- Updated React `BeltRadarModals` and `BaseModal` to prefill and edit all belt timer attributes in a dedicated edit modal.
 - Updated German translations for user settings and belt timer forms in React frontend.
 - Updated `get_user` and `modify_user_settings` API endpoints to safely initialize UserSettings and handle form submissions via `request.POST`.
 - Migrated `updateUserSettings` to use `openapi-fetch` (`apiClient.POST`).

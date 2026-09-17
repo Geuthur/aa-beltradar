@@ -18,6 +18,7 @@ function BaseModal({
   setShowModal,
   isPending = false, // <-- NEU: Ladezustand von der Mutation
   validate,
+  initialFormData,
   children,
 }: {
   data: ModalData;
@@ -26,17 +27,23 @@ function BaseModal({
   setShowModal: (show: boolean) => void;
   isPending?: boolean;
   validate?: (formData: FormData) => boolean;
+  initialFormData?: FormData;
   children?: React.ReactNode | ((props: { formData: FormData; onChange: (data: FormData) => void }) => React.ReactNode);
 }) {
   const { t } = useTranslation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>({});
+  const [formData, setFormData] = useState<FormData>(initialFormData ?? {});
   const [validated, setValidated] = useState(false);
   const handleClose = () => {
     setErrorMessage(null);
-    setFormData({});
+    setFormData(initialFormData ?? {});
     setValidated(false);
     setShowModal(false);
+  };
+  const handleEnter = () => {
+    setErrorMessage(null);
+    setFormData(initialFormData ?? {});
+    setValidated(false);
   };
   const handleApprove = async () => {
     if (validate && !validate(formData)) {
@@ -47,7 +54,7 @@ function BaseModal({
       await onApprove({ url: ModalData.url, formData });
       // Erfolgreich:
       setErrorMessage(null);
-      setFormData({});
+      setFormData(initialFormData ?? {});
       setValidated(false);
       setShowModal(false);
     } catch (error: unknown) {
@@ -65,6 +72,7 @@ function BaseModal({
       show={showModal}
       size={ModalSize.large}
       onHide={handleClose}
+      onEnter={handleEnter}
       centered={true}
       restoreFocus={false} // Prevent the modal from stealing focus when it is closed
     >

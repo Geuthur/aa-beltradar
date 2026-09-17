@@ -142,6 +142,17 @@ def session_belt_timer_action_icons(
         try:
             timer = session.br_belt_timer
             return schema.ActionSchema(
+                update=schema.ModalSchema(
+                    url=reverse(
+                        "beltradar:api:modify_belt_timer",
+                        kwargs={"timer_id": timer.pk},
+                    ),
+                    icon="fa-solid fa-wrench",
+                    text=str(_("Modify Belt Timer")),
+                    title=str(_("Modify Belt Timer")),
+                    color="warning",
+                    modal_id="beltradar-accept-modify-belt-timer",
+                ),
                 delete=schema.ModalSchema(
                     url=reverse(
                         "beltradar:api:delete_belt_timer", kwargs={"timer_id": timer.pk}
@@ -151,7 +162,7 @@ def session_belt_timer_action_icons(
                     text=str(_("Are you sure you want to delete this belt timer?")),
                     color="danger",
                     modal_id="beltradar-accept-delete-belt-timer",
-                )
+                ),
             )
         except ObjectDoesNotExist:
             pass
@@ -190,12 +201,10 @@ def belt_timer_manage_action_icons(
             "beltradar:api:modify_belt_timer",
             kwargs={
                 "timer_id": timer.pk,
-                "field": "is_public",
-                "value": str(not timer.is_public).capitalize(),
             },
         ),
         icon="fa-solid fa-wrench",
-        text=str(_("Are you sure you want to modify this belt timer?")),
+        text=str(_("Modify Belt Timer")),
         title=str(title),
         color="warning",
         modal_id="beltradar-accept-modify-belt-timer",

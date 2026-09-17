@@ -62,3 +62,29 @@ export const validateBeltTimerForm = (data: Record<string, unknown>): boolean =>
     const beltId = String(data.belt_id ?? '').trim();
     return beltId.length <= 7;
 };
+
+/**
+ * Resolves a belt type value from either a choice value or a display label.
+ */
+export const getBeltTypeValue = (labelOrValue?: string): string => {
+    if (!labelOrValue) return '';
+    const match = BELT_TYPE_OPTIONS.find(
+        (opt) =>
+            opt.value === labelOrValue ||
+            opt.label.toLowerCase() === labelOrValue.toLowerCase(),
+    );
+    return match ? match.value : labelOrValue;
+};
+
+/**
+ * Resolves a belt size value from either a choice value or a display label.
+ */
+export const getBeltSizeValue = (labelOrValue?: string): string => {
+    if (!labelOrValue) return '';
+    const match = ALL_BELT_SIZES.find(
+        (opt) =>
+            opt.value === labelOrValue ||
+            opt.label.toLowerCase() === labelOrValue.toLowerCase(),
+    );
+    return match ? match.value : labelOrValue;
+};

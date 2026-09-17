@@ -114,6 +114,7 @@ class BeltTimerSchema(Schema):
     eta: DataTableSchema
     public: DataTableSchema
     is_expired: bool | None = None
+    has_session: bool = False
     actions: ActionSchema | None = None
     html: str | None = None
 

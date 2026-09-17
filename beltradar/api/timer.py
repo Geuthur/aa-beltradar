@@ -102,6 +102,7 @@ class BeltRadarApiEndpoints:
                             sort=str(timer.is_public),
                         ),
                         is_expired=timer.is_expired,
+                        has_session=bool(timer.session_id),
                         actions=belt_timer_manage_action_icons(
                             request=request,
                             timer=timer,
@@ -155,6 +156,7 @@ class BeltRadarApiEndpoints:
                             sort=str(timer.is_public),
                         ),
                         is_expired=timer.is_expired,
+                        has_session=bool(timer.session_id),
                         actions=belt_timer_manage_action_icons(
                             request=request,
                             timer=timer,
@@ -327,7 +329,7 @@ class BeltRadarApiEndpoints:
             return HTTPStatus.OK, {"success": True, "message": msg}
 
         @api.post(
-            "manage/belt-timer/{timer_id}/modify/{field}/value/{value}/",
+            "manage/belt-timer/{timer_id}/modify/",
             response={
                 HTTPStatus.OK: dict,
                 HTTPStatus.BAD_REQUEST: dict,
@@ -336,31 +338,30 @@ class BeltRadarApiEndpoints:
             },
             tags=self.tags,
         )
-        def modify_belt_timer(request, timer_id: int, field: str, value: str):
+        def modify_belt_timer(request, timer_id: int):
             """
-            Modify a specific field of a belt timer in a survey session.
+            Modify a belt timer.
 
-            This Endpoint allows users to modify a specific field of a belt timer within a survey session.
-            The user must have permission to modify the survey session, and the survey session must exist.
+            This Endpoint allows users to modify all fields of a belt timer that is not
+            linked to a survey session.
+            The user must have permission to manage the belt timer.
 
             Args:
                 timer_id (int): The ID of the belt timer to modify.
-                field (str): The field of the belt timer to modify.
-                value (str): The new value to set for the specified field.
             Returns:
                 200: A success message indicating the belt timer was modified.
-                400: An error message if the input data is invalid or cannot be parsed.
-                403: An error message if the user does not have permission or the session is not found.
+                400: An error message if the timer is linked to a session or input data is invalid.
+                403: An error message if the user does not have permission.
                 404: An error message if the belt timer is not found.
             """
-            # Check if the survey session exists
+            # Check if the belt timer exists
             try:
                 timer = BeltTimer.objects.get(pk=timer_id)
             except ObjectDoesNotExist:
                 msg = _("Belt timer not found.")
                 return HTTPStatus.NOT_FOUND, {"error": msg}
 
-            # Check if the user has permission to modify this snapshot (by checking if they can modify the survey session)
+            # Check if the user has permission to modify this belt timer
             perms = get_manage_belt_timer_or_none(
                 request=request,
                 timer_pk=timer_id,
@@ -374,16 +375,41 @@ class BeltRadarApiEndpoints:
                     "error": _("Requested resource not found.")
                 }
 
-            # Modify the specified field of the belt timer
-            if hasattr(timer, field):
-                setattr(timer, field, value)
-                msg = _(f"Belt timer {field} updated successfully.")
-                # Save the changes to the database
-                try:
-                    timer.save()
-                except Exception as e:  # pylint: disable=broad-except
-                    msg = _(f"Failed to update belt timer {field}: {str(e)}")
-                    return HTTPStatus.BAD_REQUEST, {"error": msg}
-                return HTTPStatus.OK, {"success": True, "message": msg}
-            msg = _("Invalid Method")
-            return HTTPStatus.BAD_REQUEST, {"error": msg}
+            # If timer is linked to a session, only update is_public
+            if timer.session is not None:
+                is_public_raw = request.POST.get("is_public")
+                if is_public_raw is not None:
+                    timer.is_public = str(is_public_raw).lower() in ("true", "1", "on")
+                else:
+                    timer.is_public = False
+                timer.save(update_fields=["is_public"])
+                return HTTPStatus.OK, {
+                    "success": True,
+                    "message": _("Belt timer updated successfully."),
+                }
+
+            old_type = timer.belt_type
+            old_size = timer.belt_size
+
+            form = forms.BeltTimerForm(data=request.POST, instance=timer)
+            if form.is_valid():
+                with transaction.atomic():
+                    updated_timer: BeltTimer = form.save(commit=False)
+                    if (
+                        updated_timer.belt_type != old_type
+                        or updated_timer.belt_size != old_size
+                    ):
+                        updated_timer.generate_eta()
+                    updated_timer.save()
+                    return HTTPStatus.OK, {
+                        "success": True,
+                        "message": _("Belt timer updated successfully."),
+                    }
+
+            return HTTPStatus.BAD_REQUEST, {
+                "success": False,
+                "message": _(
+                    "Invalid input data. Please check the format and try again."
+                ),
+                "errors": form.errors.get_json_data(),
+            }

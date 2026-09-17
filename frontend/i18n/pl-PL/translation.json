@@ -88,5 +88,6 @@
   "Failed to save settings.": "Failed to save settings.",
   "Loading user settings...": "Loading user settings...",
   "Error": "Error",
-  "Failed to load user settings.": "Failed to load user settings."
+  "Failed to load user settings.": "Failed to load user settings.",
+  "This belt timer is linked to a survey session. Belt specifications are fixed and only visibility can be modified.": "This belt timer is linked to a survey session. Belt specifications are fixed and only visibility can be modified."
 }

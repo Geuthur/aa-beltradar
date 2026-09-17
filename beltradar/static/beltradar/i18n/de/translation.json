@@ -86,5 +86,6 @@
   "Failed to save settings.": "Einstellungen konnten nicht gespeichert werden.",
   "Loading user settings...": "Benutzereinstellungen werden geladen...",
   "Error": "Fehler",
-  "Failed to load user settings.": "Benutzereinstellungen konnten nicht geladen werden."
+  "Failed to load user settings.": "Benutzereinstellungen konnten nicht geladen werden.",
+  "This belt timer is linked to a survey session. Belt specifications are fixed and only visibility can be modified.": "Dieser Belt-Timer ist mit einer Sitzung verknüpft. Die Gürtel-Angaben sind festgelegt und es kann nur die Sichtbarkeit geändert werden."
 }

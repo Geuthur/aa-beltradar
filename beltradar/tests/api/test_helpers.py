@@ -142,6 +142,7 @@ class TestIconHelper(BeltRadarTestCase):
         )
 
         # Expected Result
+        self.assertIn("Modify Belt Timer", response)
         self.assertIn("Delete Belt Timer", response)
 
     def test_session_belt_timer_action_icons_should_empty_string(self):
@@ -164,6 +165,26 @@ class TestIconHelper(BeltRadarTestCase):
         # Test Data
         timer = BeltTimerFactory(
             owner=self.user,
+        )
+
+        # Test Action
+        request = self.factory.get(reverse("beltradar:index"))
+        request.user = self.user
+        response = belt_timer_manage_action_icons(request=request, timer=timer)
+
+        # Expected Result
+        self.assertIn("Modify Belt Timer", response)
+        self.assertIn("Delete Belt Timer", response)
+
+    def test_belt_timer_manage_action_icons_should_show_modify_when_session_linked(
+        self,
+    ):
+        """Test belt timer manage action icons should show modify icon even if linked to a session."""
+        # Test Data
+        session = BeltSessionFactory(owner=self.user)
+        timer = BeltTimerFactory(
+            owner=self.user,
+            session=session,
         )
 
         # Test Action

@@ -31,19 +31,8 @@ react-release: check-python-venv check-myauth-path
 .PHONY: react-export-openapi
 react-export-openapi: check-python-venv check-myauth-path
 	@echo "Exporting OpenAPI schema from Django Ninja"
-	@$(PYTHON__EXECUTABLE) $(DJANGO__MYAUTH_PATH)/manage.py shell -c '\
-		import json; \
-		from pathlib import Path; \
-		from django.utils.module_loading import import_string; \
-		from ninja.responses import NinjaJSONEncoder; \
-		\
-		api = import_string("$(GENERAL__PACKAGE).api.api"); \
-		schema = api.get_openapi_schema(); \
-		json_content = json.dumps(schema, cls=NinjaJSONEncoder, indent=2); \
-		\
-		output_file = Path("$(REACT__EXECUTABLE)/src/openapi.json"); \
-		output_file.write_text(json_content, encoding="utf-8"); \
-	'
+	@$(PYTHON__EXECUTABLE) $(DJANGO__MYAUTH_PATH)/manage.py shell -c \
+		"import json; from pathlib import Path; from django.utils.module_loading import import_string; from ninja.responses import NinjaJSONEncoder; api = import_string('$(GENERAL__PACKAGE).api.api'); Path('$(REACT__EXECUTABLE)/src/openapi.json').write_text(json.dumps(api.get_openapi_schema(), cls=NinjaJSONEncoder, indent=2), encoding='utf-8')"
 	@echo "OpenAPI schema exported to $(REACT__EXECUTABLE)/src/openapi.json"
 
 # React OpenAPI Migration (exports schema from Django Ninja and generates TypeScript types)

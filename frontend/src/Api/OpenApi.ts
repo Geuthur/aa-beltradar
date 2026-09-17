@@ -422,7 +422,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/beltradar/api/manage/belt-timer/{timer_id}/modify/{field}/value/{value}/": {
+    "/beltradar/api/manage/belt-timer/{timer_id}/modify/": {
         parameters: {
             query?: never;
             header?: never;
@@ -433,19 +433,18 @@ export interface paths {
         put?: never;
         /**
          * Modify Belt Timer
-         * @description Modify a specific field of a belt timer in a survey session.
+         * @description Modify a belt timer.
          *
-         *     This Endpoint allows users to modify a specific field of a belt timer within a survey session.
-         *     The user must have permission to modify the survey session, and the survey session must exist.
+         *     This Endpoint allows users to modify all fields of a belt timer that is not
+         *     linked to a survey session.
+         *     The user must have permission to manage the belt timer.
          *
          *     Args:
          *         timer_id (int): The ID of the belt timer to modify.
-         *         field (str): The field of the belt timer to modify.
-         *         value (str): The new value to set for the specified field.
          *     Returns:
          *         200: A success message indicating the belt timer was modified.
-         *         400: An error message if the input data is invalid or cannot be parsed.
-         *         403: An error message if the user does not have permission or the session is not found.
+         *         400: An error message if the timer is linked to a session or input data is invalid.
+         *         403: An error message if the user does not have permission.
          *         404: An error message if the belt timer is not found.
          */
         post: operations["beltradar_api_timer_modify_belt_timer"];
@@ -729,6 +728,11 @@ export interface components {
             public: components["schemas"]["DataTableSchema"];
             /** Is Expired */
             is_expired?: boolean | null;
+            /**
+             * Has Session
+             * @default false
+             */
+            has_session: boolean;
             actions?: components["schemas"]["ActionSchema"] | null;
             /** Html */
             html?: string | null;
@@ -1436,8 +1440,6 @@ export interface operations {
             header?: never;
             path: {
                 timer_id: number;
-                field: string;
-                value: string;
             };
             cookie?: never;
         };

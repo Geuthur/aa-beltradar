@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { Session } from "@/Api/schema";
-export function SessionBeltStats({ sessionData }: { sessionData: Session}) {
+export function SessionBeltStats({ sessionData }: { sessionData?: Session}) {
     const { t } = useTranslation();
     let finishEta;
 
@@ -27,7 +27,7 @@ export function SessionBeltStats({ sessionData }: { sessionData: Session}) {
             </div>
             <div className="col-4 text-center">
                 <strong>{t("Speed")}: </strong><br />
-                <span>{sessionData?.stats?.mining_rate_m3_per_s} m³/s</span>
+                <span>{sessionData?.stats?.mining_rate_m3_per_s ?? 0} m³/s</span>
             </div>
             <div className="col-4 text-end">
                 <strong>{t("ETA")}: </strong><br />

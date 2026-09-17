@@ -5,7 +5,7 @@ import { SessionBeltExpectation } from '@/Components/Session/Partials/BeltExpect
 import { SessionBeltStats } from '@/Components/Session/Partials/BeltStats';
 import { SessionDetails } from '@/Components/Session/Partials/SessionDetails';
 
-function SessionDashboard({ sessionData }: { sessionData: Session }) {
+function SessionDashboard({ sessionData }: { sessionData?: Session }) {
     return (
         <>
             <section className="card mt-2" aria-labelledby="session-stats">

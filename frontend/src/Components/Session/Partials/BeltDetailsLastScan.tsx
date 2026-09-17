@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { Session } from "@/Api/schema";
 import { formatDate, renderTooltip } from '@/Components/Helpers/functions';
 import Styles from '@/Components/Session/Partials/BeltDetails.module.css';
-export function BeltDetailsLastScan({ sessionData }: { sessionData: Session}) {
+export function BeltDetailsLastScan({ sessionData }: { sessionData?: Session }) {
     const { t } = useTranslation();
     const options: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit" };
     const progressPercent = Math.min(Math.max(sessionData?.stats?.progress_percent || 0, 0), 100);

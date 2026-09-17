@@ -703,9 +703,20 @@ export interface components {
             /** First Timestamp */
             first_timestamp?: string | null;
         };
+        /** SnapshotSummarySchema */
+        SnapshotSummarySchema: {
+            /** Identifier */
+            identifier: string;
+            /** Timestamp */
+            timestamp: string;
+            /** Asteroid Count */
+            asteroid_count?: number | null;
+        };
         /** SnapShotSchema */
         SnapShotSchema: {
             snapshot?: components["schemas"]["SnapShotDataSchema"] | null;
+            /** Snapshots */
+            snapshots?: components["schemas"]["SnapshotSummarySchema"][];
             /** Ore List */
             ore_list?: components["schemas"]["OreSchema"][] | null;
             charts?: components["schemas"]["ApexChartSchema"] | null;
@@ -1068,7 +1079,9 @@ export interface operations {
     };
     beltradar_api_snapshot_get_snapshot: {
         parameters: {
-            query?: never;
+            query?: {
+                identifier?: string | null;
+            };
             header?: never;
             path: {
                 public_id: string;

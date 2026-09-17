@@ -7,7 +7,7 @@ export const queryKeys = {
     myBeltTimers: (characterID?: number) => ["My-Belt-Timers", characterID] as const,
 
 
-    Snapshot: (publicID: string) => ["Snapshot", publicID] as const,
+    Snapshot: (publicID: string, identifier?: string | null) => ["Snapshot", publicID, identifier ?? "latest"] as const,
     Menu: ["Menu"] as const,
     User: ["User"] as const,
 };

@@ -6,7 +6,7 @@ import type { Session } from "@/Api/schema";
 import { formatDate, renderTooltip } from '@/Components/Helpers/functions';
 import Styles from '@/Components/Session/Partials/BeltDetails.module.css';
 
-export function BeltDetailsFirstScan({ sessionData }: { sessionData: Session}) {
+export function BeltDetailsFirstScan({ sessionData }: { sessionData?: Session }) {
     const { t } = useTranslation();
     const options: Intl.DateTimeFormatOptions = { hour: "2-digit", minute: "2-digit" };
     return (

@@ -691,9 +691,7 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         }
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -713,9 +711,7 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         payload = {"raw_data": ""}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
@@ -731,9 +727,7 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         payload = {"raw_data": ""}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
@@ -749,12 +743,10 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         )
         self.client.force_login(self.user)
 
-        payload = {"raw_data": None}
+        payload = {"raw_data": ""}
 
         # Test Action
-        response = self.client.post(
-            url, data=json.dumps(payload), content_type="application/json"
-        )
+        response = self.client.post(url, data=payload)
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)

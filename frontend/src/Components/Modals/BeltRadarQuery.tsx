@@ -16,7 +16,7 @@ function buildHeaders() {
 }
 
 /** Mutation für Delete / Update / Bestätigungen (ohne Body) */
-export function useApproveMutation(queryKey: QueryKey) {
+export function useApproveMutation(queryKey?: QueryKey | QueryKey[]) {
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -31,8 +31,25 @@ export function useApproveMutation(queryKey: QueryKey) {
             }
             return response.data;
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey });
+        onSuccess: async () => {
+            if (queryKey) {
+                if (Array.isArray(queryKey) && Array.isArray(queryKey[0])) {
+                    await Promise.all(
+                        (queryKey as QueryKey[]).map((key) =>
+                            queryClient.invalidateQueries({ queryKey: key, refetchType: 'all' })
+                        )
+                    );
+                } else {
+                    await queryClient.invalidateQueries({ queryKey: queryKey as QueryKey, refetchType: 'all' });
+                }
+            } else {
+                await Promise.all([
+                    queryClient.invalidateQueries({ queryKey: queryKeys.publicSessions, refetchType: 'all' }),
+                    queryClient.invalidateQueries({ queryKey: ["My-Sessions"], refetchType: 'all' }),
+                    queryClient.invalidateQueries({ queryKey: queryKeys.beltTimer, refetchType: 'all' }),
+                    queryClient.invalidateQueries({ queryKey: ["My-Belt-Timers"], refetchType: 'all' }),
+                ]);
+            }
         },
     });
 }
@@ -65,19 +82,25 @@ export function useFormApproveMutation(queryKey?: QueryKey | QueryKey[]) {
             }
             return response.data;
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             if (queryKey) {
                 if (Array.isArray(queryKey) && Array.isArray(queryKey[0])) {
-                    (queryKey as QueryKey[]).forEach((key) => queryClient.invalidateQueries({ queryKey: key }));
+                    await Promise.all(
+                        (queryKey as QueryKey[]).map((key) =>
+                            queryClient.invalidateQueries({ queryKey: key, refetchType: 'all' })
+                        )
+                    );
                 } else {
-                    queryClient.invalidateQueries({ queryKey: queryKey as QueryKey });
+                    await queryClient.invalidateQueries({ queryKey: queryKey as QueryKey, refetchType: 'all' });
                 }
             } else {
                 // Standardmäßig alle Sessions und Timer invalidieren
-                queryClient.invalidateQueries({ queryKey: queryKeys.publicSessions });
-                queryClient.invalidateQueries({ queryKey: ["My-Sessions"] });
-                queryClient.invalidateQueries({ queryKey: queryKeys.beltTimer });
-                queryClient.invalidateQueries({ queryKey: ["My-Belt-Timers"] });
+                await Promise.all([
+                    queryClient.invalidateQueries({ queryKey: queryKeys.publicSessions, refetchType: 'all' }),
+                    queryClient.invalidateQueries({ queryKey: ["My-Sessions"], refetchType: 'all' }),
+                    queryClient.invalidateQueries({ queryKey: queryKeys.beltTimer, refetchType: 'all' }),
+                    queryClient.invalidateQueries({ queryKey: ["My-Belt-Timers"], refetchType: 'all' }),
+                ]);
             }
         },
     });

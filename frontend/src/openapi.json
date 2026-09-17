@@ -403,6 +403,22 @@
               "type": "string"
             },
             "required": true
+          },
+          {
+            "in": "query",
+            "name": "identifier",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Identifier"
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -439,7 +455,7 @@
             }
           }
         },
-        "description": "Get the last snapshot for the given session.\n\nArgs:\n    public_id (str): The public ID of the survey session.\nReturns:\n    200: The last snapshot for the given session in the API response format.\n    403: An error message if the user does not have permission to access the survey session.\n    404: An error message if the survey session is not found.",
+        "description": "Get the last snapshot or a specific snapshot by identifier for the given session.\n\nArgs:\n    public_id (str): The public ID of the survey session.\n    identifier (str, optional): The identifier of a specific snapshot.\nReturns:\n    200: The snapshot for the given session in the API response format.\n    403: An error message if the user does not have permission to access the survey session.\n    404: An error message if the survey session is not found.",
         "tags": [
           "Survey"
         ],
@@ -1678,6 +1694,14 @@
               }
             ]
           },
+          "snapshots": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SnapshotSummarySchema"
+            },
+            "title": "Snapshots",
+            "type": "array"
+          },
           "ore_list": {
             "anyOf": [
               {
@@ -1724,6 +1748,36 @@
           }
         },
         "title": "SnapShotSchema",
+        "type": "object"
+      },
+      "SnapshotSummarySchema": {
+        "properties": {
+          "identifier": {
+            "title": "Identifier",
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "asteroid_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asteroid Count"
+          }
+        },
+        "required": [
+          "identifier",
+          "timestamp"
+        ],
+        "title": "SnapshotSummarySchema",
         "type": "object"
       },
       "BeltTimerSchema": {

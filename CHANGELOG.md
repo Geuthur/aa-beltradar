@@ -34,6 +34,7 @@ Section Order:
 
 ### Added
 
+- `AddSnapshotForm` React component and modal for creating survey snapshots with Survey Scanner raw data.
 - CODEOWNERS file to define code ownership.
 - `CreateBeltTimerForm` React component with dynamic belt size selection based on belt type.
 - User Settings form and page in React with real-time notification preferences.
@@ -41,6 +42,8 @@ Section Order:
 
 ### Changed
 
+- Updated `add_snapshot` API endpoint to purely use `request.POST` and added `create` action to `get_snapshot`.
+- Enhanced `SessionSnapshotTable` in React with Add Snapshot and Delete Snapshot actions.
 - Enhanced `modify_belt_timer` endpoint and React edit modal to allow full editing of standalone belt timers with dynamic ETA recalculation, and visibility-only (`is_public`) editing for belt timers linked to a survey session.
 - Updated React `BeltRadarModals` and `BaseModal` to prefill and edit all belt timer attributes in a dedicated edit modal.
 - Updated German translations for user settings and belt timer forms in React frontend.

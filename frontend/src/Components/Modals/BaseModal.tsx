@@ -19,6 +19,7 @@ function BaseModal({
   isPending = false, // <-- NEU: Ladezustand von der Mutation
   validate,
   initialFormData,
+  size,
   children,
 }: {
   data: ModalData;
@@ -28,6 +29,7 @@ function BaseModal({
   isPending?: boolean;
   validate?: (formData: FormData) => boolean;
   initialFormData?: FormData;
+  size?: ModalSize;
   children?: React.ReactNode | ((props: { formData: FormData; onChange: (data: FormData) => void }) => React.ReactNode);
 }) {
   const { t } = useTranslation();
@@ -70,7 +72,7 @@ function BaseModal({
   return (
     <Modal
       show={showModal}
-      size={ModalSize.large}
+      size={size ?? ModalSize.large}
       onHide={handleClose}
       onEnter={handleEnter}
       centered={true}

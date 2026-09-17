@@ -18,6 +18,7 @@ from beltradar.api import schema
 from beltradar.api.helpers.core import (
     get_manage_belt_timer_or_none,
     get_manage_session_or_none,
+    get_session_or_none,
 )
 from beltradar.providers import AppLogger
 
@@ -224,19 +225,24 @@ def belt_timer_manage_action_icons(
 
 def get_snapshot_add_button(
     request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
-) -> str:
+) -> schema.ModalSchema | None:
     """
     Generate an add button for a specific snapshot.
 
-    This function creates an HTML button for adding a new snapshot.
+    This function creates a ModalSchema for adding a new snapshot.
     When clicked, it triggers a modal to display the add snapshot form.
 
     Args:
+        request (WSGIRequest): The HTTP request object.
         public_id (str): The public UUID of the snapshot's session.
     Returns:
-        String: HTML string containing the add button.
+        schema.ModalSchema | None: The modal schema containing the add button details.
     """
-    # Create the HTML for the add icon button
+    perms = get_session_or_none(request=request, public_id=public_id)[0]
+    if not perms:
+        return None
+
+    # Create the schema for the add icon button
     title = _("Add Snapshot")
     add_button = schema.ModalSchema(
         url=reverse("beltradar:api:add_snapshot", kwargs={"public_id": public_id}),

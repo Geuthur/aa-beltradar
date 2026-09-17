@@ -88,5 +88,13 @@
   "Loading user settings...": "Loading user settings...",
   "Error": "Error",
   "Failed to load user settings.": "Failed to load user settings.",
-  "This belt timer is linked to a survey session. Belt specifications are fixed and only visibility can be modified.": "This belt timer is linked to a survey session. Belt specifications are fixed and only visibility can be modified."
+  "This belt timer is linked to a survey session. Belt specifications are fixed and only visibility can be modified.": "This belt timer is linked to a survey session. Belt specifications are fixed and only visibility can be modified.",
+  "Mining Result Data": "Mining Result Data",
+  "Paste the 'Mining Survey' data here.": "Paste the 'Mining Survey' data here.",
+  "Mining survey data is required.": "Mining survey data is required.",
+  "Ore Snapshot": "Ore Snapshot",
+  "Add Snapshot": "Add Snapshot",
+  "Delete Snapshot": "Delete Snapshot",
+  "Latest": "Latest",
+  "Select Snapshot": "Select Snapshot"
 }

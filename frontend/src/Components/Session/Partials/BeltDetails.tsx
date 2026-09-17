@@ -9,7 +9,7 @@ import { BeltDetailsETA } from '@/Components/Session/Partials/BeltDetailsETA';
 import { BeltDetailsFirstScan } from '@/Components/Session/Partials/BeltDetailsFirstScan';
 import { BeltDetailsLastScan } from '@/Components/Session/Partials/BeltDetailsLastScan';
 
-export function SessionBeltDetails({ sessionData }: { sessionData: Session}) {
+export function SessionBeltDetails({ sessionData }: { sessionData?: Session }) {
     const { t } = useTranslation();
     const progressPercent = Math.min(Math.max(sessionData?.stats?.progress_percent || 0, 0), 100);
     return (

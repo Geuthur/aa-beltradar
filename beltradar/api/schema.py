@@ -153,8 +153,15 @@ class SnapShotDataSchema(Schema):
     first_timestamp: timezone.datetime | None = None
 
 
+class SnapshotSummarySchema(Schema):
+    identifier: str
+    timestamp: timezone.datetime
+    asteroid_count: int | None = None
+
+
 class SnapShotSchema(Schema):
     snapshot: SnapShotDataSchema | None = None
+    snapshots: list[SnapshotSummarySchema] = []
     ore_list: list[OreSchema] | None = None
     charts: ApexChartSchema | None = None
     traffic: ApexChartSchema | None = None

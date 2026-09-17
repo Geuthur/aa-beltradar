@@ -1,5 +1,4 @@
 # Standard Library
-import json
 from http import HTTPStatus
 
 # Third Party
@@ -8,7 +7,7 @@ from ninja import NinjaAPI
 
 # Django
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
+from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -26,6 +25,7 @@ from beltradar.api.helpers.core import (
     get_session_or_none,
 )
 from beltradar.api.helpers.icons import (
+    get_snapshot_add_button,
     get_snapshot_delete_button,
 )
 from beltradar.models.beltradar import (
@@ -54,14 +54,15 @@ class BeltRadarApiEndpoints:
             },
             tags=self.tags,
         )
-        def get_snapshot(request, public_id: str):
+        def get_snapshot(request, public_id: str, identifier: str | None = None):
             """
-            Get the last snapshot for the given session.
+            Get the last snapshot or a specific snapshot by identifier for the given session.
 
             Args:
                 public_id (str): The public ID of the survey session.
+                identifier (str, optional): The identifier of a specific snapshot.
             Returns:
-                200: The last snapshot for the given session in the API response format.
+                200: The snapshot for the given session in the API response format.
                 403: An error message if the user does not have permission to access the survey session.
                 404: An error message if the survey session is not found.
             """
@@ -77,11 +78,43 @@ class BeltRadarApiEndpoints:
                     "error": _("Belt Session not found or not public.")
                 }
 
-            snapshot = session.br_snapshots.order_by("-timestamp").first()
-            if not snapshot:
-                return HTTPStatus.NOT_FOUND, schema.SnapShotSchema()
+            snapshots_qs = session.br_snapshots.annotate(
+                asteroid_count=models.Count("asteroids", distinct=True)
+            ).order_by("-timestamp")
 
-            # Aggregate data for the last snapshot
+            if identifier:
+                snapshot = snapshots_qs.filter(identifier=identifier).first()
+                if not snapshot:
+                    snapshot = snapshots_qs.first()
+            else:
+                snapshot = snapshots_qs.first()
+
+            snapshots_summary = [
+                schema.SnapshotSummarySchema(
+                    identifier=s.identifier,
+                    timestamp=s.timestamp,
+                    asteroid_count=s.asteroid_count,
+                )
+                for s in snapshots_qs
+            ]
+
+            if not snapshot:
+                perms = get_session_or_none(request=request, public_id=public_id)[0]
+                add_button = (
+                    get_snapshot_add_button(
+                        request=request, public_id=session.public_id
+                    )
+                    if perms
+                    else None
+                )
+                return HTTPStatus.OK, schema.SnapShotSchema(
+                    snapshots=snapshots_summary,
+                    actions=(
+                        schema.ActionSchema(create=add_button) if add_button else None
+                    ),
+                )
+
+            # Aggregate data for the selected snapshot
             aggregated_items = session.br_snapshots.aggregate_entries_by_ore(
                 entries=snapshot.asteroids.all()
             )
@@ -105,12 +138,17 @@ class BeltRadarApiEndpoints:
                 snapshot=schema.SnapShotDataSchema(
                     identifier=snapshot.identifier,
                     first_timestamp=session.first_timestamp,
-                    last_timestamp=session.last_timestamp,
+                    last_timestamp=snapshot.timestamp,
                 ),
+                snapshots=snapshots_summary,
                 ore_list=ore_list,
                 charts=generate_apex_chart_mining_data(session=session),
                 traffic=generate_apex_chart_traffic_data(session=session),
                 actions=schema.ActionSchema(
+                    create=get_snapshot_add_button(
+                        request=request,
+                        public_id=session.public_id,
+                    ),
                     delete=get_snapshot_delete_button(
                         request=request,
                         public_id=session.public_id,
@@ -210,8 +248,8 @@ class BeltRadarApiEndpoints:
                     "error": _("Requested resource not found.")
                 }
 
-            # Validate the form data
-            form = forms.AddSnapshotForm(data=json.loads(request.body))
+            # Validate the form data purely using request.POST
+            form = forms.AddSnapshotForm(data=request.POST)
             if not form.is_valid():
                 try:
                     msg = form.errors.as_json(escape_html=False)

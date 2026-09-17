@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next'
 import { loadSession } from '@/Api/BeltRadar';
 import { queryKeys } from "@/Api/query";
 import ErrorLoader from '@/Components/Loader/ErrorLoader';
-import FetchingLoader from '@/Components/Loader/FetchingLoader';
 import BaseSectionHeader from '@/Components/Section/BaseSectionHeader';
 import SessionDashboard from '@/Components/Session/Dashboard';
 import SessionSnapshotTable from '@/Components/Session/SnapshotTable';
@@ -19,7 +18,7 @@ function BeltRadarSession() {
     const { publicID } = useParams();
 
 	// Load Belt Radar Session Snapshot data
-	const { data: sessionData, isError: isErrorSessions, isFetching: isFetchingSessions } = useQuery({
+	const { data: sessionData, isError: isErrorSessions } = useQuery({
 		queryKey: queryKeys.Session(String(publicID)),
         queryFn: () => loadSession(String(publicID)),
 		refetchOnWindowFocus: false,
@@ -30,15 +29,7 @@ function BeltRadarSession() {
         return <ErrorLoader title={t("Error 400")} message={t("Error loading session data")} />;
     }
 
-    if (isFetchingSessions) {
-        return <FetchingLoader message={t("Loading session data...")} />;
-    }
-
-    if (!sessionData) {
-        return null;
-    }
-
-    const headerName = `${t("Session")} - ${sessionData.name}`;
+    const headerName = sessionData?.name ? `${t("Session")} - ${sessionData.name}` : t("Session");
     return (
         <main>
             {/* Sessions Section */}

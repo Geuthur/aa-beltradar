@@ -56,6 +56,8 @@ export const hasRequiredFields = (...fields: string[]) =>
 
 export const validateSessionForm = hasRequiredFields('name');
 
+export const validateAddSnapshotForm = hasRequiredFields('raw_data');
+
 export const validateBeltTimerForm = (data: Record<string, unknown>): boolean => {
     const hasRequired = hasRequiredFields('belt_id', 'belt_name', 'belt_type', 'belt_size')(data);
     if (!hasRequired) return false;

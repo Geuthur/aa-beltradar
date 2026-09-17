@@ -1,18 +1,13 @@
 """TestView class."""
 
 # Standard Library
-import uuid
 from http import HTTPStatus
 
 # Django
-from django.http import Http404
 from django.urls import reverse
 
 # AA Belt Radar
 from beltradar import views
-from beltradar.models import BeltSurveySession
-
-# AA Beltradar
 from beltradar.tests import BeltRadarTestCase
 
 MODULE_PATH = "beltradar.views."
@@ -25,89 +20,47 @@ class TestViewAccess(BeltRadarTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-    def test_index(self):
+    def test_react_base_default_character(self):
         """
-        Test should render index view.
+        Test should render react view with user's main character.
         """
         # given
-        request = self.factory.get(reverse("beltradar:index"))
+        request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
         # when
-        response = views.view_belt_radar(request)
+        response = views.react_base(request)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "Session Overview")
+        self.assertContains(response, "aa-beltradar-root")
 
-    def test_view_session(self):
+    def test_react_base_with_character_id(self):
         """
-        Test should render view session view.
+        Test should render react view with specific character ID.
         """
         # given
-        session = BeltSurveySession.objects.create(
-            owner=self.user, public_id="test", name="Test Session"
-        )
+        character_id = 987654321
         request = self.factory.get(
-            reverse("beltradar:view_session", args=[session.public_id])
+            reverse("beltradar:react_base", kwargs={"character_id": character_id})
         )
         request.user = self.user
         # when
-        response = views.view_session(request, public_id=session.public_id)
+        response = views.react_base(request, character_id=character_id)
         # then
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "View Session - Test Session")
+        self.assertContains(response, "aa-beltradar-root")
 
-    def test_view_session_no_name(self):
+    def test_react_base_client_authenticated(self):
         """
-        Test should render view session view with public ID in title when session has no name.
+        Test should return 200 OK for logged-in user via test client.
         """
-        # given
-        session = BeltSurveySession.objects.create(owner=self.user, public_id="test")
-        request = self.factory.get(
-            reverse("beltradar:view_session", args=[session.public_id])
-        )
-        request.user = self.user
-        # when
-        response = views.view_session(request, public_id=session.public_id)
-        # then
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("beltradar:react_base"))
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, f"View Session - {session.public_id}")
+        self.assertContains(response, "aa-beltradar-root")
 
-    def test_view_session_not_found(self):
+    def test_react_base_client_unauthenticated(self):
         """
-        Test should return 404 when session not found.
+        Test should redirect unauthenticated user to login.
         """
-        # given
-        test_uuid = uuid.uuid4()
-        request = self.factory.get(
-            reverse("beltradar:view_session", kwargs={"public_id": test_uuid})
-        )
-        request.user = self.user
-        # when
-        with self.assertRaises(Http404):
-            views.view_session(request, public_id=test_uuid)
-
-    def test_view_my_beltradar(self):
-        """
-        Test should render view my sessions view.
-        """
-        # given
-        request = self.factory.get(reverse("beltradar:view_my_beltradar"))
-        request.user = self.user
-        # when
-        response = views.view_my_beltradar(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "My Sessions")
-
-    def test_view_my_settings(self):
-        """
-        Test should render view my settings view.
-        """
-        # given
-        request = self.factory.get(reverse("beltradar:view_my_settings"))
-        request.user = self.user
-        # when
-        response = views.view_my_settings(request)
-        # then
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "My Settings")
+        response = self.client.get(reverse("beltradar:react_base"))
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)

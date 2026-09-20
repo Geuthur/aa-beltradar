@@ -10,6 +10,8 @@ class General(models.Model):
 
     class Meta:
         managed = False
+        verbose_name = "AA-Belt-Radar"
+        verbose_name_plural = "AA-Belt-Radar"
         permissions = (
             ("basic_access", _("Can access this app, Belt Radar")),
             ("manage_access", _("Can manage Belt Radar")),

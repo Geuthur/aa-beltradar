@@ -1,8 +1,8 @@
 // Third Party
 import type {
-  Header,
-  HeaderGroup,
-  Table as ReactTable,
+    Header,
+    HeaderGroup,
+    Table as ReactTable,
 } from "@tanstack/react-table";
 import { stringify } from "csv-stringify/browser/esm/sync";
 import i18n from "i18next";
@@ -16,33 +16,33 @@ import Tooltip from "react-bootstrap/esm/Tooltip";
  * @returns A formatted date string or "N/A" if the value is not provided
  */
 export function formatDate(value?: string | null, options?: Intl.DateTimeFormatOptions): string {
-  // Return "N/A" if the value is not provided
-  if (!value) {
-    return "N/A";
-  }
+    // Return "N/A" if the value is not provided
+    if (!value) {
+        return "N/A";
+    }
 
-	const locale = i18n.language || "en";
-	const hasExplicitTimeFields =
-		options && (
-			"hour" in options ||
-			"minute" in options ||
-			"second" in options ||
-			"timeStyle" in options
-		);
-	const hasExplicitDateFields =
-		options && (
-			"year" in options ||
-			"month" in options ||
-			"day" in options ||
-			"dateStyle" in options
-		);
+    const locale = i18n.language || "en";
+    const hasExplicitTimeFields =
+        options && (
+            "hour" in options ||
+            "minute" in options ||
+            "second" in options ||
+            "timeStyle" in options
+        );
+    const hasExplicitDateFields =
+        options && (
+            "year" in options ||
+            "month" in options ||
+            "day" in options ||
+            "dateStyle" in options
+        );
 
-	const formatterOptions: Intl.DateTimeFormatOptions = {
-		...(hasExplicitTimeFields || hasExplicitDateFields ? {} : { dateStyle: 'medium', timeStyle: 'short' }),
-		...(options ?? {}),
-	};
+    const formatterOptions: Intl.DateTimeFormatOptions = {
+        ...(hasExplicitTimeFields || hasExplicitDateFields ? {} : { dateStyle: 'medium', timeStyle: 'short' }),
+        ...(options ?? {}),
+    };
 
-	return new Intl.DateTimeFormat(locale, formatterOptions).format(new Date(value));
+    return new Intl.DateTimeFormat(locale, formatterOptions).format(new Date(value));
 }
 
 /**
@@ -53,34 +53,34 @@ export function formatDate(value?: string | null, options?: Intl.DateTimeFormatO
  * @returns Formatted relative time or "N/A" if value is missing/invalid
  */
 export function formatRelativeTime(value?: string | Date | null): string {
-  if (!value) {
-    return "N/A";
-  }
+    if (!value) {
+        return "N/A";
+    }
 
-  const date = value instanceof Date ? value : new Date(value);
-  if (isNaN(date.getTime())) {
-    return "N/A";
-  }
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) {
+        return "N/A";
+    }
 
-  const diffInSeconds = Math.round((date.getTime() - Date.now()) / 1000);
+    const diffInSeconds = Math.round((date.getTime() - Date.now()) / 1000);
 
-  // Define intervals in seconds
-  const intervals = [
-    { unit: 'year', seconds: 31536000 },
-    { unit: 'month', seconds: 2592000 },
-    { unit: 'day', seconds: 86400 },
-    { unit: 'hour', seconds: 3600 },
-    { unit: 'minute', seconds: 60 },
-    { unit: 'second', seconds: 1 },
-  ] as const;
+    // Define intervals in seconds
+    const intervals = [
+        { unit: 'year', seconds: 31536000 },
+        { unit: 'month', seconds: 2592000 },
+        { unit: 'day', seconds: 86400 },
+        { unit: 'hour', seconds: 3600 },
+        { unit: 'minute', seconds: 60 },
+        { unit: 'second', seconds: 1 },
+    ] as const;
 
-  const interval = intervals.find((i) => Math.abs(diffInSeconds) >= i.seconds) ?? intervals[intervals.length - 1];
-  const count = Math.round(diffInSeconds / interval.seconds);
+    const interval = intervals.find((i) => Math.abs(diffInSeconds) >= i.seconds) ?? intervals[intervals.length - 1];
+    const count = Math.round(diffInSeconds / interval.seconds);
 
-  const locale = i18n.language || "en";
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+    const locale = i18n.language || "en";
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
 
-  return rtf.format(count, interval.unit);
+    return rtf.format(count, interval.unit);
 }
 
 /**
@@ -92,20 +92,20 @@ export function formatRelativeTime(value?: string | Date | null): string {
  * @returns Formatted ETA string or "N/A" if value is missing/invalid
  */
 export function formatEta(value?: string | Date | null, doneLabel = "Done"): string {
-  if (!value) {
-    return "N/A";
-  }
+    if (!value) {
+        return "N/A";
+    }
 
-  const date = value instanceof Date ? value : new Date(value);
-  if (isNaN(date.getTime())) {
-    return "N/A";
-  }
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) {
+        return "N/A";
+    }
 
-  if (date.getTime() <= Date.now()) {
-    return doneLabel;
-  }
+    if (date.getTime() <= Date.now()) {
+        return doneLabel;
+    }
 
-  return formatRelativeTime(date);
+    return formatRelativeTime(date);
 }
 
 /**
@@ -113,7 +113,7 @@ export function formatEta(value?: string | Date | null, doneLabel = "Done"): str
  * @param value The HTML string to render
  */
 export function renderHtml(value: string) {
-	return <span dangerouslySetInnerHTML={{ __html: value }} />
+    return <span dangerouslySetInnerHTML={{ __html: value }} />
 }
 
 /**
@@ -122,21 +122,21 @@ export function renderHtml(value: string) {
  * @param children The React element that triggers the tooltip
  */
 export function renderTooltip(
-  message: string,
-  children: React.ComponentProps<typeof OverlayTrigger>["children"],
+    message: string,
+    children: React.ComponentProps<typeof OverlayTrigger>["children"],
 ) {
-  return (
-    <OverlayTrigger
-      trigger={["hover", "focus"]}
-      overlay={
-        <Tooltip id="aa-beltradar-tooltip" style={{ position: "fixed" }}>
-          {message}
-        </Tooltip>
-      }
-    >
-      {children}
-    </OverlayTrigger>
-  );
+    return (
+        <OverlayTrigger
+            trigger={["hover", "focus"]}
+            overlay={
+                <Tooltip id="aa-beltradar-tooltip" style={{ position: "fixed" }}>
+                    {message}
+                </Tooltip>
+            }
+        >
+            {children}
+        </OverlayTrigger>
+    );
 }
 
 /**
@@ -146,8 +146,8 @@ export function renderTooltip(
  * @param options Optional Intl.NumberFormatOptions for custom formatting
  */
 export function formatNumber(value: number, locale?: string, options?: Intl.NumberFormatOptions) {
-  const effectiveLocale = locale || i18n.language || "en";
-  return new Intl.NumberFormat(effectiveLocale, options).format(value);
+    const effectiveLocale = locale || i18n.language || "en";
+    return new Intl.NumberFormat(effectiveLocale, options).format(value);
 }
 
 /**
@@ -156,28 +156,28 @@ export function formatNumber(value: number, locale?: string, options?: Intl.Numb
  * @param exportFileName Optional file name for the exported CSV
  */
 export const exportToCSV = <TData,>(table: ReactTable<TData>, exportFileName?: string) => {
-  const { rows } = table.getFilteredRowModel();
-  const safeFileName = exportFileName ?? "ExportedData.csv";
+    const { rows } = table.getFilteredRowModel();
+    const safeFileName = exportFileName ?? "ExportedData.csv";
 
-  const headerRows = table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) =>
-    headerGroup.headers.map((header: Header<TData, unknown>) => {
-      if (typeof header.column.columnDef.header === "function") {
-        return (header.column.columnDef as { accessorKey?: string }).accessorKey;
-      }
-      return header.column.columnDef.header;
-    }),
-  );
+    const headerRows = table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) =>
+        headerGroup.headers.map((header: Header<TData, unknown>) => {
+            if (typeof header.column.columnDef.header === "function") {
+                return (header.column.columnDef as { accessorKey?: string }).accessorKey;
+            }
+            return header.column.columnDef.header;
+        }),
+    );
 
-  const csvData = rows.map((row) => row.getVisibleCells().map((cell) => cell.getValue()));
+    const csvData = rows.map((row) => row.getVisibleCells().map((cell) => cell.getValue()));
 
-  const csv = stringify([...headerRows, ...csvData]);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf8;" });
+    const csv = stringify([...headerRows, ...csvData]);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf8;" });
 
-  const link = document.createElement("a");
-  link.download = safeFileName;
-  link.href = URL.createObjectURL(blob);
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    const link = document.createElement("a");
+    link.download = safeFileName;
+    link.href = URL.createObjectURL(blob);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 };

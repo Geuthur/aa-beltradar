@@ -128,7 +128,7 @@ repos:
         args: [--fix, --color, --max-warnings, "0", --no-warn-ignored]
         description: Check for problems in JavaScript files.
         additional_dependencies:
-          - eslint@10.9.1
+          - eslint@10.11.0
 
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
     rev: v17.15.0
@@ -140,7 +140,7 @@ repos:
           - --formatter=compact
         additional_dependencies:
           # stylelint itself needs to be here when using additional_dependencies.
-          - stylelint@17.14.1  # https://github.com/stylelint/stylelint/releases/latest
+          - stylelint@17.15.0  # https://github.com/stylelint/stylelint/releases/latest
           - stylelint-config-standard@40.0.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
 
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -196,7 +196,7 @@ repos:
           - --py310-plus  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
+    rev: 7.4.1
     hooks:
       - id: flake8
         name: Flake8
@@ -210,7 +210,7 @@ repos:
         description: Check for extraneous `# noqa` comments.
 
   - repo: https://github.com/PyCQA/isort
-    rev: 9.0.1
+    rev: 9.0.2
     hooks:
       - id: isort
         name: Isort
@@ -271,7 +271,7 @@ repos:
         args:
           - --indent=4
         additional_dependencies:
-          - tox==4.61.1  # https://github.com/tox-dev/tox/releases/latest
+          - tox==4.64.4  # https://github.com/tox-dev/tox/releases/latest
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: '0.26'
@@ -290,7 +290,7 @@ repos:
           - --py-version=3.10  # Minimum required Python version for AA. Update as needed.
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.38.0
+    rev: 0.38.2
     hooks:
       - id: check-github-actions
         name: Check GitHub Actions

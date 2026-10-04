@@ -1,5 +1,6 @@
 // Third Party
 import { useQuery } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
@@ -16,7 +17,7 @@ export function ActionSectionHeader({
     queryKey,
     modalKey,
     buttonTitle,
-    buttonIcon = "fas fa-plus",
+    buttonIcon = <Plus size={14} aria-hidden="true" />,
     validate,
     children,
 }: SectionHeaderProps) {

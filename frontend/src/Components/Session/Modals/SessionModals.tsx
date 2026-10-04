@@ -1,8 +1,12 @@
+// Third Party
+import { useTranslation } from 'react-i18next';
+
 // AA Belt Radar
 import { queryKeys } from '@/Api/query';
 import type { SessionStats } from '@/Api/schema';
 import BaseModal from '@/Components/Modals/BaseModal';
 import { useApproveMutation } from '@/Components/Modals/BeltRadarQuery';
+import { getModalConfig } from '@/Components/Modals/modalConfig';
 
 export interface SessionModalsProps {
     session?: SessionStats | null;
@@ -15,6 +19,7 @@ export function SessionModals({
     activeModal,
     setActiveModal,
 }: SessionModalsProps) {
+    const { t } = useTranslation();
     const sessionKey = queryKeys.Session(String(session?.public_id));
     const approveMutation = useApproveMutation([sessionKey, queryKeys.beltTimer]);
 
@@ -35,7 +40,7 @@ export function SessionModals({
                     setShowModal={(show) => setActiveModal(show ? deleteTimerAction.modal_id : null)}
                     onApprove={({ url }) => handleApprove(url)}
                     isPending={approveMutation.isPending}
-                    children={<div>{deleteTimerAction.text}</div>}
+                    children={<div>{getModalConfig(t, deleteTimerAction.modal_id).text}</div>}
                 />
             )}
             {createTimerAction && (
@@ -45,7 +50,7 @@ export function SessionModals({
                     setShowModal={(show) => setActiveModal(show ? createTimerAction.modal_id : null)}
                     onApprove={({ url }) => handleApprove(url)}
                     isPending={approveMutation.isPending}
-                    children={<div>{createTimerAction.text}</div>}
+                    children={<div>{getModalConfig(t, createTimerAction.modal_id).text}</div>}
                 />
             )}
         </>

@@ -5,12 +5,11 @@ from evesde_factory.eve_sde import ItemTypeFactory
 from django.urls import reverse
 
 # AA Belt Radar
-from beltradar.api.helpers.icons import (
-    belt_timer_manage_action_icons,
-    get_session_delete_button,
-    get_snapshot_delete_button,
-    session_belt_timer_action_icons,
-    session_manage_action_icons,
+from beltradar.api.helpers.actions import (
+    belt_timer_manage_actions,
+    get_snapshot_delete_action,
+    session_belt_timer_actions,
+    session_manage_actions,
 )
 from beltradar.tests import BeltRadarTestCase
 from beltradar.tests.testdata.beltradar import (
@@ -25,29 +24,29 @@ MODULE_PATH = "beltradar.api.helpers."
 API_URL = "beltradar:api"
 
 
-class TestIconHelper(BeltRadarTestCase):
-    """Test Icon Helper."""
+class TestActionHelper(BeltRadarTestCase):
+    """Test Action Helper."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-    def test_session_manage_action_icons_should_all(self):
-        """Test session manage action icons should show all action icons."""
+    def test_session_manage_actions_should_all(self):
+        """Test session manage actions should show all actions."""
         # Test Data
         session = BeltSessionFactory(owner=self.user)
 
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
-        response = session_manage_action_icons(request=request, session=session)
+        response = session_manage_actions(request=request, session=session)
 
         # Expected Result
-        self.assertEqual(response.update.icon, "fa-solid fa-wrench")
-        self.assertEqual(response.delete.icon, "fa-solid fa-trash")
+        self.assertEqual(response.update.modal_id, "beltradar-accept-modify-session")
+        self.assertEqual(response.delete.modal_id, "beltradar-accept-delete-session")
 
-    def test_session_belt_timer_action_icons_should_show_create_button(self):
-        """Test session belt timer action icons should show the create button icon."""
+    def test_session_belt_timer_actions_should_show_create_button(self):
+        """Test session belt timer actions should show the create action."""
         # Test Data
         item_type = ItemTypeFactory(
             name="Arkonor",
@@ -78,16 +77,16 @@ class TestIconHelper(BeltRadarTestCase):
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
-        response = session_belt_timer_action_icons(
+        response = session_belt_timer_actions(
             request=request, public_id=snapshot.session.public_id
         )
 
         # Expected Result
         self.assertIsNotNone(response.create)
-        self.assertEqual(response.create.title, "Create Belt Timer")
+        self.assertEqual(response.create.modal_id, "beltradar-accept-create-belt-timer")
 
-    def test_session_belt_timer_action_icons_should_show_delete_button(self):
-        """Test session belt timer action icons should show the delete button."""
+    def test_session_belt_timer_actions_should_show_delete_button(self):
+        """Test session belt timer actions should show the update and delete actions."""
         # Test Data
         item_type = ItemTypeFactory(
             name="Arkonor",
@@ -124,31 +123,31 @@ class TestIconHelper(BeltRadarTestCase):
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
-        response = session_belt_timer_action_icons(
+        response = session_belt_timer_actions(
             request=request, public_id=snapshot.session.public_id
         )
 
         # Expected Result
-        self.assertEqual(response.update.title, "Modify Belt Timer")
-        self.assertEqual(response.delete.title, "Delete Belt Timer")
+        self.assertEqual(response.update.modal_id, "beltradar-accept-modify-belt-timer")
+        self.assertEqual(response.delete.modal_id, "beltradar-accept-delete-belt-timer")
 
-    def test_session_belt_timer_action_icons_should_empty_string(self):
-        """Test session belt timer action icons should return None for unauthorized users."""
+    def test_session_belt_timer_actions_should_empty_string(self):
+        """Test session belt timer actions should return None for sessions that are not ready."""
         # Test Data
         session = BeltSessionFactory(owner=self.user)
 
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
-        response = session_belt_timer_action_icons(
+        response = session_belt_timer_actions(
             request=request, public_id=session.public_id
         )
 
         # Expected Result
         self.assertIsNone(response)
 
-    def test_belt_timer_manage_action_icons_should_show_all(self):
-        """Test belt timer manage action icons should show all action icons."""
+    def test_belt_timer_manage_actions_should_show_all(self):
+        """Test belt timer manage actions should show all actions."""
         # Test Data
         timer = BeltTimerFactory(
             owner=self.user,
@@ -157,16 +156,16 @@ class TestIconHelper(BeltRadarTestCase):
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
-        response = belt_timer_manage_action_icons(request=request, timer=timer)
+        response = belt_timer_manage_actions(request=request, timer=timer)
 
         # Expected Result
-        self.assertEqual(response.update.title, "Modify Belt Timer")
-        self.assertEqual(response.delete.title, "Delete Belt Timer")
+        self.assertEqual(response.update.modal_id, "beltradar-accept-modify-belt-timer")
+        self.assertEqual(response.delete.modal_id, "beltradar-accept-delete-belt-timer")
 
-    def test_belt_timer_manage_action_icons_should_show_modify_when_session_linked(
+    def test_belt_timer_manage_actions_should_show_modify_when_session_linked(
         self,
     ):
-        """Test belt timer manage action icons should show modify icon even if linked to a session."""
+        """Test belt timer manage actions should show modify even if linked to a session."""
         # Test Data
         session = BeltSessionFactory(owner=self.user)
         timer = BeltTimerFactory(
@@ -177,14 +176,14 @@ class TestIconHelper(BeltRadarTestCase):
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
-        response = belt_timer_manage_action_icons(request=request, timer=timer)
+        response = belt_timer_manage_actions(request=request, timer=timer)
 
         # Expected Result
-        self.assertEqual(response.update.title, "Modify Belt Timer")
-        self.assertEqual(response.delete.title, "Delete Belt Timer")
+        self.assertEqual(response.update.modal_id, "beltradar-accept-modify-belt-timer")
+        self.assertEqual(response.delete.modal_id, "beltradar-accept-delete-belt-timer")
 
-    def test_belt_timer_manage_action_icons_should_empty_string(self):
-        """Test belt timer manage action icons should return None for unauthorized users."""
+    def test_belt_timer_manage_actions_should_empty_string(self):
+        """Test belt timer manage actions should return None for unauthorized users."""
         # Test Data
         timer = BeltTimerFactory(
             owner=self.user,
@@ -193,13 +192,13 @@ class TestIconHelper(BeltRadarTestCase):
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = UserMainFactory()
-        response = belt_timer_manage_action_icons(request=request, timer=timer)
+        response = belt_timer_manage_actions(request=request, timer=timer)
 
         # Expected Result
         self.assertIsNone(response)
 
-    def test_get_snapshot_delete_button_should_show_delete_button(self):
-        """Test get snapshot delete button should return the delete button HTML."""
+    def test_get_snapshot_delete_action_should_show_delete_action(self):
+        """Test get snapshot delete action should return the delete action."""
         # Test Data
         session = BeltSessionFactory(owner=self.user)
         snapshot = BeltSnapshotFactory(session=session)
@@ -207,15 +206,15 @@ class TestIconHelper(BeltRadarTestCase):
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
-        response = get_snapshot_delete_button(
+        response = get_snapshot_delete_action(
             request=request, public_id=session.public_id, identifier=snapshot.identifier
         )
 
         # Expected Result
-        self.assertEqual(response.title, "Delete Snapshot")
+        self.assertEqual(response.modal_id, "beltradar-accept-delete-snapshot")
 
-    def test_get_snapshot_delete_button_should_empty_string(self):
-        """Test get snapshot delete button should return None for unauthorized users."""
+    def test_get_snapshot_delete_action_should_empty_string(self):
+        """Test get snapshot delete action should return None for unauthorized users."""
         # Test Data
         session = BeltSessionFactory(owner=self.user)
         snapshot = BeltSnapshotFactory(session=session)
@@ -223,39 +222,9 @@ class TestIconHelper(BeltRadarTestCase):
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = UserMainFactory()
-        response = get_snapshot_delete_button(
+        response = get_snapshot_delete_action(
             request=request, public_id=session.public_id, identifier=snapshot.identifier
         )
 
         # Expected Result
         self.assertIsNone(response)
-
-    def test_get_session_delete_button_should_show_delete_button(self):
-        """Test get session delete button should return the delete button HTML."""
-        # Test Data
-        session = BeltSessionFactory(owner=self.user)
-
-        # Test Action
-        request = self.factory.get(reverse("beltradar:react_base"))
-        request.user = self.user
-        response = get_session_delete_button(
-            request=request, public_id=session.public_id
-        )
-
-        # Expected Result
-        self.assertEqual(response.title, "Delete Session")
-
-    def test_get_session_delete_button_should_empty_string(self):
-        """Test get session delete button should return None for unauthorized users."""
-        # Test Data
-        session = BeltSessionFactory(owner=self.user)
-
-        # Test Action
-        request = self.factory.get(reverse("beltradar:react_base"))
-        request.user = UserMainFactory()
-        response = get_session_delete_button(
-            request=request, public_id=session.public_id
-        )
-
-        # Expected Result
-        self.assertEqual(response, "")

@@ -115,5 +115,17 @@
   "Previous Page": "Previous Page",
   "Page {{page}} of {{total}}": "Page {{page}} of {{total}}",
   "Next Page": "Next Page",
-  "Last Page": "Last Page"
+  "Last Page": "Last Page",
+  "left": "left",
+  "Auto Belt Timer ready": "Auto Belt Timer ready",
+  "Private": "Private",
+  "Are you sure you want to create a new session?": "Are you sure you want to create a new session?",
+  "Delete Session": "Delete Session",
+  "Are you sure you want to delete this session?": "Are you sure you want to delete this session?",
+  "Modify Session": "Modify Session",
+  "Are you sure you want to switch public/private status for this session?": "Are you sure you want to switch public/private status for this session?",
+  "Are you sure you want to create a belt timer for this session?": "Are you sure you want to create a belt timer for this session?",
+  "Modify Belt Timer": "Modify Belt Timer",
+  "Are you sure you want to delete this belt timer?": "Are you sure you want to delete this belt timer?",
+  "Are you sure you want to delete this snapshot?": "Are you sure you want to delete this snapshot?"
 }

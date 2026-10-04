@@ -5,6 +5,9 @@ Constants
 # Intervals mined slower than this share of the median rate count as a pause
 PAUSE_RATE_FACTOR = 0.25
 
+# Share of the first snapshot's volume left at which a belt timer is created automatically
+AUTO_TIMER_REMAINING_SHARE = 0.10
+
 # Embed colors
 DISCORD_EMBED_COLOR_INFO = 0x5BC0DE
 DISCORD_EMBED_COLOR_SUCCESS = 0x5CB85C

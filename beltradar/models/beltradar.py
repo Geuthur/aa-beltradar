@@ -20,6 +20,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__
+from beltradar.constants import AUTO_TIMER_REMAINING_SHARE
 from beltradar.managers import (
     BeltSurveyEntryManager,
     BeltSurveySnapshotManager,
@@ -121,6 +122,18 @@ class BeltSurveySession(models.Model):
         if snapshot_count <= 3:
             return False
         return True
+
+    def is_auto_timer_ready(self) -> bool:
+        """Check if only a small share of the first snapshot's volume is left, so the belt timer can be created automatically."""
+        first_snapshot = self.br_snapshots.order_by("timestamp").first()
+        last_snapshot = self.br_snapshots.order_by("-timestamp").first()
+        if first_snapshot is None or last_snapshot is None:
+            return False
+
+        initial_volume = first_snapshot.belt_size_m3
+        if initial_volume <= 0:
+            return False
+        return last_snapshot.belt_size_m3 <= initial_volume * AUTO_TIMER_REMAINING_SHARE
 
     @cached_property
     def has_timer(self):

@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 // Third Party
 import type { QueryKey } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionItem, BeltTimer } from "@/Api/schema";
@@ -14,6 +15,7 @@ import {
 } from '@/Components/Forms/validation';
 import BaseModal from '@/Components/Modals/BaseModal';
 import { useApproveMutation, useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
+import { getModalConfig } from '@/Components/Modals/modalConfig';
 
 export interface BeltRadarModalsProps {
 	session?: SessionItem | BeltTimer | null;
@@ -24,6 +26,7 @@ export interface BeltRadarModalsProps {
 }
 
 function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey }: BeltRadarModalsProps) {
+	const { t } = useTranslation();
 	const approveMutation = useApproveMutation(queryKey);
 	const formApproveMutation = useFormApproveMutation(queryKey);
 
@@ -77,7 +80,7 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 						onApprove={({ url }) => approveMutation.mutateAsync(url)}
 						isPending={approveMutation.isPending}
 						setShowModal={(show) => setModalAction(show ? updateAction.modal_id : null)}
-						children={<div>{updateAction.text}</div>}
+						children={<div>{getModalConfig(t, updateAction.modal_id).text}</div>}
 					/>
 				)
 			)}
@@ -88,7 +91,7 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 					onApprove={({ url }) => approveMutation.mutateAsync(url)}
 					isPending={approveMutation.isPending}
 					setShowModal={(show) => setModalAction(show ? deleteAction.modal_id : null)}
-					children={<div>{deleteAction.text}</div>}
+					children={<div>{getModalConfig(t, deleteAction.modal_id).text}</div>}
 				/>
 			)}
 		</>

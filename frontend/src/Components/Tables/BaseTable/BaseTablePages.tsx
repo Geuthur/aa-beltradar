@@ -1,6 +1,14 @@
 // Third Party
 import type { Table as TanStackTable } from "@tanstack/react-table";
 import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  CircleCheck,
+  RefreshCw,
+} from "lucide-react";
+import {
   Button,
   ButtonGroup,
   ButtonToolbar,
@@ -40,14 +48,14 @@ const BasePages = <TData,>({
           renderTooltip(
             t("Refreshing Data"),
             <Button variant="info">
-              <i className={`${tableStyles.refreshanimate} fas fa-sync`}></i>
+              <RefreshCw className={tableStyles.refreshanimate} size={14} />
             </Button>
           )
         ) : (
           renderTooltip(
             t("Data Loaded: {{date}}", { date: new Date().toLocaleString() }),
             <Button variant="info">
-              <i className="far fa-check-circle"></i>
+              <CircleCheck size={14} />
             </Button>
           )
         )}
@@ -66,28 +74,28 @@ const BasePages = <TData,>({
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            <i className="fas fa-angle-double-left"></i>
+            <ChevronsLeft size={14} />
           </Button>
           <Button
             variant="success"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <i className="fas fa-caret-left"></i>
+            <ChevronLeft size={14} />
           </Button>
           <Button
             variant="success"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <i className="fas fa-caret-right"></i>
+            <ChevronRight size={14} />
           </Button>
           <Button
             variant="success"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
-            <i className="fas fa-angle-double-right"></i>
+            <ChevronsRight size={14} />
           </Button>
         </ButtonGroup>
 

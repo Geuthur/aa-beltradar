@@ -2,7 +2,6 @@
 import { useState } from 'react';
 
 // Third Party
-import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { useTranslation } from 'react-i18next';
 
@@ -44,9 +43,9 @@ export default function UserSettingsForm({
             </Form.Group>
 
             <div className="text-end">
-                <Button type="submit" variant="primary" disabled={isPending}>
+                <button type="submit" className="br-btn br-btn-primary" disabled={isPending}>
                     {isPending ? t("Saving...") : t("Save Settings")}
-                </Button>
+                </button>
             </div>
         </Form>
     );

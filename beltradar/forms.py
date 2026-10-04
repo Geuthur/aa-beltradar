@@ -81,8 +81,8 @@ class AddSnapshotForm(forms.Form):
         required=True,
     )
 
-    def sanatize_raw_data(self, raw_data: str) -> str:
-        """Sanatize and parse the raw data input, returning a structured list of OreSchema items."""
+    def sanitize_raw_data(self, raw_data: str) -> str:
+        """Sanitize and parse the raw data input, returning a structured list of OreSchema items."""
         if not raw_data:
             return ""
 
@@ -151,7 +151,7 @@ class AddSnapshotForm(forms.Form):
         """
         Clean and parse the raw data input, returning a structured list of OreSchema items.
         """
-        return self.sanatize_raw_data(raw_data=self.cleaned_data["raw_data"])
+        return self.sanitize_raw_data(raw_data=self.cleaned_data["raw_data"])
 
 
 class BeltSessionForm(forms.ModelForm):

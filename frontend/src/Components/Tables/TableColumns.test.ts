@@ -39,7 +39,7 @@ describe('TableColumns definitions', () => {
             expect(accessors).toContain('name');
             expect(accessors).toContain('created_at');
             expect(accessors).toContain('owner.portrait');
-            expect(accessors).toContain('public.display');
+            expect(accessors).toContain('public.raw');
             expect(accessors).toContain('actions');
         });
     });
@@ -71,7 +71,7 @@ describe('TableColumns definitions', () => {
             expect(accessors).toContain('belt_size');
             expect(accessors).toContain('belt_type');
             expect(accessors).toContain('eta.display');
-            expect(accessors).toContain('public.display');
+            expect(accessors).toContain('public.raw');
             expect(accessors).toContain('actions');
         });
 

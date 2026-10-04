@@ -24,8 +24,88 @@
     gap: 8px;
 }
 
-.br-toolbar .btn {
+.br-toolbar .br-btn {
     margin-right: 0 !important;
+}
+
+/* ═══ BUTTONS ══════════════════════════════════════════════════════════════ */
+.br-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: var(--aa-font-size-sm);
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.br-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.br-btn-primary {
+    background-color: var(--aa-blue-active);
+    color: var(--aa-text-primary);
+}
+
+.br-btn-primary:hover:not(:disabled) {
+    background-color: #1d4ed8;
+    color: var(--aa-text-primary);
+}
+
+.br-btn-secondary {
+    background-color: #27272a;
+    color: var(--aa-text-secondary);
+    border-color: #3f3f46;
+}
+
+.br-btn-secondary:hover:not(:disabled) {
+    background-color: #3f3f46;
+    color: #ffffff;
+}
+
+.br-btn-success {
+    background-color: var(--aa-color-emerald-dark);
+    color: #ffffff;
+    border-color: var(--aa-color-emerald);
+}
+
+.br-btn-success:hover:not(:disabled) {
+    background-color: var(--aa-color-emerald);
+    color: #000000;
+}
+
+.br-btn-warning {
+    background-color: var(--aa-color-amber-dark);
+    color: #ffffff;
+    border-color: var(--aa-border-amber);
+}
+
+.br-btn-warning:hover:not(:disabled) {
+    background-color: var(--aa-color-amber);
+    color: #000000;
+}
+
+.br-btn-danger {
+    background-color: var(--aa-color-rose-dark);
+    color: var(--aa-text-rose-light);
+    border-color: var(--aa-border-rose);
+}
+
+.br-btn-danger:hover:not(:disabled) {
+    background-color: var(--aa-color-red);
+    color: #ffffff;
+}
+
+.br-btn-sm {
+    padding: 4px 10px;
+    font-size: var(--aa-font-size-xs);
 }
 
 /* ═══ SESSION DASHBOARD ════════════════════════════════════════════════════ */
@@ -66,6 +146,17 @@
     font-family: var(--font-hud);
     font-size: var(--aa-font-size-xl);
     text-align: center;
+}
+
+.br-remaining-percent {
+    margin-left: 8px;
+    color: var(--aa-text-secondary);
+    font-size: var(--aa-font-size-md);
+}
+
+.br-timer-ready {
+    margin-left: 8px;
+    vertical-align: middle;
 }
 
 .br-progress.progress {

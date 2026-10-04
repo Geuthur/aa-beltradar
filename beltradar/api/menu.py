@@ -32,19 +32,11 @@ class BeltRadarApiEndpoints:
 
             create_session = schema.ModalSchema(
                 url=reverse("beltradar:api:add_session"),
-                icon="fa-solid fa-plus",
-                title=str(_("Create Session")),
-                text=str(_("Are you sure you want to create a new session?")),
-                color="success",
                 modal_id="beltradar-accept-create-session",
             )
 
             create_belt_timer = schema.ModalSchema(
                 url=reverse("beltradar:api:add_belt_timer"),
-                icon="fa-solid fa-plus",
-                title=str(_("Create Belt Timer")),
-                text=str(_("Are you sure you want to create a new belt timer?")),
-                color="success",
                 modal_id="beltradar-accept-create-belt-timer",
             )
 

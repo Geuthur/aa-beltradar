@@ -37,6 +37,8 @@ Section Order:
 
 - Frontend migrated to the shared AA design (`aa-panel`, `aa-table`, status indicator) from `aa-example`
 - Session view refreshes every 30 seconds and shows a live status indicator
+- Icons (lucide-react), titles, texts and colors of actions are defined in the frontend; the API only sends `modal_id` and `url` of the actions the user may perform (`api/helpers/icons.py` replaced by `api/helpers/actions.py`)
+- Belt timers are created automatically once only 10% of the first snapshot's volume is left instead of after the fourth snapshot
 
 > [!CAUTION]
 > Please note that this release involves structural changes.

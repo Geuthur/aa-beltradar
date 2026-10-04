@@ -17,16 +17,16 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
+from beltradar.api.helpers.actions import (
+    get_snapshot_add_action,
+    get_snapshot_delete_action,
+)
 from beltradar.api.helpers.charts import (
     generate_apex_chart_mining_data,
     generate_apex_chart_traffic_data,
 )
 from beltradar.api.helpers.core import (
     get_session_or_none,
-)
-from beltradar.api.helpers.icons import (
-    get_snapshot_add_button,
-    get_snapshot_delete_button,
 )
 from beltradar.models.beltradar import (
     BeltSurveyEntry,
@@ -101,7 +101,7 @@ class BeltRadarApiEndpoints:
             if not snapshot:
                 perms = get_session_or_none(request=request, public_id=public_id)[0]
                 add_button = (
-                    get_snapshot_add_button(
+                    get_snapshot_add_action(
                         request=request, public_id=session.public_id
                     )
                     if perms
@@ -145,11 +145,11 @@ class BeltRadarApiEndpoints:
                 charts=generate_apex_chart_mining_data(session=session),
                 traffic=generate_apex_chart_traffic_data(session=session),
                 actions=schema.ActionSchema(
-                    create=get_snapshot_add_button(
+                    create=get_snapshot_add_action(
                         request=request,
                         public_id=session.public_id,
                     ),
-                    delete=get_snapshot_delete_button(
+                    delete=get_snapshot_delete_action(
                         request=request,
                         public_id=session.public_id,
                         identifier=snapshot.identifier,
@@ -354,8 +354,8 @@ class BeltRadarApiEndpoints:
                     snapshot.asteroids.set(
                         BeltSurveyEntry.objects.filter(snapshot=snapshot)
                     )
-                    if session.is_timer_ready:
-                        # Try to create a Belt Timer after the snapshot is complete.
+                    if session.is_auto_timer_ready():
+                        # Create the Belt Timer once the belt is nearly depleted.
                         session.create_belt_timer()
                 return HTTPStatus.OK, {
                     "success": True,

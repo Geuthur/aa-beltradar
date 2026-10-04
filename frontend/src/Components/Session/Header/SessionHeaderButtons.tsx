@@ -1,9 +1,10 @@
 // Third Party
+import { Timer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { ModalSchema } from '@/Api/schema';
-import { IconButton } from '@/Components/Icons/Icons';
+import { ActionButton } from '@/Components/Icons/Icons';
 import { renderTooltip } from '@/Components/Tables/BaseTable/tableHelper';
 
 export interface SessionHeaderButtonsProps {
@@ -23,8 +24,6 @@ export function SessionHeaderButtons({
 
     // Translations for tooltips and titles
     const tBeltTimerActive = t("Belt Timer active");
-    const tDeleteBeltTimer = t("Delete Belt Timer");
-    const tCreateBeltTimer = t("Create Belt Timer");
 
     if (hasTimer) {
         return (
@@ -32,14 +31,12 @@ export function SessionHeaderButtons({
                 {renderTooltip(
                     tBeltTimerActive,
                     <span className="br-timer-icon">
-                        <i className="fa-solid fa-stopwatch"></i>
+                        <Timer size={20} aria-hidden="true" />
                     </span>
                 )}
                 {deleteTimerAction && (
-                    <IconButton
-                        icon={deleteTimerAction.icon ?? "fa-solid fa-trash"}
-                        color={deleteTimerAction.color ?? "danger"}
-                        title={deleteTimerAction.title ?? tDeleteBeltTimer}
+                    <ActionButton
+                        action={deleteTimerAction}
                         onClick={() => onAction(deleteTimerAction.modal_id)}
                         classProps="me-0"
                     />
@@ -50,10 +47,8 @@ export function SessionHeaderButtons({
 
     if (createTimerAction) {
         return (
-            <IconButton
-                icon={createTimerAction.icon ?? "fa-solid fa-plus"}
-                color={createTimerAction.color ?? "success"}
-                title={createTimerAction.title ?? tCreateBeltTimer}
+            <ActionButton
+                action={createTimerAction}
                 onClick={() => onAction(createTimerAction.modal_id)}
                 classProps="me-0"
             />

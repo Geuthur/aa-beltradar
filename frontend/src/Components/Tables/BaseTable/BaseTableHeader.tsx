@@ -5,6 +5,7 @@ import { Fragment } from "react/jsx-runtime";
 // Third Party
 import { flexRender } from "@tanstack/react-table";
 import type { Header, HeaderGroup, Table as TanStackTable } from "@tanstack/react-table";
+import { ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
 
 // AA Belt Radar
 import { Filter } from "@/Components/Tables/BaseTable/BaseTableFilter";
@@ -33,10 +34,10 @@ const BaseHeader = <TData,>({ table }: TableHeaderProps<TData>) => {
                         {header.column.getCanSort() && (
                           <div>
                             {{
-                              asc: <i className="fas fa-sort-down fa-fw"></i>,
-                              desc: <i className="fas fa-sort-up fa-fw"></i>,
+                              asc: <ChevronDown size={14} />,
+                              desc: <ChevronUp size={14} />,
                             }[header.column.getIsSorted() as string] ?? (
-                              <i className="fas fa-sort fa-fw"></i>
+                              <ArrowUpDown size={14} />
                             )}
                           </div>
                         )}

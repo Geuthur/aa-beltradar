@@ -6,6 +6,7 @@ import type { TFunction } from "i18next";
 // AA Belt Radar
 import type { BeltTimer, Session, OreSchema } from "@/Api/schema";
 import { EntityTableActions } from "@/Components/Icons/Icons";
+import { PublicBadge } from "@/Components/Icons/PublicBadge";
 import { formatDate, formatNumber, renderHtml } from "@/Components/Tables/BaseTable/tableHelper";
 
 export function getSessionColumns(
@@ -38,12 +39,12 @@ export function getSessionColumns(
             header: tOwner,
             cell: ({ getValue }) => renderHtml((getValue() as string) || "-"),
         }),
-        columnHelper.accessor("public.display", {
+        columnHelper.accessor("public.raw", {
             header: tPublic,
             enableSorting: false,
             enableColumnFilter: false,
             enableGlobalFilter: false,
-            cell: ({ getValue }) => renderHtml(getValue() as string),
+            cell: ({ getValue }) => <PublicBadge isPublic={Boolean(getValue())} />,
         }),
         columnHelper.accessor("actions", {
             header: tActions,
@@ -94,12 +95,12 @@ export function getBeltTimerColumns(
             header: tETA,
             cell: ({ getValue }) => renderHtml(getValue() as string),
         }),
-        columnHelper.accessor("public.display", {
+        columnHelper.accessor("public.raw", {
             header: tPublic,
             enableSorting: false,
             enableColumnFilter: false,
             enableGlobalFilter: false,
-            cell: ({ getValue }) => renderHtml(getValue() as string),
+            cell: ({ getValue }) => <PublicBadge isPublic={Boolean(getValue())} />,
         }),
         columnHelper.accessor("actions", {
             header: tActions,

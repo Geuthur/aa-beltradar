@@ -13,6 +13,7 @@ import AddSnapshotForm from '@/Components/Forms/AddSnapshotForm';
 import { validateAddSnapshotForm } from '@/Components/Forms/validation';
 import BaseModal, { ModalSize } from '@/Components/Modals/BaseModal';
 import { useApproveMutation, useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
+import { getModalConfig } from '@/Components/Modals/modalConfig';
 import BaseTable from '@/Components/Tables/BaseTable';
 import { SnapshotButtons, SnapshotSelect } from '@/Components/Tables/Snapshot';
 import { getSnapshotColumns } from "@/Components/Tables/TableColumns";
@@ -101,7 +102,7 @@ function SessionSnapshotTable() {
 					setShowModal={setShowDeleteModal}
 					onApprove={({ url }) => handleDeleteApprove(url)}
 					isPending={approveMutation.isPending}
-					children={<div>{deleteAction.text}</div>}
+					children={<div>{getModalConfig(t, deleteAction.modal_id).text}</div>}
 				/>
 			)}
 		</>

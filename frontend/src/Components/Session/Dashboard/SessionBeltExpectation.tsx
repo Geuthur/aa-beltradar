@@ -1,4 +1,5 @@
 // Third Party
+import { CircleHelp, Timer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
@@ -24,7 +25,7 @@ export function SessionBeltExpectation({ sessionData }: { sessionData?: SessionS
                     {
                         renderTooltip(
                             tTooltipBeltType,
-                            <i className="fa-solid fa-circle-question"></i>
+                            <CircleHelp size={12} aria-hidden="true" />
                         )
                     }
                 </span>
@@ -36,7 +37,7 @@ export function SessionBeltExpectation({ sessionData }: { sessionData?: SessionS
                     {
                         renderTooltip(
                             tTooltipBeltSize,
-                            <i className="fa-solid fa-circle-question"></i>
+                            <CircleHelp size={12} aria-hidden="true" />
                         )
                     }
                 </span>
@@ -49,7 +50,7 @@ export function SessionBeltExpectation({ sessionData }: { sessionData?: SessionS
                     renderTooltip(
                         tBeltTimerActive,
                         <span className="ms-2 br-timer-icon">
-                            <i className="fa-solid fa-stopwatch"></i>
+                            <Timer size={14} aria-hidden="true" />
                         </span>
                     )
                 )}

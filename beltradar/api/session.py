@@ -15,13 +15,12 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
+from beltradar.api.helpers.actions import (
+    session_belt_timer_actions,
+    session_manage_actions,
+)
 from beltradar.api.helpers.core import (
     get_session_or_none,
-)
-from beltradar.api.helpers.icons import (
-    get_session_status_icon,
-    session_belt_timer_action_icons,
-    session_manage_action_icons,
 )
 from beltradar.helpers.eveonline import get_character_portrait_url
 from beltradar.models.beltradar import (
@@ -132,7 +131,7 @@ class BeltRadarApiEndpoints:
                     "error": _("Belt Session not found or not public.")
                 }
 
-            create_timer_html = session_belt_timer_action_icons(
+            create_timer_html = session_belt_timer_actions(
                 request=request, public_id=session.public_id
             )
 
@@ -155,7 +154,7 @@ class BeltRadarApiEndpoints:
                 total_timestamps=session.br_snapshots.count(),
                 public=schema.DataTableSchema(
                     raw=session.is_public,
-                    display=get_session_status_icon(session=session),
+                    display=str(_("Public") if session.is_public else _("Private")),
                     sort=str(session.is_public),
                 ),
                 stats=self.session_stats(session=session),
@@ -227,12 +226,10 @@ class BeltRadarApiEndpoints:
                     ),
                     public=schema.DataTableSchema(
                         raw=session.is_public,
-                        display=get_session_status_icon(session=session),
+                        display=str(_("Public") if session.is_public else _("Private")),
                         sort=str(session.is_public),
                     ),
-                    actions=session_manage_action_icons(
-                        request=request, session=session
-                    ),
+                    actions=session_manage_actions(request=request, session=session),
                 )
                 survey_list.append(survey_session_data)
             return HTTPStatus.OK, survey_list
@@ -287,12 +284,10 @@ class BeltRadarApiEndpoints:
                     ),
                     public=schema.DataTableSchema(
                         raw=session.is_public,
-                        display=get_session_status_icon(session=session),
+                        display=str(_("Public") if session.is_public else _("Private")),
                         sort=str(session.is_public),
                     ),
-                    actions=session_manage_action_icons(
-                        request=request, session=session
-                    ),
+                    actions=session_manage_actions(request=request, session=session),
                 )
                 survey_list.append(survey_session_data)
             return HTTPStatus.OK, survey_list

@@ -37,15 +37,10 @@ class DataTableSchema(Schema):
 
 
 class ModalSchema(Schema):
-    """Schema for modal dialog data."""
+    """Schema for an action the user may perform; the frontend decides how it looks."""
 
-    title: str
-    text: str
-    icon: str
     modal_id: str
     url: str
-    color: str | None = None
-    buttonText: str | None = None
 
 
 class ActionSchema(Schema):

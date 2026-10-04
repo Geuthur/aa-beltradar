@@ -16,13 +16,10 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__, forms
 from beltradar.api import schema
+from beltradar.api.helpers.actions import belt_timer_manage_actions
 from beltradar.api.helpers.core import (
     get_manage_belt_timer_or_none,
     get_session_or_none,
-)
-from beltradar.api.helpers.icons import (
-    belt_timer_manage_action_icons,
-    get_belt_timer_status_icon,
 )
 from beltradar.models.beltradar import (
     BeltSurveySnapshot,
@@ -98,12 +95,14 @@ class BeltRadarApiEndpoints:
                         ),
                         public=schema.DataTableSchema(
                             raw=timer.is_public,
-                            display=get_belt_timer_status_icon(timer=timer),
+                            display=str(
+                                _("Public") if timer.is_public else _("Private")
+                            ),
                             sort=str(timer.is_public),
                         ),
                         is_expired=timer.is_expired,
                         has_session=bool(timer.session_id),
-                        actions=belt_timer_manage_action_icons(
+                        actions=belt_timer_manage_actions(
                             request=request,
                             timer=timer,
                         ),
@@ -152,12 +151,14 @@ class BeltRadarApiEndpoints:
                         ),
                         public=schema.DataTableSchema(
                             raw=timer.is_public,
-                            display=get_belt_timer_status_icon(timer=timer),
+                            display=str(
+                                _("Public") if timer.is_public else _("Private")
+                            ),
                             sort=str(timer.is_public),
                         ),
                         is_expired=timer.is_expired,
                         has_session=bool(timer.session_id),
-                        actions=belt_timer_manage_action_icons(
+                        actions=belt_timer_manage_actions(
                             request=request,
                             timer=timer,
                         ),

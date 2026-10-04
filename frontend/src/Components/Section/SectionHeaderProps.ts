@@ -11,7 +11,7 @@ export interface SectionHeaderProps {
     queryKey?: QueryKey | QueryKey[];
     modalKey?: MenuModalKey;
     buttonTitle?: string;
-    buttonIcon?: string;
+    buttonIcon?: React.ReactNode;
     validate?: (formData: Record<string, string | boolean>) => boolean;
     children?: React.ReactNode | ((props: {
         formData: Record<string, string | boolean>;

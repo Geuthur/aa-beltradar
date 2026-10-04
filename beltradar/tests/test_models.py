@@ -194,6 +194,46 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
 
         self.assertTrue(session.is_timer_ready)
 
+    def test_is_auto_timer_ready_should_use_share_of_first_snapshot(self):
+        """Test the automatic timer is ready once 10% of the first snapshot volume is left."""
+        # Test Data
+        test_cases = (
+            # first volume, last volume, expected
+            (1_880_000, 1_500_000, False),
+            (1_880_000, 188_001, False),
+            (1_880_000, 188_000, True),
+            (10_000, 1_500, False),
+            (10_000, 1_000, True),
+            (960_000, 100_000, False),
+            (960_000, 96_000, True),
+        )
+
+        for index, (first_volume, last_volume, expected) in enumerate(test_cases):
+            with self.subTest(first=first_volume, last=last_volume):
+                session = BeltSessionFactory()
+                item_type = ItemTypeFactory(id=40_000 + index, name="Arkonor")
+                for hours, volume_left in ((0, first_volume), (1, last_volume)):
+                    snapshot = BeltSnapshotFactory(
+                        session=session,
+                        timestamp=self.timestamp + timedelta(hours=hours),
+                        identifier=generate_unique_public_id(),
+                    )
+                    BeltSurveyEntryFactory(
+                        snapshot=snapshot, eve_type=item_type, volume_left=volume_left
+                    )
+
+                # Test Action
+                result = session.is_auto_timer_ready()
+
+                # Expected Result
+                self.assertEqual(result, expected)
+
+    def test_is_auto_timer_ready_should_return_false_without_snapshots(self):
+        """Test a session without snapshots is not ready for an automatic timer."""
+        session = BeltSessionFactory()
+
+        self.assertFalse(session.is_auto_timer_ready())
+
     def test_belt_timer_session_is_unique_when_not_null(self):
         """A session can only have one linked timer, while null remains allowed."""
         session = BeltSessionFactory()

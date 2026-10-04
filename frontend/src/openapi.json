@@ -1205,20 +1205,8 @@
         "type": "object"
       },
       "ModalSchema": {
-        "description": "Schema for modal dialog data.",
+        "description": "Schema for an action the user may perform; the frontend decides how it looks.",
         "properties": {
-          "title": {
-            "title": "Title",
-            "type": "string"
-          },
-          "text": {
-            "title": "Text",
-            "type": "string"
-          },
-          "icon": {
-            "title": "Icon",
-            "type": "string"
-          },
           "modal_id": {
             "title": "Modal Id",
             "type": "string"
@@ -1226,34 +1214,9 @@
           "url": {
             "title": "Url",
             "type": "string"
-          },
-          "color": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Color"
-          },
-          "buttonText": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Buttontext"
           }
         },
         "required": [
-          "title",
-          "text",
-          "icon",
           "modal_id",
           "url"
         ],

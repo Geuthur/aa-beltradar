@@ -115,5 +115,17 @@
   "Previous Page": "Vorherige Seite",
   "Page {{page}} of {{total}}": "Seite {{page}} von {{total}}",
   "Next Page": "Nächste Seite",
-  "Last Page": "Letzte Seite"
+  "Last Page": "Letzte Seite",
+  "left": "übrig",
+  "Auto Belt Timer ready": "Auto-Belt-Timer bereit",
+  "Private": "Privat",
+  "Are you sure you want to create a new session?": "Möchten Sie wirklich eine neue Sitzung erstellen?",
+  "Delete Session": "Sitzung löschen",
+  "Are you sure you want to delete this session?": "Möchten Sie diese Sitzung wirklich löschen?",
+  "Modify Session": "Sitzung anpassen",
+  "Are you sure you want to switch public/private status for this session?": "Möchten Sie den Öffentlich/Privat-Status dieser Sitzung wirklich umstellen?",
+  "Are you sure you want to create a belt timer for this session?": "Möchten Sie für diese Sitzung wirklich einen Belt-Timer erstellen?",
+  "Modify Belt Timer": "Belt-Timer anpassen",
+  "Are you sure you want to delete this belt timer?": "Möchten Sie diesen Belt-Timer wirklich löschen?",
+  "Are you sure you want to delete this snapshot?": "Möchten Sie diesen Snapshot wirklich löschen?"
 }

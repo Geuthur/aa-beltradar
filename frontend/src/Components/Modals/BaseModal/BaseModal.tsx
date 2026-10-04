@@ -2,12 +2,13 @@
 import { useState } from "react";
 
 // Third Party
-import { Alert, Button, Modal } from "react-bootstrap";
+import { Alert, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
 import { ModalSize } from "@/Components/Modals/BaseModal/BaseModalProps";
 import type { ModalData } from "@/Components/Modals/BaseModal/BaseModalProps";
+import { getModalConfig } from "@/Components/Modals/modalConfig";
 
 type FormData = Record<string, string | boolean>;
 
@@ -33,6 +34,7 @@ function BaseModal({
   children?: React.ReactNode | ((props: { formData: FormData; onChange: (data: FormData) => void }) => React.ReactNode);
 }) {
   const { t } = useTranslation();
+  const config = getModalConfig(t, ModalData.modal_id);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>(initialFormData ?? {});
   const [validated, setValidated] = useState(false);
@@ -79,7 +81,7 @@ function BaseModal({
       restoreFocus={false} // Prevent the modal from stealing focus when it is closed
     >
       <Modal.Header closeButton>
-        <Modal.Title>{ModalData.title}</Modal.Title>
+        <Modal.Title>{config.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {errorMessage && (
@@ -92,12 +94,17 @@ function BaseModal({
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant={ModalData.color ?? "success"} disabled={isPending} onClick={handleApprove}>
-          {isPending ? t("Loading...") : ModalData.buttonText || t("Confirm")}
-        </Button>
-        <Button onClick={handleClose}>
+        <button
+          type="button"
+          className={`br-btn br-btn-${config.color}`}
+          disabled={isPending}
+          onClick={handleApprove}
+        >
+          {isPending ? t("Loading...") : t("Confirm")}
+        </button>
+        <button type="button" className="br-btn br-btn-secondary" onClick={handleClose}>
           {t("Close")}
-        </Button>
+        </button>
       </Modal.Footer>
     </Modal>
   );

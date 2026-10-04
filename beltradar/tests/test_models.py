@@ -164,36 +164,6 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
 
         self.assertEqual(session.br_snapshots.session_resolve_belt(), (None, None))
 
-    def test_is_timer_ready_should_return_false(self):
-        """Test that a session with fewer than four snapshots is not ready for a timer."""
-        session = BeltSessionFactory()
-        blue_ice = ItemTypeFactory(id=30_000, name="Blue Ice")
-
-        for _ in range(3):
-            snapshot = BeltSnapshotFactory(session=session)
-            BeltSurveyEntryFactory(
-                snapshot=snapshot,
-                eve_type=blue_ice,
-                volume_left=100_000,
-            )
-
-        self.assertFalse(session.is_timer_ready)
-
-    def test_is_timer_ready_should_return_true(self):
-        """Test that a session with four snapshots and a resolvable belt is ready for a timer."""
-        session = BeltSessionFactory()
-        blue_ice = ItemTypeFactory(id=30_000, name="Blue Ice")
-
-        for _ in range(4):
-            snapshot = BeltSnapshotFactory(session=session)
-            BeltSurveyEntryFactory(
-                snapshot=snapshot,
-                eve_type=blue_ice,
-                volume_left=100_000,
-            )
-
-        self.assertTrue(session.is_timer_ready)
-
     def test_is_auto_timer_ready_should_use_share_of_first_snapshot(self):
         """Test the automatic timer is ready once 10% of the first snapshot volume is left."""
         # Test Data

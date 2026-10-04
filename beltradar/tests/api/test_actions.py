@@ -1,8 +1,9 @@
-# Third Party
-from evesde_factory.eve_sde import ItemTypeFactory
+# Standard Library
+from datetime import datetime, timedelta
 
 # Django
 from django.urls import reverse
+from django.utils import timezone
 
 # AA Belt Radar
 from beltradar.api.helpers.actions import (
@@ -11,6 +12,7 @@ from beltradar.api.helpers.actions import (
     session_belt_timer_actions,
     session_manage_actions,
 )
+from beltradar.models import generate_unique_public_id
 from beltradar.tests import BeltRadarTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
@@ -30,6 +32,7 @@ class TestActionHelper(BeltRadarTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.timestamp = timezone.make_aware(datetime(2024, 1, 1, 12, 0, 0))
 
     def test_session_manage_actions_should_all(self):
         """Test session manage actions should show all actions."""
@@ -45,40 +48,27 @@ class TestActionHelper(BeltRadarTestCase):
         self.assertEqual(response.update.modal_id, "beltradar-accept-modify-session")
         self.assertEqual(response.delete.modal_id, "beltradar-accept-delete-session")
 
-    def test_session_belt_timer_actions_should_show_create_button(self):
-        """Test session belt timer actions should show the create action."""
-        # Test Data
-        item_type = ItemTypeFactory(
-            name="Arkonor",
-        )
-        session = BeltSessionFactory(owner=self.user)
-        snapshot = BeltSnapshotFactory(session=session)
-        snapshot2 = BeltSnapshotFactory(session=session)
-        snapshot3 = BeltSnapshotFactory(session=session)
-        snapshot4 = BeltSnapshotFactory(session=session)
+    def _create_snapshots(self, session, volumes):
+        """Create one snapshot per volume, one hour apart."""
+        for hours, volume_left in enumerate(volumes):
+            snapshot = BeltSnapshotFactory(
+                session=session,
+                timestamp=self.timestamp + timedelta(hours=hours),
+                identifier=generate_unique_public_id(),
+            )
+            BeltSurveyEntryFactory(snapshot=snapshot, volume_left=volume_left)
 
-        BeltSurveyEntryFactory(
-            snapshot=snapshot,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot2,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot3,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot4,
-            eve_type=item_type,
-        )
+    def test_session_belt_timer_actions_should_show_create_button(self):
+        """Test session belt timer actions should show the create action when 10% is left."""
+        # Test Data
+        session = BeltSessionFactory(owner=self.user)
+        self._create_snapshots(session, [1_000_000, 500_000, 100_000])
 
         # Test Action
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
         response = session_belt_timer_actions(
-            request=request, public_id=snapshot.session.public_id
+            request=request, public_id=session.public_id
         )
 
         # Expected Result
@@ -88,31 +78,8 @@ class TestActionHelper(BeltRadarTestCase):
     def test_session_belt_timer_actions_should_show_delete_button(self):
         """Test session belt timer actions should show the update and delete actions."""
         # Test Data
-        item_type = ItemTypeFactory(
-            name="Arkonor",
-        )
         session = BeltSessionFactory(owner=self.user)
-        snapshot = BeltSnapshotFactory(session=session)
-        snapshot2 = BeltSnapshotFactory(session=session)
-        snapshot3 = BeltSnapshotFactory(session=session)
-        snapshot4 = BeltSnapshotFactory(session=session)
-
-        BeltSurveyEntryFactory(
-            snapshot=snapshot,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot2,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot3,
-            eve_type=item_type,
-        )
-        BeltSurveyEntryFactory(
-            snapshot=snapshot4,
-            eve_type=item_type,
-        )
+        self._create_snapshots(session, [1_000_000, 500_000, 100_000])
 
         BeltTimerFactory(
             owner=self.user,
@@ -124,15 +91,33 @@ class TestActionHelper(BeltRadarTestCase):
         request = self.factory.get(reverse("beltradar:react_base"))
         request.user = self.user
         response = session_belt_timer_actions(
-            request=request, public_id=snapshot.session.public_id
+            request=request, public_id=session.public_id
         )
 
         # Expected Result
         self.assertEqual(response.update.modal_id, "beltradar-accept-modify-belt-timer")
         self.assertEqual(response.delete.modal_id, "beltradar-accept-delete-belt-timer")
 
+    def test_session_belt_timer_actions_should_empty_string_when_more_than_10_percent_left(
+        self,
+    ):
+        """Test session belt timer actions should return None while more than 10% is left."""
+        # Test Data
+        session = BeltSessionFactory(owner=self.user)
+        self._create_snapshots(session, [1_000_000, 500_000, 100_001])
+
+        # Test Action
+        request = self.factory.get(reverse("beltradar:react_base"))
+        request.user = self.user
+        response = session_belt_timer_actions(
+            request=request, public_id=session.public_id
+        )
+
+        # Expected Result
+        self.assertIsNone(response)
+
     def test_session_belt_timer_actions_should_empty_string(self):
-        """Test session belt timer actions should return None for sessions that are not ready."""
+        """Test session belt timer actions should return None for sessions without snapshots."""
         # Test Data
         session = BeltSessionFactory(owner=self.user)
 

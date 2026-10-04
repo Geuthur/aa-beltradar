@@ -16,7 +16,7 @@ import BeltRadarBase from "@/Pages/Base";
 import BeltRadar from "@/Pages/BeltRadar";
 import MyBeltRadar from "@/Pages/MyBeltRadar";
 import BeltRadarSession from "@/Pages/Session";
-import Settings from "@/Pages/Settings";
+import SettingsPage from "@/Pages/SettingsPage";
 
 const queryClient = new QueryClient();
 export const AppName = "aa-beltradar";
@@ -57,7 +57,7 @@ function App() {
                 <Route path=":characterID/" element={<BeltRadar />} />
                 <Route path="my-belt-radar/" element={<MyBeltRadar />} />
                 <Route path="my-belt-radar/:characterID/" element={<MyBeltRadar />} />
-                <Route path="settings/" element={<Settings />} />
+                <Route path="settings/" element={<SettingsPage />} />
                 <Route path="session/:publicID/" element={<BeltRadarSession />} />
                 <Route path="*" element={<ErrorLoader title={t("Error 404")} message={t("The page you are looking for does not exist.")} />} />
               </Route>

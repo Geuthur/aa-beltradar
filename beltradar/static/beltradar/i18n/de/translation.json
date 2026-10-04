@@ -127,5 +127,12 @@
   "Are you sure you want to create a belt timer for this session?": "Möchten Sie für diese Sitzung wirklich einen Belt-Timer erstellen?",
   "Modify Belt Timer": "Belt-Timer anpassen",
   "Are you sure you want to delete this belt timer?": "Möchten Sie diesen Belt-Timer wirklich löschen?",
-  "Are you sure you want to delete this snapshot?": "Möchten Sie diesen Snapshot wirklich löschen?"
+  "Are you sure you want to delete this snapshot?": "Möchten Sie diesen Snapshot wirklich löschen?",
+  "Loading settings...": "Einstellungen werden geladen...",
+  "Failed to load settings. Please try refreshing the page.": "Einstellungen konnten nicht geladen werden. Bitte versuchen Sie, die Seite zu aktualisieren.",
+  "Settings": "Einstellungen",
+  "Manage your Belt Radar preferences.": "Verwalten Sie Ihre Belt Radar-Einstellungen.",
+  "Disable all notifications": "Alle Benachrichtigungen deaktivieren",
+  "When enabled, Belt Radar will not send notifications to your Alliance Auth or Discord account.": "Wenn aktiviert, sendet Belt Radar keine Benachrichtigungen an Ihr Alliance Auth- oder Discord-Konto.",
+  "Could not save this setting. Your previous preference was restored.": "Diese Einstellung konnte nicht gespeichert werden. Ihre vorherige Präferenz wurde wiederhergestellt."
 }

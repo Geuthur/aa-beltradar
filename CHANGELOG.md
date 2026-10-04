@@ -39,6 +39,8 @@ Section Order:
 - Session view refreshes every 30 seconds and shows a live status indicator
 - Icons (lucide-react), titles, texts and colors of actions are defined in the frontend; the API only sends `modal_id` and `url` of the actions the user may perform (`api/helpers/icons.py` replaced by `api/helpers/actions.py`)
 - Belt timers are created automatically once only 10% of the first snapshot's volume is left instead of after the fourth snapshot
+- Updated Settings page to `SettingsPage` matching `aa-example` styling using `.aa-panel-light` and dedicated CSS module.
+- Added `.aa-panel-light` utility class to Alliance Auth framework CSS (`src/index.css`).
 
 > [!CAUTION]
 > Please note that this release involves structural changes.

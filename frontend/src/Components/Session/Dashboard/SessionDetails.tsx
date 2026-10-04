@@ -7,15 +7,18 @@ import type { SessionStats } from "@/Api/schema";
 export function SessionDetails({ sessionData }: { sessionData?: SessionStats }) {
     const { t } = useTranslation();
     return (
-    <div className="row text-muted small mt-2">
-        <div className="col-4 text-start">
-            <strong>{t("Session Name")}: </strong> {sessionData?.name || "-"}
+    <div className="br-stat-row">
+        <div>
+            <span className="br-stat-label">{t("Session Name")}</span>
+            <span className="br-stat-value">{sessionData?.name || "-"}</span>
         </div>
-        <div className="col-4 text-center">
-            <strong>{t("Created At")}: </strong> {sessionData?.created_at || "-"}
+        <div>
+            <span className="br-stat-label">{t("Created At")}</span>
+            <span className="br-stat-value">{sessionData?.created_at || "-"}</span>
         </div>
-        <div className="col-4 text-end">
-            <strong>{t("Owner")}: </strong> {sessionData?.owner?.character_name || "-"}
+        <div>
+            <span className="br-stat-label">{t("Owner")}</span>
+            <span className="br-stat-value">{sessionData?.owner?.character_name || "-"}</span>
         </div>
     </div>
     );

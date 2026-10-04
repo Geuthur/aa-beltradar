@@ -17,38 +17,38 @@ export function SessionBeltExpectation({ sessionData }: { sessionData?: SessionS
     const tTooltipBeltSize = t('The expected size of the asteroid belt.');
 
     return (
-        <div className="row text-muted small mt-2">
-            <div className="col-4 text-start">
-                <strong>{tBeltType}: </strong>
-                <span>
+        <div className="br-stat-row">
+            <div>
+                <span className="br-stat-label">
+                    {tBeltType}{' '}
                     {
                         renderTooltip(
                             tTooltipBeltType,
                             <i className="fa-solid fa-circle-question"></i>
                         )
                     }
-                </span><br />
-                <span>{sessionData?.stats?.expected_belt_type ?? "N/A"}</span>
+                </span>
+                <span className="br-stat-value">{sessionData?.stats?.expected_belt_type ?? "N/A"}</span>
             </div>
-            <div className="col-4 text-center">
-                <strong>{tBeltSize}: </strong>
-                <span>
+            <div>
+                <span className="br-stat-label">
+                    {tBeltSize}{' '}
                     {
                         renderTooltip(
                             tTooltipBeltSize,
                             <i className="fa-solid fa-circle-question"></i>
                         )
                     }
-                </span><br />
-                <span>{sessionData?.stats?.expected_belt_size ?? "N/A"}</span>
+                </span>
+                <span className="br-stat-value">{sessionData?.stats?.expected_belt_size ?? "N/A"}</span>
             </div>
-            <div className="col-4 text-end">
-                <strong>{tTotalSnapshots}: </strong><br />
-                <span>{sessionData?.total_timestamps ?? "N/A"}</span>
+            <div>
+                <span className="br-stat-label">{tTotalSnapshots}</span>
+                <span className="br-stat-value">{sessionData?.total_timestamps ?? "N/A"}</span>
                 {Boolean(sessionData?.has_timer || sessionData?.actions?.delete) && (
                     renderTooltip(
                         tBeltTimerActive,
-                        <span className="ms-2 text-primary">
+                        <span className="ms-2 br-timer-icon">
                             <i className="fa-solid fa-stopwatch"></i>
                         </span>
                     )

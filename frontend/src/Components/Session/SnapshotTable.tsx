@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { loadSnapshot } from '@/Api/BeltRadar';
-import { queryKeys } from "@/Api/query";
+import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from "@/Api/query";
 import AddSnapshotForm from '@/Components/Forms/AddSnapshotForm';
 import { validateAddSnapshotForm } from '@/Components/Forms/validation';
 import BaseModal, { ModalSize } from '@/Components/Modals/BaseModal';
@@ -33,6 +33,7 @@ function SessionSnapshotTable() {
 		queryKey: snapshotQueryKey,
 		queryFn: () => loadSnapshot(String(publicID), selectedSnapshotId),
 		refetchOnWindowFocus: false,
+		refetchInterval: SESSION_REFETCH_INTERVAL_MS,
 		enabled: !!publicID,
 	});
 
@@ -50,10 +51,10 @@ function SessionSnapshotTable() {
 
 	return (
 		<>
-			<div className="card card-body mt-2">
-				<div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+			<section className="d-flex flex-column gap-2" aria-label={t("Ore Snapshot")}>
+				<div className="aa-panel d-flex flex-wrap align-items-center justify-content-between gap-2">
 					<div className="d-flex align-items-center gap-2">
-						<span className="text-muted fw-bold">{t("Ore Snapshot")}</span>
+						<span className="aa-section-title">{t("Ore Snapshot")}</span>
 						<SnapshotSelect
 							snapshots={snapshots}
 							selectedSnapshotId={selectedSnapshotId}
@@ -73,8 +74,9 @@ function SessionSnapshotTable() {
 					isError={isErrorSnapshot}
 					isFetching={isFetchingSnapshot}
 					columns={getSnapshotColumns(t)}
+					itemLabel={t("ores")}
 				/>
-			</div>
+			</section>
 			{addAction && (
 				<BaseModal
 					data={addAction}

@@ -28,6 +28,16 @@ Section Order:
 
 <!-- Your changes go here -->
 
+### Fixed
+
+- Mining speed per snapshot was calculated against the first snapshot instead of the directly preceding one
+- Session speed, ETA and income were distorted by pauses between snapshots; they are now based on the active mining intervals
+
+### Changed
+
+- Frontend migrated to the shared AA design (`aa-panel`, `aa-table`, status indicator) from `aa-example`
+- Session view refreshes every 30 seconds and shows a live status indicator
+
 > [!CAUTION]
 > Please note that this release involves structural changes.
 > All Survey Entries and Sessions will be removed.

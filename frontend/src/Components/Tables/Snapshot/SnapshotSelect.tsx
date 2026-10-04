@@ -30,7 +30,7 @@ export function SnapshotSelect({
   return (
     <Form.Select
       size="sm"
-      className="w-auto"
+      className="br-select"
       value={currentIdentifier}
       onChange={(e) => {
         const val = e.target.value;

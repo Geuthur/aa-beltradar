@@ -69,9 +69,7 @@ class BeltRadarApiEndpoints:
             ]
             or 0
         )
-        rate_per_s = session.br_snapshots.rate_per_s(
-            first_snapshot=first_snapshot, second_snapshot=last_snapshot
-        )
+        rate_per_s = session.br_snapshots.current_rate_per_s()
         progress_percent = round(
             session.br_snapshots.session_progress_percentage(
                 asteroids=first_snapshot.asteroids,
@@ -90,9 +88,8 @@ class BeltRadarApiEndpoints:
             remaining_asteroids=last_snapshot.asteroid_count,
             total_asteroids=first_snapshot.asteroid_count,
             progress_percent=progress_percent,
-            mining_rate_m3_per_s=round(rate_per_s, 4),
+            mining_rate_m3_per_s=round(rate_per_s, 0),
             finish_eta=session.br_snapshots.session_finish_eta(
-                asteroids=first_snapshot.asteroids,
                 remaining_asteroids=last_snapshot.asteroids,
             ),
             expected_belt_type=belt_type.label if belt_type else None,

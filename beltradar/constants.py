@@ -2,6 +2,9 @@
 Constants
 """
 
+# Intervals mined slower than this share of the median rate count as a pause
+PAUSE_RATE_FACTOR = 0.25
+
 # Embed colors
 DISCORD_EMBED_COLOR_INFO = 0x5BC0DE
 DISCORD_EMBED_COLOR_SUCCESS = 0x5CB85C

@@ -12,7 +12,7 @@ import BeltTimerTable from '@/Components/Tables/BeltTimerTable';
 function BeltRadar() {
 	const { t } = useTranslation();
 	return (
-		<main>
+		<main className="br-page">
             {/* Sessions Section */}
 			<ActionSectionHeader
 				name={t("Sessions")}
@@ -21,10 +21,8 @@ function BeltRadar() {
 				validate={validateSessionForm}
 				children={CreateSessionForm}
 			/>
-			<section className="card" aria-labelledby="my-belt-radar-heading">
-				<div className="card-body">
-					<BeltRadarTable />
-				</div>
+			<section aria-label={t("Sessions")}>
+				<BeltRadarTable />
 			</section>
 
             {/* Belt Timers Section */}
@@ -35,10 +33,8 @@ function BeltRadar() {
 				validate={validateBeltTimerForm}
 				children={CreateBeltTimerForm}
 			/>
-			<section className="card" aria-labelledby="timers-heading">
-				<div className="card-body">
-					<BeltTimerTable />
-				</div>
+			<section aria-label={t("Belt Timers")}>
+				<BeltTimerTable />
 			</section>
 		</main>
 	)

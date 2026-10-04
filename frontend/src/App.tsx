@@ -19,9 +19,11 @@ import BeltRadarSession from "@/Pages/Session";
 import Settings from "@/Pages/Settings";
 
 const queryClient = new QueryClient();
+export const AppName = "aa-beltradar";
+export const ProjectName = "beltradar";
 
 // Read language directly from Django's LANGUAGE_CODE (set as lang="..." on root div)
-const djangoLanguage = document.getElementById("aa-beltradar-root")?.getAttribute("lang") ?? "en";
+const djangoLanguage = typeof document !== "undefined" ? document.getElementById(`${AppName}-root`)?.getAttribute("lang") ?? "en" : "en";
 
 i18n
   .use(Backend)
@@ -38,7 +40,7 @@ i18n
       useSuspense: false, //   <---- this will do the magic
     },
     backend: {
-      loadPath: "/static/beltradar/i18n/{{lng}}/{{ns}}.json",
+      loadPath: `/static/${ProjectName}/i18n/{{lng}}/{{ns}}.json`,
     },
   });
 

@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 // AA Belt Radar
 import tableStyles from "@/Components/Tables/BaseTable/BaseTable.module.css";
 import { BaseTableForm } from "@/Components/Tables/BaseTable/BaseTableForm";
+import pageStyles from "@/Components/Tables/BaseTable/BaseTablePages.module.css";
 import { exportToCSV, renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
 
 export interface TablePagesProps<TData> {
@@ -28,9 +29,12 @@ const BasePages = <TData,>({
 
   return (
     <div className="d-flex justify-content-between">
-      <ButtonGroup style={{ zIndex: 0 }}>
+      <ButtonGroup className={pageStyles["button-group"]}>
         <Button active variant="info">
-          {table.getState().pagination.pageIndex + 1} of {pageCount}
+          {t("Page {{page}} of {{total}}", {
+            page: table.getState().pagination.pageIndex + 1,
+            total: pageCount,
+          })}
         </Button>
         {isFetching ? (
           renderTooltip(
@@ -56,7 +60,7 @@ const BasePages = <TData,>({
       </ButtonGroup>
 
       <ButtonToolbar>
-        <ButtonGroup style={{ zIndex: 0 }}>
+        <ButtonGroup className={pageStyles["button-group"]}>
           <Button
             variant="success"
             onClick={() => table.setPageIndex(0)}

@@ -31,7 +31,7 @@ export function SessionHeaderButtons({
             <div className="d-flex align-items-center gap-2">
                 {renderTooltip(
                     tBeltTimerActive,
-                    <span className="text-white d-inline-flex align-items-center" style={{ fontSize: "1.2rem" }}>
+                    <span className="br-timer-icon">
                         <i className="fa-solid fa-stopwatch"></i>
                     </span>
                 )}

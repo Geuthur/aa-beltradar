@@ -1,10 +1,18 @@
 // Third Party
 import react from "@vitejs/plugin-react-swc"
-import { defineConfig } from 'vite'
+import path from 'path'
+import { fileURLToPath } from "url"
+import { defineConfig } from 'vitest/config'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
+  },
+  plugins: [react(),],
   server: {
     port: 3002,
     proxy: {
@@ -22,7 +30,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': '/src',
+      '@': path.resolve(__dirname, './src'),
     },
   },
   build: {

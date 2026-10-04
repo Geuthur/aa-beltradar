@@ -1,0 +1,116 @@
+@import './index.css';
+
+/* Belt Radar specific styles on top of the shared AA design (index.css). */
+
+/* ═══ LAYOUT ═══════════════════════════════════════════════════════════════ */
+.br-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.br-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 16px;
+}
+
+.br-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.br-toolbar .btn {
+    margin-right: 0 !important;
+}
+
+/* ═══ SESSION DASHBOARD ════════════════════════════════════════════════════ */
+.br-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+    color: var(--aa-text-secondary);
+    font-size: var(--aa-font-size);
+}
+
+.br-stat-row > :nth-child(2) {
+    text-align: center;
+}
+
+.br-stat-row > :nth-child(3) {
+    text-align: right;
+}
+
+.br-stat-label {
+    display: block;
+    color: var(--aa-text-tertiary);
+    font-size: var(--aa-font-size-xs);
+    font-weight: var(--aa-font-weight-bold);
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.br-stat-value {
+    color: var(--aa-text-primary);
+    font-family: var(--font-mono);
+}
+
+.br-asteroid-count {
+    margin: 0;
+    color: var(--aa-text-primary);
+    font-family: var(--font-hud);
+    font-size: var(--aa-font-size-xl);
+    text-align: center;
+}
+
+.br-progress.progress {
+    height: 36px;
+    border: 1px solid var(--aa-border-light);
+    border-radius: 8px;
+    background-color: var(--aa-color-body-dark);
+}
+
+.br-progress .progress-bar {
+    background-color: var(--aa-color-emerald-dark);
+}
+
+/* ═══ SELECT ═══════════════════════════════════════════════════════════════ */
+.br-select.form-select {
+    width: auto;
+    border-color: var(--aa-border-light);
+    background-color: var(--aa-color-body);
+    color: var(--aa-text-primary);
+    font-family: var(--font-mono);
+    font-size: var(--aa-font-size);
+    cursor: pointer;
+}
+
+.br-select.form-select:focus {
+    border-color: var(--aa-color-emerald);
+    box-shadow: none;
+}
+
+/* ═══ CHARTS ═══════════════════════════════════════════════════════════════ */
+.br-chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 380px;
+    padding: 24px;
+    color: var(--aa-text-secondary);
+    font-family: var(--font-mono);
+    text-align: center;
+}
+
+.br-timer-icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--aa-text-emerald-light);
+    font-size: 1.2rem;
+}

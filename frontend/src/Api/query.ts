@@ -1,3 +1,5 @@
+export const SESSION_REFETCH_INTERVAL_MS = 30_000;
+
 export const queryKeys = {
     Session: (publicID: string) => ["Session", publicID] as const,
     publicSessions: ["Public-Session"] as const,

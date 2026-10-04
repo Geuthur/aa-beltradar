@@ -21,3 +21,8 @@
     align-items: center;
     justify-content: center;
 }
+
+.icon-96 {
+    font-size: 96px;
+    color: #ff4d4f;
+}

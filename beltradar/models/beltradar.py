@@ -246,7 +246,9 @@ class BeltSurveyEntry(models.Model):
         Returns:
             float: The estimated income in ISK per hour based on the price.
         """
-        return int(self.price_per_m3 * self.snapshot.session.br_snapshots.rate_per_s())
+        return int(
+            self.price_per_m3 * self.snapshot.session.br_snapshots.current_rate_per_s()
+        )
 
     @property
     def income_cmp_per_h(self):
@@ -260,7 +262,8 @@ class BeltSurveyEntry(models.Model):
             float: The estimated income in ISK per hour based on the compressed price.
         """
         return int(
-            self.price_cmp_per_m3 * self.snapshot.session.br_snapshots.rate_per_s()
+            self.price_cmp_per_m3
+            * self.snapshot.session.br_snapshots.current_rate_per_s()
         )
 
     @property

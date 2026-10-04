@@ -31,7 +31,7 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
   const popoverNumber = (
     <Popover id="popover-positioned-top" className={Styles.popover}>
       <Popover.Body>
-        <input
+        <Form.Control
           type="number"
           value={fromToNumber?.[0] ?? ""}
           onChange={(e) =>
@@ -41,7 +41,7 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
           className="form-control"
         />
         <p className="text-center">{t("to")}</p>
-        <input
+        <Form.Control
           type="number"
           value={fromToNumber?.[1] ?? ""}
           onChange={(e) =>
@@ -97,8 +97,7 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
               d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
             />
           </svg>
-          <button
-            type="button"
+          <Button
             onClick={(event) => {
               event.stopPropagation();
               column.setFilterValue(() => [undefined, undefined]);
@@ -115,7 +114,7 @@ export const NumberFilter = <TData,>({ column }: { column: Column<TData, unknown
                 d="M17.3 18.7a1 1 0 0 0 1.4-1.4L13.42 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.58l-5.3-5.3a1 1 0 0 0-1.4 1.42L10.58 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.42l5.3 5.3Z"
               ></path>
             </svg>
-          </button>
+          </Button>
         </div>
       </form>
     </OverlayTrigger>
@@ -182,8 +181,7 @@ export const BoolFilter = <TData,>({ column }: { column: Column<TData, unknown> 
               d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
             />
           </svg>
-          <button
-            type="button"
+          <Button
             onClick={(event) => {
               event.stopPropagation();
               column.setFilterValue(() => undefined);
@@ -200,7 +198,7 @@ export const BoolFilter = <TData,>({ column }: { column: Column<TData, unknown> 
                 d="M17.3 18.7a1 1 0 0 0 1.4-1.4L13.42 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.58l-5.3-5.3a1 1 0 0 0-1.4 1.42L10.58 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.42l5.3 5.3Z"
               ></path>
             </svg>
-          </button>
+          </Button>
         </div>
       </form>
     </OverlayTrigger>
@@ -233,7 +231,7 @@ export const TextFilter = <TData,>({ column }: { column: Column<TData, unknown> 
           clip-rule="evenodd"
         ></path>
       </svg>
-      <button type="button" onClick={() => column.setFilterValue("")}>
+      <Button onClick={() => column.setFilterValue("")}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -245,7 +243,7 @@ export const TextFilter = <TData,>({ column }: { column: Column<TData, unknown> 
             d="M17.3 18.7a1 1 0 0 0 1.4-1.4L13.42 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.58l-5.3-5.3a1 1 0 0 0-1.4 1.42L10.58 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.42l5.3 5.3Z"
           ></path>
         </svg>
-      </button>
+      </Button>
     </div>
   );
 };
@@ -370,8 +368,7 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
               clip-rule="evenodd"
             ></path>
           </svg>
-          <button
-            type="button"
+          <Button
             onClick={(event) => {
               event.stopPropagation();
               setIsEditing(false);
@@ -389,7 +386,7 @@ export const SelectFilter = <TData,>({ column }: { column: Column<TData, unknown
                 d="M17.3 18.7a1 1 0 0 0 1.4-1.4L13.42 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.58l-5.3-5.3a1 1 0 0 0-1.4 1.42L10.58 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.42l5.3 5.3Z"
               ></path>
             </svg>
-          </button>
+          </Button>
         </div>
       </form>
     </OverlayTrigger>

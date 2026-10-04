@@ -34,23 +34,20 @@ export function ActionSectionHeader({
 
     return (
         <>
-            <section className="card" aria-labelledby="section-heading">
-                <div className="card-header bg-primary rounded">
-                    <div className="d-flex justify-content-between align-items-center">
-                        <h3 id="session-heading">{name}</h3>
-                        {action && (
-                            <IconButton
-                                icon={buttonIcon}
-                                color="success"
-                                onClick={() => {
-                                    openModal(action.modal_id);
-                                }}
-                                title={buttonTitle ?? t("Create")}
-                                classProps="me-2 text-end"
-                            />
-                        )}
+            <section className="aa-panel br-header" aria-labelledby="section-heading">
+                <h3 id="section-heading" className="aa-section-title mb-0">{name}</h3>
+                {action && (
+                    <div className="br-toolbar">
+                        <IconButton
+                            icon={buttonIcon}
+                            color="success"
+                            onClick={() => {
+                                openModal(action.modal_id);
+                            }}
+                            title={buttonTitle ?? t("Create")}
+                        />
                     </div>
-                </div>
+                )}
             </section>
             {action && children && (
                 <BaseModal

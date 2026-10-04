@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { ApexChartSchema } from '@/Api/schema';
+import FetchingLoader from '@/Components/Loader/FetchingLoader';
 
 export interface MiningChartProps {
     data?: ApexChartSchema | null;
@@ -35,8 +36,12 @@ export function MiningChart({ data, isLoading }: MiningChartProps) {
             chart: {
                 type: 'bar',
                 height: 380,
+                background: 'transparent',
+                foreColor: '#a1a1aa',
                 toolbar: { show: false },
             },
+            colors: ['#10b981'],
+            grid: { borderColor: '#27272a' },
             plotOptions: {
                 bar: {
                     borderRadius: 4,
@@ -77,17 +82,15 @@ export function MiningChart({ data, isLoading }: MiningChartProps) {
 
     if (isLoading) {
         return (
-            <div className="d-flex justify-content-center align-items-center w-100" style={{ minHeight: 380 }}>
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">{tLoading}</span>
-                </div>
+            <div className="br-chart-empty">
+                <FetchingLoader message={tLoading} />
             </div>
         );
     }
 
     if (!categories || categories.length === 0 || series.length === 0) {
         return (
-            <div className="d-flex justify-content-center align-items-center text-muted text-center p-4 w-100" style={{ minHeight: 380 }}>
+            <div className="br-chart-empty">
                 {tNoData}
             </div>
         );

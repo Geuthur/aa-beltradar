@@ -72,6 +72,31 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         # Expected Result
         self.assertEqual(previous_snapshot.identifier, self.unique_hash)
 
+    def test_rate_per_s_for_snapshot_should_use_direct_predecessor(self):
+        """
+        Test rate of the third snapshot is based on the second, not the first snapshot.
+        """
+        # Test Data
+        snapshots = []
+        for hours, volume_left in ((0, 10_000_000), (1, 9_000_000), (24, 8_000_000)):
+            snapshot = BeltSnapshotFactory(
+                session=self.session,
+                timestamp=self.timestamp + timedelta(hours=hours),
+                identifier=generate_unique_public_id(),
+            )
+            BeltSurveyEntryFactory(snapshot=snapshot, volume_left=volume_left)
+            snapshots.append(snapshot)
+
+        # Test Action
+        rate_first = self.session.br_snapshots.rate_per_s_for_snapshot(snapshots[0])
+        rate_second = self.session.br_snapshots.rate_per_s_for_snapshot(snapshots[1])
+        rate_third = self.session.br_snapshots.rate_per_s_for_snapshot(snapshots[2])
+
+        # Expected Result
+        self.assertEqual(rate_first, 0.0)
+        self.assertEqual(rate_second, round(1_000_000 / 3600, 2))
+        self.assertEqual(rate_third, round(1_000_000 / (23 * 3600), 2))
+
     def test_belt_size_m3(self):
         """
         Test should return total volume of ore in belt.
@@ -268,7 +293,6 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         )
         # Test Action
         finish_eta = self.session.br_snapshots.session_finish_eta(
-            asteroids=snapshot.asteroids.all(),
             remaining_asteroids=snapshot2.asteroids.all(),
         )
         # Expected Result
@@ -276,6 +300,95 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
             seconds=2500 / (2500 / (3 * 3600))
         )
         self.assertEqual(finish_eta, expected_eta)
+
+    def test_active_rate_per_s_should_ignore_pauses(self):
+        """
+        Test active rate is not diluted by a long pause between snapshots.
+        """
+        # Test Data
+        for hours, volume_left in (
+            (0, 10_000_000),
+            (1, 9_000_000),
+            (2, 8_000_000),
+            (26, 7_900_000),  # paused for 24h, barely mined
+            (27, 6_900_000),
+        ):
+            snapshot = BeltSnapshotFactory(
+                session=self.session,
+                timestamp=self.timestamp + timedelta(hours=hours),
+                identifier=generate_unique_public_id(),
+            )
+            BeltSurveyEntryFactory(snapshot=snapshot, volume_left=volume_left)
+
+        # Test Action
+        active_rate = self.session.br_snapshots.active_rate_per_s()
+        # Expected Result
+        self.assertAlmostEqual(active_rate, 1_000_000 / 3600)
+
+    def test_active_rate_per_s_should_return_zero_without_progress(self):
+        """
+        Test active rate is zero if nothing was mined between snapshots.
+        """
+        # Test Data
+        for hours in (0, 1):
+            snapshot = BeltSnapshotFactory(
+                session=self.session,
+                timestamp=self.timestamp + timedelta(hours=hours),
+                identifier=generate_unique_public_id(),
+            )
+            BeltSurveyEntryFactory(snapshot=snapshot, volume_left=5000)
+
+        # Test Action
+        active_rate = self.session.br_snapshots.active_rate_per_s()
+        # Expected Result
+        self.assertEqual(active_rate, 0.0)
+
+    def test_current_rate_per_s_should_match_last_chart_value(self):
+        """
+        Test current rate equals the rate of the latest snapshot used by the chart.
+        """
+        # Test Data
+        snapshots = []
+        for hours, volume_left in ((0, 10_000_000), (1, 9_000_000), (2, 7_500_000)):
+            snapshot = BeltSnapshotFactory(
+                session=self.session,
+                timestamp=self.timestamp + timedelta(hours=hours),
+                identifier=generate_unique_public_id(),
+            )
+            BeltSurveyEntryFactory(snapshot=snapshot, volume_left=volume_left)
+            snapshots.append(snapshot)
+
+        # Test Action
+        current_rate = self.session.br_snapshots.current_rate_per_s()
+        # Expected Result
+        self.assertAlmostEqual(
+            current_rate,
+            self.session.br_snapshots.rate_per_s_for_snapshot(snapshots[-1]),
+            places=2,
+        )
+
+    def test_current_rate_per_s_should_fall_back_to_active_rate_after_pause(self):
+        """
+        Test current rate ignores a latest interval that is a pause.
+        """
+        # Test Data
+        for hours, volume_left in (
+            (0, 10_000_000),
+            (1, 9_000_000),
+            (2, 8_000_000),
+            (26, 7_900_000),
+        ):
+            snapshot = BeltSnapshotFactory(
+                session=self.session,
+                timestamp=self.timestamp + timedelta(hours=hours),
+                identifier=generate_unique_public_id(),
+            )
+            BeltSurveyEntryFactory(snapshot=snapshot, volume_left=volume_left)
+
+        # Test Action
+        current_rate = self.session.br_snapshots.current_rate_per_s()
+        # Expected Result
+        self.assertAlmostEqual(current_rate, 1_000_000 / 3600)
 
     @patch("beltradar.models.beltradar.timezone.now")
     def test_generate_eta(self, mock_now):

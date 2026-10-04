@@ -3,15 +3,25 @@ import styles from "@/Components/Loader/FetchingLoader.module.css";
 
 interface LoaderProps {
   message?: string;
+  className?: string;
 }
 
-export const FetchingLoader = (props: LoaderProps = {}) => {
+export const FetchingLoader = ({ message, className = '' }: LoaderProps = {}) => {
   return (
-    <div className={`${styles["flex-container-loader"]}`}>
-      <span className="spinner-border"></span>
-      <span className="fs-4">{props.message && <>{props.message}</>}</span>
+    <div className={`${styles['flex-container-loader']} ${className}`}>
+      <div
+        className={`spinner-border text-info ${styles["spinner"]}`}
+        role="status"
+      >
+        <span className="visually-hidden">Loading...</span>
+      </div>
+      {message && (
+        <span>
+          {message}
+        </span>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default FetchingLoader
+export default FetchingLoader;

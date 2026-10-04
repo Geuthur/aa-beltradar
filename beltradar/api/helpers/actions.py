@@ -100,7 +100,7 @@ def session_belt_timer_actions(
     if not perms:
         return None
 
-    if session.is_timer_ready:
+    if session.is_auto_timer_ready:
         if not session.has_timer:
             return schema.ActionSchema(
                 create=schema.ModalSchema(

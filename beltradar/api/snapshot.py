@@ -354,7 +354,7 @@ class BeltRadarApiEndpoints:
                     snapshot.asteroids.set(
                         BeltSurveyEntry.objects.filter(snapshot=snapshot)
                     )
-                    if session.is_auto_timer_ready():
+                    if session.is_auto_timer_ready:
                         # Create the Belt Timer once the belt is nearly depleted.
                         session.create_belt_timer()
                 return HTTPStatus.OK, {

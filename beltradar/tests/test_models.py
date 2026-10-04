@@ -223,7 +223,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
                     )
 
                 # Test Action
-                result = session.is_auto_timer_ready()
+                result = session.is_auto_timer_ready
 
                 # Expected Result
                 self.assertEqual(result, expected)
@@ -232,7 +232,7 @@ class TestBeltSurveySessionModel(BeltRadarTestCase):
         """Test a session without snapshots is not ready for an automatic timer."""
         session = BeltSessionFactory()
 
-        self.assertFalse(session.is_auto_timer_ready())
+        self.assertFalse(session.is_auto_timer_ready)
 
     def test_belt_timer_session_is_unique_when_not_null(self):
         """A session can only have one linked timer, while null remains allowed."""

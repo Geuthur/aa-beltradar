@@ -115,14 +115,6 @@ class BeltSurveySession(models.Model):
         )
 
     @cached_property
-    def is_timer_ready(self):
-        """Check if a timer can be created for this session based on the number of survey entries."""
-        snapshot_count = self.br_snapshots.count()
-        # Check if it is a valid session with more than 3 snapshots
-        if snapshot_count <= 3:
-            return False
-        return True
-
     def is_auto_timer_ready(self) -> bool:
         """Check if only a small share of the first snapshot's volume is left, so the belt timer can be created automatically."""
         first_snapshot = self.br_snapshots.order_by("timestamp").first()

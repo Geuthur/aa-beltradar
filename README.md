@@ -15,48 +15,47 @@ A Belt Survey Analyser to track how fast you mine your belt.
 
 ______________________________________________________________________
 
-<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=2 -->
 
-- [AA Belt Radar module for AllianceAuth.](#aa-belt-radar-module-for-allianceauth)
-  - [Features](#features)
-  - [Upcoming](#upcoming)
-  - [Highlights](#highlights)
-  - [Installation](#installation)
-    - [Step 1 - Install the Package](#step-1---install-the-package)
-    - [Step 2 - Configure Alliance Auth](#step-2---configure-alliance-auth)
-    - [Step 3 - Add the Scheduled Tasks](#step-3---add-the-scheduled-tasks)
-    - [Step 3.1 - (Optional) Add own Logger File](#step-31---optional-add-own-logger-file)
-    - [Step 4 - Migrate & Preload EVE SDE Data](#step-4---migrate--preload-eve-sde-data)
-    - [Step 4.1 - Migrate App and collect static](#step-41---migrate-app-and-collect-static)
-    - [Step 5 - Setting up Permissions](#step-5---setting-up-permissions)
-    - [Step 6 - (Optional) Setting up Compatibilies](#step-6---optional-setting-up-compatibilies)
-  - [Translations](#translations)
-  - [Contributing](#contributing)
+- [Features](#features)
+- [Highlights](#highlights)
+- [Installation](#installation)
+  - [Step 1 - Install the Package](#step-1---install-the-package)
+  - [Step 2 - Configure Alliance Auth](#step-2---configure-alliance-auth)
+  - [Step 3 - Add the Scheduled Tasks](#step-3---add-the-scheduled-tasks)
+  - [Step 3.1 - (Optional) Add own Logger File](#step-31---optional-add-own-logger-file)
+  - [Step 4 - Migrate & Preload EVE SDE Data](#step-4---migrate--preload-eve-sde-data)
+  - [Step 4.1 - Migrate App and collect static](#step-41---migrate-app-and-collect-static)
+  - [Step 5 - Setting up Permissions](#step-5---setting-up-permissions)
+  - [Step 6 - (Optional) Setting up Compatibilies](#step-6---optional-setting-up-compatibilies)
+- [Translations](#translations)
+- [Contributing](#contributing)
 
 <!-- mdformat-toc end -->
 
 ## Features<a name="features"></a>
 
-- Display estimated completion time for belt mining
-- Show mining speed in m³/s
-- Display remaining volume and belt size information
-- Optional Share your Mining Session with others
-- Respawn Timer for Belts
-- Compressed Price
-- Discord Notification (optional)
-- Public/Private Respawn Timers
-- Discord Webhook for Respawn Timer
-- Automatic Belt Type & Size Expection
-- Automatic Belt Timer after 3 Survey Scans
-
-## Upcoming<a name="upcoming"></a>
+- **Interactive Live Sessions & Mining Analytics**
+  - Dynamic live session updates: new survey scans and mining data are automatically loaded and immediately visible
+  - Real-time mining speed tracking in m³/s
+  - Estimated completion time (ETA) for belt mining
+  - Remaining volume and belt size calculation
+  - Compressed ore price estimation
+- **Visual Analytics & Diagrams**
+  - **Ore Progression**: Visual chart tracking the progress and composition of mined ore
+  - **Mining Speed & Volume Chart**: XY line & column diagram displaying remaining volume (m³) alongside mining speed (m³/s) over time
+- **Belt Automation & Timers**
+  - Automatic belt type and size detection
+  - Automatic respawn timer creation when only 10% of the belt volume is left
+  - Public and private belt respawn timers
+- **Collaboration & Notifications**
+  - Optional session sharing with fleet members or corporation
+  - Configurable Discord webhook notifications for belt respawn timers
 
 ## Highlights<a name="highlights"></a>
 
 ![Image: Belt Radar Dashboard]
-
 ![Image: Belt Radar My Sessions]
-
 ![Image: Belt Radar View Session]
 
 ## Installation<a name="installation"></a>

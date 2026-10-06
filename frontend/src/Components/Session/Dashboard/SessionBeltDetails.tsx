@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionStats } from '@/Api/schema';
+import { formatNumber, renderTooltip } from '@/Components/Base/BaseTable/tableHelper';
 import { BeltDetailsFirstScan } from '@/Components/Session/Dashboard/BeltDetailsFirstScan';
 import { BeltDetailsLastScan } from '@/Components/Session/Dashboard/BeltDetailsLastScan';
-import Styles from '@/Components/Session/Dashboard/SessionBeltDetails.module.css';
 import { BeltDetailsETA } from '@/Components/Session/Dashboard/SessionBeltDetailsETA';
-import { formatNumber, renderTooltip } from '@/Components/Tables/BaseTable/tableHelper';
+import Styles from '@/Styles/modules/SessionBeltDetails.module.css';
 
 // Mirrors AUTO_TIMER_REMAINING_SHARE in beltradar/constants.py
 const AUTO_TIMER_REMAINING_PERCENT = 10;

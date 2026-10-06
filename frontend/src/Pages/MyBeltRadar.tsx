@@ -2,10 +2,10 @@
 import { useTranslation } from 'react-i18next'
 
 // AA Belt Radar
+import ActionSectionHeader from '@/Components/Base/ActionSectionHeader';
 import CreateBeltTimerForm from '@/Components/Forms/CreateBeltTimerForm';
 import CreateSessionForm from '@/Components/Forms/CreateSessionForm';
 import { validateBeltTimerForm, validateSessionForm } from '@/Components/Forms/validation';
-import ActionSectionHeader from '@/Components/Section/ActionSectionHeader';
 import MyBeltRadarTable from '@/Components/Tables/MyBeltRadarTable';
 import MyBeltTimerTable from '@/Components/Tables/MyBeltTimerTable';
 

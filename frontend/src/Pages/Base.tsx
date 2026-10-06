@@ -6,8 +6,8 @@ import { Outlet } from "react-router";
 import { Col } from "react-bootstrap";
 
 // AA Belt Radar
-import ErrorBoundary from "@/Components/Loader";
-import BeltRadarMenuAsync from "@/Components/Menu/BeltRadarMenuAsync";
+import ErrorBoundary from "@/Components/Base/Loader";
+import BeltRadarMenuAsync from "@/Menu/BeltRadarMenuAsync";
 
 const BeltRadarBase = () => {
   return (

@@ -3,7 +3,7 @@ import { Globe, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
+import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 
 export function PublicBadge({ isPublic }: { isPublic: boolean }) {
   const { t } = useTranslation();
@@ -12,7 +12,7 @@ export function PublicBadge({ isPublic }: { isPublic: boolean }) {
   return renderTooltip(
     label,
     <span
-      className={`br-btn br-btn-sm ${isPublic ? "br-btn-success" : "br-btn-secondary"}`}
+      className={`aa-badge aa-badge-lg ${isPublic ? "aa-badge-success" : "aa-badge-secondary"}`}
       role="img"
       aria-label={label}
     >

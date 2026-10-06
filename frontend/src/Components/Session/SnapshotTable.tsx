@@ -7,14 +7,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadSnapshot } from '@/Api/BeltRadar';
+import { loadSnapshot } from '@/Api/ApiCalls';
 import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from "@/Api/query";
+import BaseModal, { ModalSize } from '@/Components/Base/BaseModal';
+import { useApproveMutation, useFormApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
+import BaseTable from '@/Components/Base/BaseTable';
 import AddSnapshotForm from '@/Components/Forms/AddSnapshotForm';
 import { validateAddSnapshotForm } from '@/Components/Forms/validation';
-import BaseModal, { ModalSize } from '@/Components/Modals/BaseModal';
-import { useApproveMutation, useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
 import { getModalConfig } from '@/Components/Modals/modalConfig';
-import BaseTable from '@/Components/Tables/BaseTable';
 import { SnapshotButtons, SnapshotSelect } from '@/Components/Tables/Snapshot';
 import { getSnapshotColumns } from "@/Components/Tables/TableColumns";
 

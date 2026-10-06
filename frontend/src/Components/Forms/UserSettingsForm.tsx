@@ -43,7 +43,7 @@ export default function UserSettingsForm({
             </Form.Group>
 
             <div className="text-end">
-                <button type="submit" className="br-btn br-btn-primary" disabled={isPending}>
+                <button type="submit" className="aa-btn aa-btn-primary" disabled={isPending}>
                     {isPending ? t("Saving...") : t("Save Settings")}
                 </button>
             </div>

@@ -26,21 +26,7 @@ Section Order:
 ### Removed
 -->
 
-<!-- Your changes go here -->
-
-### Fixed
-
-- Mining speed per snapshot was calculated against the first snapshot instead of the directly preceding one
-- Session speed, ETA and income were distorted by pauses between snapshots; they are now based on the active mining intervals
-
-### Changed
-
-- Frontend migrated to the shared AA design (`aa-panel`, `aa-table`, status indicator) from `aa-example`
-- Session view refreshes every 30 seconds and shows a live status indicator
-- Icons (lucide-react), titles, texts and colors of actions are defined in the frontend; the API only sends `modal_id` and `url` of the actions the user may perform (`api/helpers/icons.py` replaced by `api/helpers/actions.py`)
-- Belt timers are created automatically once only 10% of the first snapshot's volume is left instead of after the fourth snapshot
-- Updated Settings page to `SettingsPage` matching `aa-example` styling using `.aa-panel-light` and dedicated CSS module.
-- Added `.aa-panel-light` utility class to Alliance Auth framework CSS (`src/index.css`).
+## [2.0.0] - 2026-10-06
 
 > [!CAUTION]
 > Please note that this release involves structural changes.
@@ -48,50 +34,28 @@ Section Order:
 
 ### Added
 
-- `AddSnapshotForm` React component and modal for creating survey snapshots with Survey Scanner raw data.
-- `SnapshotSelect` and `SnapshotButtons` React components for selecting and managing mining survey snapshots.
-- CODEOWNERS file to define code ownership.
-- `CreateBeltTimerForm` React component with dynamic belt size selection based on belt type.
-- User Settings form and page in React with real-time notification preferences.
-- React Makefile targets in `react.mk` (`react-build`, `react-dev`, `react-export-openapi`, `react-fetch-openapi`, `react-translations`, `react-lint`, `react-test`, `react-clean`).
-- Belt timer creation and deletion functionality directly in session view header and dashboard expectation section with timer indicator icons.
-- Localization support syncing `moment.js` locale directly with Django's `LANGUAGE_CODE` for dates, relative time, and duration formatting.
-- React developer guidelines and topic-based folder structuring (`BaseModal`, `BaseTable`, `Session/Dashboard`, `Tables/Snapshot`).
+- Survey snapshots can now be created and managed with raw Survey Scanner data via a dedicated modal.
+- Snapshot selector and action buttons for managing mining survey snapshots in the session view.
+- Dynamic belt size selection in the belt timer creation form based on the selected belt type.
+- User settings page with notification preferences.
+- Belt timer creation and deletion functionality directly in the session view header and dashboard.
+- Automatic locale detection matching Django's language settings for date, time, and duration formatting.
 
 ### Changed
 
-- Renamed Ninja API schemas: `SessionStatsSchema` to `StatsSchema`, `SessionSchema` to `SessionStatsSchema`, and `BeltSurveySessionSchema` to `SessionSchema`.
-- Updated OpenAPI specifications and regenerated frontend TypeScript definitions (`OpenApi.ts`, `schema.ts`) to match the renamed session schemas.
-- Streamlined React language detection to read Django's `LANGUAGE_CODE` directly from the `#aa-beltradar-root` `lang` attribute.
-- Extracted translation function calls (`t`) into dedicated translation constants across session dashboard components and table column definitions.
-- Reorganized shared table and formatting helpers into `tableHelper.tsx`.
-- Enhanced `BaseSectionHeader` to support custom child elements for action buttons and status indicators.
-- Updated `add_snapshot` API endpoint to purely use `request.POST` and added `create` action to `get_snapshot`.
-- Enhanced `SessionSnapshotTable` in React with Add Snapshot and Delete Snapshot actions.
-- Enhanced `modify_belt_timer` endpoint and React edit modal to allow full editing of standalone belt timers with dynamic ETA recalculation, and visibility-only (`is_public`) editing for belt timers linked to a survey session.
-- Updated React `BeltRadarModals` and `BaseModal` to prefill and edit all belt timer attributes in a dedicated edit modal.
-- Updated German translations for user settings and belt timer forms in React frontend.
-- Updated `get_user` and `modify_user_settings` API endpoints to safely initialize UserSettings and handle form submissions via `request.POST`.
-- Migrated `updateUserSettings` to use `openapi-fetch` (`apiClient.POST`).
-- Updated `add_belt_timer` and `add_session` API endpoints to support both JSON and standard POST data.
-- Unified frontend form mutations in `useFormApproveMutation` to send standard POST requests.
-- Enhance Makefile and configuration management
-- Added pre-commit hooks management in pre-commit.mk with commands for installation, uninstallation, updates, and checks.
-- Improved Redis command management in redis.mk with better echo messages.
-- Updated tests.mk to enhance test running and coverage reporting.
-- Modified .pre-commit-config.yaml to use regex for JSON file exclusion.
-- Updated CHANGELOG.md to include a section for new changes.
-- Enhanced CODE_OF_CONDUCT.md with a structured table of contents.
-- Improved CONTRIBUTING.md with a structured table of contents.
-- Refactored Makefile to include dynamic configuration loading from .ini files. @thanks to (@ppfeufer)
-- Added database management tasks in database.mk for backup, restore, list, and delete operations.
-- Introduced npm.mk for managing npm dependencies and scripts.
+- Modernized user interface using the Alliance Auth design system (`aa-panel`, `aa-table`, and status badges).
+- Session view refreshes automatically every 30 seconds with a live status indicator.
+- Belt timers are now automatically created once only 10% of the initial belt volume remains.
+- Redesigned User Settings page with modern panel styling.
+- Standalone belt timers can now be edited with dynamic ETA recalculation, while session-linked timers support visibility toggling (`is_public`).
+- Updated and expanded German translations across all forms and views.
 
 ### Fixed
 
-- Fixed variable shadowing in `modify_user_settings` where `get_or_create` overwrote `gettext` (`_`).
-- prevent double loading of session data by reload function
-- update belt type and size resolution to use BeltSurveySnapshot for accurate session data
+- Mining speed per snapshot was calculated against the first snapshot instead of the directly preceding one.
+- Session speed, ETA and income calculations were distorted by pauses between snapshots; they are now calculated based on active mining intervals.
+- Fixed inaccurate belt type and size resolution in the session view.
+- Prevented duplicate session data reloads.
 
 ## [1.0.1] - 2026-09-05
 
@@ -334,4 +298,4 @@ Section Order:
 [0.5.1]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.0...v0.5.1 "v0.5.1"
 [1.0.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.1...v1.0.0 "v1.0.0"
 [1.0.1]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.0...v1.0.1 "v1.0.1"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.1...HEAD "In Development"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v2.0.0...HEAD "In Development"

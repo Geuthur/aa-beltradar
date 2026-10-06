@@ -9,19 +9,19 @@ import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
 import type { BeltTimer, ModalSchema, Session } from "@/Api/schema";
+import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import { getModalConfig } from "@/Components/Modals/modalConfig";
-import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
 
 export interface ButtonProps {
-	icon: ReactNode;
-	onClick: () => void;
-	title: string;
-	color: string;
+    icon: ReactNode;
+    onClick: () => void;
+    title: string;
+    color: string;
     classProps?: string;
 }
 
 export function IconButton({ icon, onClick, title, color, classProps }: ButtonProps) {
-	return (
+    return (
         <>
             {renderTooltip(
                 title,
@@ -30,7 +30,7 @@ export function IconButton({ icon, onClick, title, color, classProps }: ButtonPr
                     onClick={onClick}
                     title={title}
                     aria-label={title}
-                    className={`br-btn br-btn-sm br-btn-${color} me-2 ${classProps ?? ""}`}>
+                    className={`aa-btn aa-btn-sm aa-btn-${color} me-2 ${classProps ?? ""}`}>
                     {icon}
                 </button>
             )}
@@ -91,8 +91,8 @@ export function EntityTableActions<T extends EntityWithActions>({
         showViewSession !== undefined
             ? showViewSession
             : row.has_session !== undefined
-              ? Boolean(row.has_session)
-              : true;
+                ? Boolean(row.has_session)
+                : true;
 
     return (
         <>

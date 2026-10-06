@@ -7,10 +7,10 @@ import { BellOff, Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import { loadUserData, updateUserSettings } from "@/Api/BeltRadar";
+import { loadUserData, updateUserSettings } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
-import styles from "@/Pages/SettingsPage.module.css";
+import styles from "@/Styles/modules/SettingsPage.module.css";
 
 type UserDataResponse = { user: components["schemas"]["UserData"] };
 

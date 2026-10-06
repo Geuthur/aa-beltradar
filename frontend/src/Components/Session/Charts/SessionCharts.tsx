@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 // AA Belt Radar
-import { loadSnapshot } from '@/Api/BeltRadar';
+import { loadSnapshot } from '@/Api/ApiCalls';
 import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from '@/Api/query';
 import type { ApexChartSchema } from '@/Api/schema';
 import { MiningChart } from '@/Components/Session/Charts/MiningChart';

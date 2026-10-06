@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { ApexChartSchema } from '@/Api/schema';
-import FetchingLoader from '@/Components/Loader/FetchingLoader';
+import FetchingLoader from '@/Components/Base/Loader/FetchingLoader';
 
 export interface TrafficChartProps {
     data?: ApexChartSchema | null;

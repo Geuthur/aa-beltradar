@@ -10,8 +10,7 @@ import { NuqsAdapter } from "nuqs/adapters/react-router/v8";
 import { initReactI18next, useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import "@/App.css"
-import ErrorLoader from "@/Components/Loader/ErrorLoader"
+import ErrorLoader from "@/Components/Base/Loader/ErrorLoader"
 import BeltRadarBase from "@/Pages/Base";
 import BeltRadar from "@/Pages/BeltRadar";
 import MyBeltRadar from "@/Pages/MyBeltRadar";

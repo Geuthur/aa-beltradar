@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 // AA Belt Radar
 import { queryKeys } from '@/Api/query';
 import type { SessionStats } from '@/Api/schema';
-import BaseModal from '@/Components/Modals/BaseModal';
-import { useApproveMutation } from '@/Components/Modals/BeltRadarQuery';
+import BaseModal from '@/Components/Base/BaseModal';
+import { useApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
 import { getModalConfig } from '@/Components/Modals/modalConfig';
 
 export interface SessionModalsProps {

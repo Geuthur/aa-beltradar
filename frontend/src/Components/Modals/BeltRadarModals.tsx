@@ -7,14 +7,14 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionItem, BeltTimer } from "@/Api/schema";
+import BaseModal from '@/Components/Base/BaseModal';
+import { useApproveMutation, useFormApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
 import CreateBeltTimerForm from '@/Components/Forms/CreateBeltTimerForm';
 import {
 	getBeltSizeValue,
 	getBeltTypeValue,
 	validateBeltTimerForm,
 } from '@/Components/Forms/validation';
-import BaseModal from '@/Components/Modals/BaseModal';
-import { useApproveMutation, useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
 import { getModalConfig } from '@/Components/Modals/modalConfig';
 
 export interface BeltRadarModalsProps {

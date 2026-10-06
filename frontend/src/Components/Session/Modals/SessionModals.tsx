@@ -1,3 +1,6 @@
+// React
+import { useState } from 'react';
+
 // Third Party
 import { useTranslation } from 'react-i18next';
 
@@ -20,11 +23,17 @@ export function SessionModals({
     setActiveModal,
 }: SessionModalsProps) {
     const { t } = useTranslation();
-    const sessionKey = queryKeys.Session(String(session?.public_id));
+    const [cachedSession, setCachedSession] = useState(session);
+    if (session && session !== cachedSession) {
+        setCachedSession(session);
+    }
+    const effectiveSession = session ?? cachedSession;
+
+    const sessionKey = queryKeys.Session(String(effectiveSession?.public_id));
     const approveMutation = useApproveMutation([sessionKey, queryKeys.beltTimer]);
 
-    const deleteTimerAction = session?.actions?.delete;
-    const createTimerAction = session?.actions?.create;
+    const deleteTimerAction = effectiveSession?.actions?.delete;
+    const createTimerAction = effectiveSession?.actions?.create;
 
     const handleApprove = async (url: string) => {
         await approveMutation.mutateAsync(url);
@@ -36,6 +45,7 @@ export function SessionModals({
             {deleteTimerAction && (
                 <BaseModal
                     data={deleteTimerAction}
+                    variant='confirm'
                     showModal={activeModal === deleteTimerAction.modal_id}
                     setShowModal={(show) => setActiveModal(show ? deleteTimerAction.modal_id : null)}
                     onApprove={({ url }) => handleApprove(url)}
@@ -46,6 +56,7 @@ export function SessionModals({
             {createTimerAction && (
                 <BaseModal
                     data={createTimerAction}
+                    variant='confirm'
                     showModal={activeModal === createTimerAction.modal_id}
                     setShowModal={(show) => setActiveModal(show ? createTimerAction.modal_id : null)}
                     onApprove={({ url }) => handleApprove(url)}

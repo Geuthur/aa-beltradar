@@ -389,6 +389,7 @@
 .aa-btn-primary {
     background-color: var(--aa-color-blue-dark);
     color: var(--aa-color-white-light);
+    border-color: var(--aa-color-blue);
 }
 
 .aa-btn-primary:hover:not(:disabled) {

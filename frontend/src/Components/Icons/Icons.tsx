@@ -28,7 +28,6 @@ export function IconButton({ icon, onClick, title, color, classProps }: ButtonPr
                 <button
                     type="button"
                     onClick={onClick}
-                    title={title}
                     aria-label={title}
                     className={`aa-btn aa-btn-sm aa-btn-${color} me-2 ${classProps ?? ""}`}>
                     {icon}

@@ -1,38 +1,60 @@
 // React
+import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Third Party
 import type { CellContext } from "@tanstack/react-table";
-import { Button } from "react-bootstrap";
+import { Eye } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import type { BeltTimer, Session } from "@/Api/schema";
-import { renderTooltip } from "@/Components/Tables/BaseTable/tableHelper";
+import type { BeltTimer, ModalSchema, Session } from "@/Api/schema";
+import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
+import { getModalConfig } from "@/Components/Modals/modalConfig";
 
 export interface ButtonProps {
-	icon: string;
-	onClick: () => void;
-	title: string;
-	color: string;
+    icon: ReactNode;
+    onClick: () => void;
+    title: string;
+    color: string;
     classProps?: string;
 }
 
 export function IconButton({ icon, onClick, title, color, classProps }: ButtonProps) {
-	return (
+    return (
         <>
             {renderTooltip(
                 title,
-                <Button
+                <button
+                    type="button"
                     onClick={onClick}
-                    title={title}
-                    size="sm"
-                    variant={color}
-                    className={`me-2 ${classProps ?? ""}`}>
-                    <i className={icon}></i>
-                </Button>
+                    aria-label={title}
+                    className={`aa-btn aa-btn-sm aa-btn-${color} me-2 ${classProps ?? ""}`}>
+                    {icon}
+                </button>
             )}
         </>
+    );
+}
+
+export interface ActionButtonProps {
+    action: ModalSchema;
+    onClick: () => void;
+    classProps?: string;
+}
+
+/** Button for an action of the API; icon, title and color come from the modal config. */
+export function ActionButton({ action, onClick, classProps }: ActionButtonProps) {
+    const { t } = useTranslation();
+    const { icon, title, color } = getModalConfig(t, action.modal_id);
+    return (
+        <IconButton
+            icon={icon}
+            title={title}
+            color={color}
+            onClick={onClick}
+            classProps={classProps}
+        />
     );
 }
 
@@ -40,18 +62,8 @@ export interface EntityWithActions {
     public_id: string;
     has_session?: boolean;
     actions?: {
-        update?: {
-            icon: string;
-            title: string;
-            color?: string | null;
-            modal_id: string;
-        } | null;
-        delete?: {
-            icon: string;
-            title: string;
-            color?: string | null;
-            modal_id: string;
-        } | null;
+        update?: ModalSchema | null;
+        delete?: ModalSchema | null;
     } | null;
 }
 
@@ -78,14 +90,14 @@ export function EntityTableActions<T extends EntityWithActions>({
         showViewSession !== undefined
             ? showViewSession
             : row.has_session !== undefined
-              ? Boolean(row.has_session)
-              : true;
+                ? Boolean(row.has_session)
+                : true;
 
     return (
         <>
             {canViewSession && (
                 <IconButton
-                    icon="fas fa-eye"
+                    icon={<Eye size={14} aria-hidden="true" />}
                     onClick={() => {
                         navigate("/beltradar/session/" + row.public_id + "/");
                     }}
@@ -94,25 +106,21 @@ export function EntityTableActions<T extends EntityWithActions>({
                 />
             )}
             {updateAction && (
-                <IconButton
-                    icon={updateAction.icon}
+                <ActionButton
+                    action={updateAction}
                     onClick={() => {
                         onSelectEntity?.(row);
                         setModalAction(updateAction.modal_id, row);
                     }}
-                    title={updateAction.title}
-                    color={updateAction.color ?? "success"}
                 />
             )}
             {deleteAction && (
-                <IconButton
-                    icon={deleteAction.icon}
+                <ActionButton
+                    action={deleteAction}
                     onClick={() => {
                         onSelectEntity?.(row);
                         setModalAction(deleteAction.modal_id, row);
                     }}
-                    title={deleteAction.title}
-                    color={deleteAction.color ?? "danger"}
                 />
             )}
         </>

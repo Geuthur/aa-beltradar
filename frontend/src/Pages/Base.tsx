@@ -6,15 +6,18 @@ import { Outlet } from "react-router";
 import { Col } from "react-bootstrap";
 
 // AA Belt Radar
-import BeltRadarMenuAsync from "@/Components/Menu/BeltRadarMenuAsync";
+import ErrorBoundary from "@/Components/Base/Loader";
+import BeltRadarMenuAsync from "@/Menu/BeltRadarMenuAsync";
 
 const BeltRadarBase = () => {
   return (
     <>
       <BeltRadarMenuAsync />
       <Col>
-        <div className="mt-4">
-          <Outlet /> {/* Render the Children here */}
+        <div className="aa-section mt-4">
+          <ErrorBoundary>
+            <Outlet /> {/* Render the Children here */}
+          </ErrorBoundary>
         </div>
       </Col>
     </>

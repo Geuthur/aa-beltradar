@@ -10,18 +10,19 @@ import { NuqsAdapter } from "nuqs/adapters/react-router/v8";
 import { initReactI18next, useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import "@/App.css"
-import ErrorLoader from "@/Components/Loader/ErrorLoader"
+import ErrorLoader from "@/Components/Base/Loader/ErrorLoader"
 import BeltRadarBase from "@/Pages/Base";
 import BeltRadar from "@/Pages/BeltRadar";
 import MyBeltRadar from "@/Pages/MyBeltRadar";
 import BeltRadarSession from "@/Pages/Session";
-import Settings from "@/Pages/Settings";
+import SettingsPage from "@/Pages/SettingsPage";
 
 const queryClient = new QueryClient();
+export const AppName = "aa-beltradar";
+export const ProjectName = "beltradar";
 
 // Read language directly from Django's LANGUAGE_CODE (set as lang="..." on root div)
-const djangoLanguage = document.getElementById("aa-beltradar-root")?.getAttribute("lang") ?? "en";
+const djangoLanguage = typeof document !== "undefined" ? document.getElementById(`${AppName}-root`)?.getAttribute("lang") ?? "en" : "en";
 
 i18n
   .use(Backend)
@@ -38,7 +39,7 @@ i18n
       useSuspense: false, //   <---- this will do the magic
     },
     backend: {
-      loadPath: "/static/beltradar/i18n/{{lng}}/{{ns}}.json",
+      loadPath: `/static/${ProjectName}/i18n/{{lng}}/{{ns}}.json`,
     },
   });
 
@@ -55,7 +56,7 @@ function App() {
                 <Route path=":characterID/" element={<BeltRadar />} />
                 <Route path="my-belt-radar/" element={<MyBeltRadar />} />
                 <Route path="my-belt-radar/:characterID/" element={<MyBeltRadar />} />
-                <Route path="settings/" element={<Settings />} />
+                <Route path="settings/" element={<SettingsPage />} />
                 <Route path="session/:publicID/" element={<BeltRadarSession />} />
                 <Route path="*" element={<ErrorLoader title={t("Error 404")} message={t("The page you are looking for does not exist.")} />} />
               </Route>

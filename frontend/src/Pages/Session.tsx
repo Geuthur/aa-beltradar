@@ -7,10 +7,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadSession } from '@/Api/BeltRadar';
-import { queryKeys } from "@/Api/query";
-import ErrorLoader from '@/Components/Loader/ErrorLoader';
-import BaseSectionHeader from '@/Components/Section/BaseSectionHeader';
+import { loadSession } from '@/Api/ApiCalls';
+import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from "@/Api/query";
+import { LiveStatusIndicator } from '@/Components/Badges';
+import BaseSectionHeader from '@/Components/Base/BaseHeader';
+import ErrorLoader from '@/Components/Base/Loader/ErrorLoader';
 import SessionCharts from '@/Components/Session/Charts';
 import SessionDashboard from '@/Components/Session/Dashboard';
 import SessionHeaderButtons from '@/Components/Session/Header';
@@ -25,10 +26,16 @@ function BeltRadarSession() {
     const sessionKey = queryKeys.Session(String(publicID));
 
     // Load Belt Radar Session Snapshot data
-    const { data: sessionData, isError: isErrorSessions } = useQuery({
+    const {
+        data: sessionData,
+        isError: isErrorSessions,
+        isFetching: isFetchingSession,
+        dataUpdatedAt,
+    } = useQuery({
         queryKey: sessionKey,
         queryFn: () => loadSession(String(publicID)),
         refetchOnWindowFocus: false,
+        refetchInterval: SESSION_REFETCH_INTERVAL_MS,
         enabled: !!publicID,
     });
 
@@ -40,9 +47,14 @@ function BeltRadarSession() {
     const hasTimer = Boolean(sessionData?.has_timer || sessionData?.actions?.delete);
 
     return (
-        <main>
+        <main className="br-page">
             {/* Sessions Section */}
             <BaseSectionHeader name={headerName}>
+                <LiveStatusIndicator
+                    isFetching={isFetchingSession}
+                    dataUpdatedAt={dataUpdatedAt}
+                    showTimestamp
+                />
                 <SessionHeaderButtons
                     hasTimer={hasTimer}
                     deleteTimerAction={sessionData?.actions?.delete}

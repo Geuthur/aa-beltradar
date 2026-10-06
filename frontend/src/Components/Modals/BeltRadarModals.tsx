@@ -1,19 +1,21 @@
 // React
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 // Third Party
 import type { QueryKey } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionItem, BeltTimer } from "@/Api/schema";
+import BaseModal from '@/Components/Base/BaseModal';
+import { useApproveMutation, useFormApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
 import CreateBeltTimerForm from '@/Components/Forms/CreateBeltTimerForm';
 import {
 	getBeltSizeValue,
 	getBeltTypeValue,
 	validateBeltTimerForm,
 } from '@/Components/Forms/validation';
-import BaseModal from '@/Components/Modals/BaseModal';
-import { useApproveMutation, useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
+import { getModalConfig } from '@/Components/Modals/modalConfig';
 
 export interface BeltRadarModalsProps {
 	session?: SessionItem | BeltTimer | null;
@@ -24,15 +26,22 @@ export interface BeltRadarModalsProps {
 }
 
 function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey }: BeltRadarModalsProps) {
+	const { t } = useTranslation();
 	const approveMutation = useApproveMutation(queryKey);
 	const formApproveMutation = useFormApproveMutation(queryKey);
 
-	const isBeltTimer = data ? 'belt_id' in data : false;
-	const isSessionLinked = isBeltTimer ? Boolean((data as BeltTimer).has_session) : false;
+	const [cachedData, setCachedData] = useState(data);
+	if (data && data !== cachedData) {
+		setCachedData(data);
+	}
+	const effectiveData = data ?? cachedData;
+
+	const isBeltTimer = effectiveData ? 'belt_id' in effectiveData : false;
+	const isSessionLinked = isBeltTimer ? Boolean((effectiveData as BeltTimer).has_session) : false;
 
 	const timerInitialFormData = useMemo(() => {
-		if (!data || !isBeltTimer) return undefined;
-		const timer = data as BeltTimer;
+		if (!effectiveData || !isBeltTimer) return undefined;
+		const timer = effectiveData as BeltTimer;
 		return {
 			belt_id: timer.belt_id ?? '',
 			belt_name: timer.belt_name ?? '',
@@ -40,14 +49,14 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 			belt_size: getBeltSizeValue(timer.belt_size),
 			is_public: Boolean(timer.public?.raw ?? false),
 		};
-	}, [data, isBeltTimer]);
+	}, [effectiveData, isBeltTimer]);
 
-	if (!data) {
+	if (!effectiveData) {
 		return null;
 	}
 
-	const updateAction = data.actions?.update;
-	const deleteAction = data.actions?.delete;
+	const updateAction = effectiveData.actions?.update;
+	const deleteAction = effectiveData.actions?.delete;
 
 	return (
 		<>
@@ -77,7 +86,7 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 						onApprove={({ url }) => approveMutation.mutateAsync(url)}
 						isPending={approveMutation.isPending}
 						setShowModal={(show) => setModalAction(show ? updateAction.modal_id : null)}
-						children={<div>{updateAction.text}</div>}
+						children={<div>{getModalConfig(t, updateAction.modal_id).text}</div>}
 					/>
 				)
 			)}
@@ -88,7 +97,7 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 					onApprove={({ url }) => approveMutation.mutateAsync(url)}
 					isPending={approveMutation.isPending}
 					setShowModal={(show) => setModalAction(show ? deleteAction.modal_id : null)}
-					children={<div>{deleteAction.text}</div>}
+					children={<div>{getModalConfig(t, deleteAction.modal_id).text}</div>}
 				/>
 			)}
 		</>

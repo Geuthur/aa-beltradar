@@ -1,8 +1,15 @@
+// React
+import { useState } from 'react';
+
+// Third Party
+import { useTranslation } from 'react-i18next';
+
 // AA Belt Radar
 import { queryKeys } from '@/Api/query';
 import type { SessionStats } from '@/Api/schema';
-import BaseModal from '@/Components/Modals/BaseModal';
-import { useApproveMutation } from '@/Components/Modals/BeltRadarQuery';
+import BaseModal from '@/Components/Base/BaseModal';
+import { useApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
+import { getModalConfig } from '@/Components/Modals/modalConfig';
 
 export interface SessionModalsProps {
     session?: SessionStats | null;
@@ -15,11 +22,18 @@ export function SessionModals({
     activeModal,
     setActiveModal,
 }: SessionModalsProps) {
-    const sessionKey = queryKeys.Session(String(session?.public_id));
+    const { t } = useTranslation();
+    const [cachedSession, setCachedSession] = useState(session);
+    if (session && session !== cachedSession) {
+        setCachedSession(session);
+    }
+    const effectiveSession = session ?? cachedSession;
+
+    const sessionKey = queryKeys.Session(String(effectiveSession?.public_id));
     const approveMutation = useApproveMutation([sessionKey, queryKeys.beltTimer]);
 
-    const deleteTimerAction = session?.actions?.delete;
-    const createTimerAction = session?.actions?.create;
+    const deleteTimerAction = effectiveSession?.actions?.delete;
+    const createTimerAction = effectiveSession?.actions?.create;
 
     const handleApprove = async (url: string) => {
         await approveMutation.mutateAsync(url);
@@ -31,21 +45,23 @@ export function SessionModals({
             {deleteTimerAction && (
                 <BaseModal
                     data={deleteTimerAction}
+                    variant='confirm'
                     showModal={activeModal === deleteTimerAction.modal_id}
                     setShowModal={(show) => setActiveModal(show ? deleteTimerAction.modal_id : null)}
                     onApprove={({ url }) => handleApprove(url)}
                     isPending={approveMutation.isPending}
-                    children={<div>{deleteTimerAction.text}</div>}
+                    children={<div>{getModalConfig(t, deleteTimerAction.modal_id).text}</div>}
                 />
             )}
             {createTimerAction && (
                 <BaseModal
                     data={createTimerAction}
+                    variant='confirm'
                     showModal={activeModal === createTimerAction.modal_id}
                     setShowModal={(show) => setActiveModal(show ? createTimerAction.modal_id : null)}
                     onApprove={({ url }) => handleApprove(url)}
                     isPending={approveMutation.isPending}
-                    children={<div>{createTimerAction.text}</div>}
+                    children={<div>{getModalConfig(t, createTimerAction.modal_id).text}</div>}
                 />
             )}
         </>

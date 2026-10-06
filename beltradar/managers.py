@@ -1,4 +1,5 @@
 # Standard Library
+import statistics
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 # Third Party
@@ -15,7 +16,7 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__
 from beltradar.app_settings import BELT_RADAR_BULK_BATCH_SIZE
-from beltradar.constants import ARRAY_ORE, ICE_ORE, NORMAL_ORE
+from beltradar.constants import ARRAY_ORE, ICE_ORE, NORMAL_ORE, PAUSE_RATE_FACTOR
 from beltradar.helpers.eveonline import get_icon_render_url
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.providers import AppLogger, esi
@@ -196,11 +197,9 @@ class BeltSurveySnapshotQuerySet(models.QuerySet["BeltSurveySnapshotContext"]):
 
     def previous_snapshot(self, snapshot: "BeltSurveySnapshotContext"):
         """Get previous snapshot relative to the given snapshot."""
-        qs = self
-        next_qs = qs.order_by("timestamp").exclude(pk=snapshot.pk)
-        if not next_qs:
-            return None
-        return next_qs.first()
+        return (
+            self.filter(timestamp__lt=snapshot.timestamp).order_by("-timestamp").first()
+        )
 
     def rate_per_s(self, first_snapshot=None, second_snapshot=None):
         """Calculate the mining rate between two snapshots."""
@@ -222,6 +221,57 @@ class BeltSurveySnapshotQuerySet(models.QuerySet["BeltSurveySnapshotContext"]):
         if mined_m3 <= 0:
             return 0.0
         return round(mined_m3 / duration, 2)
+
+    def _snapshot_intervals(self) -> list[tuple[float, float]]:
+        """Return (seconds, mined m3) for each pair of consecutive snapshots."""
+        points = list(
+            self.order_by("timestamp")
+            .annotate(volume=models.Sum("asteroids__volume_left"))
+            .values_list("timestamp", "volume")
+        )
+        return [
+            (
+                (end - start).total_seconds(),
+                float(volume_start or 0) - float(volume_end or 0),
+            )
+            for (start, volume_start), (end, volume_end) in zip(points, points[1:])
+        ]
+
+    def active_rate_per_s(self) -> float:
+        """Mining rate in m3/s over the intervals in which actually mined, ignoring pauses."""
+        intervals = [
+            (seconds, mined)
+            for seconds, mined in self._snapshot_intervals()
+            if seconds > 0 and mined > 0
+        ]
+        if not intervals:
+            return 0.0
+
+        # A pause shows up as an interval whose rate is far below the typical one
+        median_rate = statistics.median(mined / seconds for seconds, mined in intervals)
+        active = [
+            (seconds, mined)
+            for seconds, mined in intervals
+            if mined / seconds >= median_rate * PAUSE_RATE_FACTOR
+        ]
+        return sum(mined for _, mined in active) / sum(seconds for seconds, _ in active)
+
+    def current_rate_per_s(self) -> float:
+        """Rate of the latest interval (as in the traffic chart), or the active rate after a pause."""
+        intervals = self._snapshot_intervals()
+        if not intervals:
+            return 0.0
+
+        seconds, mined = intervals[-1]
+        active_rate = self.active_rate_per_s()
+        is_pause = (
+            seconds <= 0
+            or mined <= 0
+            or mined / seconds < (active_rate * PAUSE_RATE_FACTOR)
+        )
+        if is_pause:
+            return active_rate
+        return mined / seconds
 
     def belt_size_m3(self):
         """Get the total volume_left for all entries in this queryset."""
@@ -273,36 +323,18 @@ class BeltSurveySnapshotQuerySet(models.QuerySet["BeltSurveySnapshotContext"]):
 
     def session_finish_eta(
         self,
-        asteroids: "BeltSurveyEntryQuerySet",
         remaining_asteroids: "BeltSurveyEntryQuerySet",
     ):
-        """Estimate the finish time based on session entries."""
-        # Calculate the duration between the two snapshots
-        duration = (
-            remaining_asteroids.first().snapshot.timestamp
-            - asteroids.first().snapshot.timestamp
-        ).total_seconds()
-
-        # If the duration is zero or negative, return None to avoid division by zero
-        if duration <= 0:
+        """Estimate the finish time from the remaining volume and the current mining rate."""
+        rate_m3 = self.current_rate_per_s()
+        if rate_m3 <= 0:
             return None
 
-        # Calculate the mined volume between the two snapshots
-        mined_m3 = (
-            asteroids.aggregate(models.Sum("volume_left"))["volume_left__sum"] or 0
-        ) - (
+        remaining_m3 = (
             remaining_asteroids.aggregate(models.Sum("volume_left"))["volume_left__sum"]
             or 0
         )
-        if mined_m3 <= 0:
-            return None
-
-        # Calculate the mining rate in m3/s and estimate the finish time
-        rate_m3 = mined_m3 / duration
-        eta_seconds = (
-            remaining_asteroids.aggregate(models.Sum("volume_left"))["volume_left__sum"]
-            or 0
-        ) / rate_m3
+        eta_seconds = remaining_m3 / rate_m3
 
         # If the estimated time is less than or equal to zero, return None
         if eta_seconds <= 0:
@@ -396,6 +428,14 @@ class BeltSurveySnapshotManager(models.Manager["BeltSurveySnapshotContext"]):
         """Calculate the mining rate in m3/s for a specific snapshot."""
         return self.get_queryset().rate_per_s_for_snapshot(snapshot=snapshot)
 
+    def active_rate_per_s(self) -> float:
+        """Calculate the mining rate in m3/s, ignoring pauses between snapshots."""
+        return self.get_queryset().active_rate_per_s()
+
+    def current_rate_per_s(self) -> float:
+        """Calculate the current mining rate in m3/s, matching the traffic chart."""
+        return self.get_queryset().current_rate_per_s()
+
     def session_progress_percentage(
         self,
         asteroids: "BeltSurveyEntryQuerySet",
@@ -408,12 +448,11 @@ class BeltSurveySnapshotManager(models.Manager["BeltSurveySnapshotContext"]):
 
     def session_finish_eta(
         self,
-        asteroids: "BeltSurveyEntryQuerySet",
         remaining_asteroids: "BeltSurveyEntryQuerySet",
     ) -> float | None:
-        """Estimate the finish time based on the last two entries."""
+        """Estimate the finish time based on the current mining rate."""
         return self.get_queryset().session_finish_eta(
-            asteroids=asteroids, remaining_asteroids=remaining_asteroids
+            remaining_asteroids=remaining_asteroids
         )
 
     def session_resolve_belt(self) -> tuple[BeltTypeChoice, BeltSizeChoice] | None:

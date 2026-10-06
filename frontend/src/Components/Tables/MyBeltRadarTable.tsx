@@ -7,12 +7,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadMySessions } from '@/Api/BeltRadar';
+import { loadMySessions } from '@/Api/ApiCalls';
 import { queryKeys } from "@/Api/query";
 import type { Session } from "@/Api/schema";
-import { useModalQueryState } from '@/Components/Modals/BaseModal/useModalState';
+import { useModalQueryState } from '@/Components/Base/BaseModal/useModalState';
+import BaseTable from '@/Components/Base/BaseTable';
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
-import BaseTable from '@/Components/Tables/BaseTable';
 import { getSessionColumns } from '@/Components/Tables/TableColumns';
 
 function MyBeltRadarTable() {

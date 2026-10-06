@@ -25,7 +25,7 @@ export default function AddSnapshotForm({
     const { t } = useTranslation();
 
     return (
-        <Form noValidate className={validated ? 'was-validated' : ''}>
+        <Form noValidate className={`${validated ? 'was-validated' : ''}`}>
             <Form.Group controlId="raw_data" className="mb-3">
                 <Form.Label>{t("Mining Result Data")}:</Form.Label>
                 <Form.Control

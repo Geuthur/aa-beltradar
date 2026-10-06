@@ -5,8 +5,8 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 // AA Belt Radar
-import { loadSnapshot } from '@/Api/BeltRadar';
-import { queryKeys } from '@/Api/query';
+import { loadSnapshot } from '@/Api/ApiCalls';
+import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from '@/Api/query';
 import type { ApexChartSchema } from '@/Api/schema';
 import { MiningChart } from '@/Components/Session/Charts/MiningChart';
 import { TrafficChart } from '@/Components/Session/Charts/TrafficChart';
@@ -26,6 +26,7 @@ export function SessionCharts({ charts, traffic, isLoading: propIsLoading }: Ses
         queryKey: queryKeys.Snapshot(String(publicID)),
         queryFn: () => loadSnapshot(String(publicID)),
         refetchOnWindowFocus: false,
+        refetchInterval: SESSION_REFETCH_INTERVAL_MS,
         enabled: !!publicID && shouldQuery,
     });
 
@@ -34,14 +35,14 @@ export function SessionCharts({ charts, traffic, isLoading: propIsLoading }: Ses
     const trafficData = traffic ?? snapshotData?.traffic;
 
     return (
-        <section aria-label="Session Charts" className="row mt-2">
-            <div className="col-md-6 mb-2">
-                <div className="card card-body rounded h-100">
+        <section aria-label="Session Charts" className="row g-3">
+            <div className="col-md-6">
+                <div className="aa-panel h-100">
                     <MiningChart data={chartsData} isLoading={isLoading} />
                 </div>
             </div>
-            <div className="col-md-6 mb-2">
-                <div className="card card-body rounded h-100">
+            <div className="col-md-6">
+                <div className="aa-panel h-100">
                     <TrafficChart data={trafficData} isLoading={isLoading} />
                 </div>
             </div>

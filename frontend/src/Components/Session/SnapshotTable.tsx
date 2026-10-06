@@ -7,13 +7,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadSnapshot } from '@/Api/BeltRadar';
-import { queryKeys } from "@/Api/query";
+import { loadSnapshot } from '@/Api/ApiCalls';
+import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from "@/Api/query";
+import BaseModal, { ModalSize } from '@/Components/Base/BaseModal';
+import { useApproveMutation, useFormApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
+import BaseTable from '@/Components/Base/BaseTable';
 import AddSnapshotForm from '@/Components/Forms/AddSnapshotForm';
 import { validateAddSnapshotForm } from '@/Components/Forms/validation';
-import BaseModal, { ModalSize } from '@/Components/Modals/BaseModal';
-import { useApproveMutation, useFormApproveMutation } from '@/Components/Modals/BeltRadarQuery';
-import BaseTable from '@/Components/Tables/BaseTable';
+import { getModalConfig } from '@/Components/Modals/modalConfig';
 import { SnapshotButtons, SnapshotSelect } from '@/Components/Tables/Snapshot';
 import { getSnapshotColumns } from "@/Components/Tables/TableColumns";
 
@@ -33,6 +34,7 @@ function SessionSnapshotTable() {
 		queryKey: snapshotQueryKey,
 		queryFn: () => loadSnapshot(String(publicID), selectedSnapshotId),
 		refetchOnWindowFocus: false,
+		refetchInterval: SESSION_REFETCH_INTERVAL_MS,
 		enabled: !!publicID,
 	});
 
@@ -50,10 +52,10 @@ function SessionSnapshotTable() {
 
 	return (
 		<>
-			<div className="card card-body mt-2">
-				<div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+			<section className="d-flex flex-column gap-2" aria-label={t("Ore Snapshot")}>
+				<div className="aa-panel d-flex flex-wrap align-items-center justify-content-between gap-2">
 					<div className="d-flex align-items-center gap-2">
-						<span className="text-muted fw-bold">{t("Ore Snapshot")}</span>
+						<span className="aa-section-title">{t("Ore Snapshot")}</span>
 						<SnapshotSelect
 							snapshots={snapshots}
 							selectedSnapshotId={selectedSnapshotId}
@@ -73,8 +75,9 @@ function SessionSnapshotTable() {
 					isError={isErrorSnapshot}
 					isFetching={isFetchingSnapshot}
 					columns={getSnapshotColumns(t)}
+					itemLabel={t("ores")}
 				/>
-			</div>
+			</section>
 			{addAction && (
 				<BaseModal
 					data={addAction}
@@ -99,7 +102,7 @@ function SessionSnapshotTable() {
 					setShowModal={setShowDeleteModal}
 					onApprove={({ url }) => handleDeleteApprove(url)}
 					isPending={approveMutation.isPending}
-					children={<div>{deleteAction.text}</div>}
+					children={<div>{getModalConfig(t, deleteAction.modal_id).text}</div>}
 				/>
 			)}
 		</>

@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 
 // AA Belt Radar
 import App from '@/App.tsx'
+import '@/beltradar.css';
 
 const container = document.getElementById('aa-beltradar-root')
 

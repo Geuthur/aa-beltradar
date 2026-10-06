@@ -539,23 +539,13 @@ export interface components {
         };
         /**
          * ModalSchema
-         * @description Schema for modal dialog data.
+         * @description Schema for an action the user may perform; the frontend decides how it looks.
          */
         ModalSchema: {
-            /** Title */
-            title: string;
-            /** Text */
-            text: string;
-            /** Icon */
-            icon: string;
             /** Modal Id */
             modal_id: string;
             /** Url */
             url: string;
-            /** Color */
-            color?: string | null;
-            /** Buttontext */
-            buttonText?: string | null;
         };
         /** OwnerSchema */
         OwnerSchema: {

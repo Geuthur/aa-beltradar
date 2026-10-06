@@ -8,13 +8,11 @@ import { SessionDetails } from '@/Components/Session/Dashboard/SessionDetails';
 function SessionDashboard({ sessionData }: { sessionData?: SessionStats }) {
     return (
         <>
-            <section className="card mt-2" aria-labelledby="session-stats">
-                <div className="card-body rounded">
-                    <SessionDetails sessionData={sessionData} />
-                    <SessionBeltDetails sessionData={sessionData} />
-                    <SessionBeltStats sessionData={sessionData} />
-                    <SessionBeltExpectation sessionData={sessionData} />
-                </div>
+            <section className="aa-panel" aria-labelledby="session-stats">
+                <SessionDetails sessionData={sessionData} />
+                <SessionBeltDetails sessionData={sessionData} />
+                <SessionBeltStats sessionData={sessionData} />
+                <SessionBeltExpectation sessionData={sessionData} />
             </section>
         </>
     );

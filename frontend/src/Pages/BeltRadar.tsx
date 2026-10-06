@@ -2,17 +2,17 @@
 import { useTranslation } from 'react-i18next'
 
 // AA Belt Radar
+import { ActionSectionHeader } from '@/Components/Base/ActionSectionHeader';
 import CreateBeltTimerForm from '@/Components/Forms/CreateBeltTimerForm';
 import CreateSessionForm from '@/Components/Forms/CreateSessionForm';
 import { validateBeltTimerForm, validateSessionForm } from '@/Components/Forms/validation';
-import { ActionSectionHeader } from '@/Components/Section/ActionSectionHeader';
 import BeltRadarTable from '@/Components/Tables/BeltRadarTable';
 import BeltTimerTable from '@/Components/Tables/BeltTimerTable';
 
 function BeltRadar() {
 	const { t } = useTranslation();
 	return (
-		<main>
+		<main className="br-page">
             {/* Sessions Section */}
 			<ActionSectionHeader
 				name={t("Sessions")}
@@ -21,10 +21,8 @@ function BeltRadar() {
 				validate={validateSessionForm}
 				children={CreateSessionForm}
 			/>
-			<section className="card" aria-labelledby="my-belt-radar-heading">
-				<div className="card-body">
-					<BeltRadarTable />
-				</div>
+			<section aria-label={t("Sessions")}>
+				<BeltRadarTable />
 			</section>
 
             {/* Belt Timers Section */}
@@ -35,10 +33,8 @@ function BeltRadar() {
 				validate={validateBeltTimerForm}
 				children={CreateBeltTimerForm}
 			/>
-			<section className="card" aria-labelledby="timers-heading">
-				<div className="card-body">
-					<BeltTimerTable />
-				</div>
+			<section aria-label={t("Belt Timers")}>
+				<BeltTimerTable />
 			</section>
 		</main>
 	)

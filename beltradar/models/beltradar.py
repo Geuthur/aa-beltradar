@@ -20,6 +20,7 @@ from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
 from beltradar import __title__
+from beltradar.constants import AUTO_TIMER_REMAINING_SHARE
 from beltradar.managers import (
     BeltSurveyEntryManager,
     BeltSurveySnapshotManager,
@@ -114,13 +115,17 @@ class BeltSurveySession(models.Model):
         )
 
     @cached_property
-    def is_timer_ready(self):
-        """Check if a timer can be created for this session based on the number of survey entries."""
-        snapshot_count = self.br_snapshots.count()
-        # Check if it is a valid session with more than 3 snapshots
-        if snapshot_count <= 3:
+    def is_auto_timer_ready(self) -> bool:
+        """Check if only a small share of the first snapshot's volume is left, so the belt timer can be created automatically."""
+        first_snapshot = self.br_snapshots.order_by("timestamp").first()
+        last_snapshot = self.br_snapshots.order_by("-timestamp").first()
+        if first_snapshot is None or last_snapshot is None:
             return False
-        return True
+
+        initial_volume = first_snapshot.belt_size_m3
+        if initial_volume <= 0:
+            return False
+        return last_snapshot.belt_size_m3 <= initial_volume * AUTO_TIMER_REMAINING_SHARE
 
     @cached_property
     def has_timer(self):
@@ -246,7 +251,9 @@ class BeltSurveyEntry(models.Model):
         Returns:
             float: The estimated income in ISK per hour based on the price.
         """
-        return int(self.price_per_m3 * self.snapshot.session.br_snapshots.rate_per_s())
+        return int(
+            self.price_per_m3 * self.snapshot.session.br_snapshots.current_rate_per_s()
+        )
 
     @property
     def income_cmp_per_h(self):
@@ -260,7 +267,8 @@ class BeltSurveyEntry(models.Model):
             float: The estimated income in ISK per hour based on the compressed price.
         """
         return int(
-            self.price_cmp_per_m3 * self.snapshot.session.br_snapshots.rate_per_s()
+            self.price_cmp_per_m3
+            * self.snapshot.session.br_snapshots.current_rate_per_s()
         )
 
     @property

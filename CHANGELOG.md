@@ -298,4 +298,5 @@ Section Order:
 [0.5.1]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.0...v0.5.1 "v0.5.1"
 [1.0.0]: https://github.com/Geuthur/aa-beltradar/compare/v0.5.1...v1.0.0 "v1.0.0"
 [1.0.1]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.0...v1.0.1 "v1.0.1"
+[2.0.0]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.1...v2.0.0 "v2.0.0"
 [in development]: https://github.com/Geuthur/aa-beltradar/compare/v2.0.0...HEAD "In Development"

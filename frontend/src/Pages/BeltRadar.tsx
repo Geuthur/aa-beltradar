@@ -1,5 +1,6 @@
 // Third Party
-import { useTranslation } from 'react-i18next'
+import { Card } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { ActionSectionHeader } from '@/Components/Base/ActionSectionHeader';
@@ -12,8 +13,8 @@ import BeltTimerTable from '@/Components/Tables/BeltTimerTable';
 function BeltRadar() {
 	const { t } = useTranslation();
 	return (
-		<main className="br-page">
-            {/* Sessions Section */}
+		<div className="br-page">
+			{/* Sessions Section */}
 			<ActionSectionHeader
 				name={t("Sessions")}
 				modalKey="create_session"
@@ -21,11 +22,11 @@ function BeltRadar() {
 				validate={validateSessionForm}
 				children={CreateSessionForm}
 			/>
-			<section aria-label={t("Sessions")}>
+			<Card.Body className="text-light border-0 shadow-sm p-0" aria-label={t("Sessions")}>
 				<BeltRadarTable />
-			</section>
+			</Card.Body>
 
-            {/* Belt Timers Section */}
+			{/* Belt Timers Section */}
 			<ActionSectionHeader
 				name={t("Belt Timers")}
 				modalKey="create_belt_timer"
@@ -33,11 +34,11 @@ function BeltRadar() {
 				validate={validateBeltTimerForm}
 				children={CreateBeltTimerForm}
 			/>
-			<section aria-label={t("Belt Timers")}>
+			<Card.Body className="text-light border-0 shadow-sm p-0">
 				<BeltTimerTable />
-			</section>
-		</main>
-	)
+			</Card.Body>
+		</div>
+	);
 }
 
-export default BeltRadar
+export default BeltRadar;

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 
 // Third Party
 import { useQuery } from '@tanstack/react-query';
+import { Card } from 'react-bootstrap';
 
 // AA Belt Radar
 import { loadSnapshot } from '@/Api/ApiCalls';
@@ -35,18 +36,22 @@ export function SessionCharts({ charts, traffic, isLoading: propIsLoading }: Ses
     const trafficData = traffic ?? snapshotData?.traffic;
 
     return (
-        <section aria-label="Session Charts" className="row g-3">
+        <div aria-label="Session Charts" className="row g-3">
             <div className="col-md-6">
-                <div className="aa-panel h-100">
-                    <MiningChart data={chartsData} isLoading={isLoading} />
-                </div>
+                <Card className="bg-secondary text-light border-0 shadow-sm h-100">
+                    <Card.Body>
+                        <MiningChart data={chartsData} isLoading={isLoading} />
+                    </Card.Body>
+                </Card>
             </div>
             <div className="col-md-6">
-                <div className="aa-panel h-100">
-                    <TrafficChart data={trafficData} isLoading={isLoading} />
-                </div>
+                <Card className="bg-secondary text-light border-0 shadow-sm h-100">
+                    <Card.Body>
+                        <TrafficChart data={trafficData} isLoading={isLoading} />
+                    </Card.Body>
+                </Card>
             </div>
-        </section>
+        </div>
     );
 }
 

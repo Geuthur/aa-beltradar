@@ -1,6 +1,7 @@
 // Third Party
 import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
+import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
@@ -35,21 +36,23 @@ export function ActionSectionHeader({
 
     return (
         <>
-            <section className="aa-panel br-header" aria-labelledby="section-heading">
-                <h3 id="section-heading" className="aa-section-title mb-0">{name}</h3>
-                {action && (
-                    <div className="br-toolbar">
-                        <IconButton
-                            icon={buttonIcon}
-                            color="success"
-                            onClick={() => {
-                                openModal(action.modal_id);
-                            }}
-                            title={buttonTitle ?? t("Create")}
-                        />
-                    </div>
-                )}
-            </section>
+            <Card className="border-0 shadow-sm mb-3" aria-labelledby="section-heading">
+                <Card.Header className="bg-primary text-light rounded d-flex justify-content-between align-items-center">
+                    <h3 id="section-heading" className="mb-0">{name}</h3>
+                    {action && (
+                        <div className="text-end d-flex align-items-center gap-2">
+                            <IconButton
+                                icon={buttonIcon}
+                                color="success"
+                                onClick={() => {
+                                    openModal(action.modal_id);
+                                }}
+                                title={buttonTitle ?? t("Create")}
+                            />
+                        </div>
+                    )}
+                </Card.Header>
+            </Card>
             {action && children && (
                 <BaseModal
                     data={action}

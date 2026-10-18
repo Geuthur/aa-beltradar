@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 
 // Third Party
 import { useQuery } from '@tanstack/react-query';
+import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
@@ -52,32 +53,36 @@ function SessionSnapshotTable() {
 
 	return (
 		<>
-			<section className="d-flex flex-column gap-2" aria-label={t("Ore Snapshot")}>
-				<div className="aa-panel d-flex flex-wrap align-items-center justify-content-between gap-2">
-					<div className="d-flex align-items-center gap-2">
-						<span className="aa-section-title">{t("Ore Snapshot")}</span>
-						<SnapshotSelect
-							snapshots={snapshots}
-							selectedSnapshotId={selectedSnapshotId}
-							fallbackIdentifier={snapshotData?.snapshot?.identifier}
-							onSelect={setSelectedSnapshotId}
+			<div className="d-flex flex-column gap-2" aria-label={t("Ore Snapshot")}>
+				<Card className="border-0 shadow-sm">
+					<Card.Header className="bg-primary text-light rounded d-flex flex-wrap align-items-center justify-content-between gap-2">
+						<div className="d-flex align-items-center gap-2">
+							<span className="h5 mb-0 text-light">{t("Ore Snapshot")}</span>
+							<SnapshotSelect
+								snapshots={snapshots}
+								selectedSnapshotId={selectedSnapshotId}
+								fallbackIdentifier={snapshotData?.snapshot?.identifier}
+								onSelect={setSelectedSnapshotId}
+							/>
+						</div>
+						<SnapshotButtons
+							addAction={addAction}
+							deleteAction={deleteAction}
+							onAddClick={() => setShowAddModal(true)}
+							onDeleteClick={() => setShowDeleteModal(true)}
 						/>
-					</div>
-					<SnapshotButtons
-						addAction={addAction}
-						deleteAction={deleteAction}
-						onAddClick={() => setShowAddModal(true)}
-						onDeleteClick={() => setShowDeleteModal(true)}
+					</Card.Header>
+				</Card>
+				<Card.Body className="text-light border-0 shadow-sm p-0">
+					<BaseTable
+						data={snapshotData?.ore_list ?? []}
+						isError={isErrorSnapshot}
+						isFetching={isFetchingSnapshot}
+						columns={getSnapshotColumns(t)}
+						itemLabel={t("ores")}
 					/>
-				</div>
-				<BaseTable
-					data={snapshotData?.ore_list ?? []}
-					isError={isErrorSnapshot}
-					isFetching={isFetchingSnapshot}
-					columns={getSnapshotColumns(t)}
-					itemLabel={t("ores")}
-				/>
-			</section>
+				</Card.Body>
+			</div>
 			{addAction && (
 				<BaseModal
 					data={addAction}

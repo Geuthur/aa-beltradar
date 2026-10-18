@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 
 // Third Party
 import { useQuery } from '@tanstack/react-query';
+import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
@@ -47,7 +48,7 @@ function BeltRadarSession() {
     const hasTimer = Boolean(sessionData?.has_timer || sessionData?.actions?.delete);
 
     return (
-        <main className="br-page">
+        <div className="br-page">
             {/* Sessions Section */}
             <BaseSectionHeader name={headerName}>
                 <LiveStatusIndicator
@@ -63,7 +64,9 @@ function BeltRadarSession() {
                 />
             </BaseSectionHeader>
             {/* Session Dashboard */}
-            <SessionDashboard sessionData={sessionData} />
+            <Card className="bg-secondary text-light border-0 shadow-sm mb-3" aria-labelledby="session-stats">
+                <SessionDashboard sessionData={sessionData} />
+            </Card>
             {/* Session Snapshot Table */}
             <SessionSnapshotTable />
             {/* Session Charts */}
@@ -75,7 +78,7 @@ function BeltRadarSession() {
                 activeModal={activeModal}
                 setActiveModal={setActiveModal}
             />
-        </main>
+        </div>
     );
 }
 

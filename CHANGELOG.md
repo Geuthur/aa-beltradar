@@ -23,8 +23,17 @@ Section Order:
 ### Added
 ### Fixed
 ### Changed
-### Removed
+
 -->
+
+<!-- AI Changes -->
+
+<!-- Your changes go here -->
+
+### Changed
+
+- Replaced `<main>` and `<section>` layout elements with `react-bootstrap` `Card` and theme-compatible containers across all pages, headers, dashboards, and session components.
+- Added comprehensive CSS design tokens and theme overrides in `index.css` and `beltradar.css` for full Flatly and Darkly Alliance Auth compatibility.
 
 ## [2.0.0] - 2026-10-06
 

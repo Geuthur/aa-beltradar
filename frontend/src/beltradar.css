@@ -60,13 +60,13 @@
 }
 
 .br-stat-value {
-    color: var(--aa-color-white);
+    color: var(--aa-text-title, var(--aa-color-white));
     font-family: var(--font-mono);
 }
 
 .br-asteroid-count {
     margin: 0;
-    color: var(--aa-color-white);
+    color: var(--aa-text-title, var(--aa-color-white));
     font-family: var(--font-hud);
     font-size: var(--aa-font-size-xl);
     text-align: center;
@@ -85,9 +85,9 @@
 
 .br-progress.progress {
     height: 36px;
-    border: 1px solid var(--aa-border-light);
+    border: 1px solid var(--aa-panel-border, var(--aa-border-light));
     border-radius: 8px;
-    background-color: var(--aa-color-body-dark);
+    background-color: var(--aa-table-head-bg, var(--aa-color-body-dark));
 }
 
 .br-progress .progress-bar {
@@ -97,9 +97,9 @@
 /* ═══ SELECT ═══════════════════════════════════════════════════════════════ */
 .br-select.form-select {
     width: auto;
-    border-color: var(--aa-border-light);
-    background-color: var(--aa-color-body);
-    color: var(--aa-color-white);
+    border-color: var(--aa-panel-border, var(--aa-border-light));
+    background-color: var(--aa-input-bg, var(--aa-color-body));
+    color: var(--aa-input-color, var(--aa-color-white));
     font-family: var(--font-mono);
     font-size: var(--aa-font-size);
     cursor: pointer;

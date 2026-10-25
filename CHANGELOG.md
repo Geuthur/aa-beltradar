@@ -28,6 +28,10 @@ Section Order:
 
 <!-- AI Changes -->
 
+### Changed
+
+- Replaced `pook` with `pookx` in the test dependencies.
+
 <!-- Your changes go here -->
 
 ## [2.0.1] - 2026-10-18

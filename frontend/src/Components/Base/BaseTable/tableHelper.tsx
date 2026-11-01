@@ -1,14 +1,11 @@
 // Third Party
-import type {
-  Header,
-  HeaderGroup,
-  Table as ReactTable,
-} from "@tanstack/react-table";
+import type { Header, HeaderGroup, RowData, Table as ReactTable } from "@tanstack/react-table";
 import i18n from "i18next";
 import { OverlayTrigger } from "react-bootstrap";
 import Tooltip from "react-bootstrap/esm/Tooltip";
 
 // AA Belt Radar
+import type { BaseTableFeatures } from "@/Components/Base/BaseTable/tableFeatures";
 import styles from "@/Styles/modules/tableHelper.module.css";
 
 /**
@@ -157,12 +154,12 @@ export function formatNumber(value: number, locale?: string, options?: Intl.Numb
  * @param table The React Table instance containing the data
  * @param exportFileName Optional file name for the exported CSV
  */
-export const exportToCSV = <TData,>(table: ReactTable<TData>, exportFileName?: string) => {
+export const exportToCSV = <TData extends RowData,>(table: ReactTable<BaseTableFeatures, TData>, exportFileName?: string) => {
   const { rows } = table.getFilteredRowModel();
   const safeFileName = exportFileName ?? "ExportedData.csv";
 
-  const headerRows = table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) =>
-    headerGroup.headers.map((header: Header<TData, unknown>) => {
+  const headerRows = table.getHeaderGroups().map((headerGroup: HeaderGroup<BaseTableFeatures, TData>) =>
+    headerGroup.headers.map((header: Header<BaseTableFeatures, TData, unknown>) => {
       if (typeof header.column.columnDef.header === "function") {
         return (header.column.columnDef as { accessorKey?: string }).accessorKey;
       }

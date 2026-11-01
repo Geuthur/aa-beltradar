@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
 import type { BeltTimer, ModalSchema, Session } from "@/Api/schema";
+import type { BaseTableFeatures } from "@/Components/Base/BaseTable/tableFeatures";
 import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import { getModalConfig } from "@/Components/Modals/modalConfig";
 
@@ -68,7 +69,7 @@ export interface EntityWithActions {
 }
 
 export interface EntityTableActionsProps<T extends EntityWithActions> {
-    cell: CellContext<T, unknown>;
+    cell: CellContext<BaseTableFeatures, T, unknown>;
     onSelectEntity?: (entity: T) => void;
     setModalAction: (action: string | null, entity?: T) => void;
     showViewSession?: boolean;
@@ -129,7 +130,7 @@ export function EntityTableActions<T extends EntityWithActions>({
 
 
 export interface BeltRadarTableButtonsProps {
-    cell: CellContext<Session, unknown>;
+    cell: CellContext<BaseTableFeatures, Session, unknown>;
     setSession: (session: Session) => void;
     setModalAction: (action: string | null) => void;
 }
@@ -145,7 +146,7 @@ export function BeltRadarTableButtons({ cell, setSession, setModalAction }: Belt
 }
 
 export interface BeltTimerTableButtonsProps {
-    cell: CellContext<BeltTimer, unknown>;
+    cell: CellContext<BaseTableFeatures, BeltTimer, unknown>;
     setTimer: (timer: BeltTimer) => void;
     setModalAction: (action: string | null) => void;
 }

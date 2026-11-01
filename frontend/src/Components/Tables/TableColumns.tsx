@@ -1,10 +1,10 @@
 // Third Party
-import { createColumnHelper } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
 import type { TFunction } from "i18next";
 
 // AA Belt Radar
 import type { BeltTimer, Session, OreSchema } from "@/Api/schema";
+import { createBaseColumnHelper } from "@/Components/Base/BaseTable/tableFeatures";
+import type { BaseColumnDef } from "@/Components/Base/BaseTable/tableFeatures";
 import { formatDate, formatNumber, renderHtml } from "@/Components/Base/BaseTable/tableHelper";
 import { EntityTableActions } from "@/Components/Icons/Icons";
 import { PublicBadge } from "@/Components/Icons/PublicBadge";
@@ -13,8 +13,8 @@ export function getSessionColumns(
     t: TFunction,
     onSelectSession: (session: Session) => void,
     setModalAction: (action: string | null, session?: Session) => void,
-): ColumnDef<Session, unknown>[] {
-    const columnHelper = createColumnHelper<Session>();
+): BaseColumnDef<Session, unknown>[] {
+    const columnHelper = createBaseColumnHelper<Session>();
 
     // Translations for tooltips and titles
     const tPublicID = t("Public ID");
@@ -43,14 +43,12 @@ export function getSessionColumns(
             header: tPublic,
             enableSorting: false,
             enableColumnFilter: false,
-            enableGlobalFilter: false,
             cell: ({ getValue }) => <PublicBadge isPublic={Boolean(getValue())} />,
         }),
         columnHelper.accessor("actions", {
             header: tActions,
             enableSorting: false,
             enableColumnFilter: false,
-            enableGlobalFilter: false,
             cell: (cell) => (
                 <EntityTableActions
                     cell={cell}
@@ -59,15 +57,15 @@ export function getSessionColumns(
                 />
             ),
         }),
-    ] as ColumnDef<Session, unknown>[];
+    ] as BaseColumnDef<Session, unknown>[];
 }
 
 export function getBeltTimerColumns(
     t: TFunction,
     onSelectTimer: (timer: BeltTimer) => void,
     setModalAction: (action: string | null, timer?: BeltTimer) => void,
-): ColumnDef<BeltTimer, unknown>[] {
-    const columnHelper = createColumnHelper<BeltTimer>();
+): BaseColumnDef<BeltTimer, unknown>[] {
+    const columnHelper = createBaseColumnHelper<BeltTimer>();
 
     // Translations for tooltips and titles
     const tPublicID = t("Public ID");
@@ -99,14 +97,12 @@ export function getBeltTimerColumns(
             header: tPublic,
             enableSorting: false,
             enableColumnFilter: false,
-            enableGlobalFilter: false,
             cell: ({ getValue }) => <PublicBadge isPublic={Boolean(getValue())} />,
         }),
         columnHelper.accessor("actions", {
             header: tActions,
             enableSorting: false,
             enableColumnFilter: false,
-            enableGlobalFilter: false,
             cell: (cell) => (
                 <EntityTableActions
                     cell={cell}
@@ -116,13 +112,13 @@ export function getBeltTimerColumns(
                 />
             ),
         }),
-    ] as ColumnDef<BeltTimer, unknown>[];
+    ] as BaseColumnDef<BeltTimer, unknown>[];
 }
 
 export function getSnapshotColumns(
     t: TFunction,
-): ColumnDef<OreSchema, unknown>[] {
-    const columnHelper = createColumnHelper<OreSchema>();
+): BaseColumnDef<OreSchema, unknown>[] {
+    const columnHelper = createBaseColumnHelper<OreSchema>();
 
     // Translations for tooltips and titles
     const tOre = t("Ore");
@@ -156,5 +152,5 @@ export function getSnapshotColumns(
             header: tIncomeCompressed,
             cell: ({ getValue }) => formatNumber(Number(getValue())),
         }),
-    ] as ColumnDef<OreSchema, unknown>[];
+    ] as BaseColumnDef<OreSchema, unknown>[];
 }

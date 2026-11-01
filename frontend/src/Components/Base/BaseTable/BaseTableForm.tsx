@@ -1,19 +1,20 @@
 // Third Party
-import type { Table as TanStackTable } from "@tanstack/react-table";
+import type { RowData, Table as TanStackTable } from "@tanstack/react-table";
 import { Form } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
+import type { BaseTableFeatures } from "@/Components/Base/BaseTable/tableFeatures";
 import styles from "@/Styles/modules/BaseTableForm.module.css";
 
-export function BaseTableForm<TData>({ table }: { table: TanStackTable<TData> }) {
+export function BaseTableForm<TData extends RowData>({ table }: { table: TanStackTable<BaseTableFeatures, TData> }) {
     const { t } = useTranslation();
     return (
         <div className="d-flex align-items-center ms-2">
           <Form.Label className="m-0 me-2 text-nowrap">{t("Page Size:")}</Form.Label>
           <Form.Select
             className={styles["page-size-select"]}
-            value={table.getState().pagination.pageSize}
+            value={table.atoms.pagination.get().pageSize}
             onChange={(e) => table.setPageSize(Number(e.target.value))}
           >
             {[15, 30, 60, 100, 1000000].map((_pageSize) => (

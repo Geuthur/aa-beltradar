@@ -1,5 +1,5 @@
 // Third Party
-import type { Table as TanStackTable } from "@tanstack/react-table";
+import type { RowData, Table as TanStackTable } from "@tanstack/react-table";
 import {
   ChevronLeft,
   ChevronRight,
@@ -17,17 +17,18 @@ import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
 import { BaseTableForm } from "@/Components/Base/BaseTable/BaseTableForm";
+import type { BaseTableFeatures } from "@/Components/Base/BaseTable/tableFeatures";
 import { exportToCSV, renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import tableStyles from "@/Styles/modules/BaseTable.module.css";
 import pageStyles from "@/Styles/modules/BaseTablePages.module.css";
 
-export interface TablePagesProps<TData> {
-  table: TanStackTable<TData>;
+export interface TablePagesProps<TData extends RowData> {
+  table: TanStackTable<BaseTableFeatures, TData>;
   isFetching?: boolean;
   fileName?: string;
 }
 
-const BasePages = <TData,>({
+const BasePages = <TData extends RowData,>({
   table,
   isFetching = false,
   fileName,
@@ -40,7 +41,7 @@ const BasePages = <TData,>({
       <ButtonGroup className={pageStyles["button-group"]}>
         <Button active variant="info">
           {t("Page {{page}} of {{total}}", {
-            page: table.getState().pagination.pageIndex + 1,
+            page: table.atoms.pagination.get().pageIndex + 1,
             total: pageCount,
           })}
         </Button>

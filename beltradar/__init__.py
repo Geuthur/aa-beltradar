@@ -5,7 +5,7 @@ __title__ = "Belt Radar"
 
 __package_name__ = "aa-beltradar"
 __app_name__ = "beltradar"
-__esi_compatibility_date__ = "2025-12-16"
+__esi_compatibility_date__ = "2026-08-18"
 __app_name_useragent__ = "AA-Belt-Radar"
 __github_url__ = f"https://github.com/Geuthur/{__package_name__}"
 

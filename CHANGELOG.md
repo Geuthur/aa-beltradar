@@ -31,7 +31,8 @@ Section Order:
 ### Changed
 
 - Replaced `pook` with `pookx` in the test dependencies.
-- The ESI client now loads a bundled OpenAPI spec (`beltradar/openapi_2025-12-16.json`) instead of downloading it at runtime.
+- The ESI client now loads a bundled OpenAPI spec (`beltradar/openapi_2026-08-18.json`) instead of downloading it at runtime.
+- Updated the ESI compatibility date from `2025-12-16` to `2026-08-18`.
 
 <!-- Your changes go here -->
 

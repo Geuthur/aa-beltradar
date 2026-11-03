@@ -420,7 +420,9 @@ class EveMarketPrice(models.Model):
     average_price = models.DecimalField(
         max_digits=20, decimal_places=2, null=True, blank=True
     )
-    adjusted_price = models.DecimalField(max_digits=20, decimal_places=2)
+    adjusted_price = models.DecimalField(
+        max_digits=20, decimal_places=2, null=True, blank=True
+    )
     updated_at = models.DateTimeField()
 
     @property

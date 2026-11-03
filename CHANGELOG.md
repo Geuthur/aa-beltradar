@@ -28,6 +28,10 @@ Section Order:
 
 <!-- AI Changes -->
 
+### Fixed
+
+- Market price update no longer fails or stores `0.00` when an ESI entry has no `adjusted_price`; `EveMarketPrice.adjusted_price` is now nullable (migration required)
+
 ### Changed
 
 - Replaced `pook` with `pookx` in the test dependencies.

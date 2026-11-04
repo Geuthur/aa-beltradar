@@ -32,6 +32,7 @@ Section Order:
 
 - Market price update no longer fails or stores `0.00` when an ESI entry has no `adjusted_price`; `EveMarketPrice.adjusted_price` is now nullable (migration required)
 - Market price update no longer aborts when ESI returns a type missing from the local SDE; these types are skipped and logged as a warning, all other prices are still stored.
+- Fixed `make coverage` exiting with 0 when tests failed. The reports are still created, and the target now exits with the status of the test run, or with the status of `coverage report` if the tests passed.
 
 ### Changed
 

@@ -1,1 +1,26 @@
-{}
+{
+  "Something went wrong.": "Něco se pokazilo.",
+  "Loading...": "Načítání...",
+  "Confirm": "Potvrdit",
+  "Close": "Zavřít",
+  "First Page": "První stránka",
+  "Previous Page": "Předchozí stránka",
+  "Next Page": "Další stránka",
+  "Last Page": "Poslední stránka",
+  "Min": "Min",
+  "Max": "Max",
+  "No Data Available": "Žádná data nejsou k dispozici",
+  "Page Size:": "Velikost stránky:",
+  "Show All": "Zobrazit vše",
+  "Page {{page}} of {{total}}": "Stránka {{page}} z {{total}}",
+  "{{count}} Rows_one": "{{count}} řádek",
+  "{{count}} Rows_few": "{{count}} řádky",
+  "{{count}} Rows_other": "{{count}} řádků",
+  "Done": "Hotovo",
+  "True": "Ano",
+  "False": "Ne",
+  "Show {{pageSize}}": "Zobrazit {{pageSize}}",
+  "Refreshing Data": "Aktualizace dat",
+  "Data Loaded: {{date}}": "Data načtena: {{date}}",
+  "Export Table to CSV": "Exportovat tabulku do CSV"
+}

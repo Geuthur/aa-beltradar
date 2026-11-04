@@ -528,6 +528,12 @@ class EveMarketPriceManager(models.Manager["EveTypePriceContext"]):
                 eve_type_id__in=_esi_market_type_ids
             )
         }
+        _known_type_ids = set(
+            ItemType.objects.filter(
+                id__in=_esi_market_type_ids - _current_market_prices.keys()
+            ).values_list("id", flat=True)
+        )
+        _unknown_type_ids = set()
         _now = timezone.now()
         for obj in objs:
             if obj.type_id in _current_market_prices:
@@ -536,17 +542,23 @@ class EveMarketPriceManager(models.Manager["EveTypePriceContext"]):
                 eve_market_type.adjusted_price = obj.adjusted_price
                 eve_market_type.updated_at = _now
                 _update_price.append(eve_market_type)
-            else:
+            elif obj.type_id in _known_type_ids:
                 eve_market_type = EveMarketPrice(
-                    eve_type=ItemType.objects.get(
-                        id=obj.type_id
-                    ),  # TODO: optimize get? to avoid that much queries
+                    eve_type_id=obj.type_id,
                     average_price=obj.average_price,
                     adjusted_price=obj.adjusted_price,
                     updated_at=_now,
                 )
                 _new_price.append(eve_market_type)
+            else:
+                _unknown_type_ids.add(obj.type_id)
 
+        if _unknown_type_ids:
+            logger.warning(
+                "Skipped market prices for %s types missing from the SDE: %s",
+                len(_unknown_type_ids),
+                sorted(_unknown_type_ids),
+            )
         if _update_price:
             self.bulk_update(
                 _update_price,
@@ -557,4 +569,4 @@ class EveMarketPriceManager(models.Manager["EveTypePriceContext"]):
             self.bulk_create(
                 _new_price, batch_size=BELT_RADAR_BULK_BATCH_SIZE, ignore_conflicts=True
             )
-        return len(objs)
+        return len(_update_price) + len(_new_price)

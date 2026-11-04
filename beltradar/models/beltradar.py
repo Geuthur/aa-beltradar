@@ -424,16 +424,3 @@ class EveMarketPrice(models.Model):
         max_digits=20, decimal_places=2, null=True, blank=True
     )
     updated_at = models.DateTimeField()
-
-    @property
-    def get_compressed_price(self) -> float:
-        """Calculate the compressed price based on the average price and the volume of the item."""
-        if not self.average_price or not self.adjusted_price:
-            return 0
-        try:
-            price = EveMarketPrice.objects.get(
-                eve_type__name=f"Compressed {self.eve_type.name}"
-            )
-            return price.average_price
-        except EveMarketPrice.DoesNotExist:
-            return 0

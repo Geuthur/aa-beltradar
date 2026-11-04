@@ -31,9 +31,11 @@ Section Order:
 ### Fixed
 
 - Market price update no longer fails or stores `0.00` when an ESI entry has no `adjusted_price`; `EveMarketPrice.adjusted_price` is now nullable (migration required)
+- Market price update no longer aborts when ESI returns a type missing from the local SDE; these types are skipped and logged as a warning, all other prices are still stored.
 
 ### Changed
 
+- Removed the unused property `EveMarketPrice.get_compressed_price`.
 - Replaced `pook` with `pookx` in the test dependencies.
 - The ESI client now loads a bundled OpenAPI spec (`beltradar/openapi_2026-08-18.json`) instead of downloading it at runtime.
 - Updated the ESI compatibility date from `2025-12-16` to `2026-08-18`.

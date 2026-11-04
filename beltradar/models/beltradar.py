@@ -408,6 +408,9 @@ class EveMarketPrice(models.Model):
     class Meta:
         default_permissions = ()
 
+    name = models.CharField(
+        max_length=255,
+    )
     eve_type = models.OneToOneField(
         ItemType,
         on_delete=models.CASCADE,

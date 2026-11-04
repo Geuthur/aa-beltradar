@@ -35,7 +35,7 @@ Section Order:
 
 ### Changed
 
-- Removed the unused field `EveMarketPrice.name` (migration required) and the unused property `EveMarketPrice.get_compressed_price`.
+- Removed the unused property `EveMarketPrice.get_compressed_price`.
 - Replaced `pook` with `pookx` in the test dependencies.
 - The ESI client now loads a bundled OpenAPI spec (`beltradar/openapi_2026-08-18.json`) instead of downloading it at runtime.
 - Updated the ESI compatibility date from `2025-12-16` to `2026-08-18`.

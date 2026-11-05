@@ -10,10 +10,10 @@ from django.utils import timezone
 
 # AA Belt Radar
 from beltradar.models import EveMarketPrice
-from beltradar.tests import BeltRadarTestCase
+from beltradar.tests import AuthTestCase
 
 
-class TestEveMarketPriceManagerUpdateFromEsi(BeltRadarTestCase):
+class TestEveMarketPriceManagerUpdateFromEsi(AuthTestCase):
     """Test EveMarketPrice.objects.update_from_esi against the ESI endpoint."""
 
     ESI_URL = "https://esi.evetech.net/markets/prices"

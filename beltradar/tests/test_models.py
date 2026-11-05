@@ -14,7 +14,7 @@ from django.utils import timezone
 # AA Belt Radar
 from beltradar.models import BeltSurveySession, generate_unique_public_id
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
-from beltradar.tests import BeltRadarTestCase
+from beltradar.tests import AuthTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
     BeltSnapshotFactory,
@@ -23,7 +23,7 @@ from beltradar.tests.testdata.beltradar import (
 )
 
 
-class TestBeltSurveySessionModel(BeltRadarTestCase):
+class TestBeltSurveySessionModel(AuthTestCase):
     """Test BeltSurveySession model."""
 
     @classmethod

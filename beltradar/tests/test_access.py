@@ -8,12 +8,12 @@ from django.urls import reverse
 
 # AA Belt Radar
 from beltradar import views
-from beltradar.tests import BeltRadarTestCase
+from beltradar.tests import AuthTestCase
 
 MODULE_PATH = "beltradar.views."
 
 
-class TestViewAccess(BeltRadarTestCase):
+class TestViewAccess(AuthTestCase):
     """Test General Belt Radar View Access."""
 
     @classmethod

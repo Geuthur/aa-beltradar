@@ -8,8 +8,6 @@ from evesde_factory.allianceauth import (
     EveCharacterFactory,
     UserFactory,
 )
-
-# AA Factories
 from evesde_factory.eve_sde import ItemTypeFactory
 from evesde_factory.utils import add_character_to_user
 

@@ -13,7 +13,7 @@ from beltradar.api.helpers.actions import (
     session_manage_actions,
 )
 from beltradar.models import generate_unique_public_id
-from beltradar.tests import BeltRadarTestCase
+from beltradar.tests import AuthTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
     BeltSnapshotFactory,
@@ -26,7 +26,7 @@ MODULE_PATH = "beltradar.api.helpers."
 API_URL = "beltradar:api"
 
 
-class TestActionHelper(BeltRadarTestCase):
+class TestActionHelper(AuthTestCase):
     """Test Action Helper."""
 
     @classmethod

@@ -11,7 +11,7 @@ from django.utils import timezone
 # AA Belt Radar
 from beltradar import __app_name__, tasks
 from beltradar.models import BeltSurveySession, BeltTimer
-from beltradar.tests import BeltRadarTestCase
+from beltradar.tests import AuthTestCase
 from beltradar.tests.testdata.beltradar import BeltTimerFactory
 
 TASK_PATH = "beltradar.tasks"
@@ -22,7 +22,7 @@ TASK_PATH = "beltradar.tasks"
     CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
     BELT_RADAR_WEBHOOK_URL="https://discord.com/api/webhooks/1337/abc123",
 )
-class TestUpdateAllBeltRadar(BeltRadarTestCase):
+class TestUpdateAllBeltRadar(AuthTestCase):
     """Test the update_all_belt_radar task."""
 
     @classmethod

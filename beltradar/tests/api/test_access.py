@@ -10,7 +10,7 @@ from django.urls import reverse
 
 # AA Belt Radar
 from beltradar.models import BeltTimer
-from beltradar.tests import BeltRadarTestCase
+from beltradar.tests import AuthTestCase
 from beltradar.tests.testdata.beltradar import (
     BeltSessionFactory,
     BeltSnapshotFactory,
@@ -23,7 +23,7 @@ MODULE_PATH = "beltradar.api.helpers."
 API_URL = "beltradar:api"
 
 
-class TestApiEndpoints(BeltRadarTestCase):
+class TestApiEndpoints(AuthTestCase):
     """Test API Endpoints."""
 
     @classmethod
@@ -217,7 +217,7 @@ class TestApiEndpoints(BeltRadarTestCase):
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
 
-class TestSnapshotApiEndpoints(BeltRadarTestCase):
+class TestSnapshotApiEndpoints(AuthTestCase):
     """Test Snapshot API Endpoints."""
 
     @classmethod
@@ -278,7 +278,7 @@ class TestSnapshotApiEndpoints(BeltRadarTestCase):
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
 
-class TestApiEndpointsPost(BeltRadarTestCase):
+class TestApiEndpointsPost(AuthTestCase):
     """Test API Endpoints for POST requests."""
 
     @classmethod
@@ -653,7 +653,7 @@ class TestApiEndpointsPost(BeltRadarTestCase):
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
 
-class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
+class TestApiSnapshotEndpointsPost(AuthTestCase):
     """Test Snapshot API Endpoints for POST requests."""
 
     @classmethod
@@ -804,7 +804,7 @@ class TestApiSnapshotEndpointsPost(BeltRadarTestCase):
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
 
 
-class TestApiSessionEndpointsPost(BeltRadarTestCase):
+class TestApiSessionEndpointsPost(AuthTestCase):
     """Test Snapshot API Endpoints for POST requests."""
 
     @classmethod

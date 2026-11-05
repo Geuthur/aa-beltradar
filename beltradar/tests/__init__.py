@@ -9,7 +9,6 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.test import RequestFactory, TestCase
 
 # AA Belt Radar
-from beltradar import __app_name__
 from beltradar.tests.testdata.beltradar import UserMainFactory
 
 
@@ -18,16 +17,7 @@ class SocketAccessError(Exception):
 
 
 class NoSocketsTestCase(TestCase):
-    """Variation of Django's TestCase class that prevents any network use.
-
-    Example:
-
-        .. code-block:: python
-
-            class TestMyStuff(BaseTestCase):
-                def test_should_do_what_i_need(self): ...
-
-    """
+    """Variation of Django's TestCase class that prevents any network use."""
 
     @classmethod
     def setUpClass(cls):
@@ -45,24 +35,17 @@ class NoSocketsTestCase(TestCase):
         raise SocketAccessError("Attempted to access network")
 
 
-class BeltRadarTestCase(NoSocketsTestCase):
+class AuthTestCase(NoSocketsTestCase):
     """
-    Preloaded Testcase class for Belt Radar tests without Network access.
+    Preloaded Testcase class for AllianceAuth tests without Network access.
 
     Available Request Factory:
         `self.factory`
-
-    Available test users:
-        * `user` User with standard Belt Radar access.
-            * 'beltradar.basic_access' Permission
-        * `superuser` User with superuser access.
-
-    Example:
-        .. code-block:: python
-
-            class TestMyBeltRadarStuff(BeltRadarTestCase):
-                def test_should_do_what_i_need(self):
-                    user = self.user
+    Available Django Users:
+        `self.user`
+        `self.superuser`
+    Available methods:
+        `_middleware_process_request(request)`
     """
 
     @classmethod

@@ -38,6 +38,7 @@ Section Order:
 
 - Removed the unused property `EveMarketPrice.get_compressed_price`.
 - Replaced `pook` with `pookx` in the test dependencies.
+- Test factories for Alliance Auth (`UserFactory`, `EveCharacterFactory`, `add_character_to_user`, ...) now come only from `aa-evesde-factory`; the repo keeps just its own `UserMainFactory` and the Belt Radar model factories. Fixed the import section order of the test data module.
 - The ESI client now loads a bundled OpenAPI spec (`beltradar/openapi_2026-08-18.json`) instead of downloading it at runtime.
 - Updated the ESI compatibility date from `2025-12-16` to `2026-08-18`.
 

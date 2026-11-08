@@ -37,6 +37,7 @@ Section Order:
 
 ### Changed
 
+- Language files hold only real translations as Weblate writes them, missing keys fall back to English. `i18next-scanner` now maintains only `frontend/i18n/en/translation.json`; the empty placeholder values were removed from all other languages.
 - Removed the unused property `EveMarketPrice.get_compressed_price`.
 - Replaced `pook` with `pookx` in the test dependencies.
 - Test factories for Alliance Auth (`UserFactory`, `EveCharacterFactory`, `add_character_to_user`, ...) now come only from `aa-evesde-factory`; the repo keeps just its own `UserMainFactory` and the Belt Radar model factories. Fixed the import section order of the test data module.

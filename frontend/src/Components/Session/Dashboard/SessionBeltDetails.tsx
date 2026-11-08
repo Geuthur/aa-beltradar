@@ -1,10 +1,10 @@
 // Third Party
+import { formatNumber, renderTooltip } from "aa-geuthur-react";
 import { ProgressBar } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionStats } from '@/Api/schema';
-import { formatNumber, renderTooltip } from '@/Components/Base/BaseTable/tableHelper';
 import { BeltDetailsFirstScan } from '@/Components/Session/Dashboard/BeltDetailsFirstScan';
 import { BeltDetailsLastScan } from '@/Components/Session/Dashboard/BeltDetailsLastScan';
 import { BeltDetailsETA } from '@/Components/Session/Dashboard/SessionBeltDetailsETA';

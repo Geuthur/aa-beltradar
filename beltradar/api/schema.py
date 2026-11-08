@@ -16,16 +16,38 @@ class UserData(Schema):
         user_id (int): The ID of the user.
         character_id (int): The ID of the character associated with the user.
         character_name (str): The name of the character.
+        corporation_id (int): The ID of the corporation associated with the user.
+        corporation_name (str): The name of the corporation associated with the user.
+        alliance_id (int | None): The ID of the alliance associated with the user, if any.
+        alliance_name (str | None): The name of the alliance associated with the user, if any.
         portrait (str | None): The URL or path to the character's portrait image.
-        notification (boolean): The notification status for the user.
+        is_admin (boolean): Whether the user is a superuser.
     """
 
     user_id: int
     character_id: int
     character_name: str
+    corporation_id: int
+    corporation_name: str
+    alliance_id: int | None = None
+    alliance_name: str | None = None
     portrait: str | None = None
 
-    notification: bool
+    is_admin: bool = False
+
+
+class UserSettingsSchema(Schema):
+    disable_notifications: bool
+
+
+class UserSettingsUpdateRequest(Schema):
+    disable_notifications: bool
+
+
+class ErrorSchema(Schema):
+    """Error response of an endpoint, e.g. for 403 and 404."""
+
+    error: str
 
 
 class DataTableSchema(Schema):
@@ -171,10 +193,16 @@ class MenuLink(Schema):
     Parameters:
         name (str): The name of the menu link.
         link (str | None): The URL or path the menu link points to.
+        is_external (bool): Indicates if the link is an external link.
+        badge (int | None): Number of issues shown as badge next to the link.
+        has_errors (bool): Whether the badge pulses because of active errors.
     """
 
     name: str
     link: str = None
+    is_external: bool = False
+    badge: int | None = None
+    has_errors: bool = False
 
 
 class MenuCategory(MenuLink):
@@ -197,7 +225,17 @@ class MenuModalSchema(Schema):
 
 
 class MenuSchema(Schema):
-    links: list[MenuLink] = []
+    """
+    Schema for the overall menu, including links and modals.
+
+    Parameters:
+        left_links (list[MenuLink]): The links left in the navigation bar.
+        right_links (list[MenuLink]): The links right in the navigation bar.
+        modals (MenuModalSchema | None): The modals associated with the menu.
+    """
+
+    left_links: list[MenuLink] = []
+    right_links: list[MenuLink] = []
     modals: MenuModalSchema | None = None
 
 

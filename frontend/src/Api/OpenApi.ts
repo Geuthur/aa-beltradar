@@ -455,14 +455,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/beltradar/api/view/menu/": {
+    "/beltradar/api/menu/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Menu */
+        /** Get Belt Radar navigation menu */
         get: operations["beltradar_api_menu_get_menu"];
         put?: never;
         post?: never;
@@ -472,14 +472,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/beltradar/api/view/user/": {
+    "/beltradar/api/user/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get User */
+        /** Get current user */
         get: operations["beltradar_api_general_get_user"];
         put?: never;
         post?: never;
@@ -489,17 +489,18 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/beltradar/api/modify/user/settings/": {
+    "/beltradar/api/settings/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        /** Modify User Settings */
-        post: operations["beltradar_api_general_modify_user_settings"];
+        /** Get current user's settings */
+        get: operations["beltradar_api_general_get_user_settings"];
+        /** Update current user's settings */
+        put: operations["beltradar_api_general_update_user_settings"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -757,12 +758,27 @@ export interface components {
          *     Parameters:
          *         name (str): The name of the menu link.
          *         link (str | None): The URL or path the menu link points to.
+         *         is_external (bool): Indicates if the link is an external link.
+         *         badge (int | None): Number of issues shown as badge next to the link.
+         *         has_errors (bool): Whether the badge pulses because of active errors.
          */
         MenuLink: {
             /** Name */
             name: string;
             /** Link */
             link?: string;
+            /**
+             * Is External
+             * @default false
+             */
+            is_external: boolean;
+            /** Badge */
+            badge?: number | null;
+            /**
+             * Has Errors
+             * @default false
+             */
+            has_errors: boolean;
         };
         /** MenuModalSchema */
         MenuModalSchema: {
@@ -770,13 +786,26 @@ export interface components {
             create_belt_timer?: components["schemas"]["ModalSchema"] | null;
             create_snapshot?: components["schemas"]["ModalSchema"] | null;
         };
-        /** MenuSchema */
+        /**
+         * MenuSchema
+         * @description Schema for the overall menu, including links and modals.
+         *
+         *     Parameters:
+         *         left_links (list[MenuLink]): The links left in the navigation bar.
+         *         right_links (list[MenuLink]): The links right in the navigation bar.
+         *         modals (MenuModalSchema | None): The modals associated with the menu.
+         */
         MenuSchema: {
             /**
-             * Links
+             * Left Links
              * @default []
              */
-            links: components["schemas"]["MenuLink"][];
+            left_links: components["schemas"]["MenuLink"][];
+            /**
+             * Right Links
+             * @default []
+             */
+            right_links: components["schemas"]["MenuLink"][];
             modals?: components["schemas"]["MenuModalSchema"] | null;
         };
         /**
@@ -787,8 +816,12 @@ export interface components {
          *         user_id (int): The ID of the user.
          *         character_id (int): The ID of the character associated with the user.
          *         character_name (str): The name of the character.
+         *         corporation_id (int): The ID of the corporation associated with the user.
+         *         corporation_name (str): The name of the corporation associated with the user.
+         *         alliance_id (int | None): The ID of the alliance associated with the user, if any.
+         *         alliance_name (str | None): The name of the alliance associated with the user, if any.
          *         portrait (str | None): The URL or path to the character's portrait image.
-         *         notification (boolean): The notification status for the user.
+         *         is_admin (boolean): Whether the user is a superuser.
          */
         UserData: {
             /** User Id */
@@ -797,10 +830,39 @@ export interface components {
             character_id: number;
             /** Character Name */
             character_name: string;
+            /** Corporation Id */
+            corporation_id: number;
+            /** Corporation Name */
+            corporation_name: string;
+            /** Alliance Id */
+            alliance_id?: number | null;
+            /** Alliance Name */
+            alliance_name?: string | null;
             /** Portrait */
             portrait?: string | null;
-            /** Notification */
-            notification: boolean;
+            /**
+             * Is Admin
+             * @default false
+             */
+            is_admin: boolean;
+        };
+        /**
+         * ErrorSchema
+         * @description Error response of an endpoint, e.g. for 403 and 404.
+         */
+        ErrorSchema: {
+            /** Error */
+            error: string;
+        };
+        /** UserSettingsSchema */
+        UserSettingsSchema: {
+            /** Disable Notifications */
+            disable_notifications: boolean;
+        };
+        /** UserSettingsUpdateRequest */
+        UserSettingsUpdateRequest: {
+            /** Disable Notifications */
+            disable_notifications: boolean;
         };
     };
     responses: never;
@@ -1550,14 +1612,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ErrorSchema"];
                 };
             };
         };
     };
-    beltradar_api_general_modify_user_settings: {
+    beltradar_api_general_get_user_settings: {
         parameters: {
             query?: never;
             header?: never;
@@ -1572,20 +1632,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["UserSettingsSchema"];
                 };
             };
             /** @description Forbidden */
@@ -1594,9 +1641,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ErrorSchema"];
+                };
+            };
+        };
+    };
+    beltradar_api_general_update_user_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserSettingsUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserSettingsSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
                 };
             };
         };

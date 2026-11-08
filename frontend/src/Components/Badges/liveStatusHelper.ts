@@ -1,8 +1,10 @@
 // React
 import { useEffect, useRef, useState } from 'react';
 
+// Third Party
+import { formatEveTime } from "aa-geuthur-react";
+
 // AA Belt Radar
-import { formatEveTime } from '@/Utils/eveOnline';
 
 /**
  * Formats a numeric timestamp into an EVE Online time string (HH:MM:SS EVE)

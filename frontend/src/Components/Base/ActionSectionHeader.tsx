@@ -1,21 +1,20 @@
 // Third Party
 import { useQuery } from '@tanstack/react-query';
+import { BaseModal, useFormApproveMutation, useModalQueryState } from "aa-geuthur-react";
 import { Plus } from 'lucide-react';
 import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { loadMenu } from '@/Api/ApiCalls';
-import { queryKeys } from "@/Api/query";
-import BaseModal from '@/Components/Base/BaseModal';
-import { useFormApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
-import { useModalQueryState } from '@/Components/Base/BaseModal/useModalState';
+import { listQueryKeys, queryKeys } from "@/Api/query";
 import type { SectionHeaderProps } from '@/Components/Base/SectionHeaderProps';
 import { IconButton } from '@/Components/Icons/Icons';
+import { useModalData } from '@/Components/Modals/modalConfig';
 
 export function ActionSectionHeader({
     name,
-    queryKey,
+    queryKey = listQueryKeys,
     modalKey,
     buttonTitle,
     buttonIcon = <Plus size={14} aria-hidden="true" />,
@@ -33,6 +32,7 @@ export function ActionSectionHeader({
     });
 
     const action = modalKey ? menuData?.modals?.[modalKey] : null;
+    const modalData = useModalData(action);
 
     return (
         <>
@@ -53,9 +53,11 @@ export function ActionSectionHeader({
                     )}
                 </Card.Header>
             </Card>
-            {action && children && (
+            {action && modalData && children && (
                 <BaseModal
-                    data={action}
+                    variant="confirm"
+                    bodyClassName="aa-panel"
+                    data={modalData}
                     showModal={activeModal === action.modal_id}
                     onApprove={(args) => formApproveMutation.mutateAsync(args)}
                     isPending={formApproveMutation.isPending}

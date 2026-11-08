@@ -341,35 +341,6 @@ class TestApiEndpointsPost(AuthTestCase):
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
 
-    def test_modify_user_settings_should_200(self):
-        """
-        Test should return 200 OK when updating user settings.
-        """
-        # Test Data
-        url = reverse(f"{API_URL}:modify_user_settings")
-        self.client.force_login(self.user)
-
-        # Test Action
-        response = self.client.post(url, data={"disable_notifications": "on"})
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_modify_user_settings_should_403(self):
-        """
-        Test should return 403 Forbidden when user lacks permissions.
-        """
-        # Test Data
-        user_no_permission = UserMainFactory(permissions__=[])
-        url = reverse(f"{API_URL}:modify_user_settings")
-        self.client.force_login(user_no_permission)
-
-        # Test Action
-        response = self.client.post(url, data={"disable_notifications": "on"})
-
-        # Expected Result
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
-
     def test_add_session_belt_timer_should_200(self):
         """
         Test should return 200 OK when user has permissions and data is valid.

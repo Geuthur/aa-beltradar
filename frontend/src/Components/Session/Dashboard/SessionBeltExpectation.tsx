@@ -1,10 +1,10 @@
 // Third Party
+import { renderTooltip } from "aa-geuthur-react";
 import { CircleHelp, Timer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionStats } from "@/Api/schema";
-import { renderTooltip } from '@/Components/Base/BaseTable/tableHelper';
 
 export function SessionBeltExpectation({ sessionData }: { sessionData?: SessionStats}) {
     const { t } = useTranslation();

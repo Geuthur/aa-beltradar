@@ -13,64 +13,10 @@ from allianceauth.services.hooks import get_extension_logger
 # AA Belt Radar
 from beltradar import __title__
 from beltradar.api.schema import OreSchema, OreSchemaResponse
-from beltradar.models import BeltSurveySession, BeltTimer, UserSettings
+from beltradar.models import BeltSurveySession, BeltTimer
 from beltradar.providers import AppLogger
 
 logger = AppLogger(get_extension_logger(__name__), __title__)
-
-
-class DeleteSnapshotForm(forms.Form):
-    """
-    Form to confirm identifier deletion.
-    """
-
-    class Meta:
-        fields = ["identifier_id"]
-
-
-class DeleteSessionForm(forms.Form):
-    """
-    Form to confirm session deletion.
-    """
-
-    class Meta:
-        fields = ["public_id"]
-
-
-class ModifySessionForm(forms.Form):
-    """
-    Form to confirm session modification.
-    """
-
-    class Meta:
-        fields = ["public_id"]
-
-
-class DeleteBeltTimerForm(forms.Form):
-    """
-    Form to confirm belt timer deletion.
-    """
-
-    class Meta:
-        fields = ["timer_id"]
-
-
-class CreateTimerForm(forms.Form):
-    """
-    Form to confirm creation of a belt timer.
-    """
-
-    class Meta:
-        fields = ["public_id"]
-
-
-class ModifyBeltTimerForm(forms.Form):
-    """
-    Form to confirm belt timer modification.
-    """
-
-    class Meta:
-        fields = ["timer_id"]
 
 
 class AddSnapshotForm(forms.Form):
@@ -190,19 +136,5 @@ class BeltTimerForm(forms.ModelForm):
             "belt_size": _("The size of the belt."),
             "is_public": _(
                 "If checked, this belt timer will be visible to other users. Otherwise, it will be private."
-            ),
-        }
-
-
-class UserSettingsForm(forms.ModelForm):
-    class Meta:
-        model = UserSettings
-        fields = ["disable_notifications"]
-        labels = {
-            "disable_notifications": _("Disable Notifications"),
-        }
-        help_texts = {
-            "disable_notifications": _(
-                "Check this box to disable notifications for expired belt timers."
             ),
         }

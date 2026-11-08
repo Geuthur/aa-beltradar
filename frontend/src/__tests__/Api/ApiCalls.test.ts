@@ -11,38 +11,13 @@ import {
     loadPublicSessions,
     loadSession,
     loadSnapshot,
-    loadUserData,
+    loadUserSettings,
     updateUserSettings,
 } from '@/Api/ApiCalls';
 
 describe('BeltRadar API client functions', () => {
     beforeEach(() => {
         vi.restoreAllMocks();
-    });
-
-    describe('loadUserData', () => {
-        it('returns user data on successful GET', async () => {
-            const mockUser = { user_id: 1, character_id: 42, character_name: 'Test Pilot' };
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: mockUser,
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await loadUserData();
-            expect(result).toEqual({ user: mockUser });
-            expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/view/user/');
-        });
-
-        it('throws error when GET fails or returns no data', async () => {
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: undefined,
-                error: { status: 500 },
-                response: new Response(),
-            } as never);
-
-            await expect(loadUserData()).rejects.toThrow('Failed to load user data');
-        });
     });
 
     describe('loadPublicSessions', () => {
@@ -147,8 +122,8 @@ describe('BeltRadar API client functions', () => {
     });
 
     describe('loadMenu', () => {
-        it('calls /view/menu/ and returns data', async () => {
-            const mockMenu = { links: [] };
+        it('calls /menu/ and returns data', async () => {
+            const mockMenu = { left_links: [], right_links: [] };
             vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
                 data: mockMenu,
                 error: undefined,
@@ -157,31 +132,59 @@ describe('BeltRadar API client functions', () => {
 
             const result = await loadMenu();
             expect(result).toEqual(mockMenu);
-            expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/view/menu/');
+            expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/menu/');
+        });
+    });
+
+    describe('loadUserSettings', () => {
+        it('calls /settings/ and returns the settings', async () => {
+            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
+                data: { disable_notifications: true },
+                error: undefined,
+                response: new Response(),
+            } as never);
+
+            const result = await loadUserSettings();
+            expect(result).toEqual({ disable_notifications: true });
+            expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/settings/');
+        });
+
+        it('throws error when GET fails', async () => {
+            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
+                data: undefined,
+                error: { error: 'Permission Denied.' },
+                response: new Response(),
+            } as never);
+
+            await expect(loadUserSettings()).rejects.toThrow('Failed to load user settings');
         });
     });
 
     describe('updateUserSettings', () => {
-        it('submits FormData with disable_notifications and returns success', async () => {
-            vi.spyOn(apiClient, 'POST').mockResolvedValueOnce({
-                data: { success: true },
+        it('sends the settings as PUT body and returns them', async () => {
+            vi.spyOn(apiClient, 'PUT').mockResolvedValueOnce({
+                data: { disable_notifications: true },
                 error: undefined,
                 response: new Response(),
             } as never);
 
             const result = await updateUserSettings({ disable_notifications: true });
-            expect(result).toEqual({ success: true });
-            expect(apiClient.POST).toHaveBeenCalledWith('/beltradar/api/modify/user/settings/', expect.any(Object));
+            expect(result).toEqual({ disable_notifications: true });
+            expect(apiClient.PUT).toHaveBeenCalledWith('/beltradar/api/settings/', {
+                body: { disable_notifications: true },
+            });
         });
 
         it('throws error when update fails', async () => {
-            vi.spyOn(apiClient, 'POST').mockResolvedValueOnce({
-                data: { success: false, message: 'Permission denied' },
-                error: undefined,
+            vi.spyOn(apiClient, 'PUT').mockResolvedValueOnce({
+                data: undefined,
+                error: { error: 'Permission Denied.' },
                 response: new Response(),
             } as never);
 
-            await expect(updateUserSettings({ disable_notifications: false })).rejects.toThrow('Permission denied');
+            await expect(updateUserSettings({ disable_notifications: false })).rejects.toThrow(
+                'Failed to update user settings',
+            );
         });
     });
 });

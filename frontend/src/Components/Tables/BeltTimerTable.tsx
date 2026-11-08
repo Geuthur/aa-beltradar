@@ -3,14 +3,13 @@ import { useMemo } from 'react';
 
 // Third Party
 import { useQuery } from '@tanstack/react-query';
+import { useModalQueryState, BaseTable } from "aa-geuthur-react";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { loadBeltTimers } from '@/Api/ApiCalls';
 import { queryKeys } from "@/Api/query";
 import type { BeltTimer } from "@/Api/schema";
-import { useModalQueryState } from '@/Components/Base/BaseModal/useModalState';
-import BaseTable from '@/Components/Base/BaseTable';
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import { getBeltTimerColumns } from '@/Components/Tables/TableColumns';
 

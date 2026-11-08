@@ -2,13 +2,13 @@
 import { useMemo } from 'react';
 
 // Third Party
+import { FetchingLoader } from "aa-geuthur-react";
 import type { ApexOptions } from 'apexcharts';
 import Chart from 'react-apexcharts';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { ApexChartSchema } from '@/Api/schema';
-import FetchingLoader from '@/Components/Base/Loader/FetchingLoader';
 
 export interface MiningChartProps {
     data?: ApexChartSchema | null;

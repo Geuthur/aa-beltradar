@@ -4,18 +4,16 @@ import { useParams } from 'react-router-dom';
 
 // Third Party
 import { useQuery } from '@tanstack/react-query';
+import { BaseModal, ModalSize, useApproveMutation, useFormApproveMutation, BaseTable } from "aa-geuthur-react";
 import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { loadSnapshot } from '@/Api/ApiCalls';
 import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from "@/Api/query";
-import BaseModal, { ModalSize } from '@/Components/Base/BaseModal';
-import { useApproveMutation, useFormApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
-import BaseTable from '@/Components/Base/BaseTable';
 import AddSnapshotForm from '@/Components/Forms/AddSnapshotForm';
 import { validateAddSnapshotForm } from '@/Components/Forms/validation';
-import { getModalConfig } from '@/Components/Modals/modalConfig';
+import { getModalConfig, useModalData } from '@/Components/Modals/modalConfig';
 import { SnapshotButtons, SnapshotSelect } from '@/Components/Tables/Snapshot';
 import { getSnapshotColumns } from "@/Components/Tables/TableColumns";
 
@@ -44,6 +42,8 @@ function SessionSnapshotTable() {
 
 	const addAction = snapshotData?.actions?.create;
 	const deleteAction = snapshotData?.actions?.delete;
+	const addModalData = useModalData(addAction);
+	const deleteModalData = useModalData(deleteAction);
 	const snapshots = snapshotData?.snapshots ?? [];
 
 	const handleDeleteApprove = async (url: string) => {
@@ -83,9 +83,11 @@ function SessionSnapshotTable() {
 					/>
 				</Card.Body>
 			</div>
-			{addAction && (
+			{addAction && addModalData && (
 				<BaseModal
-					data={addAction}
+					variant="confirm"
+					bodyClassName="aa-panel"
+					data={addModalData}
 					size={ModalSize.extraLarge}
 					showModal={showAddModal}
 					setShowModal={setShowAddModal}
@@ -100,9 +102,11 @@ function SessionSnapshotTable() {
 					)}
 				/>
 			)}
-			{deleteAction && (
+			{deleteAction && deleteModalData && (
 				<BaseModal
-					data={deleteAction}
+					variant="confirm"
+					bodyClassName="aa-panel"
+					data={deleteModalData}
 					showModal={showDeleteModal}
 					setShowModal={setShowDeleteModal}
 					onApprove={({ url }) => handleDeleteApprove(url)}

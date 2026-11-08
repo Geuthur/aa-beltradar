@@ -14,6 +14,7 @@ describe('queryKeys', () => {
         expect(queryKeys.beltTimer).toEqual(['Belt-Timer']);
         expect(queryKeys.Menu).toEqual(['Menu']);
         expect(queryKeys.User).toEqual(['User']);
+        expect(queryKeys.UserSettings).toBeDefined();
     });
 
     it('creates mySessions query key with and without characterID', () => {

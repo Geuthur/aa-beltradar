@@ -18,11 +18,12 @@ class BeltRadarApiEndpoints:
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "view/menu/",
+            "menu/",
             response={
                 HTTPStatus.OK: schema.MenuSchema,
             },
             tags=self.tags,
+            summary="Get Belt Radar navigation menu",
         )
         def get_menu(request):
             try:
@@ -40,16 +41,18 @@ class BeltRadarApiEndpoints:
                 modal_id="beltradar-accept-create-belt-timer",
             )
 
-            menu_list: list[schema.MenuLink] = []
-            menu_list.append(schema.MenuLink(name=_("Belt Radar"), link="/"))
-            menu_list.append(
+            left_menu: list[schema.MenuLink] = []
+            left_menu.append(schema.MenuLink(name=_("Belt Radar"), link="/"))
+            left_menu.append(
                 schema.MenuLink(
                     name=_("My Sessions"), link=f"/my-belt-radar/{character_id}/"
                 )
             )
-            menu_list.append(schema.MenuLink(name=_("Settings"), link="/settings/"))
+            left_menu.append(schema.MenuLink(name=_("Settings"), link="/settings/"))
+            right_menu: list[schema.MenuLink] = []
             return schema.MenuSchema(
-                links=menu_list,
+                left_links=left_menu,
+                right_links=right_menu,
                 modals=schema.MenuModalSchema(
                     create_session=create_session,
                     create_belt_timer=create_belt_timer,

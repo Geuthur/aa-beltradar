@@ -15,7 +15,7 @@ vi.mock("@/Api/ApiCalls", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
   return {
     ...actual,
-    loadUserData: vi.fn(),
+    loadUserSettings: vi.fn(),
     updateUserSettings: vi.fn(),
   };
 });
@@ -40,13 +40,8 @@ describe("SettingsPage", () => {
 
   it("should load the saved global notification preference", async () => {
     // Test Data
-    vi.mocked(BeltRadarApi.loadUserData).mockResolvedValueOnce({
-      user: {
-        user_id: 1,
-        character_id: 12345,
-        character_name: "Test Pilot",
-        notification: true,
-      },
+    vi.mocked(BeltRadarApi.loadUserSettings).mockResolvedValueOnce({
+      disable_notifications: true,
     });
 
     // Test Action
@@ -61,16 +56,11 @@ describe("SettingsPage", () => {
   it("should save the global preference when the switch is enabled", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(BeltRadarApi.loadUserData).mockResolvedValue({
-      user: {
-        user_id: 1,
-        character_id: 12345,
-        character_name: "Test Pilot",
-        notification: false,
-      },
+    vi.mocked(BeltRadarApi.loadUserSettings).mockResolvedValue({
+      disable_notifications: false,
     });
     vi.mocked(BeltRadarApi.updateUserSettings).mockResolvedValue({
-      success: true,
+      disable_notifications: true,
     });
 
     // Test Action

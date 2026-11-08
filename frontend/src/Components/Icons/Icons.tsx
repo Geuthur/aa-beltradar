@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 
 // Third Party
 import type { CellContext } from "@tanstack/react-table";
+import { renderTooltip } from "aa-geuthur-react";
+import type { BaseTableFeatures } from "aa-geuthur-react";
 import { Eye } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
 import type { BeltTimer, ModalSchema, Session } from "@/Api/schema";
-import type { BaseTableFeatures } from "@/Components/Base/BaseTable/tableFeatures";
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 import { getModalConfig } from "@/Components/Modals/modalConfig";
 
 export interface ButtonProps {

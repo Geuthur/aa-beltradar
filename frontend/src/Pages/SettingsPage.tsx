@@ -8,54 +8,36 @@ import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import { loadUserData, updateUserSettings } from "@/Api/ApiCalls";
+import { loadUserSettings, updateUserSettings } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
 import { queryKeys } from "@/Api/query";
 import styles from "@/Styles/modules/SettingsPage.module.css";
 
-type UserDataResponse = { user: components["schemas"]["UserData"] };
+type UserSettings = components["schemas"]["UserSettingsSchema"];
 
 export const SettingsPage: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data, isLoading, isError } = useQuery({
-    queryKey: queryKeys.User,
-    queryFn: loadUserData,
+    queryKey: queryKeys.UserSettings,
+    queryFn: loadUserSettings,
   });
 
   const updateMutation = useMutation({
-    mutationFn: (settings: { disable_notifications: boolean }) => updateUserSettings(settings),
+    mutationFn: (settings: UserSettings) => updateUserSettings(settings),
     onMutate: async (settings) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.User });
-      const previous = queryClient.getQueryData<UserDataResponse>(queryKeys.User);
-      if (previous) {
-        queryClient.setQueryData<UserDataResponse>(queryKeys.User, {
-          ...previous,
-          user: {
-            ...previous.user,
-            notification: settings.disable_notifications,
-          },
-        });
-      }
+      await queryClient.cancelQueries({ queryKey: queryKeys.UserSettings });
+      const previous = queryClient.getQueryData<UserSettings>(queryKeys.UserSettings);
+      queryClient.setQueryData<UserSettings>(queryKeys.UserSettings, settings);
       return { previous };
     },
     onError: (_error, _settings, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(queryKeys.User, context.previous);
+        queryClient.setQueryData(queryKeys.UserSettings, context.previous);
       }
     },
-    onSuccess: (_data, settings) => {
-      queryClient.setQueryData<UserDataResponse>(queryKeys.User, (old) =>
-        old
-          ? {
-              ...old,
-              user: {
-                ...old.user,
-                notification: settings.disable_notifications,
-              },
-            }
-          : old,
-      );
+    onSuccess: (settings) => {
+      queryClient.setQueryData(queryKeys.UserSettings, settings);
     },
   });
 
@@ -68,7 +50,7 @@ export const SettingsPage: React.FC = () => {
     );
   }
 
-  if (isError || !data?.user) {
+  if (isError || !data) {
     return (
       <Card className="bg-secondary text-light border-0 shadow-sm" role="alert">
         <Card.Body className={styles["error"]}>
@@ -113,7 +95,7 @@ export const SettingsPage: React.FC = () => {
               className={styles["switch"]}
               type="checkbox"
               role="switch"
-              checked={data.user.notification}
+              checked={data.disable_notifications}
               disabled={updateMutation.isPending}
               onChange={(event) =>
                 updateMutation.mutate({ disable_notifications: event.currentTarget.checked })

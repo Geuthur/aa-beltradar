@@ -1,9 +1,9 @@
 // Third Party
+import { renderTooltip } from "aa-geuthur-react";
 import { Globe, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import { renderTooltip } from "@/Components/Base/BaseTable/tableHelper";
 
 export function PublicBadge({ isPublic }: { isPublic: boolean }) {
   const { t } = useTranslation();

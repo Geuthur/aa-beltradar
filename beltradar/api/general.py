@@ -8,7 +8,6 @@ from ninja import NinjaAPI
 from django.utils.translation import gettext as _
 
 # AA Belt Radar
-from beltradar import forms
 from beltradar.api import schema
 from beltradar.helpers.eveonline import get_character_portrait_url
 from beltradar.models.beltradar import UserSettings
@@ -20,25 +19,33 @@ class BeltRadarApiEndpoints:
     # pylint: disable=too-many-statements
     def __init__(self, api: NinjaAPI):
         @api.get(
-            "view/user/",
+            "user/",
             response={
                 HTTPStatus.OK: schema.UserData,
-                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
+            summary="Get current user",
         )
         def get_user(request):
             if not request.user.has_perm("beltradar.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             try:
-                character_id = request.user.profile.main_character.character_id
-                character_name = request.user.profile.main_character.character_name
+                character = request.user.profile.main_character
+                character_id = character.character_id
+                character_name = character.character_name
+                corporation_id = character.corporation_id
+                corporation_name = character.corporation_name
+                alliance_id = character.alliance_id
+                alliance_name = character.alliance_name
             except AttributeError:
                 character_id = 0
                 character_name = ""
-
-            settings = UserSettings.objects.get_or_create(user=request.user)[0]
+                corporation_id = 0
+                corporation_name = ""
+                alliance_id = None
+                alliance_name = None
 
             portrait_url = (
                 get_character_portrait_url(
@@ -50,36 +57,52 @@ class BeltRadarApiEndpoints:
                 else None
             )
 
-            return schema.UserData(
+            return HTTPStatus.OK, schema.UserData(
                 user_id=request.user.id,
                 character_id=character_id,
                 character_name=character_name,
+                corporation_id=corporation_id,
+                corporation_name=corporation_name,
+                alliance_id=alliance_id,
+                alliance_name=alliance_name,
                 portrait=portrait_url,
-                notification=settings.disable_notifications,
+                is_admin=request.user.is_superuser,
             )
 
-        @api.post(
-            "modify/user/settings/",
+        @api.get(
+            "settings/",
             response={
-                HTTPStatus.OK: dict,
-                HTTPStatus.BAD_REQUEST: dict,
-                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.OK: schema.UserSettingsSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
+            summary="Get current user's settings",
         )
-        def modify_user_settings(request):
+        def get_user_settings(request):
             if not request.user.has_perm("beltradar.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings = UserSettings.objects.get_or_create(user=request.user)[0]
+            return schema.UserSettingsSchema(
+                disable_notifications=settings.disable_notifications
+            )
 
-            form = forms.UserSettingsForm(data=request.POST, instance=settings)
-            if form.is_valid():
-                form.save()
-                return HTTPStatus.OK, {
-                    "success": True,
-                    "message": str(_("User settings updated successfully.")),
-                }
+        @api.put(
+            "settings/",
+            response={
+                HTTPStatus.OK: schema.UserSettingsSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+            },
+            tags=self.tags,
+            summary="Update current user's settings",
+        )
+        def update_user_settings(request, payload: schema.UserSettingsUpdateRequest):
+            if not request.user.has_perm("beltradar.basic_access"):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
-            msg = _("Invalid input data. Please check the format and try again.")
-            return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
+            settings = UserSettings.objects.get_or_create(user=request.user)[0]
+            settings.disable_notifications = payload.disable_notifications
+            settings.save(update_fields=["disable_notifications"])
+            return schema.UserSettingsSchema(
+                disable_notifications=settings.disable_notifications
+            )

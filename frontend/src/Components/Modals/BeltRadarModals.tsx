@@ -3,19 +3,18 @@ import { useMemo, useState } from 'react';
 
 // Third Party
 import type { QueryKey } from '@tanstack/react-query';
+import { BaseModal, useApproveMutation, useFormApproveMutation } from "aa-geuthur-react";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionItem, BeltTimer } from "@/Api/schema";
-import BaseModal from '@/Components/Base/BaseModal';
-import { useApproveMutation, useFormApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
 import CreateBeltTimerForm from '@/Components/Forms/CreateBeltTimerForm';
 import {
 	getBeltSizeValue,
 	getBeltTypeValue,
 	validateBeltTimerForm,
 } from '@/Components/Forms/validation';
-import { getModalConfig } from '@/Components/Modals/modalConfig';
+import { getModalConfig, useModalData } from '@/Components/Modals/modalConfig';
 
 export interface BeltRadarModalsProps {
 	session?: SessionItem | BeltTimer | null;
@@ -39,6 +38,9 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 	const isBeltTimer = effectiveData ? 'belt_id' in effectiveData : false;
 	const isSessionLinked = isBeltTimer ? Boolean((effectiveData as BeltTimer).has_session) : false;
 
+	const updateModalData = useModalData(effectiveData?.actions?.update);
+	const deleteModalData = useModalData(effectiveData?.actions?.delete);
+
 	const timerInitialFormData = useMemo(() => {
 		if (!effectiveData || !isBeltTimer) return undefined;
 		const timer = effectiveData as BeltTimer;
@@ -60,10 +62,12 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 
 	return (
 		<>
-			{updateAction && (
+			{updateAction && updateModalData && (
 				isBeltTimer ? (
 					<BaseModal
-						data={updateAction}
+						variant="confirm"
+						bodyClassName="aa-panel"
+						data={updateModalData}
 						showModal={modalAction === updateAction.modal_id}
 						onApprove={(args) => formApproveMutation.mutateAsync(args)}
 						isPending={formApproveMutation.isPending}
@@ -81,7 +85,9 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 					/>
 				) : (
 					<BaseModal
-						data={updateAction}
+						variant="confirm"
+						bodyClassName="aa-panel"
+						data={updateModalData}
 						showModal={modalAction === updateAction.modal_id}
 						onApprove={({ url }) => approveMutation.mutateAsync(url)}
 						isPending={approveMutation.isPending}
@@ -90,9 +96,11 @@ function BeltRadarModals({ session: data, modalAction, setModalAction, queryKey 
 					/>
 				)
 			)}
-			{deleteAction && (
+			{deleteAction && deleteModalData && (
 				<BaseModal
-					data={deleteAction}
+					variant="confirm"
+					bodyClassName="aa-panel"
+					data={deleteModalData}
 					showModal={modalAction === deleteAction.modal_id}
 					onApprove={({ url }) => approveMutation.mutateAsync(url)}
 					isPending={approveMutation.isPending}

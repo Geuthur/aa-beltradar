@@ -2,14 +2,13 @@
 import { useState } from 'react';
 
 // Third Party
+import { BaseModal, useApproveMutation } from "aa-geuthur-react";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import { queryKeys } from '@/Api/query';
 import type { SessionStats } from '@/Api/schema';
-import BaseModal from '@/Components/Base/BaseModal';
-import { useApproveMutation } from '@/Components/Base/BaseModal/BaseModalQuery';
-import { getModalConfig } from '@/Components/Modals/modalConfig';
+import { getModalConfig, useModalData } from '@/Components/Modals/modalConfig';
 
 export interface SessionModalsProps {
     session?: SessionStats | null;
@@ -34,6 +33,8 @@ export function SessionModals({
 
     const deleteTimerAction = effectiveSession?.actions?.delete;
     const createTimerAction = effectiveSession?.actions?.create;
+    const deleteTimerData = useModalData(deleteTimerAction);
+    const createTimerData = useModalData(createTimerAction);
 
     const handleApprove = async (url: string) => {
         await approveMutation.mutateAsync(url);
@@ -42,10 +43,11 @@ export function SessionModals({
 
     return (
         <>
-            {deleteTimerAction && (
+            {deleteTimerAction && deleteTimerData && (
                 <BaseModal
-                    data={deleteTimerAction}
+                    data={deleteTimerData}
                     variant='confirm'
+                    bodyClassName="aa-panel"
                     showModal={activeModal === deleteTimerAction.modal_id}
                     setShowModal={(show) => setActiveModal(show ? deleteTimerAction.modal_id : null)}
                     onApprove={({ url }) => handleApprove(url)}
@@ -53,10 +55,11 @@ export function SessionModals({
                     children={<div>{getModalConfig(t, deleteTimerAction.modal_id).text}</div>}
                 />
             )}
-            {createTimerAction && (
+            {createTimerAction && createTimerData && (
                 <BaseModal
-                    data={createTimerAction}
+                    data={createTimerData}
                     variant='confirm'
+                    bodyClassName="aa-panel"
                     showModal={activeModal === createTimerAction.modal_id}
                     setShowModal={(show) => setActiveModal(show ? createTimerAction.modal_id : null)}
                     onApprove={({ url }) => handleApprove(url)}

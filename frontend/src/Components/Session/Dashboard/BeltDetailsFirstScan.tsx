@@ -1,9 +1,9 @@
 // Third Party
+import { formatDate, renderTooltip } from "aa-geuthur-react";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionStats } from "@/Api/schema";
-import { formatDate, renderTooltip } from '@/Components/Base/BaseTable/tableHelper';
 import Styles from '@/Styles/modules/SessionBeltDetails.module.css';
 
 export function BeltDetailsFirstScan({ sessionData }: { sessionData?: SessionStats }) {

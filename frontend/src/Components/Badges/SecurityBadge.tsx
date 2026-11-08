@@ -1,5 +1,7 @@
+// Third Party
+import { getSecColor } from "aa-geuthur-react";
+
 // AA Belt Radar
-import { getSecColor } from '@/Utils/eveOnline';
 
 interface SecurityBadgeProps {
   sec: number;

@@ -1,10 +1,10 @@
 // Third Party
+import { renderTooltip } from "aa-geuthur-react";
 import { Timer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { ModalSchema } from '@/Api/schema';
-import { renderTooltip } from '@/Components/Base/BaseTable/tableHelper';
 import { ActionButton } from '@/Components/Icons/Icons';
 
 export interface SessionHeaderButtonsProps {

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 
 // Third Party
 import { useQuery } from '@tanstack/react-query';
+import { BaseSectionHeader, ErrorLoader } from "aa-geuthur-react";
 import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
@@ -11,8 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { loadSession } from '@/Api/ApiCalls';
 import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from "@/Api/query";
 import { LiveStatusIndicator } from '@/Components/Badges';
-import BaseSectionHeader from '@/Components/Base/BaseHeader';
-import ErrorLoader from '@/Components/Base/Loader/ErrorLoader';
 import SessionCharts from '@/Components/Session/Charts';
 import SessionDashboard from '@/Components/Session/Dashboard';
 import SessionHeaderButtons from '@/Components/Session/Header';

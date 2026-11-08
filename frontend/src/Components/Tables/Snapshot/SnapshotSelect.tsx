@@ -1,10 +1,10 @@
 // Third Party
+import { formatDate } from "aa-geuthur-react";
 import Form from 'react-bootstrap/Form';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { components } from '@/Api/OpenApi';
-import { formatDate } from '@/Components/Base/BaseTable/tableHelper';
 
 export interface SnapshotSelectProps {
   snapshots?: components['schemas']['SnapshotSummarySchema'][];

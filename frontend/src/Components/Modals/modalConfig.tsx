@@ -1,9 +1,15 @@
 // React
+import { useMemo } from "react";
 import type { ReactNode } from "react";
 
 // Third Party
+import type { ModalData } from "aa-geuthur-react";
 import type { TFunction } from "i18next";
 import { CircleHelp, Plus, Trash2, Wrench } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+// AA Belt Radar
+import type { ModalSchema } from "@/Api/schema";
 
 export type ModalColor = "primary" | "secondary" | "success" | "warning" | "danger";
 
@@ -84,4 +90,19 @@ export function getModalConfig(t: TFunction, modalId: string): ModalConfig {
     default:
       return { icon: icon.unknown, color: "primary", title: modalId, text: "" };
   }
+}
+
+/**
+ * Completes the `ModalSchema` of the API (`modal_id`, `url`) with title, text and color for the
+ * confirm variant of `BaseModal`. The object is memoized because `BaseModal` compares `data` by identity.
+ */
+export function useModalData(action?: ModalSchema | null): ModalData | undefined {
+  const { t } = useTranslation();
+  return useMemo(() => {
+    if (!action) {
+      return undefined;
+    }
+    const config = getModalConfig(t, action.modal_id);
+    return { ...action, title: config.title, text: config.text, icon: "", color: config.color };
+  }, [action, t]);
 }

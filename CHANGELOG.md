@@ -28,6 +28,10 @@ Section Order:
 
 <!-- AI Changes -->
 
+### Added
+
+- Optional extra `tests-allianceauth-development` (test packages plus the Alliance Auth 6 pre-release) with separate test settings under `testauth/settings/development/` for the new tox environment `allianceauth-development` and `make tox-tests-development`; a non-blocking CI job "AA Development" runs it on Python 3.13 and 3.14
+
 ### Fixed
 
 - Re-applied the real Weblate translations (about 21 to 24 per language, plus `cs` and `sk`) that were lost when the bundled package translations emptied the pre-filled values, so Weblate can rebase its branch again. Untranslated strings stay empty.

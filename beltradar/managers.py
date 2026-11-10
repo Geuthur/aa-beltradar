@@ -50,7 +50,7 @@ class AccessQuerySet(models.QuerySet[T], Generic[T]):
             )
             return self
 
-        if user.has_perm("taxsystem.admin_access"):
+        if user.has_perm("beltradar.admin_access"):
             logger.debug("Returning all survey sessions for admin user %s.", user)
             return self
 
@@ -82,7 +82,7 @@ class AccessQuerySet(models.QuerySet[T], Generic[T]):
             )
             return self
 
-        if user.has_perm("taxsystem.admin_access"):
+        if user.has_perm("beltradar.admin_access"):
             logger.debug("Returning all survey sessions for admin user %s.", user)
             return self
 

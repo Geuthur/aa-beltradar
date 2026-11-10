@@ -11,11 +11,8 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Belt Radar
-from beltradar import __title__, forms
+from beltradar import forms
 from beltradar.api import schema
 from beltradar.api.helpers.actions import (
     get_snapshot_add_action,
@@ -35,9 +32,6 @@ from beltradar.models.beltradar import (
     EveMarketPrice,
     generate_unique_public_id,
 )
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class BeltRadarApiEndpoints:

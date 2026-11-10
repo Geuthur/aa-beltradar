@@ -8,20 +8,14 @@ from django.urls import reverse
 
 # Alliance Auth
 from allianceauth.authentication.decorators import permissions_required
-from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
-from beltradar import __title__
 from beltradar.api import schema
 from beltradar.api.helpers.core import (
     get_manage_belt_timer_or_none,
     get_manage_session_or_none,
     get_session_or_none,
 )
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
-
 
 if TYPE_CHECKING:
     # AA Belt Radar

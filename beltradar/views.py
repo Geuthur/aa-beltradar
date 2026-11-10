@@ -6,14 +6,8 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Belt Radar
-from beltradar import __app_name__, __title__, __version__
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from beltradar import __app_name__, __version__
 
 
 @login_required

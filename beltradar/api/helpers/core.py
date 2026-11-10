@@ -1,14 +1,8 @@
 # Django
 from django.core.exceptions import ObjectDoesNotExist
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Belt Radar
-from beltradar import __title__, models
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from beltradar import models
 
 
 def get_session_or_none(

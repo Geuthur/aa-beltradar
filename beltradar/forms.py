@@ -7,16 +7,9 @@ from django import forms
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Belt Radar
-from beltradar import __title__
 from beltradar.api.schema import OreSchema, OreSchemaResponse
 from beltradar.models import BeltSurveySession, BeltTimer
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class AddSnapshotForm(forms.Form):

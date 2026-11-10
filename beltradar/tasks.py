@@ -9,19 +9,16 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
 from allianceauth.services.tasks import QueueOnce
 
 # AA Belt Radar
-from beltradar import __title__, app_settings
+from beltradar import app_settings
 from beltradar.models import BeltTimer, EveMarketPrice, UserSettings
-from beltradar.providers import AppLogger, retry_task_on_esi_error
+from beltradar.providers import logger, retry_task_on_esi_error
 from beltradar.thirdparty.discord import (
     send_user_notification,
     send_webhook_notification,
 )
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 MAX_RETRIES_DEFAULT = 3
 

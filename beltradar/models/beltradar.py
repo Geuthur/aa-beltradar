@@ -45,12 +45,10 @@ class UserSettings(models.Model):
     class Meta:
         default_permissions = ()  # Remove standard permissions
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name="+",
-        null=True,
-        blank=True,
     )
 
     disable_notifications = models.BooleanField(default=False)

@@ -28,6 +28,10 @@ Section Order:
 
 <!-- AI Changes -->
 
+### Changed
+
+- `UserSettings.user` is now a `OneToOneField` instead of a nullable `ForeignKey`, as in the repository template. Before, a user could end up with several settings rows and `UserSettings.objects.get_or_create(user=...)` raised `MultipleObjectsReturned`. The data migration `0014_remove_invalid_usersettings` keeps only the newest settings row per user (highest ID) and deletes rows without a user; `0015_alter_usersettings_user` then changes the field (migration required).
+
 <!-- Your changes go here -->
 
 ## [2.1.0] - 2026-11-10

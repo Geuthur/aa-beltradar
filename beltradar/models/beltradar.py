@@ -16,10 +16,8 @@ from django.utils.translation import gettext_lazy as _
 
 # Alliance Auth
 from allianceauth.authentication.models import User
-from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
-from beltradar import __title__
 from beltradar.constants import AUTO_TIMER_REMAINING_SHARE
 from beltradar.managers import (
     BeltSurveyEntryManager,
@@ -29,9 +27,7 @@ from beltradar.managers import (
     SessionManager,
 )
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from beltradar.providers import logger
 
 
 def generate_unique_public_id(length=12):

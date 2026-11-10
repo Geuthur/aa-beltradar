@@ -6,14 +6,8 @@ from contextvars import ContextVar
 from functools import wraps
 from time import perf_counter
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Belt Radar
-from beltradar import __title__
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from beltradar.providers import logger
 
 _perf_sections: ContextVar[dict[str, float] | None] = ContextVar(
     "perf_sections", default=None

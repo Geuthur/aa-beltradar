@@ -11,15 +11,13 @@ from django.utils import timezone
 
 # Alliance Auth
 from allianceauth.eveonline.models import EveCharacter
-from allianceauth.services.hooks import get_extension_logger
 
 # AA Belt Radar
-from beltradar import __title__
 from beltradar.app_settings import BELT_RADAR_BULK_BATCH_SIZE
 from beltradar.constants import ARRAY_ORE, ICE_ORE, NORMAL_ORE, PAUSE_RATE_FACTOR
 from beltradar.helpers.eveonline import get_icon_render_url
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
-from beltradar.providers import AppLogger, esi
+from beltradar.providers import esi, logger
 
 if TYPE_CHECKING:
     # Alliance Auth
@@ -32,7 +30,6 @@ if TYPE_CHECKING:
     from beltradar.models import BeltTimer as BeltTimerContext
     from beltradar.models import EveMarketPrice as EveTypePriceContext
 
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 T = TypeVar("T", bound=models.Model)
 

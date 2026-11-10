@@ -28,6 +28,14 @@ Section Order:
 
 <!-- AI Changes -->
 
+<!-- Your changes go here -->
+
+## [2.1.0] - 2026-11-10
+
+### Added
+
+- Updated translations from Weblate.
+
 ### Fixed
 
 - Admin access to all survey sessions and belt timers (`visible_to` and `manage_to`) now checks `beltradar.admin_access` instead of `taxsystem.admin_access`, which was a copy error from aa-taxsystem. Users with `beltradar.admin_access` now get the admin view as intended.
@@ -43,6 +51,8 @@ Section Order:
 - Removed the unused property `EveMarketPrice.get_compressed_price`.
 - Replaced `pook` with `pookx` in the test dependencies.
 - Test factories for Alliance Auth (`UserFactory`, `EveCharacterFactory`, `add_character_to_user`, ...) now come only from `aa-evesde-factory`; the repo keeps just its own `UserMainFactory` and the Belt Radar model factories. Fixed the import section order of the test data module.
+- Tables migrated to TanStack Table v9.
+- Updated `vitest` and `@vitest/coverage-v8` to 5.0.5 (includes the security fix in `@vitest/mocker`).
 - The ESI client now loads a bundled OpenAPI spec (`beltradar/openapi_2026-08-18.json`) instead of downloading it at runtime.
 - Updated the ESI compatibility date from `2025-12-16` to `2026-08-18`.
 - Removed the unused forms `UserSettingsForm`, `DeleteSnapshotForm`, `DeleteSessionForm`, `ModifySessionForm`, `DeleteBeltTimerForm`, `CreateTimerForm` and `ModifyBeltTimerForm`.
@@ -51,7 +61,9 @@ Section Order:
 - The React frontend now uses the shared npm package [aa-geuthur-react](https://github.com/Geuthur/aa-geuthur-react) (1.2.0) instead of its own copies of the table, modal, loader, header, menu and util modules. The app structure follows the repository template (`Main.tsx`, `Routing.tsx`, `constants.ts`), the pages are wrapped by `AuthBase` of the package (`aa-react container`, 640 to 1280 px, `fluidOnSmallScreens` on phones), the navigation menu is the menu of the package, and the stylesheet and the ESLint import rule come from the package. Visible differences: the table footer of the package (page size, status and paging next to each other), flat section headers in the session view, and spinner and error icons in package size.
 - API: the menu, user and settings endpoints follow the contract of `aa-geuthur-react`. `view/menu/` is now `menu/` and delivers `left_links` and `right_links` (the `modals` stay), `view/user/` is now `user/` and additionally delivers `corporation_id`, `corporation_name`, `alliance_id`, `alliance_name` and `is_admin` (the superuser flag; `notification` was removed), and `modify/user/settings/` was replaced by `GET settings/` and `PUT settings/` with a JSON body `{"disable_notifications": bool}`. The data endpoints (`view/session/...`, `view/public-sessions/` and so on) are unchanged.
 
-<!-- Your changes go here -->
+### Removed
+
+- CI: dropped the obsolete `libbz2-dev` install step.
 
 ## [2.0.1] - 2026-10-18
 
@@ -334,4 +346,5 @@ Section Order:
 [1.0.1]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.0...v1.0.1 "v1.0.1"
 [2.0.0]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.1...v2.0.0 "v2.0.0"
 [2.0.1]: https://github.com/Geuthur/aa-beltradar/compare/v2.0.0...v2.0.1 "v2.0.1"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v2.0.1...HEAD "In Development"
+[2.1.0]: https://github.com/Geuthur/aa-beltradar/compare/v2.0.1...v2.1.0 "v2.1.0"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v2.1.0...HEAD "In Development"

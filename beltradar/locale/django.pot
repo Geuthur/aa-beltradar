@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AA Belt Radar\n"
 "Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-beltradar/\n"
-"POT-Creation-Date: 2026-10-18 20:18+0200\n"
+"POT-Creation-Date: 2026-11-10 18:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,25 +17,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: beltradar/api/general.py:32 beltradar/api/general.py:72
-#: beltradar/api/session.py:125 beltradar/api/session.py:199
-#: beltradar/api/session.py:319 beltradar/api/session.py:375
-#: beltradar/api/session.py:429 beltradar/api/snapshot.py:71
-#: beltradar/api/snapshot.py:192 beltradar/api/snapshot.py:244
-#: beltradar/api/timer.py:74 beltradar/api/timer.py:197
-#: beltradar/api/timer.py:243 beltradar/api/timer.py:314
-#: beltradar/api/timer.py:372
+#: beltradar/api/general.py:32 beltradar/api/general.py:83
+#: beltradar/api/general.py:101 beltradar/api/session.py:125
+#: beltradar/api/session.py:199 beltradar/api/session.py:319
+#: beltradar/api/session.py:375 beltradar/api/session.py:429
+#: beltradar/api/snapshot.py:71 beltradar/api/snapshot.py:192
+#: beltradar/api/snapshot.py:244 beltradar/api/timer.py:74
+#: beltradar/api/timer.py:197 beltradar/api/timer.py:243
+#: beltradar/api/timer.py:314 beltradar/api/timer.py:372
 msgid "Permission Denied."
-msgstr ""
-
-#: beltradar/api/general.py:81
-msgid "User settings updated successfully."
-msgstr ""
-
-#: beltradar/api/general.py:84 beltradar/api/session.py:335
-#: beltradar/api/snapshot.py:258 beltradar/api/timer.py:211
-#: beltradar/api/timer.py:274 beltradar/api/timer.py:413
-msgid "Invalid input data. Please check the format and try again."
 msgstr ""
 
 #: beltradar/api/helpers/charts.py:81
@@ -50,17 +40,17 @@ msgstr ""
 msgid "Speed (m³/s)"
 msgstr ""
 
-#: beltradar/api/menu.py:44 beltradar/templates/beltradar/base.html:5
+#: beltradar/api/menu.py:45 beltradar/templates/beltradar/base.html:5
 #: beltradar/templates/beltradar/base.html:9
 #: beltradar/templates/beltradar/navigation/navigation.html:7
 msgid "Belt Radar"
 msgstr ""
 
-#: beltradar/api/menu.py:47
+#: beltradar/api/menu.py:48
 msgid "My Sessions"
 msgstr ""
 
-#: beltradar/api/menu.py:50
+#: beltradar/api/menu.py:51
 msgid "Settings"
 msgstr ""
 
@@ -82,6 +72,12 @@ msgstr ""
 
 #: beltradar/api/session.py:333
 msgid "Session added successfully."
+msgstr ""
+
+#: beltradar/api/session.py:335 beltradar/api/snapshot.py:258
+#: beltradar/api/timer.py:211 beltradar/api/timer.py:274
+#: beltradar/api/timer.py:413
+msgid "Invalid input data. Please check the format and try again."
 msgstr ""
 
 #: beltradar/api/session.py:365 beltradar/api/session.py:419
@@ -157,44 +153,36 @@ msgstr ""
 msgid "Belt timer updated successfully."
 msgstr ""
 
-#: beltradar/forms.py:80
+#: beltradar/forms.py:26
 msgid "Paste the 'Mining Survey' data here."
 msgstr ""
 
-#: beltradar/forms.py:166
+#: beltradar/forms.py:112
 msgid "A name to identify this survey session."
 msgstr ""
 
-#: beltradar/forms.py:168
+#: beltradar/forms.py:114
 msgid "If checked, this session will be visible to other users without a public ID."
 msgstr ""
 
-#: beltradar/forms.py:186
+#: beltradar/forms.py:132
 msgid "The unique identifier for this belt timer. (This is usually the belt's ID in the game.)"
 msgstr ""
 
-#: beltradar/forms.py:188
+#: beltradar/forms.py:134
 msgid "The name of the belt."
 msgstr ""
 
-#: beltradar/forms.py:189
+#: beltradar/forms.py:135
 msgid "The type of belt."
 msgstr ""
 
-#: beltradar/forms.py:190
+#: beltradar/forms.py:136
 msgid "The size of the belt."
 msgstr ""
 
-#: beltradar/forms.py:192
+#: beltradar/forms.py:138
 msgid "If checked, this belt timer will be visible to other users. Otherwise, it will be private."
-msgstr ""
-
-#: beltradar/forms.py:202
-msgid "Disable Notifications"
-msgstr ""
-
-#: beltradar/forms.py:206
-msgid "Check this box to disable notifications for expired belt timers."
 msgstr ""
 
 #: beltradar/models/beltradar.py:81

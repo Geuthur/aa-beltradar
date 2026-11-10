@@ -9,8 +9,65 @@ from evesde_factory.eve_sde import ItemTypeFactory
 from django.utils import timezone
 
 # AA Belt Radar
-from beltradar.models import EveMarketPrice
+from beltradar.models import BeltSurveySession, EveMarketPrice
 from beltradar.tests import AuthTestCase
+from beltradar.tests.testdata.beltradar import BeltSessionFactory, UserMainFactory
+
+
+class TestAccessQuerySetAdminAccess(AuthTestCase):
+    """Test that admin scope of visible_to and manage_to depends on beltradar.admin_access."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.admin = UserMainFactory(
+            permissions=["beltradar.basic_access", "beltradar.admin_access"]
+        )
+        cls.own_session = BeltSessionFactory(owner=cls.user)
+        cls.foreign_private_session = BeltSessionFactory(is_public=False)
+        cls.foreign_public_session = BeltSessionFactory(is_public=True)
+
+    def test_visible_to_should_return_all_sessions_for_admin(self):
+        # when
+        result = BeltSurveySession.objects.visible_to(self.admin)
+        # then
+        self.assertSetEqual(
+            set(result),
+            {
+                self.own_session,
+                self.foreign_private_session,
+                self.foreign_public_session,
+            },
+        )
+
+    def test_visible_to_should_not_return_foreign_private_sessions_for_basic_user(
+        self,
+    ):
+        # when
+        result = BeltSurveySession.objects.visible_to(self.user)
+        # then
+        self.assertSetEqual(
+            set(result), {self.own_session, self.foreign_public_session}
+        )
+
+    def test_manage_to_should_return_all_sessions_for_admin(self):
+        # when
+        result = BeltSurveySession.objects.manage_to(self.admin)
+        # then
+        self.assertSetEqual(
+            set(result),
+            {
+                self.own_session,
+                self.foreign_private_session,
+                self.foreign_public_session,
+            },
+        )
+
+    def test_manage_to_should_return_only_own_sessions_for_basic_user(self):
+        # when
+        result = BeltSurveySession.objects.manage_to(self.user)
+        # then
+        self.assertSetEqual(set(result), {self.own_session})
 
 
 class TestEveMarketPriceManagerUpdateFromEsi(AuthTestCase):

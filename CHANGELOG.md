@@ -30,6 +30,7 @@ Section Order:
 
 ### Fixed
 
+- Admin access to all survey sessions and belt timers (`visible_to` and `manage_to`) now checks `beltradar.admin_access` instead of `taxsystem.admin_access`, which was a copy error from aa-taxsystem. Users with `beltradar.admin_access` now get the admin view as intended.
 - Re-applied the real Weblate translations (about 21 to 24 per language, plus `cs` and `sk`) that were lost when the bundled package translations emptied the pre-filled values, so Weblate can rebase its branch again. Untranslated strings stay empty.
 - Market price update no longer fails or stores `0.00` when an ESI entry has no `adjusted_price`; `EveMarketPrice.adjusted_price` is now nullable (migration required)
 - Market price update no longer aborts when ESI returns a type missing from the local SDE; these types are skipped and logged as a warning, all other prices are still stored.

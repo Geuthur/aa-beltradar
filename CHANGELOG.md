@@ -28,6 +28,10 @@ Section Order:
 
 <!-- AI Changes -->
 
+### Fixed
+
+- Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` gives each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis (e.g. `GET /markets/prices`) were returned instead of the pook responses, and the market price tests in `test_managers.py` failed until the cache entry expired. Redis stays the cache backend because Alliance Auth needs `django_redis`.
+
 ### Changed
 
 - `UserSettings.user` is now a `OneToOneField` instead of a nullable `ForeignKey`, as in the repository template. Before, a user could end up with several settings rows and `UserSettings.objects.get_or_create(user=...)` raised `MultipleObjectsReturned`. The data migration `0014_remove_invalid_usersettings` keeps only the newest settings row per user (highest ID) and deletes rows without a user; `0015_alter_usersettings_user` then changes the field (migration required).

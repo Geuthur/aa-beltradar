@@ -32,6 +32,10 @@ Section Order:
 
 - Optional extra `tests-allianceauth-development` (test packages plus the Alliance Auth 6 pre-release) with separate test settings under `testauth/settings/development/` for the new tox environment `allianceauth-development` and `make tox-tests-development`; a non-blocking CI job "AA Development" runs it on Python 3.13 and 3.14
 
+### Fixed
+
+- Tests against the Alliance Auth 6 pre-release no longer share the Redis cache with other processes. `testauth/settings/development/local.py` now also gives each test run its own random cache `KEY_PREFIX`, as `testauth/settings/local.py` does on master (#142).
+
 <!-- Your changes go here -->
 
 ## [2.1.0] - 2026-11-10

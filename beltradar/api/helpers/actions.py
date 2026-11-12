@@ -6,9 +6,6 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import ObjectDoesNotExist
 from django.urls import reverse
 
-# Alliance Auth
-from allianceauth.authentication.decorators import permissions_required
-
 # AA Belt Radar
 from beltradar.api import schema
 from beltradar.api.helpers.core import (
@@ -16,6 +13,7 @@ from beltradar.api.helpers.core import (
     get_manage_session_or_none,
     get_session_or_none,
 )
+from beltradar.models import General
 
 if TYPE_CHECKING:
     # AA Belt Radar
@@ -25,13 +23,8 @@ if TYPE_CHECKING:
 # The API only tells which actions the user may perform. Icon, title and texts live in the frontend.
 
 
-@permissions_required(
-    [
-        "beltradar.basic_access",
-    ]
-)
 def session_manage_actions(
-    request: WSGIRequest,  # pylint: disable=unused-argument
+    request: WSGIRequest,
     session: "BeltSurveySession",
 ) -> schema.ActionSchema | None:
     """
@@ -43,6 +36,9 @@ def session_manage_actions(
     Returns:
         ActionSchema | None: The actions for the session, or None if the user may not manage it.
     """
+    if not General.objects.has_basic_access(request.user):
+        return None
+
     perms, session = get_manage_session_or_none(
         request=request, public_id=session.public_id
     )
@@ -72,13 +68,8 @@ def session_manage_actions(
     )
 
 
-@permissions_required(
-    [
-        "beltradar.basic_access",
-    ]
-)
 def session_belt_timer_actions(
-    request: WSGIRequest,  # pylint: disable=unused-argument
+    request: WSGIRequest,
     public_id: str,
 ) -> schema.ActionSchema | None:
     """
@@ -90,6 +81,9 @@ def session_belt_timer_actions(
     Returns:
         ActionSchema | None: The belt timer actions, or None if none are applicable.
     """
+    if not General.objects.has_basic_access(request.user):
+        return None
+
     perms, session = get_manage_session_or_none(request=request, public_id=public_id)
     if not perms:
         return None
@@ -127,13 +121,8 @@ def session_belt_timer_actions(
     return None
 
 
-@permissions_required(
-    [
-        "beltradar.basic_access",
-    ]
-)
 def belt_timer_manage_actions(
-    request: WSGIRequest,  # pylint: disable=unused-argument
+    request: WSGIRequest,
     timer: "BeltTimer",
 ) -> schema.ActionSchema | None:
     """
@@ -145,6 +134,9 @@ def belt_timer_manage_actions(
     Returns:
         ActionSchema | None: The actions for the belt timer, or None if the user may not manage it.
     """
+    if not General.objects.has_basic_access(request.user):
+        return None
+
     perms = get_manage_belt_timer_or_none(request=request, timer_pk=timer.pk)[0]
     if not perms:
         return None
@@ -189,7 +181,7 @@ def get_snapshot_add_action(
 
 
 def get_snapshot_delete_action(
-    request: WSGIRequest,  # pylint: disable=unused-argument
+    request: WSGIRequest,
     public_id: str,
     identifier: str = None,
 ) -> schema.ModalSchema | None:

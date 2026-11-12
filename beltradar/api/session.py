@@ -20,6 +20,7 @@ from beltradar.api.helpers.core import (
     get_session_or_none,
 )
 from beltradar.helpers.eveonline import get_character_portrait_url
+from beltradar.models import General
 from beltradar.models.beltradar import (
     BeltSurveySession,
     BeltSurveySnapshot,
@@ -116,7 +117,7 @@ class BeltRadarApiEndpoints:
                 404: An error message if the survey session is not found or not public.
             """
             # pylint: disable=duplicate-code
-            if not request.user.has_perm("beltradar.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             try:
@@ -310,7 +311,7 @@ class BeltRadarApiEndpoints:
                 400: An error message if the request data is invalid.
             """
             # Check if the user has permission to add entries to this survey session
-            if not request.user.has_perm("beltradar.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 msg = _("Permission Denied.")
                 return HTTPStatus.FORBIDDEN, {"error": msg}
 

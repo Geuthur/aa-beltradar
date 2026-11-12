@@ -34,6 +34,22 @@ class TestActionHelper(AuthTestCase):
         super().setUpClass()
         cls.timestamp = timezone.make_aware(datetime(2024, 1, 1, 12, 0, 0))
 
+    def test_actions_should_be_none_without_basic_access(self):
+        """Users without basic_access get no actions, not even for their own objects."""
+        # Test Data
+        user = UserMainFactory(permissions=[])
+        session = BeltSessionFactory(owner=user)
+        timer = BeltTimerFactory(owner=user)
+        request = self.factory.get(reverse("beltradar:react_base"))
+        request.user = user
+
+        # Test Action / Expected Result
+        self.assertIsNone(session_manage_actions(request=request, session=session))
+        self.assertIsNone(
+            session_belt_timer_actions(request=request, public_id=session.public_id)
+        )
+        self.assertIsNone(belt_timer_manage_actions(request=request, timer=timer))
+
     def test_session_manage_actions_should_all(self):
         """Test session manage actions should show all actions."""
         # Test Data

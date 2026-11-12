@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 # AA Belt Radar
 from beltradar.api import schema
 from beltradar.helpers.eveonline import get_character_portrait_url
+from beltradar.models import General
 from beltradar.models.beltradar import UserSettings
 
 
@@ -28,7 +29,7 @@ class BeltRadarApiEndpoints:
             summary="Get current user",
         )
         def get_user(request):
-            if not request.user.has_perm("beltradar.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             try:
@@ -79,7 +80,7 @@ class BeltRadarApiEndpoints:
             summary="Get current user's settings",
         )
         def get_user_settings(request):
-            if not request.user.has_perm("beltradar.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings = UserSettings.objects.get_or_create(user=request.user)[0]
@@ -97,7 +98,7 @@ class BeltRadarApiEndpoints:
             summary="Update current user's settings",
         )
         def update_user_settings(request, payload: schema.UserSettingsUpdateRequest):
-            if not request.user.has_perm("beltradar.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             settings = UserSettings.objects.get_or_create(user=request.user)[0]

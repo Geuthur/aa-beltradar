@@ -35,21 +35,42 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=models.Model)
 
 
+class GeneralManager(models.Manager):
+    """Manager for General: the app's own permission rules.
+
+    The API, its helpers and the menu hook check permissions only through this
+    manager; the Django views keep `@permission_required("beltradar.basic_access")`.
+    `AccessQuerySet` and `AccessManager` ask it for the admin rule.
+    General is unmanaged, so this manager never queries the database.
+    """
+
+    def has_basic_access(self, user: User) -> bool:
+        """True if the user may use the app (basic_access)."""
+        return bool(user.has_perm("beltradar.basic_access"))
+
+    def has_management_access(self, user: User) -> bool:
+        """True if the user may manage (manage_access or admin_access)."""
+        return bool(
+            user.has_perm("beltradar.manage_access")
+            or user.has_perm("beltradar.admin_access")
+        )
+
+    def has_admin_access(self, user: User) -> bool:
+        """True for superusers and users with admin_access: they see everything."""
+        return bool(user.is_superuser or user.has_perm("beltradar.admin_access"))
+
+
 class AccessQuerySet(models.QuerySet[T], Generic[T]):
     """QuerySet with access control methods for Belt Radar models."""
 
     def visible_to(self, user):
         """Get all survey sessions visible to the user."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all survey sessions for superuser %s.",
-                user,
-            )
-            return self
+        # AA Belt Radar
+        from beltradar.models import General  # pylint: disable=all
 
-        if user.has_perm("beltradar.admin_access"):
-            logger.debug("Returning all survey sessions for admin user %s.", user)
+        # superusers get all visible
+        if General.objects.has_admin_access(user):
+            logger.debug("Returning all survey sessions for admin %s.", user)
             return self
 
         try:
@@ -72,16 +93,12 @@ class AccessQuerySet(models.QuerySet[T], Generic[T]):
 
     def manage_to(self, user):
         """Get all survey sessions that the user can manage."""
-        # superusers get all visible
-        if user.is_superuser:
-            logger.debug(
-                "Returning all survey sessions for superuser %s.",
-                user,
-            )
-            return self
+        # AA Belt Radar
+        from beltradar.models import General  # pylint: disable=all
 
-        if user.has_perm("beltradar.admin_access"):
-            logger.debug("Returning all survey sessions for admin user %s.", user)
+        # superusers get all visible
+        if General.objects.has_admin_access(user):
+            logger.debug("Returning all survey sessions for admin %s.", user)
             return self
 
         try:
@@ -116,13 +133,13 @@ class AccessManager(models.Manager[T], Generic[T]):
 
     @staticmethod
     def visible_eve_characters(user):
-        qs = EveCharacter.objects.get_queryset()
-        if user.is_superuser:
-            logger.debug("Returning all characters for superuser %s.", user)
-            return qs.all()
+        """EveCharacters the user may pick."""
+        # AA Belt Radar
+        from beltradar.models import General  # pylint: disable=all
 
-        if user.has_perm("beltradar.admin_access"):
-            logger.debug("Returning all characters for %s.", user)
+        qs = EveCharacter.objects.get_queryset()
+        if General.objects.has_admin_access(user):
+            logger.debug("Returning all characters for admin %s.", user)
             return qs.all()
 
         try:
@@ -568,17 +585,3 @@ class EveMarketPriceManager(models.Manager["EveTypePriceContext"]):
                 _new_price, batch_size=BELT_RADAR_BULK_BATCH_SIZE, ignore_conflicts=True
             )
         return len(_update_price) + len(_new_price)
-
-
-class GeneralManager(models.Manager):
-    """Manager for General: app rules that Django cannot check itself.
-
-    General is unmanaged, so this manager never queries the database.
-    """
-
-    def has_management_access(self, user: User) -> bool:
-        """True if the user may manage (manage_access or admin_access)."""
-        return bool(
-            user.has_perm("beltradar.manage_access")
-            or user.has_perm("beltradar.admin_access")
-        )

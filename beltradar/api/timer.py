@@ -18,6 +18,7 @@ from beltradar.api.helpers.core import (
     get_manage_belt_timer_or_none,
     get_session_or_none,
 )
+from beltradar.models import General
 from beltradar.models.beltradar import (
     BeltSurveySnapshot,
     BeltTimer,
@@ -187,7 +188,7 @@ class BeltRadarApiEndpoints:
                 404: An error message if the survey session is not found.
             """
             # Check if the user has permission to add entries to this survey session
-            if not request.user.has_perm("beltradar.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 msg = _("Permission Denied.")
                 return HTTPStatus.FORBIDDEN, {"error": msg}
 

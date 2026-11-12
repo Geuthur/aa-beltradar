@@ -8,6 +8,9 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth import hooks
 from allianceauth.services.hooks import MenuItemHook, UrlHook
 
+# AA Belt Radar
+from beltradar.models.general import General
+
 from . import app_settings, urls
 
 
@@ -23,7 +26,7 @@ class BeltRadarMenuItem(MenuItemHook):
         )
 
     def render(self, request):
-        if request.user.has_perm("beltradar.basic_access"):
+        if General.has_perm(request.user, General.Permission.BASIC_ACCESS):
             return MenuItemHook.render(self, request)
         return ""
 

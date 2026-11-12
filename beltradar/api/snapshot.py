@@ -32,6 +32,7 @@ from beltradar.models.beltradar import (
     EveMarketPrice,
     generate_unique_public_id,
 )
+from beltradar.models.general import General
 
 
 class BeltRadarApiEndpoints:
@@ -61,7 +62,7 @@ class BeltRadarApiEndpoints:
                 404: An error message if the survey session is not found.
             """
             # pylint: disable=duplicate-code
-            if not request.user.has_perm("beltradar.basic_access"):
+            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             # Check if the survey session exists

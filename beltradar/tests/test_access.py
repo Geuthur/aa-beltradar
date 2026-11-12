@@ -8,7 +8,9 @@ from django.urls import reverse
 
 # AA Belt Radar
 from beltradar import views
+from beltradar.auth_hooks import BeltRadarMenuItem
 from beltradar.tests import AuthTestCase
+from beltradar.tests.testdata.beltradar import UserMainFactory
 
 MODULE_PATH = "beltradar.views."
 
@@ -64,3 +66,17 @@ class TestViewAccess(AuthTestCase):
         """
         response = self.client.get(reverse("beltradar:react_base"))
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+
+class TestMenuHook(AuthTestCase):
+    """The menu entry follows basic_access, checked through the GeneralManager."""
+
+    def test_render_should_show_entry_with_basic_access(self):
+        request = self.factory.get("/")
+        request.user = self.user
+        self.assertNotEqual(BeltRadarMenuItem().render(request), "")
+
+    def test_render_should_hide_entry_without_basic_access(self):
+        request = self.factory.get("/")
+        request.user = UserMainFactory(permissions=[])
+        self.assertEqual(BeltRadarMenuItem().render(request), "")

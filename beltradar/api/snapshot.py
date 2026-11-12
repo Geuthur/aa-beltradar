@@ -25,6 +25,7 @@ from beltradar.api.helpers.charts import (
 from beltradar.api.helpers.core import (
     get_session_or_none,
 )
+from beltradar.models import General
 from beltradar.models.beltradar import (
     BeltSurveyEntry,
     BeltSurveySession,
@@ -61,7 +62,7 @@ class BeltRadarApiEndpoints:
                 404: An error message if the survey session is not found.
             """
             # pylint: disable=duplicate-code
-            if not request.user.has_perm("beltradar.basic_access"):
+            if not General.objects.has_basic_access(request.user):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             # Check if the survey session exists

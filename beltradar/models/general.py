@@ -4,9 +4,14 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+# AA Belt Radar
+from beltradar.managers import GeneralManager
+
 
 class General(models.Model):
     """General model for app permissions"""
+
+    objects = GeneralManager()
 
     class Meta:
         managed = False

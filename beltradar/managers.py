@@ -10,6 +10,7 @@ from django.db import models
 from django.utils import timezone
 
 # Alliance Auth
+from allianceauth.authentication.models import User
 from allianceauth.eveonline.models import EveCharacter
 
 # AA Belt Radar
@@ -567,3 +568,17 @@ class EveMarketPriceManager(models.Manager["EveTypePriceContext"]):
                 _new_price, batch_size=BELT_RADAR_BULK_BATCH_SIZE, ignore_conflicts=True
             )
         return len(_update_price) + len(_new_price)
+
+
+class GeneralManager(models.Manager):
+    """Manager for General: app rules that Django cannot check itself.
+
+    General is unmanaged, so this manager never queries the database.
+    """
+
+    def has_management_access(self, user: User) -> bool:
+        """True if the user may manage (manage_access or admin_access)."""
+        return bool(
+            user.has_perm("beltradar.manage_access")
+            or user.has_perm("beltradar.admin_access")
+        )

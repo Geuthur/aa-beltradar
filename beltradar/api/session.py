@@ -24,7 +24,6 @@ from beltradar.models.beltradar import (
     BeltSurveySession,
     BeltSurveySnapshot,
 )
-from beltradar.models.general import General
 from beltradar.providers import logger
 
 
@@ -117,7 +116,7 @@ class BeltRadarApiEndpoints:
                 404: An error message if the survey session is not found or not public.
             """
             # pylint: disable=duplicate-code
-            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+            if not request.user.has_perm("beltradar.basic_access"):
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
 
             try:
@@ -311,7 +310,7 @@ class BeltRadarApiEndpoints:
                 400: An error message if the request data is invalid.
             """
             # Check if the user has permission to add entries to this survey session
-            if not General.has_perm(request.user, General.Permission.BASIC_ACCESS):
+            if not request.user.has_perm("beltradar.basic_access"):
                 msg = _("Permission Denied.")
                 return HTTPStatus.FORBIDDEN, {"error": msg}
 

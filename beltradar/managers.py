@@ -16,7 +16,6 @@ from allianceauth.eveonline.models import EveCharacter
 from beltradar.app_settings import BELT_RADAR_BULK_BATCH_SIZE
 from beltradar.constants import ARRAY_ORE, ICE_ORE, NORMAL_ORE, PAUSE_RATE_FACTOR
 from beltradar.helpers.eveonline import get_icon_render_url
-from beltradar.models.general import General
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.providers import esi, logger
 
@@ -48,7 +47,7 @@ class AccessQuerySet(models.QuerySet[T], Generic[T]):
             )
             return self
 
-        if General.has_perm(user, General.Permission.ADMIN_ACCESS):
+        if user.has_perm("beltradar.admin_access"):
             logger.debug("Returning all survey sessions for admin user %s.", user)
             return self
 
@@ -80,7 +79,7 @@ class AccessQuerySet(models.QuerySet[T], Generic[T]):
             )
             return self
 
-        if General.has_perm(user, General.Permission.ADMIN_ACCESS):
+        if user.has_perm("beltradar.admin_access"):
             logger.debug("Returning all survey sessions for admin user %s.", user)
             return self
 
@@ -121,7 +120,7 @@ class AccessManager(models.Manager[T], Generic[T]):
             logger.debug("Returning all characters for superuser %s.", user)
             return qs.all()
 
-        if General.has_perm(user, General.Permission.ADMIN_ACCESS):
+        if user.has_perm("beltradar.admin_access"):
             logger.debug("Returning all characters for %s.", user)
             return qs.all()
 

@@ -16,7 +16,6 @@ from beltradar.api.helpers.core import (
     get_manage_session_or_none,
     get_session_or_none,
 )
-from beltradar.models.general import General
 
 if TYPE_CHECKING:
     # AA Belt Radar
@@ -26,7 +25,11 @@ if TYPE_CHECKING:
 # The API only tells which actions the user may perform. Icon, title and texts live in the frontend.
 
 
-@permissions_required([General.get_perm(General.Permission.BASIC_ACCESS)])
+@permissions_required(
+    [
+        "beltradar.basic_access",
+    ]
+)
 def session_manage_actions(
     request: WSGIRequest,  # pylint: disable=unused-argument
     session: "BeltSurveySession",
@@ -69,7 +72,11 @@ def session_manage_actions(
     )
 
 
-@permissions_required([General.get_perm(General.Permission.BASIC_ACCESS)])
+@permissions_required(
+    [
+        "beltradar.basic_access",
+    ]
+)
 def session_belt_timer_actions(
     request: WSGIRequest,  # pylint: disable=unused-argument
     public_id: str,
@@ -120,7 +127,11 @@ def session_belt_timer_actions(
     return None
 
 
-@permissions_required([General.get_perm(General.Permission.BASIC_ACCESS)])
+@permissions_required(
+    [
+        "beltradar.basic_access",
+    ]
+)
 def belt_timer_manage_actions(
     request: WSGIRequest,  # pylint: disable=unused-argument
     timer: "BeltTimer",

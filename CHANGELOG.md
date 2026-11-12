@@ -24,7 +24,7 @@ Section Order:
 ### Fixed
 ### Changed
 
-- `General` now defines a `Permission` `TextChoices` and the helpers `get_perm`, `has_perm`, `has_any_perm` and `has_management_access`, as in the repository template. Views, API, menu hook and managers check rights only through `General.has_perm` / `General.get_perm` instead of permission strings. The permission codenames (`basic_access`, `manage_access`, `admin_access`) and texts are unchanged, so existing group assignments keep working. Migration `0016_alter_general_permissions` only updates the model options.
+- A test now checks that every permission string used in the code (`has_perm`, `permission_required`, `permissions_required`) matches a codename defined in `General.Meta.permissions` with the correct app label, so copy errors like `taxsystem.admin_access` are caught. The permissions stay defined in `General` as a plain list of `(codename, text)` tuples and are checked directly through Django.
 -->
 
 <!-- AI Changes -->

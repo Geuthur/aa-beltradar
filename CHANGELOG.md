@@ -24,7 +24,7 @@ Section Order:
 ### Fixed
 ### Changed
 
-- A test now checks that every permission string used in the code (`has_perm`, `permission_required`, `permissions_required`) matches a codename defined in `General.Meta.permissions` with the correct app label, so copy errors like `taxsystem.admin_access` are caught. The permissions stay defined in `General` as a plain list of `(codename, text)` tuples and are checked directly through Django.
+- `General.Meta.permissions` stays the single place that defines the permissions (plain tuples); the codenames and texts are unchanged and no migration is needed. A new test compares every permission string used in the code (`<app_label>.<codename>`) with it, so a wrong app label or codename, as in the former `taxsystem.admin_access`, is found by the tests. `General.objects.has_management_access(user)` (manage or admin access) is added for the app rule that Django cannot check itself; it does not query the database.
 -->
 
 <!-- AI Changes -->

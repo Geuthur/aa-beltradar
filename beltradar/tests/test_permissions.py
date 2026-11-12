@@ -8,6 +8,8 @@ from django.test import TestCase
 # AA Belt Radar
 import beltradar
 from beltradar.models import General
+from beltradar.tests import AuthTestCase
+from beltradar.tests.testdata.beltradar import UserMainFactory
 
 PERMISSION_CALLS = {
     "has_perm",
@@ -61,3 +63,23 @@ class TestPermissionStrings(TestCase):
                 self.assertIn(
                     permission, defined, msg=f"Unknown permission used in {files}"
                 )
+
+    def test_codenames_should_stay_unchanged(self):
+        self.assertListEqual(
+            [codename for codename, _label in General._meta.permissions],
+            ["basic_access", "manage_access", "admin_access"],
+        )
+
+
+class TestGeneralManager(AuthTestCase):
+    """Test the app rules of the GeneralManager."""
+
+    def test_has_management_access_should_accept_manage_and_admin(self):
+        for permission, expected in (
+            ("beltradar.manage_access", True),
+            ("beltradar.admin_access", True),
+            ("beltradar.basic_access", False),
+        ):
+            with self.subTest(permission=permission):
+                user = UserMainFactory(permissions=[permission])
+                self.assertEqual(General.objects.has_management_access(user), expected)

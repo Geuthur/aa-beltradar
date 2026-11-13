@@ -39,6 +39,8 @@ Section Order:
 - `UserSettings.user` is now a `OneToOneField` instead of a nullable `ForeignKey`, as in the repository template. Before, a user could end up with several settings rows and `UserSettings.objects.get_or_create(user=...)` raised `MultipleObjectsReturned`. The data migration `0014_remove_invalid_usersettings` keeps only the newest settings row per user (highest ID) and deletes rows without a user; `0015_alter_usersettings_user` then changes the field (migration required).
 - The `AppLogger` is created only once in `beltradar/providers.py`. `api/session.py`, `api/helpers/charts.py`, `decorators.py`, `managers.py`, `models/beltradar.py`, `tasks.py` and `thirdparty/discord.py` import it with `from beltradar.providers import logger` instead of building their own. `api/helpers/actions.py`, `api/helpers/core.py`, `api/snapshot.py`, `api/timer.py`, `forms.py` and `views.py` created a logger they never used; it is removed there. Log records now carry the logger name `beltradar.providers` instead of the module name; the `[Belt Radar]` prefix is unchanged.
 
+- Row and header action buttons are now react-bootstrap `ButtonGroup`s with small icon buttons; `aa-geuthur-react` is raised to `^1.4.0`. Behaviour, permissions and API are unchanged.
+
 <!-- Your changes go here -->
 
 ## [2.1.0] - 2026-11-10

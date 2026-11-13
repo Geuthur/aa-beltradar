@@ -7,6 +7,7 @@ import type { CellContext } from "@tanstack/react-table";
 import { renderTooltip } from "aa-geuthur-react";
 import type { BaseTableFeatures } from "aa-geuthur-react";
 import { Eye } from "lucide-react";
+import { Button, ButtonGroup } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
@@ -26,13 +27,15 @@ export function IconButton({ icon, onClick, title, color, classProps }: ButtonPr
         <>
             {renderTooltip(
                 title,
-                <button
+                <Button
                     type="button"
+                    size="sm"
+                    variant={color}
                     onClick={onClick}
                     aria-label={title}
-                    className={`aa-btn aa-btn-sm aa-btn-${color} me-2 ${classProps ?? ""}`}>
+                    className={classProps}>
                     {icon}
-                </button>
+                </Button>
             )}
         </>
     );
@@ -95,7 +98,7 @@ export function EntityTableActions<T extends EntityWithActions>({
                 : true;
 
     return (
-        <>
+        <ButtonGroup size="sm">
             {canViewSession && (
                 <IconButton
                     icon={<Eye size={14} aria-hidden="true" />}
@@ -124,7 +127,7 @@ export function EntityTableActions<T extends EntityWithActions>({
                     }}
                 />
             )}
-        </>
+        </ButtonGroup>
     );
 }
 

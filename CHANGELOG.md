@@ -36,8 +36,12 @@ Section Order:
 ### Changed
 
 - The API, its helpers and the menu hook now check permissions only through `General.objects` (the `GeneralManager`), and `visible_to`, `manage_to` and `visible_eve_characters` ask `General.objects.has_admin_access(user)` (superuser or `admin_access`) instead of checking `user.is_superuser` and `user.has_perm(...)` themselves; they only filter rows. New `General.objects.has_basic_access(user)` and `has_admin_access(user)`. The Django views keep their Django permission checks. The action helpers in `api/helpers/actions.py` return `None` for users without `basic_access` instead of the redirect response of the former `permissions_required` decorator. No permission string, migration or endpoint changed.
+
 - `UserSettings.user` is now a `OneToOneField` instead of a nullable `ForeignKey`, as in the repository template. Before, a user could end up with several settings rows and `UserSettings.objects.get_or_create(user=...)` raised `MultipleObjectsReturned`. The data migration `0014_remove_invalid_usersettings` keeps only the newest settings row per user (highest ID) and deletes rows without a user; `0015_alter_usersettings_user` then changes the field (migration required).
+
 - The `AppLogger` is created only once in `beltradar/providers.py`. `api/session.py`, `api/helpers/charts.py`, `decorators.py`, `managers.py`, `models/beltradar.py`, `tasks.py` and `thirdparty/discord.py` import it with `from beltradar.providers import logger` instead of building their own. `api/helpers/actions.py`, `api/helpers/core.py`, `api/snapshot.py`, `api/timer.py`, `forms.py` and `views.py` created a logger they never used; it is removed there. Log records now carry the logger name `beltradar.providers` instead of the module name; the `[Belt Radar]` prefix is unchanged.
+
+- Row and header action buttons are now react-bootstrap `ButtonGroup`s with small icon buttons; `aa-geuthur-react` is raised to `^1.4.0`. Behaviour, permissions and API are unchanged.
 
 <!-- Your changes go here -->
 

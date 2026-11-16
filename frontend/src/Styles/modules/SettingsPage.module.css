@@ -78,7 +78,7 @@
     font-size: var(--aa-font-size-xs);
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
     .setting-row {
         align-items: flex-start;
     }

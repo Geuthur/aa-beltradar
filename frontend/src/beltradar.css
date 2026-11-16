@@ -1,4 +1,4 @@
-@import './index.css';
+@import url('./index.css');
 
 /* Belt Radar specific styles on top of the shared AA design (index.css). */
 
@@ -26,9 +26,6 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-}
-
-.br-toolbar {
     margin-right: 0 !important;
 }
 

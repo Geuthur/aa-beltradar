@@ -44,6 +44,8 @@ Section Order:
 
 - Row and header action buttons are now react-bootstrap `ButtonGroup`s with small icon buttons; `aa-geuthur-react` is raised to `^1.4.0`. Behaviour, permissions and API are unchanged.
 
+- The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed (hex colors as equivalent `rgb()`), the panel blur (`backdrop-filter`) now also applies in Chrome and Firefox.
+
 <!-- Your changes go here -->
 
 ## [2.1.0] - 2026-11-10

@@ -68,6 +68,9 @@ class TestPermissionStrings(TestCase):
                     permission, defined, msg=f"Unknown permission used in {files}"
                 )
 
+    def test_views_should_require_basic_access(self):
+        self.assertIn("views.py", _used_permissions()["beltradar.basic_access"])
+
     def test_codenames_should_stay_unchanged(self):
         self.assertListEqual(
             [codename for codename, _label in General._meta.permissions],

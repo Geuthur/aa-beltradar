@@ -32,6 +32,7 @@ Section Order:
 ### Fixed
 
 - Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` gives each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis (e.g. `GET /markets/prices`) were returned instead of the pook responses, and the market price tests in `test_managers.py` failed until the cache entry expired. Redis stays the cache backend because Alliance Auth needs `django_redis`.
+- The app page (`react_base`) now requires `beltradar.basic_access` like the repository template and no longer fails with a server error for users without a main character. The unused `character_id` route and context value are removed.
 - Dev dependencies: `minimatch` raised to 11 (GHSA-g3hv-75wg-m249) via `eslint` `^10.15.0` and `typescript-eslint` `^8.72.2`, and `zod` to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
 
 ### Changed

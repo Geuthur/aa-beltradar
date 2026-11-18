@@ -14,6 +14,7 @@ from evesde_factory.utils import add_character_to_user
 # AA Belt Radar
 from beltradar.models import BeltSurveyEntry, BeltSurveySession, BeltTimer
 from beltradar.models.beltradar import BeltSurveySnapshot
+from beltradar.models.general import UserSettings
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 
 
@@ -39,6 +40,19 @@ class UserMainFactory(UserFactory):
             is_main=True,
             scopes=obj._main_character_scopes,
         )
+
+
+class UserSettingsFactory(
+    factory.django.DjangoModelFactory, metaclass=BaseMetaFactory[UserSettings]
+):
+    """Generate a UserSettings object."""
+
+    class Meta:
+        model = UserSettings
+        django_get_or_create = ("user",)
+
+    user = factory.SubFactory(UserMainFactory)
+    disable_notifications = False
 
 
 class BeltSessionFactory(

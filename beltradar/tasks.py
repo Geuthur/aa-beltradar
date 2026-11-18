@@ -13,7 +13,7 @@ from allianceauth.services.tasks import QueueOnce
 
 # AA Belt Radar
 from beltradar import app_settings
-from beltradar.models import BeltTimer, EveMarketPrice, UserSettings
+from beltradar.models import BeltTimer, EveMarketPrice
 from beltradar.providers import logger, retry_task_on_esi_error
 from beltradar.thirdparty.discord import (
     send_user_notification,
@@ -53,13 +53,6 @@ def update_all_belt_radar(runs: int = 0):
     now = timezone.now()
 
     for belt_timer in belt_timers:
-        # Get or create user settings for the session owner
-        user_settings = UserSettings.objects.get_or_create(user=belt_timer.owner)[0]
-
-        # Create a list of notifications for the user if the session has any timers that have expired
-        if not user_notifications.get(user_settings.user.pk):
-            user_notifications[user_settings.user.pk] = []
-
         # Check if the timer has expired and if a notification has not been sent yet
         if (
             belt_timer.eta
@@ -77,9 +70,9 @@ def update_all_belt_radar(runs: int = 0):
                 belt_size=belt_timer.get_belt_size_display(),
             )
 
-            # Add the notification message to the user's list of notifications if notifications are not disabled
-            if user_settings.disable_notifications is False:
-                user_notifications[user_settings.user.pk].append(msg)
+            # Collect the message for the owner; `send_user_notification` skips
+            # users who disabled notifications.
+            user_notifications.setdefault(belt_timer.owner_id, []).append(msg)
 
             # Send a webhook notification if a webhook URL is configured in the app settings.
             if belt_timer.is_public is True:

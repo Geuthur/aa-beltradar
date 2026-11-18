@@ -38,6 +38,8 @@ Section Order:
 
 ### Changed
 
+- Discord notifications: `thirdparty/discord.py` is aligned with the aa-example building block (embed colours in the module instead of `constants.py`, `send_user_notification` itself skips users with `disable_notifications`, so `update_all_belt_radar` no longer checks it or creates `UserSettings` rows); `UserSettings` moves to `models/general.py` (no migration). The webhook for public timers is unchanged.
+
 - The API, its helpers and the menu hook now check permissions only through `General.objects` (the `GeneralManager`), and `visible_to`, `manage_to` and `visible_eve_characters` ask `General.objects.has_admin_access(user)` (superuser or `admin_access`) instead of checking `user.is_superuser` and `user.has_perm(...)` themselves; they only filter rows. New `General.objects.has_basic_access(user)` and `has_admin_access(user)`. The Django views keep their Django permission checks. The action helpers in `api/helpers/actions.py` return `None` for users without `basic_access` instead of the redirect response of the former `permissions_required` decorator. No permission string, migration or endpoint changed.
 
 - `UserSettings.user` is now a `OneToOneField` instead of a nullable `ForeignKey`, as in the repository template. Before, a user could end up with several settings rows and `UserSettings.objects.get_or_create(user=...)` raised `MultipleObjectsReturned`. The data migration `0014_remove_invalid_usersettings` keeps only the newest settings row per user (highest ID) and deletes rows without a user; `0015_alter_usersettings_user` then changes the field (migration required).

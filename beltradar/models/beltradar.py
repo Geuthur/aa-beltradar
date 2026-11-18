@@ -37,19 +37,6 @@ def generate_unique_public_id(length=12):
     return unique_id[:length]
 
 
-class UserSettings(models.Model):
-    class Meta:
-        default_permissions = ()  # Remove standard permissions
-
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name="+",
-    )
-
-    disable_notifications = models.BooleanField(default=False)
-
-
 class BeltSurveySession(models.Model):
     """Represents a single survey session for a belt, which can have multiple entries (BeltSurveyEntry)."""
 

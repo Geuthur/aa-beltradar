@@ -4,6 +4,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+# Alliance Auth
+from allianceauth.authentication.models import User
+
 # AA Belt Radar
 from beltradar.managers import GeneralManager
 
@@ -23,3 +26,16 @@ class General(models.Model):
             ("admin_access", _("Admin access to Belt Radar")),
         )
         default_permissions = ()  # Remove standard permissions
+
+
+class UserSettings(models.Model):
+    class Meta:
+        default_permissions = ()  # Remove standard permissions
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="+",
+    )
+
+    disable_notifications = models.BooleanField(default=False)

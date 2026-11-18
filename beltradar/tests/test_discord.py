@@ -519,3 +519,20 @@ class TestSendWebhookNotification(NoSocketsTestCase):
             countdown=2,
             max_retries=3,
         )
+
+    @patch(MODULE_PATH + ".send_webhook_notification.retry")
+    @patch(MODULE_PATH + "._discordwebhook_send_message", return_value=False)
+    @patch(MODULE_PATH + ".logger")
+    def test_should_not_log_webhook_url_if_sending_failed(
+        self, mock_logger: MagicMock, _, mock_retry: MagicMock
+    ):
+        """The webhook URL contains the token, so it must not end up in the log."""
+        send_webhook_notification(
+            webhook_url=WEBHOOK_URL, title="Test Title", message="Test Message"
+        )
+
+        mock_logger.warning.assert_called_once_with(
+            "Failed to send webhook notification. Check the webhook URL and try again."
+        )
+        self.assertNotIn(WEBHOOK_URL, str(mock_logger.mock_calls))
+        mock_retry.assert_called_once()

@@ -376,6 +376,7 @@ class TestApiModifySessionFields(AuthTestCase):
             ("public_id", "takeover"),
             ("owner_id", str(other_user.pk)),
             ("pk", "999999"),
+            ("Is_Public", "True"),
         ):
             with self.subTest(field=field):
                 response = self._modify(session, field, value)

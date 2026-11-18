@@ -159,7 +159,7 @@ def belt_timer_manage_actions(
 
 
 def get_snapshot_add_action(
-    request: WSGIRequest, public_id: str  # pylint: disable=unused-argument
+    request: WSGIRequest, public_id: str
 ) -> schema.ModalSchema | None:
     """
     Get the action for adding a snapshot to a session.
@@ -170,6 +170,9 @@ def get_snapshot_add_action(
     Returns:
         schema.ModalSchema | None: The action, or None if the user may not access the session.
     """
+    if not General.objects.has_basic_access(request.user):
+        return None
+
     perms = get_session_or_none(request=request, public_id=public_id)[0]
     if not perms:
         return None
@@ -195,6 +198,9 @@ def get_snapshot_delete_action(
     Returns:
         schema.ModalSchema | None: The action, or None if the user may not manage the session.
     """
+    if not General.objects.has_basic_access(request.user):
+        return None
+
     perms, session = get_manage_session_or_none(request=request, public_id=public_id)
     if not perms:
         return None

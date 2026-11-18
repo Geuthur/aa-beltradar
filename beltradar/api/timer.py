@@ -16,7 +16,7 @@ from beltradar.api import schema
 from beltradar.api.helpers.actions import belt_timer_manage_actions
 from beltradar.api.helpers.core import (
     get_manage_belt_timer_or_none,
-    get_session_or_none,
+    get_manage_session_or_none,
 )
 from beltradar.models import General
 from beltradar.models.beltradar import (
@@ -55,6 +55,10 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the belt timer is not found.
                 404: An error message if the belt timer is not found.
             """
+            # pylint: disable=duplicate-code
+            if not General.objects.has_basic_access(request.user):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
             perms = False
 
             # Check if the character ID is in the list of visible characters for the current user
@@ -109,6 +113,7 @@ class BeltRadarApiEndpoints:
             "view/belt-timers/",
             response={
                 HTTPStatus.OK: list[schema.BeltTimerSchema],
+                HTTPStatus.FORBIDDEN: dict,
             },
             tags=self.tags,
         )
@@ -121,7 +126,12 @@ class BeltRadarApiEndpoints:
 
             Returns:
                 200: A list of belt timers in the API response format.
+                403: An error message if the user does not have permission to use the app.
             """
+            # pylint: disable=duplicate-code
+            if not General.objects.has_basic_access(request.user):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
             # Retrieve all public belt timers
             belt_timers = BeltTimer.objects.visible_to(request.user)
 
@@ -231,8 +241,14 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the survey session is not found.
                 404: An error message if the survey session is not found.
             """
-            # Check if the user has permission to add entries to this survey session
-            perms, session = get_session_or_none(request=request, public_id=public_id)
+            # pylint: disable=duplicate-code
+            if not General.objects.has_basic_access(request.user):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            # Only the owner or an admin may create the timer of a session
+            perms, session = get_manage_session_or_none(
+                request=request, public_id=public_id
+            )
             # pylint: disable=duplicate-code
             if perms is False:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
@@ -292,7 +308,11 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the session is not found.
                 404: An error message if the belt timer is not found.
             """
-            # Check if the survey session exists
+            # pylint: disable=duplicate-code
+            if not General.objects.has_basic_access(request.user):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            # Check if the belt timer exists
             try:
                 timer = BeltTimer.objects.get(pk=timer_id)
             except ObjectDoesNotExist:
@@ -334,7 +354,9 @@ class BeltRadarApiEndpoints:
             },
             tags=self.tags,
         )
-        def modify_belt_timer(request, timer_id: int):
+        def modify_belt_timer(  # pylint: disable=too-many-return-statements
+            request, timer_id: int
+        ):
             """
             Modify a belt timer.
 
@@ -350,6 +372,10 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission.
                 404: An error message if the belt timer is not found.
             """
+            # pylint: disable=duplicate-code
+            if not General.objects.has_basic_access(request.user):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
             # Check if the belt timer exists
             try:
                 timer = BeltTimer.objects.get(pk=timer_id)

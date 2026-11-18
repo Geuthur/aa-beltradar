@@ -6,7 +6,7 @@ from http import HTTPStatus
 from django.urls import reverse
 
 # AA Belt Radar
-from beltradar.models.beltradar import UserSettings
+from beltradar.models.general import UserSettings
 from beltradar.tests import AuthTestCase
 from beltradar.tests.testdata.beltradar import UserMainFactory
 

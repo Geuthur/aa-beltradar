@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 from beltradar.api import schema
 from beltradar.helpers.eveonline import get_character_portrait_url
 from beltradar.models import General
-from beltradar.models.beltradar import UserSettings
+from beltradar.models.general import UserSettings
 
 
 class BeltRadarApiEndpoints:

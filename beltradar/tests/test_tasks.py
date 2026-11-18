@@ -12,7 +12,7 @@ from django.utils import timezone
 from beltradar import __app_name__, tasks
 from beltradar.models import BeltSurveySession, BeltTimer
 from beltradar.tests import AuthTestCase
-from beltradar.tests.testdata.beltradar import BeltTimerFactory
+from beltradar.tests.testdata.beltradar import BeltTimerFactory, UserSettingsFactory
 
 TASK_PATH = "beltradar.tasks"
 
@@ -83,6 +83,39 @@ class TestUpdateAllBeltRadar(AuthTestCase):
         # Expected Result
         mock_send_user_notification.assert_called_once()
         mock_logger.info.assert_called()
+
+    @patch(TASK_PATH + ".send_webhook_notification.delay")
+    @patch(TASK_PATH + ".send_user_notification.delay")
+    def test_should_only_send_webhook_if_owner_disabled_notifications(
+        self, mock_send_user_notification, mock_send_webhook_notification
+    ):
+        """
+        Test should skip the user notification but keep the webhook for a public timer.
+        """
+        # Test Data
+        UserSettingsFactory(user=self.user, disable_notifications=True)
+        belt_timer = BeltTimerFactory(
+            owner=self.user,
+            is_public=True,
+            sent_notification=False,
+        )
+        BeltTimer.objects.filter(pk=belt_timer.pk).update(
+            eta=timezone.now() - timezone.timedelta(days=2),
+            sent_notification=False,
+        )
+
+        # Test Action
+        tasks.update_all_belt_radar()
+
+        # Expected Result
+        mock_send_user_notification.assert_not_called()
+        mock_send_webhook_notification.assert_called_once()
+        self.assertEqual(
+            mock_send_webhook_notification.call_args.kwargs["webhook_url"],
+            "https://discord.com/api/webhooks/1337/abc123",
+        )
+        belt_timer.refresh_from_db()
+        self.assertTrue(belt_timer.sent_notification)
 
     @patch(TASK_PATH + ".EveMarketPrice.objects.update_from_esi", return_value=42)
     def test_should_update_market_prices(self, mock_update_from_esi):

@@ -5,6 +5,9 @@ from types import SimpleNamespace
 from unittest import skipUnless
 from unittest.mock import MagicMock, patch
 
+# Third Party
+from requests.exceptions import ConnectionError as RequestsConnectionError
+
 # Django
 from django.test import modify_settings
 
@@ -235,6 +238,27 @@ class TestDiscordWebhookSendMessage(NoSocketsTestCase):
             )
 
         self.assertFalse(result)
+
+    @skipUnless(DHOOKS_LITE_AVAILABLE, "dhooks_lite is not installed")
+    def test_should_return_false_and_not_log_webhook_url_on_request_error(self):
+        # The exception text of requests contains the webhook URL with the token.
+        with patch("dhooks_lite.Webhook") as mock_webhook:
+            mock_webhook.return_value.execute.side_effect = RequestsConnectionError(
+                f"Max retries exceeded with url: {WEBHOOK_URL}"
+            )
+
+            with self.assertLogs(discord_module.logger.logger, level="DEBUG") as logs:
+                result = _discordwebhook_send_message(
+                    webhook_url=WEBHOOK_URL, title="Test Title", message="Test Message"
+                )
+
+        self.assertFalse(result)
+        self.assertEqual(len(logs.records), 1)
+        self.assertIn("ConnectionError", logs.records[0].getMessage())
+        for record in logs.records:
+            self.assertNotIn(WEBHOOK_URL, record.getMessage())
+            self.assertNotIn(WEBHOOK_URL, str(record.args))
+            self.assertIsNone(record.exc_info)
 
 
 class TestSendUserNotification(NoSocketsTestCase):
@@ -536,3 +560,30 @@ class TestSendWebhookNotification(NoSocketsTestCase):
         )
         self.assertNotIn(WEBHOOK_URL, str(mock_logger.mock_calls))
         mock_retry.assert_called_once()
+
+    @patch(MODULE_PATH + "._discordwebhook_send_message", return_value=False)
+    def test_should_not_raise_or_log_webhook_url_if_retries_are_exhausted(self, _):
+        # Celery puts the task arguments, and with them the webhook URL, into
+        # the text of `MaxRetriesExceededError`. `retries=3` runs the task as
+        # the last retry, so the real `retry()` of Celery raises it.
+        with self.assertLogs(level="DEBUG") as logs:
+            result = send_webhook_notification.apply(
+                kwargs={
+                    "webhook_url": WEBHOOK_URL,
+                    "title": "Test Title",
+                    "message": "Test Message",
+                },
+                retries=3,
+                throw=False,
+            )
+
+        self.assertEqual(result.state, "SUCCESS")
+        messages = [record.getMessage() for record in logs.records]
+        self.assertTrue(
+            any("after the maximum number of retries" in msg for msg in messages)
+        )
+        # Only the written message is checked: the record of Celery for a
+        # finished task carries the task arguments as data without writing them.
+        for record in logs.records:
+            self.assertNotIn(WEBHOOK_URL, record.getMessage())
+            self.assertIsNone(record.exc_info)

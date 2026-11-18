@@ -15,6 +15,7 @@ from beltradar.tests import AuthTestCase
 from beltradar.tests.testdata.beltradar import BeltTimerFactory, UserSettingsFactory
 
 TASK_PATH = "beltradar.tasks"
+DISCORD_PATH = "beltradar.thirdparty.discord"
 
 
 @override_settings(
@@ -85,9 +86,9 @@ class TestUpdateAllBeltRadar(AuthTestCase):
         mock_logger.info.assert_called()
 
     @patch(TASK_PATH + ".send_webhook_notification.delay")
-    @patch(TASK_PATH + ".send_user_notification.delay")
+    @patch(DISCORD_PATH + ".notify")
     def test_should_only_send_webhook_if_owner_disabled_notifications(
-        self, mock_send_user_notification, mock_send_webhook_notification
+        self, mock_notify, mock_send_webhook_notification
     ):
         """
         Test should skip the user notification but keep the webhook for a public timer.
@@ -108,7 +109,7 @@ class TestUpdateAllBeltRadar(AuthTestCase):
         tasks.update_all_belt_radar()
 
         # Expected Result
-        mock_send_user_notification.assert_not_called()
+        mock_notify.info.assert_not_called()
         mock_send_webhook_notification.assert_called_once()
         self.assertEqual(
             mock_send_webhook_notification.call_args.kwargs["webhook_url"],

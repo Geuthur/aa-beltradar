@@ -81,7 +81,6 @@ export interface paths {
          *     Returns:
          *         200: A list of sessions in the API response format.
          *         403: An error message if the user does not have permission to access the sessions.
-         *         404: An error message if no sessions are found for the user.
          */
         get: operations["beltradar_api_session_get_public_sessions"];
         put?: never;
@@ -168,8 +167,8 @@ export interface paths {
          *
          *     Args:
          *         public_id (str): The public UUID of the session.
-         *         field (str): The field of the session to modify.
-         *         value (str): The new value to set for the specified field.
+         *         field (str): The field of the session to modify, only `is_public` is allowed.
+         *         value (str): The new value to set for the specified field (`True` or `False`).
          *     Returns:
          *         200: A success message indicating the session was modified.
          *         403: An error message if the user does not have permission or the session is not found.
@@ -320,6 +319,7 @@ export interface paths {
          *
          *     Returns:
          *         200: A list of belt timers in the API response format.
+         *         403: An error message if the user does not have permission to use the app.
          */
         get: operations["beltradar_api_timer_get_belt_timers"];
         put?: never;
@@ -809,6 +809,14 @@ export interface components {
             modals?: components["schemas"]["MenuModalSchema"] | null;
         };
         /**
+         * ErrorSchema
+         * @description Error response of an endpoint, e.g. for 403 and 404.
+         */
+        ErrorSchema: {
+            /** Error */
+            error: string;
+        };
+        /**
          * UserData
          * @description Schema for user data, including character ID and character name.
          *
@@ -845,14 +853,6 @@ export interface components {
              * @default false
              */
             is_admin: boolean;
-        };
-        /**
-         * ErrorSchema
-         * @description Error response of an endpoint, e.g. for 403 and 404.
-         */
-        ErrorSchema: {
-            /** Error */
-            error: string;
         };
         /** UserSettingsSchema */
         UserSettingsSchema: {
@@ -977,6 +977,17 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SessionSchema"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
@@ -1351,6 +1362,17 @@ export interface operations {
                     "application/json": components["schemas"]["BeltTimerSchema"][];
                 };
             };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
         };
     };
     beltradar_api_timer_add_belt_timer: {
@@ -1584,6 +1606,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MenuSchema"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSchema"];
                 };
             };
         };

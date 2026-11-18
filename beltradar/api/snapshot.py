@@ -23,6 +23,7 @@ from beltradar.api.helpers.charts import (
     generate_apex_chart_traffic_data,
 )
 from beltradar.api.helpers.core import (
+    get_manage_session_or_none,
     get_session_or_none,
 )
 from beltradar.models import General
@@ -176,8 +177,12 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the session is not found.
                 404: An error message if no entries are found for the given snapshot.
             """
-            # Check if the user has permission to delete this snapshot (by checking if they can delete the survey session)
-            perms, session = get_session_or_none(
+            # pylint: disable=duplicate-code
+            if not General.objects.has_basic_access(request.user):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            # Only the owner or an admin may delete a snapshot, seeing the session is not enough
+            perms, session = get_manage_session_or_none(
                 request=request,
                 public_id=public_id,
             )
@@ -229,7 +234,11 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the session is not found.
                 404: An error message if the session is not found.
             """
-            # Check if the user has permission to add snapshots to this session
+            # pylint: disable=duplicate-code
+            if not General.objects.has_basic_access(request.user):
+                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
+
+            # Everyone who sees the session may add snapshots (shared surveying of public sessions)
             perms, session = get_session_or_none(
                 request=request,
                 public_id=public_id,

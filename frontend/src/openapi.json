@@ -153,9 +153,21 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
           }
         },
-        "description": "Get all sessions for the current user.\n\nThis Endpoint allows users to retrieve a list of all sessions that are visible to them.\nThe user must have permission to access the sessions.\n\nReturns:\n    200: A list of sessions in the API response format.\n    403: An error message if the user does not have permission to access the sessions.\n    404: An error message if no sessions are found for the user.",
+        "description": "Get all sessions for the current user.\n\nThis Endpoint allows users to retrieve a list of all sessions that are visible to them.\nThe user must have permission to access the sessions.\n\nReturns:\n    200: A list of sessions in the API response format.\n    403: An error message if the user does not have permission to access the sessions.",
         "tags": [
           "Session"
         ],
@@ -379,7 +391,7 @@
             }
           }
         },
-        "description": "Modify a specific session.\n\nThis Endpoint allows users to modify a specific session.\nThe user must have permission to modify the session, and the session must exist.\n\nArgs:\n    public_id (str): The public UUID of the session.\n    field (str): The field of the session to modify.\n    value (str): The new value to set for the specified field.\nReturns:\n    200: A success message indicating the session was modified.\n    403: An error message if the user does not have permission or the session is not found.\n    404: An error message if the session does not exist.\n    400: An error message if the request is malformed or invalid.",
+        "description": "Modify a specific session.\n\nThis Endpoint allows users to modify a specific session.\nThe user must have permission to modify the session, and the session must exist.\n\nArgs:\n    public_id (str): The public UUID of the session.\n    field (str): The field of the session to modify, only `is_public` is allowed.\n    value (str): The new value to set for the specified field (`True` or `False`).\nReturns:\n    200: A success message indicating the session was modified.\n    403: An error message if the user does not have permission or the session is not found.\n    404: An error message if the session does not exist.\n    400: An error message if the request is malformed or invalid.",
         "tags": [
           "Session"
         ],
@@ -700,9 +712,21 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            }
           }
         },
-        "description": "Get belt timer details for public timers.\n\nThis Endpoint allows users to retrieve a list of all public belt timers.\nIf the user is a superuser, they will receive all belt timers regardless of ownership.\n\nReturns:\n    200: A list of belt timers in the API response format.",
+        "description": "Get belt timer details for public timers.\n\nThis Endpoint allows users to retrieve a list of all public belt timers.\nIf the user is a superuser, they will receive all belt timers regardless of ownership.\n\nReturns:\n    200: A list of belt timers in the API response format.\n    403: An error message if the user does not have permission to use the app.",
         "tags": [
           "Belt-Timer"
         ],
@@ -1007,6 +1031,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MenuSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorSchema"
                 }
               }
             }
@@ -1961,6 +1995,20 @@
         "title": "MenuSchema",
         "type": "object"
       },
+      "ErrorSchema": {
+        "description": "Error response of an endpoint, e.g. for 403 and 404.",
+        "properties": {
+          "error": {
+            "title": "Error",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorSchema",
+        "type": "object"
+      },
       "UserData": {
         "description": "Schema for user data, including character ID and character name.\n\nParameters:\n    user_id (int): The ID of the user.\n    character_id (int): The ID of the character associated with the user.\n    character_name (str): The name of the character.\n    corporation_id (int): The ID of the corporation associated with the user.\n    corporation_name (str): The name of the corporation associated with the user.\n    alliance_id (int | None): The ID of the alliance associated with the user, if any.\n    alliance_name (str | None): The name of the alliance associated with the user, if any.\n    portrait (str | None): The URL or path to the character's portrait image.\n    is_admin (boolean): Whether the user is a superuser.",
         "properties": {
@@ -2031,20 +2079,6 @@
           "corporation_name"
         ],
         "title": "UserData",
-        "type": "object"
-      },
-      "ErrorSchema": {
-        "description": "Error response of an endpoint, e.g. for 403 and 404.",
-        "properties": {
-          "error": {
-            "title": "Error",
-            "type": "string"
-          }
-        },
-        "required": [
-          "error"
-        ],
-        "title": "ErrorSchema",
         "type": "object"
       },
       "UserSettingsSchema": {

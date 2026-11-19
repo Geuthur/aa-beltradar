@@ -264,8 +264,6 @@ class BeltRadarApiEndpoints:
                     "success": True,
                     "message": _("Session Belt timer added successfully."),
                 }
-            msg = _("Invalid input data. Please check the format and try again.")
-            return HTTPStatus.BAD_REQUEST, {"error": msg}
 
         @api.post(
             "manage/belt-timer/{timer_id}/delete/",

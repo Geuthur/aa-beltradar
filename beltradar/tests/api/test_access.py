@@ -778,6 +778,48 @@ class TestApiSnapshotEndpointsPost(AuthTestCase):
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertEqual(list(response.json()), ["error"])
 
+    def test_add_snapshot_without_valid_lines_should_400(self):
+        """
+        Test should return 400 Bad Request with an error text when no line can be parsed.
+        """
+        # Test Data
+        session = BeltSessionFactory(owner=self.user)
+        url = reverse(
+            f"{API_URL}:add_snapshot", kwargs={"public_id": session.public_id}
+        )
+        self.client.force_login(self.user)
+
+        payload = {"raw_data": "not an ore line"}
+
+        # Test Action
+        response = self.client.post(url, data=payload)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])
+        self.assertIn("No valid entries to add", response.json()["error"])
+
+    def test_add_snapshot_with_unknown_types_should_400(self):
+        """
+        Test should return 400 Bad Request with an error text when no ore type is known.
+        """
+        # Test Data
+        session = BeltSessionFactory(owner=self.user)
+        url = reverse(
+            f"{API_URL}:add_snapshot", kwargs={"public_id": session.public_id}
+        )
+        self.client.force_login(self.user)
+
+        payload = {"raw_data": "Unknown Ore*\t1\xa0192\t9\xa0536 m3\t3 ISK\t450 km\n"}
+
+        # Test Action
+        response = self.client.post(url, data=payload)
+
+        # Expected Result
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])
+        self.assertIn("Unknown Ore", response.json()["error"])
+
 
 class TestApiSessionEndpointsPost(AuthTestCase):
     """Test Snapshot API Endpoints for POST requests."""

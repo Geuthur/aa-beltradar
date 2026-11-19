@@ -38,7 +38,7 @@ export function SessionHeaderButtons({
                     <ActionButton
                         action={deleteTimerAction}
                         onClick={() => onAction(deleteTimerAction.modal_id)}
-                        classProps="me-0"
+                       
                     />
                 )}
             </div>
@@ -50,7 +50,7 @@ export function SessionHeaderButtons({
             <ActionButton
                 action={createTimerAction}
                 onClick={() => onAction(createTimerAction.modal_id)}
-                classProps="me-0"
+               
             />
         );
     }

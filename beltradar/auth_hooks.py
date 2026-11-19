@@ -9,6 +9,7 @@ from allianceauth import hooks
 from allianceauth.services.hooks import MenuItemHook, UrlHook
 
 from . import app_settings, urls
+from .models import General
 
 
 class BeltRadarMenuItem(MenuItemHook):
@@ -23,7 +24,7 @@ class BeltRadarMenuItem(MenuItemHook):
         )
 
     def render(self, request):
-        if request.user.has_perm("beltradar.basic_access"):
+        if General.objects.has_basic_access(request.user):
             return MenuItemHook.render(self, request)
         return ""
 

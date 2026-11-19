@@ -2,16 +2,10 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
-
 # AA Belt Radar
-from beltradar import __title__
 from beltradar.api import schema
 from beltradar.models import BeltSurveySession
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
+from beltradar.providers import logger
 
 
 def generate_apex_chart_mining_data(session: BeltSurveySession):

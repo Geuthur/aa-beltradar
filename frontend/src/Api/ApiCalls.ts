@@ -1,3 +1,6 @@
+// Third Party
+import { apiErrorMessage } from "aa-geuthur-react";
+
 // AA Belt Radar
 import { apiClient } from "@/Api/Api";
 import type { components } from "@/Api/OpenApi";
@@ -6,7 +9,7 @@ import { ProjectName } from "@/constants";
 export async function loadPublicSessions(): Promise<components["schemas"]["SessionSchema"][]> {
   const { data, error } = await apiClient.GET("/beltradar/api/view/public-sessions/");
   if (error || !data) {
-    throw new Error("Failed to load public sessions");
+    throw new Error(apiErrorMessage(error, "Failed to load public sessions"));
   }
   return data;
 }
@@ -18,7 +21,7 @@ export async function loadMySessions(characterID: number): Promise<components["s
     },
   });
   if (error || !data) {
-    throw new Error("Failed to load my sessions");
+    throw new Error(apiErrorMessage(error, "Failed to load my sessions"));
   }
   return data;
 }
@@ -26,7 +29,7 @@ export async function loadMySessions(characterID: number): Promise<components["s
 export async function loadBeltTimers(): Promise<components["schemas"]["BeltTimerSchema"][]> {
   const { data, error } = await apiClient.GET("/beltradar/api/view/belt-timers/");
   if (error || !data) {
-    throw new Error("Failed to load belt timers");
+    throw new Error(apiErrorMessage(error, "Failed to load belt timers"));
   }
   return data;
 }
@@ -38,7 +41,7 @@ export async function loadMyBeltTimers(characterID: number): Promise<components[
     },
   });
   if (error || !data) {
-    throw new Error("Failed to load my belt timers");
+    throw new Error(apiErrorMessage(error, "Failed to load my belt timers"));
   }
   return data;
 }
@@ -50,7 +53,7 @@ export async function loadSession(publicID: string): Promise<components["schemas
     },
   });
   if (error || !data) {
-    throw new Error("Failed to load session");
+    throw new Error(apiErrorMessage(error, "Failed to load session"));
   }
   return data;
 }
@@ -66,7 +69,7 @@ export async function loadSnapshot(
     },
   });
   if (error || !data) {
-    throw new Error("Failed to load snapshot");
+    throw new Error(apiErrorMessage(error, "Failed to load snapshot"));
   }
   return data;
 }
@@ -74,27 +77,7 @@ export async function loadSnapshot(
 export async function loadMenu(): Promise<components["schemas"]["MenuSchema"]> {
   const { data, error } = await apiClient.GET(`/${ProjectName}/api/menu/`);
   if (error || !data) {
-    throw new Error("Failed to load menu");
-  }
-  return data;
-}
-
-export async function loadUserSettings(): Promise<components["schemas"]["UserSettingsSchema"]> {
-  const { data, error } = await apiClient.GET(`/${ProjectName}/api/settings/`);
-  if (error || !data) {
-    throw new Error("Failed to load user settings");
-  }
-  return data;
-}
-
-export async function updateUserSettings(
-  settings: components["schemas"]["UserSettingsUpdateRequest"],
-): Promise<components["schemas"]["UserSettingsSchema"]> {
-  const { data, error } = await apiClient.PUT(`/${ProjectName}/api/settings/`, {
-    body: settings,
-  });
-  if (error || !data) {
-    throw new Error("Failed to update user settings");
+    throw new Error(apiErrorMessage(error, "Failed to load menu"));
   }
   return data;
 }

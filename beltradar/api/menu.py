@@ -21,6 +21,7 @@ class BeltRadarApiEndpoints:
             "menu/",
             response={
                 HTTPStatus.OK: schema.MenuSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
             summary="Get Belt Radar navigation menu",

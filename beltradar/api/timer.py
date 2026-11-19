@@ -8,27 +8,21 @@ from ninja import NinjaAPI
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.utils.translation import gettext_lazy as _
-
-# Alliance Auth
-from allianceauth.services.hooks import get_extension_logger
+from django.utils.translation import gettext as _
 
 # AA Belt Radar
-from beltradar import __title__, forms
+from beltradar import forms
 from beltradar.api import schema
 from beltradar.api.helpers.actions import belt_timer_manage_actions
 from beltradar.api.helpers.core import (
     get_manage_belt_timer_or_none,
-    get_session_or_none,
+    get_manage_session_or_none,
 )
 from beltradar.models.beltradar import (
     BeltSurveySnapshot,
     BeltTimer,
     generate_unique_public_id,
 )
-from beltradar.providers import AppLogger
-
-logger = AppLogger(get_extension_logger(__name__), __title__)
 
 
 class BeltRadarApiEndpoints:
@@ -41,8 +35,8 @@ class BeltRadarApiEndpoints:
             "view/my-belt-timers/{character_id}/",
             response={
                 HTTPStatus.OK: list[schema.BeltTimerSchema],
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -114,6 +108,7 @@ class BeltRadarApiEndpoints:
             "view/belt-timers/",
             response={
                 HTTPStatus.OK: list[schema.BeltTimerSchema],
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -126,6 +121,7 @@ class BeltRadarApiEndpoints:
 
             Returns:
                 200: A list of belt timers in the API response format.
+                403: An error message if the user does not have permission to use the app.
             """
             # Retrieve all public belt timers
             belt_timers = BeltTimer.objects.visible_to(request.user)
@@ -170,9 +166,9 @@ class BeltRadarApiEndpoints:
             "manage/belt-timer/create/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.BAD_REQUEST: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.BAD_REQUEST: schema.ErrorSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -192,11 +188,6 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the survey session is not found.
                 404: An error message if the survey session is not found.
             """
-            # Check if the user has permission to add entries to this survey session
-            if not request.user.has_perm("beltradar.basic_access"):
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
-
             # Validate the form data
             form = forms.BeltTimerForm(data=request.POST)
             if form.is_valid():
@@ -209,15 +200,15 @@ class BeltRadarApiEndpoints:
                         "message": _("Belt timer added successfully."),
                     }
             msg = _("Invalid input data. Please check the format and try again.")
-            return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
+            return HTTPStatus.BAD_REQUEST, {"error": msg}
 
         @api.post(
             "manage/belt-timer/{public_id}/create/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.BAD_REQUEST: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.BAD_REQUEST: schema.ErrorSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -236,8 +227,10 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the survey session is not found.
                 404: An error message if the survey session is not found.
             """
-            # Check if the user has permission to add entries to this survey session
-            perms, session = get_session_or_none(request=request, public_id=public_id)
+            # Only the owner or an admin may create the timer of a session
+            perms, session = get_manage_session_or_none(
+                request=request, public_id=public_id
+            )
             # pylint: disable=duplicate-code
             if perms is False:
                 return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
@@ -271,15 +264,13 @@ class BeltRadarApiEndpoints:
                     "success": True,
                     "message": _("Session Belt timer added successfully."),
                 }
-            msg = _("Invalid input data. Please check the format and try again.")
-            return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
 
         @api.post(
             "manage/belt-timer/{timer_id}/delete/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -297,7 +288,7 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the session is not found.
                 404: An error message if the belt timer is not found.
             """
-            # Check if the survey session exists
+            # Check if the belt timer exists
             try:
                 timer = BeltTimer.objects.get(pk=timer_id)
             except ObjectDoesNotExist:
@@ -333,13 +324,15 @@ class BeltRadarApiEndpoints:
             "manage/belt-timer/{timer_id}/modify/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.BAD_REQUEST: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.BAD_REQUEST: schema.ErrorSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
-        def modify_belt_timer(request, timer_id: int):
+        def modify_belt_timer(  # pylint: disable=too-many-return-statements
+            request, timer_id: int
+        ):
             """
             Modify a belt timer.
 
@@ -407,10 +400,5 @@ class BeltRadarApiEndpoints:
                         "message": _("Belt timer updated successfully."),
                     }
 
-            return HTTPStatus.BAD_REQUEST, {
-                "success": False,
-                "message": _(
-                    "Invalid input data. Please check the format and try again."
-                ),
-                "errors": form.errors.get_json_data(),
-            }
+            msg = _("Invalid input data. Please check the format and try again.")
+            return HTTPStatus.BAD_REQUEST, {"error": msg}

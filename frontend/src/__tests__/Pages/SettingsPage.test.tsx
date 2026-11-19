@@ -1,36 +1,31 @@
-// React
-import { MemoryRouter } from "react-router-dom";
-
 // Third Party
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useUserSettings } from "aa-geuthur-react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // AA Belt Radar
-import * as BeltRadarApi from "@/Api/ApiCalls";
 import { SettingsPage } from "@/Pages/SettingsPage";
 
-vi.mock("@/Api/ApiCalls", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/Api/ApiCalls")>();
-  return {
-    ...actual,
-    loadUserSettings: vi.fn(),
-    updateUserSettings: vi.fn(),
-  };
+// The hook itself (request, optimistic update, rollback) is tested in aa-geuthur-react.
+vi.mock("aa-geuthur-react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("aa-geuthur-react")>();
+  return { ...actual, useUserSettings: vi.fn() };
 });
 
-const renderPage = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/beltradar/settings/"]}>
-        <SettingsPage />
-      </MemoryRouter>
-    </QueryClientProvider>,
-  );
+type HookResult = ReturnType<typeof useUserSettings>;
+
+const mutate = vi.fn();
+
+/** Sets what `useUserSettings` returns for the page. */
+const mockSettings = (result: object, mutation: object = {}) => {
+  vi.mocked(useUserSettings).mockReturnValue({
+    data: undefined,
+    isLoading: false,
+    isError: false,
+    ...result,
+    updateMutation: { mutate, isError: false, isPending: false, ...mutation },
+  } as unknown as HookResult);
 };
 
 describe("SettingsPage", () => {
@@ -38,42 +33,75 @@ describe("SettingsPage", () => {
     vi.clearAllMocks();
   });
 
-  it("should load the saved global notification preference", async () => {
+  it("should show the loader while the settings load", () => {
     // Test Data
-    vi.mocked(BeltRadarApi.loadUserSettings).mockResolvedValueOnce({
-      disable_notifications: true,
-    });
+    mockSettings({ isLoading: true });
 
     // Test Action
-    renderPage();
+    render(<SettingsPage />);
 
     // Expected Result
-    expect(
-      await screen.findByRole("switch", { name: "Disable all notifications" }),
-    ).toBeChecked();
+    expect(screen.getByText("Loading settings...")).toBeInTheDocument();
+    expect(screen.queryByRole("switch")).not.toBeInTheDocument();
+  });
+
+  it("should show an error when the settings cannot be loaded", () => {
+    // Test Data
+    mockSettings({ isError: true });
+
+    // Test Action
+    render(<SettingsPage />);
+
+    // Expected Result
+    expect(screen.getByRole("alert")).toHaveTextContent("Failed to load settings. Please try refreshing the page.");
+  });
+
+  it("should load the saved global notification preference", () => {
+    // Test Data
+    mockSettings({ data: { disable_notifications: true } });
+
+    // Test Action
+    render(<SettingsPage />);
+
+    // Expected Result
+    expect(screen.getByRole("switch", { name: "Disable all notifications" })).toBeChecked();
   });
 
   it("should save the global preference when the switch is enabled", async () => {
     // Test Data
     const user = userEvent.setup();
-    vi.mocked(BeltRadarApi.loadUserSettings).mockResolvedValue({
-      disable_notifications: false,
-    });
-    vi.mocked(BeltRadarApi.updateUserSettings).mockResolvedValue({
-      disable_notifications: true,
-    });
+    mockSettings({ data: { disable_notifications: false } });
 
     // Test Action
-    renderPage();
-    const toggle = await screen.findByRole("switch", {
-      name: "Disable all notifications",
-    });
-    await user.click(toggle);
+    render(<SettingsPage />);
+    await user.click(screen.getByRole("switch", { name: "Disable all notifications" }));
 
     // Expected Result
-    expect(BeltRadarApi.updateUserSettings).toHaveBeenCalledWith({
-      disable_notifications: true,
-    });
-    await waitFor(() => expect(toggle).toBeChecked());
+    expect(mutate).toHaveBeenCalledWith({ disable_notifications: true });
+  });
+
+  it("should lock the switch while the setting is saved", () => {
+    // Test Data
+    mockSettings({ data: { disable_notifications: true } }, { isPending: true });
+
+    // Test Action
+    render(<SettingsPage />);
+
+    // Expected Result
+    expect(screen.getByRole("switch", { name: "Disable all notifications" })).toBeDisabled();
+    expect(screen.getByRole("status")).toHaveTextContent("Saving...");
+  });
+
+  it("should tell the user when the setting could not be saved", () => {
+    // Test Data
+    mockSettings({ data: { disable_notifications: false } }, { isError: true });
+
+    // Test Action
+    render(<SettingsPage />);
+
+    // Expected Result
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Could not save this setting. Your previous preference was restored.",
+    );
   });
 });

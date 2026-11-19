@@ -1,3 +1,6 @@
+// Third Party
+import { ButtonGroup } from 'react-bootstrap';
+
 // AA Belt Radar
 import type { components } from '@/Api/OpenApi';
 import { ActionButton } from '@/Components/Icons/Icons';
@@ -20,10 +23,10 @@ export function SnapshotButtons({
   }
 
   return (
-    <div className="d-flex gap-2">
+    <ButtonGroup size="sm">
       {addAction && <ActionButton action={addAction} onClick={onAddClick} />}
       {deleteAction && <ActionButton action={deleteAction} onClick={onDeleteClick} />}
-    </div>
+    </ButtonGroup>
   );
 }
 

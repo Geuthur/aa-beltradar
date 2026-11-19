@@ -11,8 +11,6 @@ import {
     loadPublicSessions,
     loadSession,
     loadSnapshot,
-    loadUserSettings,
-    updateUserSettings,
 } from '@/Api/ApiCalls';
 
 describe('BeltRadar API client functions', () => {
@@ -135,56 +133,48 @@ describe('BeltRadar API client functions', () => {
             expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/menu/');
         });
     });
+});
 
-    describe('loadUserSettings', () => {
-        it('calls /settings/ and returns the settings', async () => {
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: { disable_notifications: true },
-                error: undefined,
-                response: new Response(),
-            } as never);
+type Method = 'GET' | 'POST' | 'DELETE';
 
-            const result = await loadUserSettings();
-            expect(result).toEqual({ disable_notifications: true });
-            expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/settings/');
-        });
+/** Every call of `ApiCalls.ts`: [name, HTTP method, call, fixed text]. */
+const calls: [string, Method, () => Promise<unknown>, string][] = [
+    ['loadPublicSessions', 'GET', () => loadPublicSessions(), 'Failed to load public sessions'],
+    ['loadMySessions', 'GET', () => loadMySessions(1001), 'Failed to load my sessions'],
+    ['loadBeltTimers', 'GET', () => loadBeltTimers(), 'Failed to load belt timers'],
+    ['loadMyBeltTimers', 'GET', () => loadMyBeltTimers(1001), 'Failed to load my belt timers'],
+    ['loadSession', 'GET', () => loadSession('sess-1'), 'Failed to load session'],
+    ['loadSnapshot', 'GET', () => loadSnapshot('sess-1', 'snap-1'), 'Failed to load snapshot'],
+    ['loadMenu', 'GET', () => loadMenu(), 'Failed to load menu'],
+];
 
-        it('throws error when GET fails', async () => {
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: undefined,
-                error: { error: 'Permission Denied.' },
-                response: new Response(),
-            } as never);
+const failWith = (method: Method, error: unknown) =>
+    vi.spyOn(apiClient, method).mockResolvedValueOnce({
+        data: undefined,
+        error,
+        response: new Response(),
+    } as never);
 
-            await expect(loadUserSettings()).rejects.toThrow('Failed to load user settings');
-        });
+describe('API calls on errors', () => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
     });
 
-    describe('updateUserSettings', () => {
-        it('sends the settings as PUT body and returns them', async () => {
-            vi.spyOn(apiClient, 'PUT').mockResolvedValueOnce({
-                data: { disable_notifications: true },
-                error: undefined,
-                response: new Response(),
-            } as never);
+    describe.each(calls)('%s', (_name, method, call, fixedText) => {
+        it('should throw the message of the API when the request fails', async () => {
+            // Test Data
+            failWith(method, { error: 'Permission Denied' });
 
-            const result = await updateUserSettings({ disable_notifications: true });
-            expect(result).toEqual({ disable_notifications: true });
-            expect(apiClient.PUT).toHaveBeenCalledWith('/beltradar/api/settings/', {
-                body: { disable_notifications: true },
-            });
+            // Test Action & Expected Result
+            await expect(call()).rejects.toThrow('Permission Denied');
         });
 
-        it('throws error when update fails', async () => {
-            vi.spyOn(apiClient, 'PUT').mockResolvedValueOnce({
-                data: undefined,
-                error: { error: 'Permission Denied.' },
-                response: new Response(),
-            } as never);
+        it('should throw the fixed text when the API sent no message', async () => {
+            // Test Data
+            failWith(method, {});
 
-            await expect(updateUserSettings({ disable_notifications: false })).rejects.toThrow(
-                'Failed to update user settings',
-            );
+            // Test Action & Expected Result
+            await expect(call()).rejects.toThrow(fixedText);
         });
     });
 });

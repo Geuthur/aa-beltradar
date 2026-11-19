@@ -24,6 +24,7 @@ Section Order:
 ### Fixed
 ### Changed
 
+- `General.Meta.permissions` stays the single place that defines the permissions (plain tuples); the codenames and texts are unchanged and no migration is needed. A new test compares every permission string used in the code (`<app_label>.<codename>`) with it, so a wrong app label or codename, as in the former `taxsystem.admin_access`, is found by the tests. `General.objects.has_management_access(user)` (manage or admin access) is added for the app rule that Django cannot check itself; it does not query the database.
 -->
 
 <!-- AI Changes -->
@@ -35,6 +36,31 @@ Section Order:
 ### Fixed
 
 - Tests against the Alliance Auth 6 pre-release no longer share the Redis cache with other processes. `testauth/settings/development/local.py` now also gives each test run its own random cache `KEY_PREFIX`, as `testauth/settings/local.py` does on master (#142).
+- Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` gives each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis (e.g. `GET /markets/prices`) were returned instead of the pook responses, and the market price tests in `test_managers.py` failed until the cache entry expired. Redis stays the cache backend because Alliance Auth needs `django_redis`.
+- The app page (`react_base`) now requires `beltradar.basic_access` like the repository template and no longer fails with a server error for users without a main character. The unused `character_id` route and context value are removed.
+- Security: every API endpoint now requires `beltradar.basic_access` (before, the menu, the session and belt timer lists and most changing endpoints did not check it). Deleting or changing a session, deleting its snapshots and creating its belt timer are limited to the owner and admins; before, everyone who saw a public session could do so. `modify_session` only accepts `is_public` with `True`/`False` instead of setting any field. Adding snapshots to a visible public session stays possible.
+- Security: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery. A webhook that still fails after the last retry now ends with a warning instead of a failed task.
+- Dev dependencies: `minimatch` raised to 11 (GHSA-g3hv-75wg-m249) via `eslint` `^10.15.0` and `typescript-eslint` `^8.72.2`, and `zod` to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
+
+### Changed
+
+- [CHANGE] Frontend on `aa-geuthur-react` 1.5.0: `Main.tsx` uses `initI18n`, the settings page uses `useUserSettings`, `loadUserSettings` and `updateUserSettings` are removed, `LiveStatusIndicator`, `useLivePing`, `formatLastFetch` and `SecurityBadge` come from the package, design tokens, `aa-status-*` classes and keyframes come from the package stylesheet; unused `UserSettingsForm` removed. The live status tooltip "Last Fetch" reads "Letzter Abruf" in German now.
+
+- Security: all URLs of the API now pass `basic_access_required` (`api/auth.py`, building block of aa-example), so new endpoints require `beltradar.basic_access` without a check of their own. Nothing changes for users; the checks in the endpoints stay for now.
+
+- Discord notifications: `thirdparty/discord.py` is aligned with the aa-example building block (embed colours in the module instead of `constants.py`, `send_user_notification` itself skips users with `disable_notifications`, so `update_all_belt_radar` no longer checks it or creates `UserSettings` rows); `UserSettings` moves to `models/general.py` (no migration). The webhook for public timers is unchanged.
+
+- The API, its helpers and the menu hook now check permissions only through `General.objects` (the `GeneralManager`), and `visible_to`, `manage_to` and `visible_eve_characters` ask `General.objects.has_admin_access(user)` (superuser or `admin_access`) instead of checking `user.is_superuser` and `user.has_perm(...)` themselves; they only filter rows. New `General.objects.has_basic_access(user)` and `has_admin_access(user)`. The Django views keep their Django permission checks. The action helpers in `api/helpers/actions.py` return `None` for users without `basic_access` instead of the redirect response of the former `permissions_required` decorator. No permission string, migration or endpoint changed.
+
+- `UserSettings.user` is now a `OneToOneField` instead of a nullable `ForeignKey`, as in the repository template. Before, a user could end up with several settings rows and `UserSettings.objects.get_or_create(user=...)` raised `MultipleObjectsReturned`. The data migration `0014_remove_invalid_usersettings` keeps only the newest settings row per user (highest ID) and deletes rows without a user; `0015_alter_usersettings_user` then changes the field (migration required).
+
+- The `AppLogger` is created only once in `beltradar/providers.py`. `api/session.py`, `api/helpers/charts.py`, `decorators.py`, `managers.py`, `models/beltradar.py`, `tasks.py` and `thirdparty/discord.py` import it with `from beltradar.providers import logger` instead of building their own. `api/helpers/actions.py`, `api/helpers/core.py`, `api/snapshot.py`, `api/timer.py`, `forms.py` and `views.py` created a logger they never used; it is removed there. Log records now carry the logger name `beltradar.providers` instead of the module name; the `[Belt Radar]` prefix is unchanged.
+
+- Row and header action buttons are now react-bootstrap `ButtonGroup`s with small icon buttons; `aa-geuthur-react` is raised to `^1.4.0`. Behaviour, permissions and API are unchanged.
+
+- The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed (hex colors as equivalent `rgb()`), the panel blur (`backdrop-filter`) now also applies in Chrome and Firefox.
+
+- Every error response of the API (4xx) now has the body `{"error": "<text>"}` and is declared as `ErrorSchema` in the OpenAPI schema; every endpoint lists the 403 of `basic_access_required`. The 400 answers of the session, snapshot and belt timer endpoints used `{"success": false, "message": ...}` before (the belt timer update also sent `errors`). Status codes and success answers are unchanged. The `basic_access` checks in the endpoints (unreachable since `basic_access_required`) are removed. The interface shows the message of the API when a request fails.
 
 <!-- Your changes go here -->
 

@@ -55,6 +55,8 @@ Section Order:
 
 - The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed (hex colors as equivalent `rgb()`), the panel blur (`backdrop-filter`) now also applies in Chrome and Firefox.
 
+- Every error response of the API (4xx) now has the body `{"error": "<text>"}` and is declared as `ErrorSchema` in the OpenAPI schema; every endpoint lists the 403 of `basic_access_required`. The 400 answers of the session, snapshot and belt timer endpoints used `{"success": false, "message": ...}` before (the belt timer update also sent `errors`). Status codes and success answers are unchanged. The `basic_access` checks in the endpoints (unreachable since `basic_access_required`) are removed. The interface shows the message of the API when a request fails.
+
 <!-- Your changes go here -->
 
 ## [2.1.0] - 2026-11-10

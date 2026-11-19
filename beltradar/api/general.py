@@ -10,7 +10,6 @@ from django.utils.translation import gettext as _
 # AA Belt Radar
 from beltradar.api import schema
 from beltradar.helpers.eveonline import get_character_portrait_url
-from beltradar.models import General
 from beltradar.models.general import UserSettings
 
 
@@ -29,9 +28,6 @@ class BeltRadarApiEndpoints:
             summary="Get current user",
         )
         def get_user(request):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             try:
                 character = request.user.profile.main_character
                 character_id = character.character_id
@@ -80,9 +76,6 @@ class BeltRadarApiEndpoints:
             summary="Get current user's settings",
         )
         def get_user_settings(request):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             settings = UserSettings.objects.get_or_create(user=request.user)[0]
             return schema.UserSettingsSchema(
                 disable_notifications=settings.disable_notifications
@@ -98,9 +91,6 @@ class BeltRadarApiEndpoints:
             summary="Update current user's settings",
         )
         def update_user_settings(request, payload: schema.UserSettingsUpdateRequest):
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             settings = UserSettings.objects.get_or_create(user=request.user)[0]
             settings.disable_notifications = payload.disable_notifications
             settings.save(update_fields=["disable_notifications"])

@@ -10,7 +10,6 @@ from django.utils.translation import gettext as _
 
 # AA Belt Radar
 from beltradar.api import schema
-from beltradar.models import General
 
 
 class BeltRadarApiEndpoints:
@@ -28,10 +27,6 @@ class BeltRadarApiEndpoints:
             summary="Get Belt Radar navigation menu",
         )
         def get_menu(request):
-            # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             try:
                 character_id = request.user.profile.main_character.character_id
             except AttributeError:

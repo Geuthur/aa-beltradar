@@ -134,3 +134,47 @@ describe('BeltRadar API client functions', () => {
         });
     });
 });
+
+type Method = 'GET' | 'POST' | 'DELETE';
+
+/** Every call of `ApiCalls.ts`: [name, HTTP method, call, fixed text]. */
+const calls: [string, Method, () => Promise<unknown>, string][] = [
+    ['loadPublicSessions', 'GET', () => loadPublicSessions(), 'Failed to load public sessions'],
+    ['loadMySessions', 'GET', () => loadMySessions(1001), 'Failed to load my sessions'],
+    ['loadBeltTimers', 'GET', () => loadBeltTimers(), 'Failed to load belt timers'],
+    ['loadMyBeltTimers', 'GET', () => loadMyBeltTimers(1001), 'Failed to load my belt timers'],
+    ['loadSession', 'GET', () => loadSession('sess-1'), 'Failed to load session'],
+    ['loadSnapshot', 'GET', () => loadSnapshot('sess-1', 'snap-1'), 'Failed to load snapshot'],
+    ['loadMenu', 'GET', () => loadMenu(), 'Failed to load menu'],
+];
+
+const failWith = (method: Method, error: unknown) =>
+    vi.spyOn(apiClient, method).mockResolvedValueOnce({
+        data: undefined,
+        error,
+        response: new Response(),
+    } as never);
+
+describe('API calls on errors', () => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    describe.each(calls)('%s', (_name, method, call, fixedText) => {
+        it('should throw the message of the API when the request fails', async () => {
+            // Test Data
+            failWith(method, { error: 'Permission Denied' });
+
+            // Test Action & Expected Result
+            await expect(call()).rejects.toThrow('Permission Denied');
+        });
+
+        it('should throw the fixed text when the API sent no message', async () => {
+            // Test Data
+            failWith(method, {});
+
+            // Test Action & Expected Result
+            await expect(call()).rejects.toThrow(fixedText);
+        });
+    });
+});

@@ -6,9 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Belt Radar\n"
-"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
-"beltradar/\n"
-"POT-Creation-Date: 2026-10-18 20:18+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-19 16:22+0000\n"
 "PO-Revision-Date: 2026-10-25 10:29+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -20,167 +19,113 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.15.1\n"
 
-#: beltradar/api/general.py:32 beltradar/api/general.py:72
-#: beltradar/api/session.py:125 beltradar/api/session.py:199
-#: beltradar/api/session.py:319 beltradar/api/session.py:375
-#: beltradar/api/session.py:429 beltradar/api/snapshot.py:71
-#: beltradar/api/snapshot.py:192 beltradar/api/snapshot.py:244
-#: beltradar/api/timer.py:74 beltradar/api/timer.py:197
-#: beltradar/api/timer.py:243 beltradar/api/timer.py:314
-#: beltradar/api/timer.py:372
+msgid "Permission Denied"
+msgstr ""
+
 msgid "Permission Denied."
 msgstr "Zugriff verweigert."
 
-#: beltradar/api/general.py:81
-msgid "User settings updated successfully."
-msgstr "Benutzereinstellungen erfolgreich aktualisiert."
+msgid "Mined %"
+msgstr "Abgebaut in %"
 
-#: beltradar/api/general.py:84 beltradar/api/session.py:335
-#: beltradar/api/snapshot.py:258 beltradar/api/timer.py:211
-#: beltradar/api/timer.py:274 beltradar/api/timer.py:413
+msgid "Volume Left (m³)"
+msgstr "Verbleibendes Volumen (m³)"
+
+msgid "Speed (m³/s)"
+msgstr "Geschwindigkeit (m³/s)"
+
+msgid "Belt Radar"
+msgstr "Belt Radar"
+
+msgid "My Sessions"
+msgstr "Meine Sitzungen"
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Belt Session not found or not public."
+msgstr "Die „Belt Sitzung“ wurde nicht gefunden oder ist nicht öffentlich."
+
+msgid "Public"
+msgstr "Öffentlich"
+
+msgid "Private"
+msgstr "Privat"
+
+msgid "Session added successfully."
+msgstr "Die Sitzung wurde erfolgreich hinzugefügt."
+
 msgid "Invalid input data. Please check the format and try again."
 msgstr ""
 "Ungültige Eingabedaten. Bitte überprüfen Sie das Format und versuchen Sie es "
 "erneut."
 
-#: beltradar/api/helpers/charts.py:81
-msgid "Mined %"
-msgstr "Abgebaut in %"
-
-#: beltradar/api/helpers/charts.py:114
-msgid "Volume Left (m³)"
-msgstr "Verbleibendes Volumen (m³)"
-
-#: beltradar/api/helpers/charts.py:119
-msgid "Speed (m³/s)"
-msgstr "Geschwindigkeit (m³/s)"
-
-#: beltradar/api/menu.py:44 beltradar/templates/beltradar/base.html:5
-#: beltradar/templates/beltradar/base.html:9
-#: beltradar/templates/beltradar/navigation/navigation.html:7
-msgid "Belt Radar"
-msgstr "Belt Radar"
-
-#: beltradar/api/menu.py:47
-msgid "My Sessions"
-msgstr "Meine Sitzungen"
-
-#: beltradar/api/menu.py:50
-msgid "Settings"
-msgstr "Einstellungen"
-
-#: beltradar/api/session.py:131 beltradar/api/snapshot.py:78
-msgid "Belt Session not found or not public."
-msgstr "Die „Belt Sitzung“ wurde nicht gefunden oder ist nicht öffentlich."
-
-#: beltradar/api/session.py:157 beltradar/api/session.py:229
-#: beltradar/api/session.py:287 beltradar/api/timer.py:99
-#: beltradar/api/timer.py:155
-msgid "Public"
-msgstr "Öffentlich"
-
-#: beltradar/api/session.py:157 beltradar/api/session.py:229
-#: beltradar/api/session.py:287 beltradar/api/timer.py:99
-#: beltradar/api/timer.py:155
-msgid "Private"
-msgstr "Privat"
-
-#: beltradar/api/session.py:333
-msgid "Session added successfully."
-msgstr "Die Sitzung wurde erfolgreich hinzugefügt."
-
-#: beltradar/api/session.py:365 beltradar/api/session.py:419
 msgid "Belt Session not found."
 msgstr "Die „Belt-Sitzung“ wurde nicht gefunden."
 
-#: beltradar/api/session.py:379 beltradar/api/session.py:433
-#: beltradar/api/snapshot.py:196 beltradar/api/snapshot.py:248
-#: beltradar/api/timer.py:247 beltradar/api/timer.py:318
-#: beltradar/api/timer.py:376
-msgid "Requested resource not found."
-msgstr "Die angeforderte Ressource wurde nicht gefunden."
-
-#: beltradar/api/session.py:385
 msgid "Session and all associated entries deleted successfully."
 msgstr "Die Sitzung und alle zugehörigen Einträge wurden erfolgreich gelöscht."
 
-#: beltradar/api/session.py:442
-msgid "Failed to update session {field}: {str(e)}"
-msgstr "Die Aktualisierung der Sitzung {field} ist fehlgeschlagen: {str(e)}"
-
-#: beltradar/api/session.py:444
-#, python-brace-format
-msgid "Session {field} updated successfully."
-msgstr "Die Sitzung {field} wurde erfolgreich aktualisiert."
-
-#: beltradar/api/session.py:446
 msgid "Invalid Method"
 msgstr "Ungültige methode"
 
-#: beltradar/api/snapshot.py:203
+msgid "Invalid value."
+msgstr ""
+
+msgid "Session updated successfully."
+msgstr ""
+
+msgid "Requested resource not found."
+msgstr "Die angeforderte Ressource wurde nicht gefunden."
+
 msgid "No entries found for the given snapshot."
 msgstr "Für den angegebenen Snapshot wurden keine Einträge gefunden."
 
-#: beltradar/api/snapshot.py:207
 msgid "Snapshot deleted successfully."
 msgstr "Der Snapshot wurde erfolgreich gelöscht."
 
-#: beltradar/api/snapshot.py:269
 msgid "No valid entries to add. Errors:"
 msgstr "Es sind keine gültigen Einträge zum Hinzufügen vorhanden. Fehler:"
 
-#: beltradar/api/snapshot.py:362
 msgid "Snapshot added successfully."
 msgstr "Der Snapshot wurde erfolgreich hinzugefügt."
 
-#: beltradar/api/snapshot.py:366
 msgid "No valid entries to add. Missing types:"
 msgstr ""
 "Es sind keine gültigen Einträge zum Hinzufügen vorhanden. Fehlende Typen:"
 
-#: beltradar/api/timer.py:209
 msgid "Belt timer added successfully."
 msgstr "Der Belt-Timer wurde erfolgreich hinzugefügt."
 
-#: beltradar/api/timer.py:255
 msgid "Session does not have a valid belt type or size."
 msgstr ""
 "Für die Sitzung ist kein gültiger Belt-Typ oder keine gültige Belt-Größe "
 "angegeben."
 
-#: beltradar/api/timer.py:272
 msgid "Session Belt timer added successfully."
 msgstr "Der Sitzung Belt-Timer wurde erfolgreich hinzugefügt."
 
-#: beltradar/api/timer.py:304 beltradar/api/timer.py:325
-#: beltradar/api/timer.py:362
 msgid "Belt timer not found."
 msgstr "Belt-Timer nicht gefunden."
 
-#: beltradar/api/timer.py:329
 msgid "Belt timer deleted successfully."
 msgstr "Belt-Timer wurde erfolgreich gelöscht."
 
-#: beltradar/api/timer.py:389 beltradar/api/timer.py:407
 msgid "Belt timer updated successfully."
 msgstr "Belt-Timer erfolgreich aktualisiert."
 
-#: beltradar/forms.py:80
 msgid "Paste the 'Mining Survey' data here."
 msgstr "Fügen Sie hier die Daten aus dem „Bergbau-Scan“ ein."
 
-#: beltradar/forms.py:166
 msgid "A name to identify this survey session."
 msgstr "Ein Name zur Identifizierung dieser Vermessungssitzung."
 
-#: beltradar/forms.py:168
 msgid ""
 "If checked, this session will be visible to other users without a public ID."
 msgstr ""
 "Wenn dieses Kontrollkästchen aktiviert ist, ist diese Sitzung für andere "
 "Benutzer ohne öffentliche ID sichtbar."
 
-#: beltradar/forms.py:186
 msgid ""
 "The unique identifier for this belt timer. (This is usually the belt's ID in "
 "the game.)"
@@ -188,19 +133,15 @@ msgstr ""
 "Die eindeutige Kennung für diesen Belt-Timer. (Dies ist in der Regel die ID "
 "im Spiel.)"
 
-#: beltradar/forms.py:188
 msgid "The name of the belt."
 msgstr "Der Name des Belt."
 
-#: beltradar/forms.py:189
 msgid "The type of belt."
 msgstr "Art des Belt."
 
-#: beltradar/forms.py:190
 msgid "The size of the belt."
 msgstr "Die Größe des Belt."
 
-#: beltradar/forms.py:192
 msgid ""
 "If checked, this belt timer will be visible to other users. Otherwise, it "
 "will be private."
@@ -208,52 +149,33 @@ msgstr ""
 "Wenn dieses Kontrollkästchen aktiviert ist, ist dieser Belt-Timer für andere "
 "Nutzer sichtbar. Andernfalls ist er privat."
 
-#: beltradar/forms.py:202
-msgid "Disable Notifications"
-msgstr "Benachrichtigungen deaktivieren"
-
-#: beltradar/forms.py:206
-msgid "Check this box to disable notifications for expired belt timers."
-msgstr ""
-"Aktivieren Sie dieses Kontrollkästchen, um Benachrichtigungen für "
-"abgelaufene Belt-Timer zu deaktivieren."
-
-#: beltradar/models/beltradar.py:81
 msgid ""
 "Indicates whether this session is publicly accessible without public id."
 msgstr ""
 "Gibt an, ob diese Sitzung ohne öffentliche ID öffentlich zugänglich ist."
 
-#: beltradar/models/beltradar.py:326
 msgid "Optional link to a session for this belt timer."
 msgstr "Optionaler Link zu einer Sitzung für diesen Belt-Timer."
 
-#: beltradar/models/beltradar.py:336
 msgid "Indicates whether a notification has been sent for this timer."
 msgstr "Gibt an, ob für diesen Timer eine Benachrichtigung gesendet wurde."
 
-#: beltradar/models/general.py:16
 msgid "Can access this app, Belt Radar"
 msgstr "Kann auf diese App zugreifen: Belt Radar"
 
-#: beltradar/models/general.py:17
 msgid "Can manage Belt Radar"
 msgstr "Kann das Belt-Radar verwalten"
 
-#: beltradar/models/general.py:18
 msgid "Admin access to Belt Radar"
 msgstr "Administratorzugriff auf Belt Radar"
 
-#: beltradar/tasks.py:77
 #, python-brace-format
 msgid "Belt ID: **{belt_id}** ({belt_type} - {belt_size})"
 msgstr "Belt-ID: **{belt_id}** ({belt_type} – {belt_size})"
 
-#: beltradar/tasks.py:111 beltradar/tasks.py:132
 msgid "Belt Radar Notification"
 msgstr "Belt-Radar Benachrichtigung"
 
-#: beltradar/tasks.py:113 beltradar/tasks.py:128
 msgid ""
 "\n"
 "\n"
@@ -263,17 +185,32 @@ msgstr ""
 "\n"
 "ist wieder erschienen."
 
-#: beltradar/templates/beltradar/base.html:64
 msgid "Internal Server Error"
 msgstr "Interner Server Fehler"
 
-#: beltradar/templates/beltradar/navigation/navigation.html:11
 msgid "My Belt Radar"
 msgstr "Mein Belt-Radar"
 
-#: beltradar/templates/beltradar/navigation/navigation.html:14
 msgid "My Settings"
 msgstr "Meine Einstellungen"
+
+#~ msgid "Failed to update session {field}: {str(e)}"
+#~ msgstr "Die Aktualisierung der Sitzung {field} ist fehlgeschlagen: {str(e)}"
+
+#, python-brace-format
+#~ msgid "Session {field} updated successfully."
+#~ msgstr "Die Sitzung {field} wurde erfolgreich aktualisiert."
+
+#~ msgid "User settings updated successfully."
+#~ msgstr "Benutzereinstellungen erfolgreich aktualisiert."
+
+#~ msgid "Disable Notifications"
+#~ msgstr "Benachrichtigungen deaktivieren"
+
+#~ msgid "Check this box to disable notifications for expired belt timers."
+#~ msgstr ""
+#~ "Aktivieren Sie dieses Kontrollkästchen, um Benachrichtigungen für "
+#~ "abgelaufene Belt-Timer zu deaktivieren."
 
 #~ msgid "Modify Session"
 #~ msgstr "Sitzung anpassen"

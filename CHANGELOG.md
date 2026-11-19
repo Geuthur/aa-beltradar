@@ -39,6 +39,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] Frontend on `aa-geuthur-react` 1.5.0: `Main.tsx` uses `initI18n`, the settings page uses `useUserSettings`, `loadUserSettings` and `updateUserSettings` are removed, `LiveStatusIndicator`, `useLivePing`, `formatLastFetch` and `SecurityBadge` come from the package, design tokens, `aa-status-*` classes and keyframes come from the package stylesheet; unused `UserSettingsForm` removed. The live status tooltip "Last Fetch" reads "Letzter Abruf" in German now.
+
 - Security: all URLs of the API now pass `basic_access_required` (`api/auth.py`, building block of aa-example), so new endpoints require `beltradar.basic_access` without a check of their own. Nothing changes for users; the checks in the endpoints stay for now.
 
 - Discord notifications: `thirdparty/discord.py` is aligned with the aa-example building block (embed colours in the module instead of `constants.py`, `send_user_notification` itself skips users with `disable_notifications`, so `update_all_belt_radar` no longer checks it or creates `UserSettings` rows); `UserSettings` moves to `models/general.py` (no migration). The webhook for public timers is unchanged.

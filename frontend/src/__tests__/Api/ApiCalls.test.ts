@@ -11,8 +11,6 @@ import {
     loadPublicSessions,
     loadSession,
     loadSnapshot,
-    loadUserSettings,
-    updateUserSettings,
 } from '@/Api/ApiCalls';
 
 describe('BeltRadar API client functions', () => {
@@ -133,58 +131,6 @@ describe('BeltRadar API client functions', () => {
             const result = await loadMenu();
             expect(result).toEqual(mockMenu);
             expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/menu/');
-        });
-    });
-
-    describe('loadUserSettings', () => {
-        it('calls /settings/ and returns the settings', async () => {
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: { disable_notifications: true },
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await loadUserSettings();
-            expect(result).toEqual({ disable_notifications: true });
-            expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/settings/');
-        });
-
-        it('throws error when GET fails', async () => {
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: undefined,
-                error: { error: 'Permission Denied.' },
-                response: new Response(),
-            } as never);
-
-            await expect(loadUserSettings()).rejects.toThrow('Failed to load user settings');
-        });
-    });
-
-    describe('updateUserSettings', () => {
-        it('sends the settings as PUT body and returns them', async () => {
-            vi.spyOn(apiClient, 'PUT').mockResolvedValueOnce({
-                data: { disable_notifications: true },
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await updateUserSettings({ disable_notifications: true });
-            expect(result).toEqual({ disable_notifications: true });
-            expect(apiClient.PUT).toHaveBeenCalledWith('/beltradar/api/settings/', {
-                body: { disable_notifications: true },
-            });
-        });
-
-        it('throws error when update fails', async () => {
-            vi.spyOn(apiClient, 'PUT').mockResolvedValueOnce({
-                data: undefined,
-                error: { error: 'Permission Denied.' },
-                response: new Response(),
-            } as never);
-
-            await expect(updateUserSettings({ disable_notifications: false })).rejects.toThrow(
-                'Failed to update user settings',
-            );
         });
     });
 });

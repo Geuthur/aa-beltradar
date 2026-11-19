@@ -2,44 +2,22 @@
 import React from "react";
 
 // Third Party
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUserSettings } from "aa-geuthur-react";
 import { BellOff, Settings2 } from "lucide-react";
 import { Card } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
-import { loadUserSettings, updateUserSettings } from "@/Api/ApiCalls";
 import type { components } from "@/Api/OpenApi";
-import { queryKeys } from "@/Api/query";
 import styles from "@/Styles/modules/SettingsPage.module.css";
 
 type UserSettings = components["schemas"]["UserSettingsSchema"];
+type UserSettingsUpdate = components["schemas"]["UserSettingsUpdateRequest"];
 
 export const SettingsPage: React.FC = () => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const { data, isLoading, isError } = useQuery({
-    queryKey: queryKeys.UserSettings,
-    queryFn: loadUserSettings,
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (settings: UserSettings) => updateUserSettings(settings),
-    onMutate: async (settings) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.UserSettings });
-      const previous = queryClient.getQueryData<UserSettings>(queryKeys.UserSettings);
-      queryClient.setQueryData<UserSettings>(queryKeys.UserSettings, settings);
-      return { previous };
-    },
-    onError: (_error, _settings, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(queryKeys.UserSettings, context.previous);
-      }
-    },
-    onSuccess: (settings) => {
-      queryClient.setQueryData(queryKeys.UserSettings, settings);
-    },
-  });
+  // Loads the settings and saves them optimistically (rollback on error)
+  const { data, isLoading, isError, updateMutation } = useUserSettings<UserSettings, UserSettingsUpdate>();
 
   if (isLoading) {
     return (

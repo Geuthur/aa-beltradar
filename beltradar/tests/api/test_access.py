@@ -340,6 +340,7 @@ class TestApiEndpointsPost(AuthTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])
 
     def test_add_session_belt_timer_should_200(self):
         """
@@ -441,6 +442,7 @@ class TestApiEndpointsPost(AuthTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])
 
     def test_delete_belt_timer_should_200(self):
         """
@@ -592,6 +594,7 @@ class TestApiEndpointsPost(AuthTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])
 
     def test_modify_belt_timer_should_403(self):
         """
@@ -773,6 +776,7 @@ class TestApiSnapshotEndpointsPost(AuthTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])
 
 
 class TestApiSessionEndpointsPost(AuthTestCase):
@@ -830,3 +834,4 @@ class TestApiSessionEndpointsPost(AuthTestCase):
 
         # Expected Result
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])

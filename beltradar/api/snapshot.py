@@ -9,7 +9,7 @@ from ninja import NinjaAPI
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 # AA Belt Radar
 from beltradar import forms
@@ -26,7 +26,6 @@ from beltradar.api.helpers.core import (
     get_manage_session_or_none,
     get_session_or_none,
 )
-from beltradar.models import General
 from beltradar.models.beltradar import (
     BeltSurveyEntry,
     BeltSurveySession,
@@ -45,8 +44,8 @@ class BeltRadarApiEndpoints:
             "view/session/{public_id}/snapshot/last_snapshot/",
             response={
                 HTTPStatus.OK: schema.SnapShotSchema,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: schema.SnapShotSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -63,9 +62,6 @@ class BeltRadarApiEndpoints:
                 404: An error message if the survey session is not found.
             """
             # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             # Check if the survey session exists
             try:
                 session = BeltSurveySession.objects.get(public_id=public_id)
@@ -157,8 +153,8 @@ class BeltRadarApiEndpoints:
             "manage/delete-snapshot/{public_id}/snapshot/{identifier}/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -177,10 +173,6 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the session is not found.
                 404: An error message if no entries are found for the given snapshot.
             """
-            # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             # Only the owner or an admin may delete a snapshot, seeing the session is not enough
             perms, session = get_manage_session_or_none(
                 request=request,
@@ -212,9 +204,9 @@ class BeltRadarApiEndpoints:
             "manage/add-survey-entry/{public_id}/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.BAD_REQUEST: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.BAD_REQUEST: schema.ErrorSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -234,10 +226,6 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the session is not found.
                 404: An error message if the session is not found.
             """
-            # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             # Everyone who sees the session may add snapshots (shared surveying of public sessions)
             perms, session = get_session_or_none(
                 request=request,
@@ -261,7 +249,7 @@ class BeltRadarApiEndpoints:
                     msg = _(
                         "Invalid input data. Please check the format and try again."
                     )
-                return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
+                return HTTPStatus.BAD_REQUEST, {"error": msg}
 
             snapshot_asteroids = []
             snapshot_data: schema.OreSchemaResponse = form.cleaned_data.get(
@@ -273,7 +261,7 @@ class BeltRadarApiEndpoints:
                 msg = _("No valid entries to add. Errors:") + " , ".join(
                     snapshot_data.errors if snapshot_data else ["No data"]
                 )
-                return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
+                return HTTPStatus.BAD_REQUEST, {"error": msg}
 
             missing_types = []
             names = [item.name for item in snapshot_data.ore_list]
@@ -365,10 +353,10 @@ class BeltRadarApiEndpoints:
                     "success": True,
                     "message": _("Snapshot added successfully."),
                 }
-            return HTTPStatus.BAD_REQUEST, {
-                "success": False,
-                "message": _("No valid entries to add. Missing types:")
+            msg = (
+                _("No valid entries to add. Missing types:")
                 + " , ".join(missing_types)
                 + ". Errors: "
-                + ", ".join(snapshot_data.errors if snapshot_data else ["No data"]),
-            }
+                + ", ".join(snapshot_data.errors if snapshot_data else ["No data"])
+            )
+            return HTTPStatus.BAD_REQUEST, {"error": msg}

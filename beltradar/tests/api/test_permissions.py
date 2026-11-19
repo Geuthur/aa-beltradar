@@ -381,6 +381,7 @@ class TestApiModifySessionFields(AuthTestCase):
             with self.subTest(field=field):
                 response = self._modify(session, field, value)
                 self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+                self.assertEqual(list(response.json()), ["error"])
 
         session = BeltSurveySession.objects.get(pk=session.pk)
         self.assertEqual(session.name, "Original")
@@ -394,5 +395,6 @@ class TestApiModifySessionFields(AuthTestCase):
         response = self._modify(session, "is_public", "maybe")
 
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])
         session.refresh_from_db()
         self.assertFalse(session.is_public)

@@ -7,7 +7,7 @@ from ninja import NinjaAPI
 # Django
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 # AA Belt Radar
 from beltradar import forms
@@ -18,7 +18,6 @@ from beltradar.api.helpers.actions import (
 )
 from beltradar.api.helpers.core import get_manage_session_or_none
 from beltradar.helpers.eveonline import get_character_portrait_url
-from beltradar.models import General
 from beltradar.models.beltradar import (
     BeltSurveySession,
     BeltSurveySnapshot,
@@ -98,8 +97,8 @@ class BeltRadarApiEndpoints:
             "view/session/{public_id}/stats/",
             response={
                 HTTPStatus.OK: schema.SessionStatsSchema,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -118,9 +117,6 @@ class BeltRadarApiEndpoints:
                 404: An error message if the survey session is not found or not public.
             """
             # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             try:
                 session = BeltSurveySession.objects.get(public_id=public_id)
             except ObjectDoesNotExist:
@@ -163,8 +159,8 @@ class BeltRadarApiEndpoints:
             "view/my-sessions/{character_id}/",
             response={
                 HTTPStatus.OK: list[schema.SessionSchema],
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -182,10 +178,6 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission to access the sessions.
                 404: An error message if no sessions are found for the character.
             """
-            # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             perms = False
 
             # Check if the character ID is in the list of visible characters for the current user
@@ -239,7 +231,7 @@ class BeltRadarApiEndpoints:
             "view/public-sessions/",
             response={
                 HTTPStatus.OK: list[schema.SessionSchema],
-                HTTPStatus.FORBIDDEN: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -254,10 +246,6 @@ class BeltRadarApiEndpoints:
                 200: A list of sessions in the API response format.
                 403: An error message if the user does not have permission to access the sessions.
             """
-            # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             # Get all sessions visible to the user, ordered by creation date descending
             sessions = BeltSurveySession.objects.visible_to(request.user).order_by(
                 "-created_at"
@@ -301,9 +289,9 @@ class BeltRadarApiEndpoints:
             "manage/session/add/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.BAD_REQUEST: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.BAD_REQUEST: schema.ErrorSchema,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -319,11 +307,6 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission to create sessions.
                 400: An error message if the request data is invalid.
             """
-            # Check if the user has permission to add entries to this survey session
-            if not General.objects.has_basic_access(request.user):
-                msg = _("Permission Denied.")
-                return HTTPStatus.FORBIDDEN, {"error": msg}
-
             # Validate the form data
             form = forms.BeltSessionForm(data=request.POST)
             logger.debug(form.errors)
@@ -338,14 +321,14 @@ class BeltRadarApiEndpoints:
                         "message": _("Session added successfully."),
                     }
             msg = _("Invalid input data. Please check the format and try again.")
-            return HTTPStatus.BAD_REQUEST, {"success": False, "message": msg}
+            return HTTPStatus.BAD_REQUEST, {"error": msg}
 
         @api.post(
             "manage/session/{public_id}/delete/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -363,10 +346,6 @@ class BeltRadarApiEndpoints:
                 403: An error message if the user does not have permission or the session is not found.
                 404: An error message if no entries are found for the given survey session.
             """
-            # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             # Only the owner or an admin may delete the session, seeing it is not enough
             perms, session = get_manage_session_or_none(
                 request=request,
@@ -389,9 +368,9 @@ class BeltRadarApiEndpoints:
             "manage/session/{public_id}/modify/{field}/value/{value}/",
             response={
                 HTTPStatus.OK: dict,
-                HTTPStatus.FORBIDDEN: dict,
-                HTTPStatus.NOT_FOUND: dict,
-                HTTPStatus.BAD_REQUEST: dict,
+                HTTPStatus.FORBIDDEN: schema.ErrorSchema,
+                HTTPStatus.NOT_FOUND: schema.ErrorSchema,
+                HTTPStatus.BAD_REQUEST: schema.ErrorSchema,
             },
             tags=self.tags,
         )
@@ -412,10 +391,6 @@ class BeltRadarApiEndpoints:
                 404: An error message if the session does not exist.
                 400: An error message if the request is malformed or invalid.
             """
-            # pylint: disable=duplicate-code
-            if not General.objects.has_basic_access(request.user):
-                return HTTPStatus.FORBIDDEN, {"error": _("Permission Denied.")}
-
             # Only the owner or an admin may modify the session, seeing it is not enough
             perms, session = get_manage_session_or_none(
                 request=request,

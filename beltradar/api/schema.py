@@ -218,25 +218,17 @@ class MenuCategory(MenuLink):
     links: list[MenuLink] = None
 
 
-class MenuModalSchema(Schema):
-    create_session: ModalSchema | None = None
-    create_belt_timer: ModalSchema | None = None
-    create_snapshot: ModalSchema | None = None
-
-
 class MenuSchema(Schema):
     """
-    Schema for the overall menu, including links and modals.
+    Schema for the overall menu with its navigation links.
 
     Parameters:
         left_links (list[MenuLink]): The links left in the navigation bar.
         right_links (list[MenuLink]): The links right in the navigation bar.
-        modals (MenuModalSchema | None): The modals associated with the menu.
     """
 
     left_links: list[MenuLink] = []
     right_links: list[MenuLink] = []
-    modals: MenuModalSchema | None = None
 
 
 class CreateSessionSchema(Schema):

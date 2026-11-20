@@ -9,7 +9,27 @@ import { CircleHelp, Plus, Trash2, Wrench } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
+import type { paths } from "@/Api/OpenApi";
 import type { ModalSchema } from "@/Api/schema";
+
+/** API paths that accept a POST, which is how `useFormApproveMutation` sends the form. */
+type PostPath = {
+  [P in keyof paths]: NonNullable<paths[P]["post"]> extends never ? never : P;
+}[keyof paths];
+
+/** Modals of the section headers; the endpoints check the permissions themselves. */
+export const sectionModals = {
+  create_session: {
+    modal_id: "beltradar-accept-create-session",
+    url: "/beltradar/api/manage/session/add/",
+  },
+  create_belt_timer: {
+    modal_id: "beltradar-accept-create-belt-timer",
+    url: "/beltradar/api/manage/belt-timer/create/",
+  },
+} as const satisfies Record<string, { modal_id: string; url: PostPath }>;
+
+export type SectionModalKey = keyof typeof sectionModals;
 
 export type ModalColor = "primary" | "secondary" | "success" | "warning" | "danger";
 

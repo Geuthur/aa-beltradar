@@ -41,8 +41,12 @@ Section Order:
 - Security: every API endpoint now requires `beltradar.basic_access` (before, the menu, the session and belt timer lists and most changing endpoints did not check it). Deleting or changing a session, deleting its snapshots and creating its belt timer are limited to the owner and admins; before, everyone who saw a public session could do so. `modify_session` only accepts `is_public` with `True`/`False` instead of setting any field. Adding snapshots to a visible public session stays possible.
 - Security: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery. A webhook that still fails after the last retry now ends with a warning instead of a failed task.
 - Dev dependencies: `minimatch` raised to 11 (GHSA-g3hv-75wg-m249) via `eslint` `^10.15.0` and `typescript-eslint` `^8.72.2`, and `zod` to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
+- [FIX] `aa-geuthur-react` raised to `^1.6.0`: the confirm and form modals show the error text of the API again instead of "Unknown error".
+- [FIX] Belt timers: only snapshots of the session owner or an admin create or reset the automatic timer (other viewers' snapshots are still saved); creating a second session timer returns 400 instead of 500; a session timer always belongs to the session owner, also when an admin creates it.
 
 ### Changed
+
+- [CHANGE] The create modals of the section headers are defined in the frontend (`modalConfig.tsx`, endpoints typed from the OpenAPI schema); the menu endpoint no longer sends `modals` and `MenuModalSchema` is removed.
 
 - [CHANGE] Frontend on `aa-geuthur-react` 1.5.0: `Main.tsx` uses `initI18n`, the settings page uses `useUserSettings`, `loadUserSettings` and `updateUserSettings` are removed, `LiveStatusIndicator`, `useLivePing`, `formatLastFetch` and `SecurityBadge` come from the package, design tokens, `aa-status-*` classes and keyframes come from the package stylesheet; unused `UserSettingsForm` removed. The live status tooltip "Last Fetch" reads "Letzter Abruf" in German now.
 

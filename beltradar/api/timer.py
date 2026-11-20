@@ -240,6 +240,10 @@ class BeltRadarApiEndpoints:
                     "error": _("Requested resource not found.")
                 }
 
+            if session.has_timer:
+                msg = _("Session already has a belt timer.")
+                return HTTPStatus.BAD_REQUEST, {"error": msg}
+
             belt_type, belt_size = BeltSurveySnapshot.objects.filter(
                 timestamp=session.first_timestamp
             ).session_resolve_belt()
@@ -249,8 +253,9 @@ class BeltRadarApiEndpoints:
                 return HTTPStatus.BAD_REQUEST, {"error": msg}
 
             with transaction.atomic():
+                # The timer always belongs to the session owner, also when an admin creates it
                 timer = BeltTimer(
-                    owner=request.user,
+                    owner=session.owner,
                     public_id=session.public_id,
                     belt_id=generate_unique_public_id(length=7),
                     belt_name=session.name,
@@ -258,7 +263,6 @@ class BeltRadarApiEndpoints:
                     belt_size=belt_size,
                     session=session,
                 )
-                timer.owner = request.user
                 timer.save()
                 return HTTPStatus.OK, {
                     "success": True,

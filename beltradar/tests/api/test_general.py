@@ -32,7 +32,7 @@ class TestGeneralApiEndpoints(AuthTestCase):
             ["Belt Radar", "My Sessions", "Settings"],
         )
         self.assertEqual(data["right_links"], [])
-        self.assertIn("create_session", data["modals"])
+        self.assertNotIn("modals", data)
 
     def test_get_user_should_return_contract_fields(self):
         """The user endpoint delivers the character, corporation and admin flag."""

@@ -1,4 +1,5 @@
 # Standard Library
+from datetime import timedelta
 from http import HTTPStatus
 
 # Third Party
@@ -6,6 +7,7 @@ from evesde_factory.eve_sde import ItemTypeFactory
 
 # Django
 from django.urls import reverse
+from django.utils import timezone
 
 # AA Belt Radar
 from beltradar.api.helpers.actions import (
@@ -398,3 +400,104 @@ class TestApiModifySessionFields(AuthTestCase):
         self.assertEqual(list(response.json()), ["error"])
         session.refresh_from_db()
         self.assertFalse(session.is_public)
+
+
+class TestApiSessionBeltTimerOwnership(AuthTestCase):
+    """Only the owner or an admin may set the session timer, which always belongs to the owner."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.owner = UserMainFactory()
+
+    def _create_session(self, owner, is_public=True):
+        """Create a session whose first snapshot holds a large Arkonor belt."""
+        session = BeltSessionFactory(owner=owner, is_public=is_public)
+        snapshot = BeltSnapshotFactory(
+            session=session,
+            recorded_by=owner,
+            timestamp=timezone.now() - timedelta(days=1),
+        )
+        BeltSurveyEntryFactory(
+            snapshot=snapshot,
+            eve_type=ItemTypeFactory(name="Arkonor"),
+            volume_left=1_000_000,
+        )
+        return session
+
+    def _add_depleted_snapshot(self, session):
+        """Add a snapshot that leaves less than 10% of the first volume."""
+        return self.client.post(
+            reverse(f"{API_URL}:add_snapshot", kwargs={"public_id": session.public_id}),
+            data={"raw_data": "Arkonor*\t1\t5 m3\t1 ISK\t501 km\n"},
+        )
+
+    def test_add_snapshot_should_create_timer_for_owner(self):
+        session = self._create_session(self.user)
+        self.client.force_login(self.user)
+
+        response = self._add_depleted_snapshot(session)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(BeltTimer.objects.get(session=session).owner, self.user)
+
+    def test_add_snapshot_should_create_timer_of_owner_for_admin(self):
+        session = self._create_session(self.owner, is_public=False)
+        self.client.force_login(self.superuser)
+
+        response = self._add_depleted_snapshot(session)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(BeltTimer.objects.get(session=session).owner, self.owner)
+
+    def test_add_snapshot_should_not_create_timer_for_foreign_viewer(self):
+        session = self._create_session(self.owner)
+        self.client.force_login(self.user)
+
+        response = self._add_depleted_snapshot(session)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(session.br_snapshots.count(), 2)
+        self.assertFalse(BeltTimer.objects.filter(session=session).exists())
+
+    def test_add_snapshot_should_not_reset_eta_for_foreign_viewer(self):
+        session = self._create_session(self.owner)
+        timer = session.create_belt_timer()
+        eta = timezone.now() + timedelta(days=30)
+        BeltTimer.objects.filter(pk=timer.pk).update(eta=eta)
+        self.client.force_login(self.user)
+
+        response = self._add_depleted_snapshot(session)
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        timer.refresh_from_db()
+        self.assertEqual(timer.eta, eta)
+
+    def test_add_session_belt_timer_should_belong_to_owner_for_admin(self):
+        session = self._create_session(self.owner, is_public=False)
+        self.client.force_login(self.superuser)
+
+        response = self.client.post(
+            reverse(
+                f"{API_URL}:add_session_belt_timer",
+                kwargs={"public_id": session.public_id},
+            )
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(BeltTimer.objects.get(session=session).owner, self.owner)
+
+    def test_add_session_belt_timer_should_400_when_timer_exists(self):
+        session = self._create_session(self.user)
+        self.client.force_login(self.user)
+        url = reverse(
+            f"{API_URL}:add_session_belt_timer",
+            kwargs={"public_id": session.public_id},
+        )
+        self.client.post(url)
+
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(list(response.json()), ["error"])
+        self.assertEqual(BeltTimer.objects.filter(session=session).count(), 1)

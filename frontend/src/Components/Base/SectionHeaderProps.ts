@@ -2,14 +2,12 @@
 import type { QueryKey } from "@tanstack/react-query";
 
 // AA Belt Radar
-import type { components } from "@/Api/OpenApi";
-
-export type MenuModalKey = keyof components["schemas"]["MenuModalSchema"];
+import type { SectionModalKey } from "@/Components/Modals/modalConfig";
 
 export interface SectionHeaderProps {
     name: string;
     queryKey?: QueryKey | QueryKey[];
-    modalKey?: MenuModalKey;
+    modalKey?: SectionModalKey;
     buttonTitle?: string;
     buttonIcon?: React.ReactNode;
     validate?: (formData: Record<string, string | boolean>) => boolean;

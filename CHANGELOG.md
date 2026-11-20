@@ -41,6 +41,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] `providers.py` is aligned with the repository template: the retried ESI server error codes are the constant `ESI_RETRY_STATUS_CODES`, the new `is_retryable_esi_error()` tells which exceptions `retry_task_on_esi_error` retries, and the tests match the template. Behaviour is unchanged.
+
 - [CHANGE] The create modals of the section headers are defined in the frontend (`modalConfig.tsx`, endpoints typed from the OpenAPI schema); the menu endpoint no longer sends `modals` and `MenuModalSchema` is removed.
 
 - [CHANGE] Frontend on `aa-geuthur-react` 1.5.0: `Main.tsx` uses `initI18n`, the settings page uses `useUserSettings`, `loadUserSettings` and `updateUserSettings` are removed, `LiveStatusIndicator`, `useLivePing`, `formatLastFetch` and `SecurityBadge` come from the package, design tokens, `aa-status-*` classes and keyframes come from the package stylesheet; unused `UserSettingsForm` removed. The live status tooltip "Last Fetch" reads "Letzter Abruf" in German now.

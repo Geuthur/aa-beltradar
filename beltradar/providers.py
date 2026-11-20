@@ -47,6 +47,13 @@ esi = ESIClientProvider(
 
 DOWNTIME_TIMER = 60 * 10  # 10 minutes
 
+# HTTP status codes of ESI server errors that are worth a retry
+ESI_RETRY_STATUS_CODES = (
+    HTTPStatus.BAD_GATEWAY,
+    HTTPStatus.SERVICE_UNAVAILABLE,
+    HTTPStatus.GATEWAY_TIMEOUT,
+)
+
 
 class AppLogger(logging.LoggerAdapter):
     """
@@ -87,6 +94,16 @@ class AppLogger(logging.LoggerAdapter):
 logger = AppLogger(my_logger=get_extension_logger(__name__), prefix=__title__)
 
 
+def is_retryable_esi_error(exc: Exception) -> bool:
+    """Check if `retry_task_on_esi_error` retries the task on this exception."""
+    if isinstance(exc, HTTPServerError):
+        return exc.status_code in ESI_RETRY_STATUS_CODES
+    return isinstance(
+        exc,
+        (ESIErrorLimitException, ESIBucketLimitException, RequestError, DownTimeError),
+    )
+
+
 @contextmanager
 def retry_task_on_esi_error(task: Task):
     """Retry Task when a ESI error occurs.
@@ -98,8 +115,8 @@ def retry_task_on_esi_error(task: Task):
     - Error limits reached (ESIErrorLimitException)
     - Rate limit errors (ESIBucketLimitException)
     - HTTPError with status codes 502, 503, 504 (server errors)
-    - Request errors (RequestError)
-    - Downtime errors (DownTimeError, e.g. ESI's daily downtime from 11:00 to 11:15 UTC)
+    - RequestError (network issues, timeouts, etc.)
+    - DownTimeError (ESI's daily downtime from 11:00 to 11:15 UTC)
 
     :param task: Celery Task instance
     :return: Context manager that retries the task on ESI errors.
@@ -141,11 +158,7 @@ def retry_task_on_esi_error(task: Task):
     except ESIBucketLimitException as exc:
         retry(exc, exc.reset, f"ESI Bucket Limit Reached for {exc.bucket}")
     except HTTPServerError as exc:
-        if exc.status_code in [
-            HTTPStatus.BAD_GATEWAY,
-            HTTPStatus.SERVICE_UNAVAILABLE,
-            HTTPStatus.GATEWAY_TIMEOUT,
-        ]:
+        if exc.status_code in ESI_RETRY_STATUS_CODES:
             retry(exc, DOWNTIME_TIMER, f"ESI seems to be down (HTTP {exc.status_code})")
         raise exc
     except RequestError as exc:

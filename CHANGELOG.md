@@ -41,6 +41,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] The create modals of the section headers are defined in the frontend (`modalConfig.tsx`, endpoints typed from the OpenAPI schema); the menu endpoint no longer sends `modals` and `MenuModalSchema` is removed.
+
 - [CHANGE] Frontend on `aa-geuthur-react` 1.5.0: `Main.tsx` uses `initI18n`, the settings page uses `useUserSettings`, `loadUserSettings` and `updateUserSettings` are removed, `LiveStatusIndicator`, `useLivePing`, `formatLastFetch` and `SecurityBadge` come from the package, design tokens, `aa-status-*` classes and keyframes come from the package stylesheet; unused `UserSettingsForm` removed. The live status tooltip "Last Fetch" reads "Letzter Abruf" in German now.
 
 - Security: all URLs of the API now pass `basic_access_required` (`api/auth.py`, building block of aa-example), so new endpoints require `beltradar.basic_access` without a check of their own. Nothing changes for users; the checks in the endpoints stay for now.

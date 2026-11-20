@@ -788,20 +788,13 @@ export interface components {
              */
             has_errors: boolean;
         };
-        /** MenuModalSchema */
-        MenuModalSchema: {
-            create_session?: components["schemas"]["ModalSchema"] | null;
-            create_belt_timer?: components["schemas"]["ModalSchema"] | null;
-            create_snapshot?: components["schemas"]["ModalSchema"] | null;
-        };
         /**
          * MenuSchema
-         * @description Schema for the overall menu, including links and modals.
+         * @description Schema for the overall menu with its navigation links.
          *
          *     Parameters:
          *         left_links (list[MenuLink]): The links left in the navigation bar.
          *         right_links (list[MenuLink]): The links right in the navigation bar.
-         *         modals (MenuModalSchema | None): The modals associated with the menu.
          */
         MenuSchema: {
             /**
@@ -814,7 +807,6 @@ export interface components {
              * @default []
              */
             right_links: components["schemas"]["MenuLink"][];
-            modals?: components["schemas"]["MenuModalSchema"] | null;
         };
         /**
          * UserData

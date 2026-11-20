@@ -36,6 +36,7 @@ Section Order:
 - Security: every API endpoint now requires `beltradar.basic_access` (before, the menu, the session and belt timer lists and most changing endpoints did not check it). Deleting or changing a session, deleting its snapshots and creating its belt timer are limited to the owner and admins; before, everyone who saw a public session could do so. `modify_session` only accepts `is_public` with `True`/`False` instead of setting any field. Adding snapshots to a visible public session stays possible.
 - Security: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery. A webhook that still fails after the last retry now ends with a warning instead of a failed task.
 - Dev dependencies: `minimatch` raised to 11 (GHSA-g3hv-75wg-m249) via `eslint` `^10.15.0` and `typescript-eslint` `^8.72.2`, and `zod` to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
+- [FIX] `aa-geuthur-react` raised to `^1.6.0`: the confirm and form modals show the error text of the API again instead of "Unknown error".
 
 ### Changed
 

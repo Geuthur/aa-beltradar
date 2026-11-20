@@ -346,7 +346,14 @@ class BeltRadarApiEndpoints:
                     snapshot.asteroids.set(
                         BeltSurveyEntry.objects.filter(snapshot=snapshot)
                     )
-                    if session.is_auto_timer_ready:
+                    # Only the owner or an admin may trigger the timer of a session;
+                    # snapshots of other viewers are stored but never set the timer.
+                    can_manage = (
+                        BeltSurveySession.objects.manage_to(request.user)
+                        .filter(pk=session.pk)
+                        .exists()
+                    )
+                    if can_manage and session.is_auto_timer_ready:
                         # Create the Belt Timer once the belt is nearly depleted.
                         session.create_belt_timer()
                 return HTTPStatus.OK, {

@@ -37,6 +37,7 @@ Section Order:
 - Security: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery. A webhook that still fails after the last retry now ends with a warning instead of a failed task.
 - Dev dependencies: `minimatch` raised to 11 (GHSA-g3hv-75wg-m249) via `eslint` `^10.15.0` and `typescript-eslint` `^8.72.2`, and `zod` to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
 - [FIX] `aa-geuthur-react` raised to `^1.6.0`: the confirm and form modals show the error text of the API again instead of "Unknown error".
+- [FIX] Belt timers: only snapshots of the session owner or an admin create or reset the automatic timer (other viewers' snapshots are still saved); creating a second session timer returns 400 instead of 500; a session timer always belongs to the session owner, also when an admin creates it.
 
 ### Changed
 

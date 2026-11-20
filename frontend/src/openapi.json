@@ -1874,44 +1874,8 @@
         "title": "MenuLink",
         "type": "object"
       },
-      "MenuModalSchema": {
-        "properties": {
-          "create_session": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ModalSchema"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "create_belt_timer": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ModalSchema"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "create_snapshot": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ModalSchema"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "title": "MenuModalSchema",
-        "type": "object"
-      },
       "MenuSchema": {
-        "description": "Schema for the overall menu, including links and modals.\n\nParameters:\n    left_links (list[MenuLink]): The links left in the navigation bar.\n    right_links (list[MenuLink]): The links right in the navigation bar.\n    modals (MenuModalSchema | None): The modals associated with the menu.",
+        "description": "Schema for the overall menu with its navigation links.\n\nParameters:\n    left_links (list[MenuLink]): The links left in the navigation bar.\n    right_links (list[MenuLink]): The links right in the navigation bar.",
         "properties": {
           "left_links": {
             "default": [],
@@ -1928,16 +1892,6 @@
             },
             "title": "Right Links",
             "type": "array"
-          },
-          "modals": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/MenuModalSchema"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "title": "MenuSchema",

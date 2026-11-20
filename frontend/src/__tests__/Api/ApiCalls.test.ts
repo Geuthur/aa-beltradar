@@ -5,7 +5,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiClient } from '@/Api/Api';
 import {
     loadBeltTimers,
-    loadMenu,
     loadMyBeltTimers,
     loadMySessions,
     loadPublicSessions,
@@ -118,21 +117,6 @@ describe('BeltRadar API client functions', () => {
             );
         });
     });
-
-    describe('loadMenu', () => {
-        it('calls /menu/ and returns data', async () => {
-            const mockMenu = { left_links: [], right_links: [] };
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: mockMenu,
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await loadMenu();
-            expect(result).toEqual(mockMenu);
-            expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/menu/');
-        });
-    });
 });
 
 type Method = 'GET' | 'POST' | 'DELETE';
@@ -145,7 +129,6 @@ const calls: [string, Method, () => Promise<unknown>, string][] = [
     ['loadMyBeltTimers', 'GET', () => loadMyBeltTimers(1001), 'Failed to load my belt timers'],
     ['loadSession', 'GET', () => loadSession('sess-1'), 'Failed to load session'],
     ['loadSnapshot', 'GET', () => loadSnapshot('sess-1', 'snap-1'), 'Failed to load snapshot'],
-    ['loadMenu', 'GET', () => loadMenu(), 'Failed to load menu'],
 ];
 
 const failWith = (method: Method, error: unknown) =>

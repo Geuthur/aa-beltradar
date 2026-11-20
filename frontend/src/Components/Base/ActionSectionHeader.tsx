@@ -1,16 +1,14 @@
 // Third Party
-import { useQuery } from '@tanstack/react-query';
 import { BaseModal, useFormApproveMutation, useModalQueryState } from "aa-geuthur-react";
 import { Plus } from 'lucide-react';
 import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadMenu } from '@/Api/ApiCalls';
-import { listQueryKeys, queryKeys } from "@/Api/query";
+import { listQueryKeys } from "@/Api/query";
 import type { SectionHeaderProps } from '@/Components/Base/SectionHeaderProps';
 import { IconButton } from '@/Components/Icons/Icons';
-import { useModalData } from '@/Components/Modals/modalConfig';
+import { sectionModals, useModalData } from '@/Components/Modals/modalConfig';
 
 export function ActionSectionHeader({
     name,
@@ -25,13 +23,7 @@ export function ActionSectionHeader({
     const formApproveMutation = useFormApproveMutation(queryKey);
     const { activeModal, openModal, closeModal } = useModalQueryState();
 
-    const { data: menuData } = useQuery({
-        queryKey: queryKeys.Menu,
-        queryFn: () => loadMenu(),
-        refetchOnWindowFocus: false,
-    });
-
-    const action = modalKey ? menuData?.modals?.[modalKey] : null;
+    const action = modalKey ? sectionModals[modalKey] : null;
     const modalData = useModalData(action);
 
     return (

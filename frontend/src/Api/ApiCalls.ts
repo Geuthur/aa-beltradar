@@ -4,7 +4,6 @@ import { apiErrorMessage } from "aa-geuthur-react";
 // AA Belt Radar
 import { apiClient } from "@/Api/Api";
 import type { components } from "@/Api/OpenApi";
-import { ProjectName } from "@/constants";
 
 export async function loadPublicSessions(): Promise<components["schemas"]["SessionSchema"][]> {
   const { data, error } = await apiClient.GET("/beltradar/api/view/public-sessions/");
@@ -70,14 +69,6 @@ export async function loadSnapshot(
   });
   if (error || !data) {
     throw new Error(apiErrorMessage(error, "Failed to load snapshot"));
-  }
-  return data;
-}
-
-export async function loadMenu(): Promise<components["schemas"]["MenuSchema"]> {
-  const { data, error } = await apiClient.GET(`/${ProjectName}/api/menu/`);
-  if (error || !data) {
-    throw new Error(apiErrorMessage(error, "Failed to load menu"));
   }
   return data;
 }

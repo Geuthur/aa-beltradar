@@ -5,7 +5,6 @@ from http import HTTPStatus
 from ninja import NinjaAPI
 
 # Django
-from django.urls import reverse
 from django.utils.translation import gettext as _
 
 # AA Belt Radar
@@ -32,16 +31,6 @@ class BeltRadarApiEndpoints:
             except AttributeError:
                 character_id = 0
 
-            create_session = schema.ModalSchema(
-                url=reverse("beltradar:api:add_session"),
-                modal_id="beltradar-accept-create-session",
-            )
-
-            create_belt_timer = schema.ModalSchema(
-                url=reverse("beltradar:api:add_belt_timer"),
-                modal_id="beltradar-accept-create-belt-timer",
-            )
-
             left_menu: list[schema.MenuLink] = []
             left_menu.append(schema.MenuLink(name=_("Belt Radar"), link="/"))
             left_menu.append(
@@ -51,11 +40,4 @@ class BeltRadarApiEndpoints:
             )
             left_menu.append(schema.MenuLink(name=_("Settings"), link="/settings/"))
             right_menu: list[schema.MenuLink] = []
-            return schema.MenuSchema(
-                left_links=left_menu,
-                right_links=right_menu,
-                modals=schema.MenuModalSchema(
-                    create_session=create_session,
-                    create_belt_timer=create_belt_timer,
-                ),
-            )
+            return schema.MenuSchema(left_links=left_menu, right_links=right_menu)

@@ -9,8 +9,7 @@ import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadSession } from '@/Api/ApiCalls';
-import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from "@/Api/query";
+import { loadSession, SESSION_REFETCH_INTERVAL_MS, sessionQueryKeys } from '@/Api/calls/session';
 import SessionCharts from '@/Components/Session/Charts';
 import SessionDashboard from '@/Components/Session/Dashboard';
 import SessionHeaderButtons from '@/Components/Session/Header';
@@ -22,7 +21,7 @@ function BeltRadarSession() {
     const { publicID } = useParams();
     const [activeModal, setActiveModal] = useState<string | null>(null);
 
-    const sessionKey = queryKeys.Session(String(publicID));
+    const sessionKey = sessionQueryKeys.session(String(publicID));
 
     // Load Belt Radar Session Snapshot data
     const {

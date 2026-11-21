@@ -5,7 +5,7 @@ import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { listQueryKeys } from "@/Api/query";
+import { listQueryKeys } from "@/Api/calls/radar";
 import type { SectionHeaderProps } from '@/Components/Base/SectionHeaderProps';
 import { IconButton } from '@/Components/Icons/Icons';
 import { sectionModals, useModalData } from '@/Components/Modals/modalConfig';

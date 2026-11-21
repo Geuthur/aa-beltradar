@@ -7,8 +7,7 @@ import { useModalQueryState, BaseTable } from "aa-geuthur-react";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadBeltTimers } from '@/Api/ApiCalls';
-import { queryKeys } from "@/Api/query";
+import { loadBeltTimers, radarQueryKeys } from '@/Api/calls/radar';
 import type { BeltTimer } from "@/Api/schema";
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import { getBeltTimerColumns } from '@/Components/Tables/TableColumns';
@@ -19,7 +18,7 @@ function BeltTimerTable() {
 
 	// Load Belt Timers data
 	const { data: timerData, isError: isErrorTimers, isFetching: isFetchingTimers } = useQuery({
-		queryKey: queryKeys.beltTimer,
+		queryKey: radarQueryKeys.beltTimers,
 		queryFn: () => loadBeltTimers(),
 		refetchOnWindowFocus: false,
 	});
@@ -59,7 +58,7 @@ function BeltTimerTable() {
 				modalAction={activeModal}
 				setModalAction={(action) => (!action ? closeModal() : openModal(action))}
 				t={t}
-				queryKey={queryKeys.beltTimer}
+				queryKey={radarQueryKeys.beltTimers}
 			/>
 		</>
 	);

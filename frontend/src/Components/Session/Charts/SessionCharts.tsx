@@ -6,8 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from 'react-bootstrap';
 
 // AA Belt Radar
-import { loadSnapshot } from '@/Api/ApiCalls';
-import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from '@/Api/query';
+import { loadSnapshot, SESSION_REFETCH_INTERVAL_MS, sessionQueryKeys } from '@/Api/calls/session';
 import type { ApexChartSchema } from '@/Api/schema';
 import { MiningChart } from '@/Components/Session/Charts/MiningChart';
 import { TrafficChart } from '@/Components/Session/Charts/TrafficChart';
@@ -24,7 +23,7 @@ export function SessionCharts({ charts, traffic, isLoading: propIsLoading }: Ses
     const shouldQuery = charts === undefined && traffic === undefined;
 
     const { data: snapshotData, isLoading: queryIsLoading } = useQuery({
-        queryKey: queryKeys.Snapshot(String(publicID)),
+        queryKey: sessionQueryKeys.snapshot(String(publicID)),
         queryFn: () => loadSnapshot(String(publicID)),
         refetchOnWindowFocus: false,
         refetchInterval: SESSION_REFETCH_INTERVAL_MS,

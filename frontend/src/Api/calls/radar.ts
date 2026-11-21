@@ -1,9 +1,26 @@
 // Third Party
+import type { QueryKey } from "@tanstack/react-query";
 import { apiErrorMessage } from "aa-geuthur-react";
 
 // AA Belt Radar
 import { apiClient } from "@/Api/Api";
 import type { components } from "@/Api/OpenApi";
+
+/** Query keys of the belt radar list pages (public and own sessions and belt timers). */
+export const radarQueryKeys = {
+  publicSessions: ["Public-Session"] as const,
+  mySessions: (characterID?: number) => ["My-Sessions", characterID] as const,
+  beltTimers: ["Belt-Timer"] as const,
+  myBeltTimers: (characterID?: number) => ["My-Belt-Timers", characterID] as const,
+};
+
+/** Lists and timers every create, modify and delete action refreshes unless a caller names its own keys. */
+export const listQueryKeys: QueryKey[] = [
+  radarQueryKeys.publicSessions,
+  ["My-Sessions"],
+  radarQueryKeys.beltTimers,
+  ["My-Belt-Timers"],
+];
 
 export async function loadPublicSessions(): Promise<components["schemas"]["SessionSchema"][]> {
   const { data, error } = await apiClient.GET("/beltradar/api/view/public-sessions/");
@@ -41,34 +58,6 @@ export async function loadMyBeltTimers(characterID: number): Promise<components[
   });
   if (error || !data) {
     throw new Error(apiErrorMessage(error, "Failed to load my belt timers"));
-  }
-  return data;
-}
-
-export async function loadSession(publicID: string): Promise<components["schemas"]["SessionStatsSchema"]> {
-  const { data, error } = await apiClient.GET("/beltradar/api/view/session/{public_id}/stats/", {
-    params: {
-      path: { public_id: publicID },
-    },
-  });
-  if (error || !data) {
-    throw new Error(apiErrorMessage(error, "Failed to load session"));
-  }
-  return data;
-}
-
-export async function loadSnapshot(
-  publicID: string,
-  identifier?: string | null
-): Promise<components["schemas"]["SnapShotSchema"]> {
-  const { data, error } = await apiClient.GET("/beltradar/api/view/session/{public_id}/snapshot/last_snapshot/", {
-    params: {
-      path: { public_id: publicID },
-      query: identifier ? { identifier } : undefined,
-    },
-  });
-  if (error || !data) {
-    throw new Error(apiErrorMessage(error, "Failed to load snapshot"));
   }
   return data;
 }

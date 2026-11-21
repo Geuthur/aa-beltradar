@@ -8,8 +8,7 @@ import { useModalQueryState, BaseTable } from "aa-geuthur-react";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadMySessions } from '@/Api/ApiCalls';
-import { queryKeys } from "@/Api/query";
+import { loadMySessions, radarQueryKeys } from '@/Api/calls/radar';
 import type { Session } from "@/Api/schema";
 import BeltRadarModals from '@/Components/Modals/BeltRadarModals';
 import { getSessionColumns } from '@/Components/Tables/TableColumns';
@@ -21,7 +20,7 @@ function MyBeltRadarTable() {
 
 	// Load My Belt Radar sessions data
 	const { data: sessionData, isError: isErrorSessions, isFetching: isFetchingSessions } = useQuery({
-		queryKey: queryKeys.mySessions(Number(characterID)),
+		queryKey: radarQueryKeys.mySessions(Number(characterID)),
 		queryFn: () => loadMySessions(Number(characterID)),
 		refetchOnWindowFocus: false,
 		enabled: !!characterID,
@@ -62,7 +61,7 @@ function MyBeltRadarTable() {
 				modalAction={activeModal}
 				setModalAction={(action) => (!action ? closeModal() : openModal(action))}
 				t={t}
-				queryKey={queryKeys.mySessions(Number(characterID))}
+				queryKey={radarQueryKeys.mySessions(Number(characterID))}
 			/>
 		</>
 	);

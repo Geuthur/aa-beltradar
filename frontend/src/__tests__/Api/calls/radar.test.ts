@@ -4,15 +4,36 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // AA Belt Radar
 import { apiClient } from '@/Api/Api';
 import {
+    listQueryKeys,
     loadBeltTimers,
     loadMyBeltTimers,
     loadMySessions,
     loadPublicSessions,
-    loadSession,
-    loadSnapshot,
-} from '@/Api/ApiCalls';
+    radarQueryKeys,
+} from '@/Api/calls/radar';
 
-describe('BeltRadar API client functions', () => {
+describe('radarQueryKeys', () => {
+    it('provides the list keys', () => {
+        expect(radarQueryKeys.publicSessions).toEqual(['Public-Session']);
+        expect(radarQueryKeys.beltTimers).toEqual(['Belt-Timer']);
+    });
+
+    it('creates mySessions key with characterID', () => {
+        expect(radarQueryKeys.mySessions(42)).toEqual(['My-Sessions', 42]);
+        expect(radarQueryKeys.mySessions(undefined)).toEqual(['My-Sessions', undefined]);
+    });
+
+    it('creates myBeltTimers key with characterID', () => {
+        expect(radarQueryKeys.myBeltTimers(99)).toEqual(['My-Belt-Timers', 99]);
+        expect(radarQueryKeys.myBeltTimers(undefined)).toEqual(['My-Belt-Timers', undefined]);
+    });
+
+    it('lists the keys every create, modify and delete action refreshes', () => {
+        expect(listQueryKeys).toEqual([['Public-Session'], ['My-Sessions'], ['Belt-Timer'], ['My-Belt-Timers']]);
+    });
+});
+
+describe('Radar API calls', () => {
     beforeEach(() => {
         vi.restoreAllMocks();
     });
@@ -77,58 +98,16 @@ describe('BeltRadar API client functions', () => {
             });
         });
     });
-
-    describe('loadSession', () => {
-        it('calls /view/session/{public_id}/stats/ with public_id', async () => {
-            const mockStats = { public_id: 'sess-abc', has_timer: true };
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: mockStats,
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await loadSession('sess-abc');
-            expect(result).toEqual(mockStats);
-            expect(apiClient.GET).toHaveBeenCalledWith('/beltradar/api/view/session/{public_id}/stats/', {
-                params: { path: { public_id: 'sess-abc' } },
-            });
-        });
-    });
-
-    describe('loadSnapshot', () => {
-        it('calls endpoint with public_id and optional identifier', async () => {
-            const mockSnapshot = { snapshot: { identifier: 'snap-1' } };
-            vi.spyOn(apiClient, 'GET').mockResolvedValueOnce({
-                data: mockSnapshot,
-                error: undefined,
-                response: new Response(),
-            } as never);
-
-            const result = await loadSnapshot('sess-abc', 'snap-1');
-            expect(result).toEqual(mockSnapshot);
-            expect(apiClient.GET).toHaveBeenCalledWith(
-                '/beltradar/api/view/session/{public_id}/snapshot/last_snapshot/',
-                {
-                    params: {
-                        path: { public_id: 'sess-abc' },
-                        query: { identifier: 'snap-1' },
-                    },
-                },
-            );
-        });
-    });
 });
 
 type Method = 'GET' | 'POST' | 'DELETE';
 
-/** Every call of `ApiCalls.ts`: [name, HTTP method, call, fixed text]. */
+/** Every call of `calls/radar.ts`: [name, HTTP method, call, fixed text]. */
 const calls: [string, Method, () => Promise<unknown>, string][] = [
     ['loadPublicSessions', 'GET', () => loadPublicSessions(), 'Failed to load public sessions'],
     ['loadMySessions', 'GET', () => loadMySessions(1001), 'Failed to load my sessions'],
     ['loadBeltTimers', 'GET', () => loadBeltTimers(), 'Failed to load belt timers'],
     ['loadMyBeltTimers', 'GET', () => loadMyBeltTimers(1001), 'Failed to load my belt timers'],
-    ['loadSession', 'GET', () => loadSession('sess-1'), 'Failed to load session'],
-    ['loadSnapshot', 'GET', () => loadSnapshot('sess-1', 'snap-1'), 'Failed to load snapshot'],
 ];
 
 const failWith = (method: Method, error: unknown) =>

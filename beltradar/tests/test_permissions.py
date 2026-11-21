@@ -11,6 +11,7 @@ from allianceauth.eveonline.models import EveCharacter
 
 # AA Belt Radar
 import beltradar
+from beltradar.managers.general import GeneralManager
 from beltradar.models import BeltSurveySession, General
 from beltradar.tests import AuthTestCase
 from beltradar.tests.testdata.beltradar import UserMainFactory
@@ -122,7 +123,7 @@ class TestAccessUsesGeneralManager(AuthTestCase):
         for method in ("visible_to", "manage_to"):
             with self.subTest(method=method):
                 with patch.object(
-                    General.objects, "has_admin_access", return_value=True
+                    GeneralManager, "has_admin_access", return_value=True
                 ) as admin_check:
                     result = getattr(BeltSurveySession.objects, method)(self.user)
                 admin_check.assert_called_once_with(self.user)
@@ -130,7 +131,7 @@ class TestAccessUsesGeneralManager(AuthTestCase):
 
     def test_visible_eve_characters_should_ask_general_manager(self):
         with patch.object(
-            General.objects, "has_admin_access", return_value=True
+            GeneralManager, "has_admin_access", return_value=True
         ) as admin_check:
             result = BeltSurveySession.objects.visible_eve_characters(self.user)
         admin_check.assert_called_once_with(self.user)

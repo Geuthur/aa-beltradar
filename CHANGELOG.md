@@ -43,6 +43,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] `managers.py` is now the package `beltradar/managers/` (`general.py`, `beltradar.py`) and the access classes follow the repository template (`owned_by_q`, `visible_q`, `manage_q`); the access rules are unchanged.
+
 - [CHANGE] Removed the unused `beltradar/decorators.py` (`timed_endpoint`, `timed_section`); no behavior change.
 
 - Internal: The frontend API calls are split by area into `Api/calls/{radar,session}.ts`, each with its own query keys, replacing `Api/ApiCalls.ts` and `Api/query.ts`.

@@ -19,7 +19,7 @@ from allianceauth.authentication.models import User
 
 # AA Belt Radar
 from beltradar.constants import AUTO_TIMER_REMAINING_SHARE
-from beltradar.managers import (
+from beltradar.managers.beltradar import (
     BeltSurveyEntryManager,
     BeltSurveySnapshotManager,
     BeltTimerManager,

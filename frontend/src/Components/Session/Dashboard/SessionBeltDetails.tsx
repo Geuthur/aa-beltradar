@@ -8,6 +8,8 @@ import type { SessionStats } from '@/Api/schema';
 import { BeltDetailsFirstScan } from '@/Components/Session/Dashboard/BeltDetailsFirstScan';
 import { BeltDetailsLastScan } from '@/Components/Session/Dashboard/BeltDetailsLastScan';
 import { BeltDetailsETA } from '@/Components/Session/Dashboard/SessionBeltDetailsETA';
+
+// Styles
 import Styles from '@/Styles/modules/SessionBeltDetails.module.css';
 
 // Mirrors AUTO_TIMER_REMAINING_SHARE in beltradar/constants.py

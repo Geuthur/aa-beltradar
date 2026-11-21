@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
 import type { SessionStats } from "@/Api/schema";
+
+// Styles
 import Styles from '@/Styles/modules/SessionBeltDetails.module.css';
 export function BeltDetailsLastScan({ sessionData }: { sessionData?: SessionStats }) {
     const { t } = useTranslation();

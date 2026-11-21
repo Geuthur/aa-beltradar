@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next";
 
 // AA Belt Radar
 import type { components } from "@/Api/OpenApi";
+
+// Styles
 import styles from "@/Styles/modules/SettingsPage.module.css";
 
 type UserSettings = components["schemas"]["UserSettingsSchema"];

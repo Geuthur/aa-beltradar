@@ -3,8 +3,6 @@ import { renderTooltip } from "aa-geuthur-react";
 import { Globe, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-// AA Belt Radar
-
 export function PublicBadge({ isPublic }: { isPublic: boolean }) {
   const { t } = useTranslation();
   const label = isPublic ? t("Public") : t("Private");

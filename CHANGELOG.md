@@ -66,6 +66,8 @@ Section Order:
 
 - Every error response of the API (4xx) now has the body `{"error": "<text>"}` and is declared as `ErrorSchema` in the OpenAPI schema; every endpoint lists the 403 of `basic_access_required`. The 400 answers of the session, snapshot and belt timer endpoints used `{"success": false, "message": ...}` before (the belt timer update also sent `errors`). Status codes and success answers are unchanged. The `basic_access` checks in the endpoints (unreachable since `basic_access_required`) are removed. The interface shows the message of the API when a request fails.
 
+- [CHANGE] Internal: eslint enforces the import order React, third party, `@/`, styles. CSS imports through `@/` now belong to the `// Styles` group and the group for relative imports is removed; no effect for users.
+
 <!-- Your changes go here -->
 
 ## [2.1.0] - 2026-11-10

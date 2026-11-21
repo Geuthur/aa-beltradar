@@ -37,8 +37,7 @@ export default defineConfig([
             { heading: '// Third Party', pattern: '^@?\\w' },
 
             // 3. AA Belt Radar (Eigene Komponenten, Helpers, API)
-            { heading: '// AA Belt Radar', pattern: '^@/' },
-            { heading: '// AA Belt Radar', pattern: '^\\.(?!.*\\.s?css$)' },
+            { heading: '// AA Belt Radar', pattern: '^@/(?!.*\\.s?css$)' },
 
             // 4. Stylesheets & CSS-Module
             { heading: '// Styles', pattern: '\\.s?css$' },

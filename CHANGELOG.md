@@ -39,6 +39,7 @@ Section Order:
 - [FIX] `aa-geuthur-react` raised to `^1.6.0`: the confirm and form modals show the error text of the API again instead of "Unknown error".
 - [FIX] Belt timers: only snapshots of the session owner or an admin create or reset the automatic timer (other viewers' snapshots are still saved); creating a second session timer returns 400 instead of 500; a session timer always belongs to the session owner, also when an admin creates it.
 - [FIX] React Query no longer retries 403, 404 and other 4xx answers three times, so the error shows at once instead of after about seven seconds: `Routing.tsx` uses `createQueryClient` of `aa-geuthur-react` (`^1.7.0`), which retries only network errors and 502/503/504.
+- [FIX] Discord webhook: a `ValueError` or `TypeError` of `dhooks_lite` (e.g. a message over 2000 characters) is caught and logged by type only instead of failing the Celery task, whose log record would carry the webhook URL.
 
 ### Changed
 

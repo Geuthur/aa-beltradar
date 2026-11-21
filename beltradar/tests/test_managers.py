@@ -3,15 +3,24 @@ from decimal import Decimal
 
 # Third Party
 import pook
+from evesde_factory.allianceauth import EveCharacterFactory, UserFactory
 from evesde_factory.eve_sde import ItemTypeFactory
+from evesde_factory.utils import add_character_to_user
 
 # Django
 from django.utils import timezone
 
+# Alliance Auth
+from allianceauth.eveonline.models import EveCharacter
+
 # AA Belt Radar
-from beltradar.models import BeltSurveySession, EveMarketPrice
+from beltradar.models import BeltSurveySession, BeltTimer, EveMarketPrice
 from beltradar.tests import AuthTestCase
-from beltradar.tests.testdata.beltradar import BeltSessionFactory, UserMainFactory
+from beltradar.tests.testdata.beltradar import (
+    BeltSessionFactory,
+    BeltTimerFactory,
+    UserMainFactory,
+)
 
 
 class TestAccessQuerySetAdminAccess(AuthTestCase):
@@ -68,6 +77,172 @@ class TestAccessQuerySetAdminAccess(AuthTestCase):
         result = BeltSurveySession.objects.manage_to(self.user)
         # then
         self.assertSetEqual(set(result), {self.own_session})
+
+
+class TestAccessRules(AuthTestCase):
+    """Test visible_to and manage_to of sessions and timers for every kind of user."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.admin = UserMainFactory(
+            permissions=["beltradar.basic_access", "beltradar.admin_access"]
+        )
+        cls.manager = UserMainFactory(
+            permissions=["beltradar.basic_access", "beltradar.manage_access"]
+        )
+        cls.no_main = UserFactory(permissions=["beltradar.basic_access"])
+        cls.objs = {}
+        for model, obj_factory in (
+            (BeltSurveySession, BeltSessionFactory),
+            (BeltTimer, BeltTimerFactory),
+        ):
+            cls.objs[model] = {
+                "own": obj_factory(owner=cls.user),
+                "own_public": obj_factory(owner=cls.user, is_public=True),
+                "foreign_private": obj_factory(is_public=False),
+                "foreign_public": obj_factory(is_public=True),
+                "no_main_own": obj_factory(owner=cls.no_main),
+            }
+
+    def _assert_objs(self, model, result, keys):
+        self.assertSetEqual(set(result), {self.objs[model][key] for key in keys})
+        # no duplicates
+        self.assertEqual(result.count(), len(keys))
+
+    def test_setup_should_have_user_without_main_character(self):
+        self.assertIsNone(self.no_main.profile.main_character)
+
+    def test_visible_to_should_return_everything_for_admin_and_superuser(self):
+        for model in self.objs:
+            for user in (self.admin, self.superuser):
+                with self.subTest(model=model, user=user):
+                    self._assert_objs(
+                        model, model.objects.visible_to(user), self.objs[model]
+                    )
+
+    def test_manage_to_should_return_everything_for_admin_and_superuser(self):
+        for model in self.objs:
+            for user in (self.admin, self.superuser):
+                with self.subTest(model=model, user=user):
+                    self._assert_objs(
+                        model, model.objects.manage_to(user), self.objs[model]
+                    )
+
+    def test_visible_to_should_return_own_and_public_for_owner(self):
+        for model in self.objs:
+            with self.subTest(model=model):
+                self._assert_objs(
+                    model,
+                    model.objects.visible_to(self.user),
+                    ["own", "own_public", "foreign_public"],
+                )
+
+    def test_manage_to_should_return_only_own_for_owner(self):
+        for model in self.objs:
+            with self.subTest(model=model):
+                self._assert_objs(
+                    model, model.objects.manage_to(self.user), ["own", "own_public"]
+                )
+
+    def test_visible_to_should_return_only_public_for_foreign_user(self):
+        """manage_access alone gives no wider scope."""
+        for model in self.objs:
+            with self.subTest(model=model):
+                self._assert_objs(
+                    model,
+                    model.objects.visible_to(self.manager),
+                    ["own_public", "foreign_public"],
+                )
+
+    def test_manage_to_should_return_nothing_for_foreign_user(self):
+        for model in self.objs:
+            with self.subTest(model=model):
+                self._assert_objs(model, model.objects.manage_to(self.manager), [])
+
+    def test_should_return_nothing_without_main_character(self):
+        """Neither own nor public objects without a main character."""
+        for model in self.objs:
+            for method in ("visible_to", "manage_to"):
+                with self.subTest(model=model, method=method):
+                    result = getattr(model.objects, method)(self.no_main)
+                    self._assert_objs(model, result, [])
+
+    def test_should_return_everything_for_admin_without_main_character(self):
+        """The admin rule is checked before the main character."""
+        admin_no_main = UserFactory(
+            permissions=["beltradar.basic_access", "beltradar.admin_access"]
+        )
+        superuser_no_main = UserFactory(permissions=[])
+        superuser_no_main.is_superuser = True
+        superuser_no_main.save()
+        for model in self.objs:
+            for user in (admin_no_main, superuser_no_main):
+                for method in ("visible_to", "manage_to"):
+                    with self.subTest(model=model, user=user, method=method):
+                        result = getattr(model.objects, method)(user)
+                        self._assert_objs(model, result, self.objs[model])
+
+    def test_should_restrict_an_already_filtered_queryset(self):
+        """The queryset methods keep earlier filters."""
+        for model in self.objs:
+            with self.subTest(model=model):
+                queryset = model.objects.get_queryset().filter(is_public=False)
+                self._assert_objs(model, queryset.visible_to(self.user), ["own"])
+                self._assert_objs(model, queryset.manage_to(self.user), ["own"])
+                self._assert_objs(
+                    model,
+                    queryset.visible_to(self.admin),
+                    ["own", "foreign_private", "no_main_own"],
+                )
+
+
+class TestVisibleEveCharacters(AuthTestCase):
+    """Test visible_eve_characters of sessions and timers for every kind of user."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.admin = UserMainFactory(
+            permissions=["beltradar.basic_access", "beltradar.admin_access"]
+        )
+        cls.alt = EveCharacterFactory()
+        add_character_to_user(user=cls.user, character=cls.alt)
+        cls.unowned = EveCharacterFactory()
+        cls.no_main = UserFactory(permissions=["beltradar.basic_access"])
+        cls.no_main_character = EveCharacterFactory()
+        add_character_to_user(user=cls.no_main, character=cls.no_main_character)
+
+    def test_setup_should_have_user_without_main_character(self):
+        self.assertIsNone(self.no_main.profile.main_character)
+        self.assertTrue(
+            self.no_main.character_ownerships.filter(
+                character=self.no_main_character
+            ).exists()
+        )
+
+    def test_should_return_all_characters_for_admin_and_superuser(self):
+        for manager in (BeltSurveySession.objects, BeltTimer.objects):
+            for user in (self.admin, self.superuser):
+                with self.subTest(manager=manager, user=user):
+                    result = manager.visible_eve_characters(user)
+                    self.assertSetEqual(set(result), set(EveCharacter.objects.all()))
+                    self.assertIn(self.unowned, result)
+
+    def test_should_return_only_own_characters_for_user(self):
+        for manager in (BeltSurveySession.objects, BeltTimer.objects):
+            with self.subTest(manager=manager):
+                result = manager.visible_eve_characters(self.user)
+                self.assertSetEqual(
+                    set(result), {self.user.profile.main_character, self.alt}
+                )
+                self.assertEqual(result.count(), 2)
+
+    def test_should_return_nothing_without_main_character(self):
+        for manager in (BeltSurveySession.objects, BeltTimer.objects):
+            with self.subTest(manager=manager):
+                result = manager.visible_eve_characters(self.no_main)
+                self.assertEqual(result.count(), 0)
 
 
 class TestEveMarketPriceManagerUpdateFromEsi(AuthTestCase):

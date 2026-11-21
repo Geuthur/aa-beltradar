@@ -42,6 +42,8 @@ Section Order:
 
 ### Changed
 
+- Internal: The frontend API calls are split by area into `Api/calls/{radar,session}.ts`, each with its own query keys, replacing `Api/ApiCalls.ts` and `Api/query.ts`.
+
 - [CHANGE] `providers.py` is aligned with the repository template: the retried ESI server error codes are the constant `ESI_RETRY_STATUS_CODES`, the new `is_retryable_esi_error()` tells which exceptions `retry_task_on_esi_error` retries, and the tests match the template. Behaviour is unchanged.
 
 - [CHANGE] The create modals of the section headers are defined in the frontend (`modalConfig.tsx`, endpoints typed from the OpenAPI schema); the menu endpoint no longer sends `modals` and `MenuModalSchema` is removed.

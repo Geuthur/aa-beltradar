@@ -6,7 +6,8 @@ import { BaseModal, useApproveMutation } from "aa-geuthur-react";
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { queryKeys } from '@/Api/query';
+import { radarQueryKeys } from '@/Api/calls/radar';
+import { sessionQueryKeys } from '@/Api/calls/session';
 import type { SessionStats } from '@/Api/schema';
 import { getModalConfig, useModalData } from '@/Components/Modals/modalConfig';
 
@@ -28,8 +29,8 @@ export function SessionModals({
     }
     const effectiveSession = session ?? cachedSession;
 
-    const sessionKey = queryKeys.Session(String(effectiveSession?.public_id));
-    const approveMutation = useApproveMutation([sessionKey, queryKeys.beltTimer]);
+    const sessionKey = sessionQueryKeys.session(String(effectiveSession?.public_id));
+    const approveMutation = useApproveMutation([sessionKey, radarQueryKeys.beltTimers]);
 
     const deleteTimerAction = effectiveSession?.actions?.delete;
     const createTimerAction = effectiveSession?.actions?.create;

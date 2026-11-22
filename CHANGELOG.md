@@ -73,6 +73,8 @@ Section Order:
 
 - [CHANGE] Internal: eslint enforces the import order React, third party, `@/`, styles. CSS imports through `@/` now belong to the `// Styles` group and the group for relative imports is removed; no effect for users.
 
+- [CHANGE] Node 26 in CI and pre-commit, npm minor/patch updates in root and `frontend/`, jsdom 31 and jest-dom 8; stylelint 18, TypeScript 7, i18next 27 and react-i18next 18 stay back.
+
 <!-- Your changes go here -->
 
 ## [2.1.0] - 2026-11-10

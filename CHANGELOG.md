@@ -43,6 +43,8 @@ Section Order:
 
 ### Changed
 
+- [CHANGE] Frontend on `i18next` 27 and `react-i18next` 18, dev tooling on `stylelint` 18 (the pre-commit hook sets `--config-basedir` because stylelint 18 no longer loads `extends` from global node_modules). When a plural form is missing or empty in a translation (Weblate writes empty forms for pl, ru, uk), `t()` now shows the `_other` form of the same language instead of English.
+
 - [CHANGE] `managers.py` is now the package `beltradar/managers/` (`general.py`, `beltradar.py`) and the access classes follow the repository template (`owned_by_q`, `visible_q`, `manage_q`); the access rules are unchanged.
 
 - [CHANGE] Removed the unused `beltradar/decorators.py` (`timed_endpoint`, `timed_section`); no behavior change.

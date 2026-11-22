@@ -3,8 +3,8 @@ import React from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Third Party
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AaReactProvider, AuthBase, ErrorPage } from "aa-geuthur-react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { AaReactProvider, AuthBase, createQueryClient, ErrorPage } from "aa-geuthur-react";
 import { NuqsAdapter } from "nuqs/adapters/react-router/v8";
 
 // AA Belt Radar
@@ -14,7 +14,7 @@ import MyBeltRadar from "@/Pages/MyBeltRadar";
 import BeltRadarSession from "@/Pages/Session";
 import SettingsPage from "@/Pages/SettingsPage";
 
-const queryClient = new QueryClient();
+const queryClient = createQueryClient();
 
 function Routing() {
   return (

@@ -1,3 +1,4 @@
+/* eslint-disable import-headings/import-headings -- the global beltradar.css must load before the CSS modules */
 // React
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -5,8 +6,9 @@ import ReactDOM from "react-dom/client";
 // Third Party
 import { initI18n } from "aa-geuthur-react";
 
-// AA Belt Radar
+// Styles
 import "@/beltradar.css";
+
 import { AppName, ProjectName } from "@/constants";
 import Routing from "@/Routing";
 

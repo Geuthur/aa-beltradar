@@ -43,8 +43,23 @@ Section Order:
 - Dev dependencies: `minimatch` raised to 11 (GHSA-g3hv-75wg-m249) via `eslint` `^10.15.0` and `typescript-eslint` `^8.72.2`, and `zod` to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
 - [FIX] `aa-geuthur-react` raised to `^1.6.0`: the confirm and form modals show the error text of the API again instead of "Unknown error".
 - [FIX] Belt timers: only snapshots of the session owner or an admin create or reset the automatic timer (other viewers' snapshots are still saved); creating a second session timer returns 400 instead of 500; a session timer always belongs to the session owner, also when an admin creates it.
+- [FIX] React Query no longer retries 403, 404 and other 4xx answers three times, so the error shows at once instead of after about seven seconds: `Routing.tsx` uses `createQueryClient` of `aa-geuthur-react` (`^1.7.0`), which retries only network errors and 502/503/504.
+- [FIX] Discord webhook: a `ValueError` or `TypeError` of `dhooks_lite` (e.g. content over 2000 characters) is no longer retried, because it is raised before any request is sent; `RequestException` and a rejected response are still retried.
+- [FIX] Discord webhook: a `ValueError` or `TypeError` of `dhooks_lite` (e.g. a message over 2000 characters) is caught and logged by type only instead of failing the Celery task, whose log record would carry the webhook URL.
 
 ### Changed
+
+- [CHANGE] Frontend on `i18next` 27 and `react-i18next` 18, dev tooling on `stylelint` 18 (the pre-commit hook sets `--config-basedir` because stylelint 18 no longer loads `extends` from global node_modules). When a plural form is missing or empty in a translation (Weblate writes empty forms for pl, ru, uk), `t()` now shows the `_other` form of the same language instead of English.
+
+- [CHANGE] `managers.py` is now the package `beltradar/managers/` (`general.py`, `beltradar.py`) and the access classes follow the repository template (`owned_by_q`, `visible_q`, `manage_q`); the access rules are unchanged.
+
+- [CHANGE] Removed the unused `beltradar/decorators.py` (`timed_endpoint`, `timed_section`); no behavior change.
+
+- Internal: The frontend API calls are split by area into `Api/calls/{radar,session}.ts`, each with its own query keys, replacing `Api/ApiCalls.ts` and `Api/query.ts`.
+
+- Internal: Tests for `is_retryable_esi_error` and `ESI_RETRY_STATUS_CODES` and for the `display_name` option of the EVE image helpers are taken over from the repository template; no production code changed.
+
+- [CHANGE] `providers.py` is aligned with the repository template: the retried ESI server error codes are the constant `ESI_RETRY_STATUS_CODES`, the new `is_retryable_esi_error()` tells which exceptions `retry_task_on_esi_error` retries, and the tests match the template. Behaviour is unchanged.
 
 - [CHANGE] The create modals of the section headers are defined in the frontend (`modalConfig.tsx`, endpoints typed from the OpenAPI schema); the menu endpoint no longer sends `modals` and `MenuModalSchema` is removed.
 
@@ -65,6 +80,10 @@ Section Order:
 - The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed (hex colors as equivalent `rgb()`), the panel blur (`backdrop-filter`) now also applies in Chrome and Firefox.
 
 - Every error response of the API (4xx) now has the body `{"error": "<text>"}` and is declared as `ErrorSchema` in the OpenAPI schema; every endpoint lists the 403 of `basic_access_required`. The 400 answers of the session, snapshot and belt timer endpoints used `{"success": false, "message": ...}` before (the belt timer update also sent `errors`). Status codes and success answers are unchanged. The `basic_access` checks in the endpoints (unreachable since `basic_access_required`) are removed. The interface shows the message of the API when a request fails.
+
+- [CHANGE] Internal: eslint enforces the import order React, third party, `@/`, styles. CSS imports through `@/` now belong to the `// Styles` group and the group for relative imports is removed; no effect for users.
+
+- [CHANGE] Node 26 in CI and pre-commit, npm minor/patch updates in root and `frontend/`, jsdom 31 and jest-dom 8; stylelint 18, TypeScript 7, i18next 27 and react-i18next 18 stay back.
 
 <!-- Your changes go here -->
 

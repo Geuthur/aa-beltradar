@@ -1,6 +1,8 @@
+"""Querysets and managers for the models in `models/beltradar.py`."""
+
 # Standard Library
 import statistics
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING
 
 # Third Party
 from eve_sde.models import ItemType
@@ -9,14 +11,11 @@ from eve_sde.models import ItemType
 from django.db import models
 from django.utils import timezone
 
-# Alliance Auth
-from allianceauth.authentication.models import User
-from allianceauth.eveonline.models import EveCharacter
-
 # AA Belt Radar
 from beltradar.app_settings import BELT_RADAR_BULK_BATCH_SIZE
 from beltradar.constants import ARRAY_ORE, ICE_ORE, NORMAL_ORE, PAUSE_RATE_FACTOR
 from beltradar.helpers.eveonline import get_icon_render_url
+from beltradar.managers.general import AccessManager, AccessQuerySet
 from beltradar.models.helper.choices import BeltSizeChoice, BeltTypeChoice
 from beltradar.providers import esi, logger
 
@@ -30,134 +29,6 @@ if TYPE_CHECKING:
     from beltradar.models import BeltSurveySnapshot as BeltSurveySnapshotContext
     from beltradar.models import BeltTimer as BeltTimerContext
     from beltradar.models import EveMarketPrice as EveTypePriceContext
-
-
-T = TypeVar("T", bound=models.Model)
-
-
-class GeneralManager(models.Manager):
-    """Manager for General: the app's own permission rules.
-
-    The API, its helpers and the menu hook check permissions only through this
-    manager; the Django views keep `@permission_required("beltradar.basic_access")`.
-    `AccessQuerySet` and `AccessManager` ask it for the admin rule.
-    General is unmanaged, so this manager never queries the database.
-    """
-
-    def has_basic_access(self, user: User) -> bool:
-        """True if the user may use the app (basic_access)."""
-        return bool(user.has_perm("beltradar.basic_access"))
-
-    def has_management_access(self, user: User) -> bool:
-        """True if the user may manage (manage_access or admin_access)."""
-        return bool(
-            user.has_perm("beltradar.manage_access")
-            or user.has_perm("beltradar.admin_access")
-        )
-
-    def has_admin_access(self, user: User) -> bool:
-        """True for superusers and users with admin_access: they see everything."""
-        return bool(user.is_superuser or user.has_perm("beltradar.admin_access"))
-
-
-class AccessQuerySet(models.QuerySet[T], Generic[T]):
-    """QuerySet with access control methods for Belt Radar models."""
-
-    def visible_to(self, user):
-        """Get all survey sessions visible to the user."""
-        # AA Belt Radar
-        from beltradar.models import General  # pylint: disable=all
-
-        # superusers get all visible
-        if General.objects.has_admin_access(user):
-            logger.debug("Returning all survey sessions for admin %s.", user)
-            return self
-
-        try:
-            char = user.profile.main_character
-            assert char
-            queries = [models.Q(owner=user)]
-            queries.append(models.Q(is_public=True))
-
-            logger.debug(
-                "%s queries for user %s visible survey sessions.", len(queries), user
-            )
-
-            query = queries.pop()
-            for q in queries:
-                query |= q
-            return self.filter(query)
-        except AssertionError:
-            logger.debug("User %s has no main character. Nothing visible.", user)
-            return self.none()
-
-    def manage_to(self, user):
-        """Get all survey sessions that the user can manage."""
-        # AA Belt Radar
-        from beltradar.models import General  # pylint: disable=all
-
-        # superusers get all visible
-        if General.objects.has_admin_access(user):
-            logger.debug("Returning all survey sessions for admin %s.", user)
-            return self
-
-        try:
-            char = user.profile.main_character
-            assert char
-            queries = [models.Q(owner=user)]
-
-            logger.debug(
-                "%s queries for user %s visible survey sessions.", len(queries), user
-            )
-
-            query = queries.pop()
-            for q in queries:
-                query |= q
-            return self.filter(query)
-        except AssertionError:
-            logger.debug("User %s has no main character. Nothing visible.", user)
-            return self.none()
-
-
-class AccessManager(models.Manager[T], Generic[T]):
-    """Manager with access control methods for Belt Radar models."""
-
-    def get_queryset(self) -> AccessQuerySet[T]:
-        return AccessQuerySet(self.model, using=self._db)
-
-    def visible_to(self, user):
-        return self.get_queryset().visible_to(user)
-
-    def manage_to(self, user):
-        return self.get_queryset().manage_to(user)
-
-    @staticmethod
-    def visible_eve_characters(user):
-        """EveCharacters the user may pick."""
-        # AA Belt Radar
-        from beltradar.models import General  # pylint: disable=all
-
-        qs = EveCharacter.objects.get_queryset()
-        if General.objects.has_admin_access(user):
-            logger.debug("Returning all characters for admin %s.", user)
-            return qs.all()
-
-        try:
-            char = user.profile.main_character
-            assert char
-            queries = [models.Q(character_ownership__user=user)]
-
-            logger.debug(
-                "%s queries for user %s visible chracters.", len(queries), user
-            )
-
-            query = queries.pop()
-            for q in queries:
-                query |= q
-            return qs.filter(query)
-        except AssertionError:
-            logger.debug("User %s has no main character. Nothing visible.", user)
-            return qs.none()
 
 
 class SessionQuerySet(AccessQuerySet["SessionContext"]):

@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.authentication.models import User
 
 # AA Belt Radar
-from beltradar.managers import GeneralManager
+from beltradar.managers.general import GeneralManager
 
 
 class General(models.Model):

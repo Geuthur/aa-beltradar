@@ -6,6 +6,7 @@
   "Show All": "Zobraziť všetko",
   "Show {{pageSize}}": "Zobraziť {{pageSize}}",
   "{{count}} Rows_one": "{{count}} riadok",
+  "{{count}} Rows_few": "{{count}} riadky",
   "{{count}} Rows_other": "{{count}} riadkov",
   "Close": "Zavrieť",
   "True": "Áno",

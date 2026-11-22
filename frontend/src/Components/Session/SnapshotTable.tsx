@@ -9,8 +9,7 @@ import { Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 // AA Belt Radar
-import { loadSnapshot } from '@/Api/ApiCalls';
-import { queryKeys, SESSION_REFETCH_INTERVAL_MS } from "@/Api/query";
+import { loadSnapshot, SESSION_REFETCH_INTERVAL_MS, sessionQueryKeys } from '@/Api/calls/session';
 import AddSnapshotForm from '@/Components/Forms/AddSnapshotForm';
 import { validateAddSnapshotForm } from '@/Components/Forms/validation';
 import { getModalConfig, useModalData } from '@/Components/Modals/modalConfig';
@@ -24,8 +23,8 @@ function SessionSnapshotTable() {
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [selectedSnapshotId, setSelectedSnapshotId] = useState<string | null>(null);
 
-	const sessionKey = queryKeys.Session(String(publicID));
-	const snapshotQueryKey = queryKeys.Snapshot(String(publicID), selectedSnapshotId);
+	const sessionKey = sessionQueryKeys.session(String(publicID));
+	const snapshotQueryKey = sessionQueryKeys.snapshot(String(publicID), selectedSnapshotId);
 	const snapshotBaseKey = ["Snapshot", String(publicID)];
 
 	// Load Snapshot data

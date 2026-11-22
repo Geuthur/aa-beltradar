@@ -1,7 +1,11 @@
 """Tests for the providers module."""
 
 # Standard Library
+from http import HTTPStatus
 from unittest.mock import MagicMock, patch
+
+# Third Party
+from aiopenapi3 import RequestError
 
 # Django
 from django.test import override_settings
@@ -17,236 +21,250 @@ from esi.exceptions import (
 
 # AA Belt Radar
 from beltradar.errors import DownTimeError
-from beltradar.providers import retry_task_on_esi_error
+from beltradar.providers import (
+    ESI_RETRY_STATUS_CODES,
+    esi,
+    is_retryable_esi_error,
+    retry_task_on_esi_error,
+)
 from beltradar.tests import NoSocketsTestCase
 
 MODULE_PATH = "beltradar.providers"
 
 
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
+class TestEsiClient(NoSocketsTestCase):
+    @override_settings(DEBUG=False)
+    def test_client_loads_with_debug_disabled(self):
+        # when
+        client = esi.client
+        # then
+        self.assertTrue(hasattr(client.Market, "GetMarketsPrices"))
+
+
+class TestIsRetryableEsiError(NoSocketsTestCase):
+    """Tests for is_retryable_esi_error and ESI_RETRY_STATUS_CODES."""
+
+    def test_retry_status_codes(self):
+        self.assertEqual(
+            ESI_RETRY_STATUS_CODES,
+            (
+                HTTPStatus.BAD_GATEWAY,
+                HTTPStatus.SERVICE_UNAVAILABLE,
+                HTTPStatus.GATEWAY_TIMEOUT,
+            ),
+        )
+
+    def test_should_be_retryable_for_retry_status_codes(self):
+        for status_code in ESI_RETRY_STATUS_CODES:
+            with self.subTest(status_code=status_code):
+                exc = HTTPServerError(int(status_code), {}, b"Server Error")
+                self.assertTrue(is_retryable_esi_error(exc))
+
+    def test_should_not_be_retryable_for_other_server_errors(self):
+        for status_code in (500, 501, 505):
+            with self.subTest(status_code=status_code):
+                exc = HTTPServerError(status_code, {}, b"Server Error")
+                self.assertFalse(is_retryable_esi_error(exc))
+
+    def test_should_not_be_retryable_for_client_errors(self):
+        for status_code in (400, 403, 404, 420):
+            with self.subTest(status_code=status_code):
+                exc = HTTPClientError(status_code, {}, b"Client Error")
+                self.assertFalse(is_retryable_esi_error(exc))
+
+    def test_should_be_retryable_for_esi_limit_errors(self):
+        for exc in (
+            ESIErrorLimitException(60.0),
+            ESIBucketLimitException(bucket="test_bucket", reset=30.0),
+        ):
+            with self.subTest(exc=type(exc).__name__):
+                self.assertTrue(is_retryable_esi_error(exc))
+
+    def test_should_be_retryable_for_request_error(self):
+        exc = RequestError(operation=None, request=None, data="Test", parameters={})
+        self.assertTrue(is_retryable_esi_error(exc))
+
+    def test_should_be_retryable_for_downtime_error(self):
+        self.assertTrue(is_retryable_esi_error(DownTimeError("ESI is in downtime")))
+
+    def test_should_not_be_retryable_for_other_exceptions(self):
+        for exc in (ValueError("error"), KeyError("key"), Exception("error")):
+            with self.subTest(exc=type(exc).__name__):
+                self.assertFalse(is_retryable_esi_error(exc))
+
+
+@override_settings(
+    CELERY_ALWAYS_EAGER=True,
+    CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+    DISABLE_DAILY_DOWNTIME_CHECK=True,
+)
 class TestRetryTaskOnESIError(NoSocketsTestCase):
     """Tests for retry_task_on_esi_error context manager."""
 
     def setUp(self):
-        """
-        Set up test case with a mock Celery task.
-        """
         super().setUp()
         self.task = MagicMock()
         self.task.request.retries = 1
         self.task.retry = MagicMock(side_effect=Exception("Retry called"))
 
+    def _assert_retried(self, exc, countdown):
+        self.task.retry.assert_called_once()
+        call_kwargs = self.task.retry.call_args[1]
+        self.assertEqual(call_kwargs["exc"], exc)
+        self.assertEqual(call_kwargs["countdown"], countdown)
+
     @patch(MODULE_PATH + ".random.uniform")
     def test_should_retry_on_esi_error_limit_exception(self, mock_random):
-        """
-        Test should retry task when ESI error limit is reached.
-        """
-        # given
-        mock_random.return_value = 3.0  # Fixed jitter for testing
-        reset_time = 60.0
-        exc = ESIErrorLimitException(reset_time)
+        # Test Data
+        mock_random.return_value = 3.0
+        exc = ESIErrorLimitException(60.0)
 
-        # when/then
+        # Test Action
         with self.assertRaises(Exception) as context:
             with retry_task_on_esi_error(self.task):
                 raise exc
 
-        # Verify retry was called with correct countdown
+        # Expected Result
         self.assertEqual(str(context.exception), "Retry called")
-        self.task.retry.assert_called_once()
-        call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["exc"], exc)
-        self.assertEqual(call_kwargs["countdown"], 63)
+        self._assert_retried(exc, 63)
 
     @patch(MODULE_PATH + ".random.uniform")
     def test_should_retry_on_esi_bucket_limit_exception(self, mock_random):
-        """
-        Test should retry task when ESI bucket limit is reached.
-        """
-        # given
-        mock_random.return_value = 4.0  # Fixed jitter for testing
-        reset_time = 30.0
-        bucket_name = "test_bucket"
-        exc = ESIBucketLimitException(bucket=bucket_name, reset=reset_time)
-
-        # when/then
-        with self.assertRaises(Exception) as context:
-            with retry_task_on_esi_error(self.task):
-                raise exc
-
-        # Verify retry was called with correct countdown
-        self.assertEqual(str(context.exception), "Retry called")
-        self.task.retry.assert_called_once()
-        call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["exc"], exc)
-        self.assertEqual(call_kwargs["countdown"], 34)
-
-    @patch(MODULE_PATH + ".random.uniform")
-    def test_should_retry_on_http_502_error(self, mock_random):
-        """
-        Test should retry task on HTTP 502 Bad Gateway error.
-        """
-        # given
-        mock_random.return_value = 2.5  # Fixed jitter for testing
-        exc = HTTPServerError(502, {}, b"Bad Gateway")
-
-        # when/then
-        with self.assertRaises(Exception) as context:
-            with retry_task_on_esi_error(self.task):
-                raise exc
-
-        # Verify retry was called with 60 second countdown + jitter
-        self.assertEqual(str(context.exception), "Retry called")
-        self.task.retry.assert_called_once()
-        call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["exc"], exc)
-        self.assertEqual(call_kwargs["countdown"], 602)
-
-    @patch(MODULE_PATH + ".random.uniform")
-    def test_should_retry_on_http_503_error(self, mock_random):
-        """
-        Test should retry task on HTTP 503 Service Unavailable error.
-        """
-        # given
-        mock_random.return_value = 3.5  # Fixed jitter for testing
-        exc = HTTPServerError(503, {}, b"Service Unavailable")
-
-        # when/then
-        with self.assertRaises(Exception) as context:
-            with retry_task_on_esi_error(self.task):
-                raise exc
-
-        # Verify retry was called
-        self.assertEqual(str(context.exception), "Retry called")
-        self.task.retry.assert_called_once()
-        call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["countdown"], 603)
-
-    @patch(MODULE_PATH + ".random.uniform")
-    def test_should_retry_on_http_504_error(self, mock_random):
-        """
-        Test should retry task on HTTP 504 Gateway Timeout error.
-        """
-        # given
-        mock_random.return_value = 2.0  # Fixed jitter for testing
-        exc = HTTPServerError(504, {}, b"Gateway Timeout")
-
-        # when/then
-        with self.assertRaises(Exception) as context:
-            with retry_task_on_esi_error(self.task):
-                raise exc
-
-        # Verify retry was called
-        self.assertEqual(str(context.exception), "Retry called")
-        self.task.retry.assert_called_once()
-        call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["countdown"], 602)
-
-    def test_should_not_retry_on_http_404_error(self):
-        """
-        Test should not retry task on HTTP 404 error (client error).
-        """
-        # given
-        exc = HTTPClientError(404, {}, b"Not Found")
-
-        # when/then
-        with self.assertRaises(HTTPClientError) as context:
-            with retry_task_on_esi_error(self.task):
-                raise exc
-
-        # Verify retry was NOT called
-        self.task.retry.assert_not_called()
-        self.assertEqual(context.exception.status_code, 404)
-
-    def test_should_not_retry_on_http_400_error(self):
-        """
-        Test should not retry task on HTTP 400 error (client error).
-        """
-        # given
-        exc = HTTPClientError(400, {}, b"Bad Request")
-
-        # when/then
-        with self.assertRaises(HTTPClientError) as context:
-            with retry_task_on_esi_error(self.task):
-                raise exc
-
-        # Verify retry was NOT called
-        self.task.retry.assert_not_called()
-        self.assertEqual(context.exception.status_code, 400)
-
-    @patch(MODULE_PATH + ".random.uniform")
-    def test_should_apply_backoff_jitter_on_retries(self, mock_random):
-        """
-        Test should apply exponential backoff jitter based on retry count.
-        """
-        # given
+        # Test Data
         mock_random.return_value = 4.0
-        self.task.request.retries = 2  # Third attempt
-        reset_time = 60.0
-        exc = ESIErrorLimitException(reset_time)
+        exc = ESIBucketLimitException(bucket="test_bucket", reset=30.0)
 
-        # when/then
+        # Test Action
         with self.assertRaises(Exception):
             with retry_task_on_esi_error(self.task):
                 raise exc
 
-        # Verify countdown uses exponential backoff
-        call_kwargs = self.task.retry.call_args[1]
-        self.assertEqual(call_kwargs["countdown"], 76)
+        # Expected Result
+        self._assert_retried(exc, 34)
+
+    @patch(MODULE_PATH + ".random.uniform")
+    def test_should_retry_on_http_server_errors(self, mock_random):
+        for status_code in (502, 503, 504):
+            with self.subTest(status_code=status_code):
+                # Test Data
+                mock_random.return_value = 2.5
+                self.task.retry.reset_mock()
+                exc = HTTPServerError(status_code, {}, b"Server Error")
+
+                # Test Action
+                with self.assertRaises(Exception):
+                    with retry_task_on_esi_error(self.task):
+                        raise exc
+
+                # Expected Result
+                self._assert_retried(exc, 602)
+
+    def test_should_not_retry_on_other_http_server_errors(self):
+        # Test Data
+        exc = HTTPServerError(500, {}, b"Internal Server Error")
+
+        # Test Action
+        with self.assertRaises(HTTPServerError):
+            with retry_task_on_esi_error(self.task):
+                raise exc
+
+        # Expected Result
+        self.task.retry.assert_not_called()
+
+    @patch(MODULE_PATH + ".random.uniform")
+    def test_should_retry_on_request_error(self, mock_random):
+        # Test Data
+        mock_random.return_value = 2.0
+        exc = RequestError(operation=None, request=None, data="Test", parameters={})
+
+        # Test Action
+        with self.assertRaises(Exception):
+            with retry_task_on_esi_error(self.task):
+                raise exc
+
+        # Expected Result
+        self._assert_retried(exc, 602)
+
+    def test_should_not_retry_on_http_client_errors(self):
+        for status_code in (400, 404):
+            with self.subTest(status_code=status_code):
+                # Test Data
+                exc = HTTPClientError(status_code, {}, b"Client Error")
+
+                # Test Action
+                with self.assertRaises(HTTPClientError) as context:
+                    with retry_task_on_esi_error(self.task):
+                        raise exc
+
+                # Expected Result
+                self.task.retry.assert_not_called()
+                self.assertEqual(context.exception.status_code, status_code)
+
+    @patch(MODULE_PATH + ".random.uniform")
+    def test_should_apply_backoff_jitter_on_retries(self, mock_random):
+        # Test Data
+        mock_random.return_value = 4.0
+        self.task.request.retries = 2
+        exc = ESIErrorLimitException(60.0)
+
+        # Test Action
+        with self.assertRaises(Exception):
+            with retry_task_on_esi_error(self.task):
+                raise exc
+
+        # Expected Result
+        self._assert_retried(exc, 76)
 
     def test_should_pass_through_on_success(self):
-        """
-        Test should pass through when no exception is raised.
-        """
-        # when
+        # Test Action
         with retry_task_on_esi_error(self.task):
             result = "success"
 
-        # then
+        # Expected Result
         self.assertEqual(result, "success")
         self.task.retry.assert_not_called()
 
     def test_should_pass_through_unhandled_exceptions(self):
-        """
-        Test should pass through exceptions that are not ESI-related.
-        """
-        # given
+        # Test Data
         exc = ValueError("Some other error")
 
-        # when/then
-        with self.assertRaises(ValueError) as context:
+        # Test Action
+        with self.assertRaises(ValueError):
             with retry_task_on_esi_error(self.task):
                 raise exc
 
-        # Verify retry was NOT called
+        # Expected Result
         self.task.retry.assert_not_called()
-        self.assertEqual(str(context.exception), "Some other error")
 
     @override_settings(DISABLE_DAILY_DOWNTIME_CHECK=False)
     @patch(MODULE_PATH + ".random.uniform")
     def test_should_retry_on_daily_downtime(self, mock_random):
-        """
-        Test should retry task when ESI is in daily downtime.
-
-        Results:
-        - The task.retry method is called with appropriate countdown.
-        """
-        mock_random.return_value = 3.0  # Fixed jitter for testing
         # Test Data
+        mock_random.return_value = 3.0
         with patch(MODULE_PATH + ".timezone.now") as mock_now:
             mock_now.return_value = timezone.datetime.strptime("11:05", "%H:%M")
-            exc = Exception("Downtime Error")
 
             # Test Action
             with self.assertRaises(Exception) as context:
                 with retry_task_on_esi_error(self.task):
-                    raise exc
+                    raise ValueError("never reached")
 
-            # Expected Result
-            self.assertEqual(str(context.exception), "Retry called")
-            self.task.retry.assert_called_once()
-            call_kwargs = self.task.retry.call_args[1]
-            self.assertEqual(
-                str(call_kwargs["exc"]), str(DownTimeError("ESI is in daily downtime"))
-            )
-            self.assertEqual(call_kwargs["countdown"], 603)
+        # Expected Result
+        self.assertEqual(str(context.exception), "Retry called")
+        call_kwargs = self.task.retry.call_args[1]
+        self.assertIsInstance(call_kwargs["exc"], DownTimeError)
+        self.assertEqual(call_kwargs["countdown"], 603)
+
+    @override_settings(DISABLE_DAILY_DOWNTIME_CHECK=True)
+    def test_should_skip_the_downtime_check_when_disabled(self):
+        # Test Data
+        with patch(MODULE_PATH + ".timezone.now") as mock_now:
+            mock_now.return_value = timezone.datetime.strptime("11:05", "%H:%M")
+
+            # Test Action
+            with retry_task_on_esi_error(self.task):
+                result = "success"
+
+        # Expected Result
+        self.assertEqual(result, "success")
+        self.task.retry.assert_not_called()

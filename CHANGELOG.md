@@ -24,63 +24,43 @@ Section Order:
 ### Fixed
 ### Changed
 
-- `General.Meta.permissions` stays the single place that defines the permissions (plain tuples); the codenames and texts are unchanged and no migration is needed. A new test compares every permission string used in the code (`<app_label>.<codename>`) with it, so a wrong app label or codename, as in the former `taxsystem.admin_access`, is found by the tests. `General.objects.has_management_access(user)` (manage or admin access) is added for the app rule that Django cannot check itself; it does not query the database.
 -->
 
 <!-- AI Changes -->
 
+<!-- Your changes go here -->
+
+## [2.2.0] - 2026-11-24
+
+### Added
+
+- Updated translations from Weblate.
+
 ### Fixed
 
-- Tests no longer share the Redis cache with other processes. `testauth/settings/local.py` gives each test run its own random cache `KEY_PREFIX`. Before, ESI responses cached by a running testauth instance on the same Redis (e.g. `GET /markets/prices`) were returned instead of the pook responses, and the market price tests in `test_managers.py` failed until the cache entry expired. Redis stays the cache backend because Alliance Auth needs `django_redis`.
-- The app page (`react_base`) now requires `beltradar.basic_access` like the repository template and no longer fails with a server error for users without a main character. The unused `character_id` route and context value are removed.
-- Security: every API endpoint now requires `beltradar.basic_access` (before, the menu, the session and belt timer lists and most changing endpoints did not check it). Deleting or changing a session, deleting its snapshots and creating its belt timer are limited to the owner and admins; before, everyone who saw a public session could do so. `modify_session` only accepts `is_public` with `True`/`False` instead of setting any field. Adding snapshots to a visible public session stays possible.
-- Security: a failed webhook notification no longer writes the webhook URL (which contains the token) to the log, also not through the exception texts of `requests` and Celery. A webhook that still fails after the last retry now ends with a warning instead of a failed task.
-- Dev dependencies: `minimatch` raised to 11 (GHSA-g3hv-75wg-m249) via `eslint` `^10.15.0` and `typescript-eslint` `^8.72.2`, and `zod` to 4.6.7 (GHSA-mrhx-c7xc-m3w5).
-- [FIX] `aa-geuthur-react` raised to `^1.6.0`: the confirm and form modals show the error text of the API again instead of "Unknown error".
-- [FIX] Belt timers: only snapshots of the session owner or an admin create or reset the automatic timer (other viewers' snapshots are still saved); creating a second session timer returns 400 instead of 500; a session timer always belongs to the session owner, also when an admin creates it.
-- [FIX] React Query no longer retries 403, 404 and other 4xx answers three times, so the error shows at once instead of after about seven seconds: `Routing.tsx` uses `createQueryClient` of `aa-geuthur-react` (`^1.7.0`), which retries only network errors and 502/503/504.
-- [FIX] Discord webhook: a `ValueError` or `TypeError` of `dhooks_lite` (e.g. content over 2000 characters) is no longer retried, because it is raised before any request is sent; `RequestException` and a rejected response are still retried.
-- [FIX] Discord webhook: a `ValueError` or `TypeError` of `dhooks_lite` (e.g. a message over 2000 characters) is caught and logged by type only instead of failing the Celery task, whose log record would carry the webhook URL.
+- Security: every API endpoint and the app page require `beltradar.basic_access`, checked centrally by `basic_access_required` (`api/auth.py`). Changing or deleting a session, its snapshots and its belt timer is limited to the owner and admins, and `modify_session` only accepts `is_public`.
+- The app page (`react_base`) no longer fails with a server error for users without a main character; the unused `character_id` route is removed.
+- Belt timers: only snapshots of the session owner or an admin set the automatic timer, a second session timer returns 400 instead of 500, and a session timer always belongs to the session owner.
+- Security: a failed Discord webhook no longer logs the webhook URL (token). Invalid messages (`ValueError`/`TypeError` of `dhooks_lite`) are logged by type and not retried, and a webhook that still fails after the last retry ends with a warning instead of a failed task.
+- Modals show the error text of the API again instead of "Unknown error" (`aa-geuthur-react` `^1.6.0`), and React Query no longer retries 4xx answers three times (`createQueryClient`, `^1.7.0`).
+- Dev dependencies: `minimatch` 11 (GHSA-g3hv-75wg-m249) and `zod` 4.6.7 (GHSA-mrhx-c7xc-m3w5).
+- Tests use their own Redis cache `KEY_PREFIX`, so ESI responses cached by a running testauth no longer override the pook responses.
 
 ### Changed
 
-- [CHANGE] Frontend on `i18next` 27 and `react-i18next` 18, dev tooling on `stylelint` 18 (the pre-commit hook sets `--config-basedir` because stylelint 18 no longer loads `extends` from global node_modules). When a plural form is missing or empty in a translation (Weblate writes empty forms for pl, ru, uk), `t()` now shows the `_other` form of the same language instead of English.
+- `UserSettings.user` is now a `OneToOneField`. The migration `0014_remove_invalid_usersettings` keeps only the newest settings row per user and deletes rows without a user, `0015_alter_usersettings_user` changes the field (migration required).
+- Every error response of the API (4xx) has the body `{"error": "<text>"}` (`ErrorSchema` in the OpenAPI schema) instead of `{"success": false, "message": ...}`; status codes and success answers are unchanged, and the interface shows the message of the API.
+- Permissions are checked only through `General.objects` (new `has_basic_access`, `has_admin_access`, `has_management_access`), and a test compares every permission string in the code with `General.Meta.permissions`. `managers.py` is now the package `beltradar/managers/` with the access classes of the repository template; the access rules are unchanged.
+- Discord notifications follow the aa-example building block: `send_user_notification` skips users with `disable_notifications` itself, and `UserSettings` moved to `models/general.py` (no migration).
+- The create modals of the section headers are defined in the frontend (`modalConfig.tsx`); the menu endpoint no longer sends `modals`.
+- Frontend on `aa-geuthur-react` 1.7 (`initI18n`, `useUserSettings`, badges, live status and design tokens from the package) with action buttons as `ButtonGroup`s; the live status tooltip "Last Fetch" is translated now.
+- Frontend on `i18next` 27 and `react-i18next` 18: a missing or empty plural form falls back to the `_other` form of the same language instead of English.
+- Tooling: Node 26 in CI and pre-commit, npm updates in root and `frontend/` (jsdom 31, jest-dom 8, stylelint 18). Stylelint now checks the source CSS in `frontend/src/` (the panel blur now also works in Chrome and Firefox), and eslint enforces the import order.
+- Internal: `providers.py` aligned with the repository template (`ESI_RETRY_STATUS_CODES`, `is_retryable_esi_error`) and its tests taken over, the `AppLogger` is created only in `providers.py` (logger name now `beltradar.providers`), and the frontend API calls are split by area under `Api/calls/`.
 
-- [CHANGE] `managers.py` is now the package `beltradar/managers/` (`general.py`, `beltradar.py`) and the access classes follow the repository template (`owned_by_q`, `visible_q`, `manage_q`); the access rules are unchanged.
+### Removed
 
-- [CHANGE] Removed the unused `beltradar/decorators.py` (`timed_endpoint`, `timed_section`); no behavior change.
-
-- Internal: The frontend API calls are split by area into `Api/calls/{radar,session}.ts`, each with its own query keys, replacing `Api/ApiCalls.ts` and `Api/query.ts`.
-
-- Internal: Tests for `is_retryable_esi_error` and `ESI_RETRY_STATUS_CODES` and for the `display_name` option of the EVE image helpers are taken over from the repository template; no production code changed.
-
-- [CHANGE] `providers.py` is aligned with the repository template: the retried ESI server error codes are the constant `ESI_RETRY_STATUS_CODES`, the new `is_retryable_esi_error()` tells which exceptions `retry_task_on_esi_error` retries, and the tests match the template. Behaviour is unchanged.
-
-- [CHANGE] The create modals of the section headers are defined in the frontend (`modalConfig.tsx`, endpoints typed from the OpenAPI schema); the menu endpoint no longer sends `modals` and `MenuModalSchema` is removed.
-
-- [CHANGE] Frontend on `aa-geuthur-react` 1.5.0: `Main.tsx` uses `initI18n`, the settings page uses `useUserSettings`, `loadUserSettings` and `updateUserSettings` are removed, `LiveStatusIndicator`, `useLivePing`, `formatLastFetch` and `SecurityBadge` come from the package, design tokens, `aa-status-*` classes and keyframes come from the package stylesheet; unused `UserSettingsForm` removed. The live status tooltip "Last Fetch" reads "Letzter Abruf" in German now.
-
-- Security: all URLs of the API now pass `basic_access_required` (`api/auth.py`, building block of aa-example), so new endpoints require `beltradar.basic_access` without a check of their own. Nothing changes for users; the checks in the endpoints stay for now.
-
-- Discord notifications: `thirdparty/discord.py` is aligned with the aa-example building block (embed colours in the module instead of `constants.py`, `send_user_notification` itself skips users with `disable_notifications`, so `update_all_belt_radar` no longer checks it or creates `UserSettings` rows); `UserSettings` moves to `models/general.py` (no migration). The webhook for public timers is unchanged.
-
-- The API, its helpers and the menu hook now check permissions only through `General.objects` (the `GeneralManager`), and `visible_to`, `manage_to` and `visible_eve_characters` ask `General.objects.has_admin_access(user)` (superuser or `admin_access`) instead of checking `user.is_superuser` and `user.has_perm(...)` themselves; they only filter rows. New `General.objects.has_basic_access(user)` and `has_admin_access(user)`. The Django views keep their Django permission checks. The action helpers in `api/helpers/actions.py` return `None` for users without `basic_access` instead of the redirect response of the former `permissions_required` decorator. No permission string, migration or endpoint changed.
-
-- `UserSettings.user` is now a `OneToOneField` instead of a nullable `ForeignKey`, as in the repository template. Before, a user could end up with several settings rows and `UserSettings.objects.get_or_create(user=...)` raised `MultipleObjectsReturned`. The data migration `0014_remove_invalid_usersettings` keeps only the newest settings row per user (highest ID) and deletes rows without a user; `0015_alter_usersettings_user` then changes the field (migration required).
-
-- The `AppLogger` is created only once in `beltradar/providers.py`. `api/session.py`, `api/helpers/charts.py`, `decorators.py`, `managers.py`, `models/beltradar.py`, `tasks.py` and `thirdparty/discord.py` import it with `from beltradar.providers import logger` instead of building their own. `api/helpers/actions.py`, `api/helpers/core.py`, `api/snapshot.py`, `api/timer.py`, `forms.py` and `views.py` created a logger they never used; it is removed there. Log records now carry the logger name `beltradar.providers` instead of the module name; the `[Belt Radar]` prefix is unchanged.
-
-- Row and header action buttons are now react-bootstrap `ButtonGroup`s with small icon buttons; `aa-geuthur-react` is raised to `^1.4.0`. Behaviour, permissions and API are unchanged.
-
-- The stylelint pre-commit hook now checks the source CSS in `frontend/src/` (built bundles stay excluded); its findings are fixed (hex colors as equivalent `rgb()`), the panel blur (`backdrop-filter`) now also applies in Chrome and Firefox.
-
-- Every error response of the API (4xx) now has the body `{"error": "<text>"}` and is declared as `ErrorSchema` in the OpenAPI schema; every endpoint lists the 403 of `basic_access_required`. The 400 answers of the session, snapshot and belt timer endpoints used `{"success": false, "message": ...}` before (the belt timer update also sent `errors`). Status codes and success answers are unchanged. The `basic_access` checks in the endpoints (unreachable since `basic_access_required`) are removed. The interface shows the message of the API when a request fails.
-
-- [CHANGE] Internal: eslint enforces the import order React, third party, `@/`, styles. CSS imports through `@/` now belong to the `// Styles` group and the group for relative imports is removed; no effect for users.
-
-- [CHANGE] Node 26 in CI and pre-commit, npm minor/patch updates in root and `frontend/`, jsdom 31 and jest-dom 8; stylelint 18, TypeScript 7, i18next 27 and react-i18next 18 stay back.
-
-<!-- Your changes go here -->
+- The unused module `beltradar/decorators.py`.
 
 ## [2.1.0] - 2026-11-10
 
@@ -399,4 +379,5 @@ Section Order:
 [2.0.0]: https://github.com/Geuthur/aa-beltradar/compare/v1.0.1...v2.0.0 "v2.0.0"
 [2.0.1]: https://github.com/Geuthur/aa-beltradar/compare/v2.0.0...v2.0.1 "v2.0.1"
 [2.1.0]: https://github.com/Geuthur/aa-beltradar/compare/v2.0.1...v2.1.0 "v2.1.0"
-[in development]: https://github.com/Geuthur/aa-beltradar/compare/v2.1.0...HEAD "In Development"
+[2.2.0]: https://github.com/Geuthur/aa-beltradar/compare/v2.1.0...v2.2.0 "v2.2.0"
+[in development]: https://github.com/Geuthur/aa-beltradar/compare/v2.2.0...HEAD "In Development"

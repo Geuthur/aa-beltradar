@@ -6,8 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AA Belt Radar\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-19 16:22+0000\n"
+"Report-Msgid-Bugs-To: https://weblate.geuthur.de/projects/alliance-auth/aa-"
+"beltradar/\n"
+"POT-Creation-Date: 2026-11-24 09:52+0100\n"
 "PO-Revision-Date: 2026-11-23 06:20+0000\n"
 "Last-Translator: Geuthur <devgeuthur@gmail.com>\n"
 "Language-Team: German <https://weblate.geuthur.de/projects/allianceauth/aa-"
@@ -21,9 +22,6 @@ msgstr ""
 
 msgid "Permission Denied"
 msgstr "Zugriff verweigert"
-
-msgid "Permission Denied."
-msgstr "Zugriff verweigert."
 
 msgid "Mined %"
 msgstr "Abgebaut in %"
@@ -51,6 +49,9 @@ msgstr "Öffentlich"
 
 msgid "Private"
 msgstr "Privat"
+
+msgid "Permission Denied."
+msgstr "Zugriff verweigert."
 
 msgid "Session added successfully."
 msgstr "Die Sitzung wurde erfolgreich hinzugefügt."
@@ -96,6 +97,9 @@ msgstr ""
 
 msgid "Belt timer added successfully."
 msgstr "Der Belt-Timer wurde erfolgreich hinzugefügt."
+
+msgid "Session already has a belt timer."
+msgstr ""
 
 msgid "Session does not have a valid belt type or size."
 msgstr ""
